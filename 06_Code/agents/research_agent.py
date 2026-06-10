@@ -388,7 +388,9 @@ def get_candidate(ticker):
     return None
 
 
-def get_thesis(ticker):
+def get_theses():
+
+    theses = {}
 
     try:
 
@@ -397,18 +399,78 @@ def get_thesis(ticker):
             reader = csv.DictReader(file)
 
             for row in reader:
+                ticker = str(row.get("ticker") or "").strip()
 
-                if row["ticker"].upper() == ticker.upper():
+                if not ticker:
+                    continue
 
-                    return {
-                        "ticker": row["ticker"],
-                        "thesis": row["thesis"],
-                        "thesis_status": row["thesis_status"].lower(),
-                        "conviction": row["conviction"].lower()
-                    }
+                theses[ticker.upper()] = {
+                    "ticker": ticker,
+                    "thesis": str(row.get("thesis") or "").strip(),
+                    "thesis_status": str(
+                        row.get("thesis_status") or ""
+                    ).strip().lower(),
+                    "conviction": str(
+                        row.get("conviction") or ""
+                    ).strip().lower()
+                }
 
-    except (FileNotFoundError, KeyError, TypeError):
+    except (FileNotFoundError, OSError, csv.Error):
 
         pass
 
-    return None
+    return theses
+
+
+def get_thesis(ticker):
+
+    if not ticker:
+        return None
+
+    return get_theses().get(str(ticker).strip().upper())
+
+
+def get_unique_tickers(items):
+
+    return {
+        str(item.get("ticker") or "").strip().upper()
+        for item in items
+        if str(item.get("ticker") or "").strip()
+    }
+
+
+def get_uncovered_holdings(holdings):
+
+    covered_tickers = set(get_theses())
+
+    return sorted(
+        get_unique_tickers(holdings) - covered_tickers
+    )
+
+
+def get_uncovered_watchlist(watchlist):
+
+    covered_tickers = set(get_theses())
+
+    return sorted(
+        get_unique_tickers(watchlist) - covered_tickers
+    )
+
+
+def get_research_coverage(holdings, watchlist):
+
+    holding_tickers = get_unique_tickers(holdings)
+    watchlist_tickers = get_unique_tickers(watchlist)
+    uncovered_holdings = get_uncovered_holdings(holdings)
+    uncovered_watchlist = get_uncovered_watchlist(watchlist)
+
+    return {
+        "total_holdings": len(holding_tickers),
+        "covered_holdings": len(holding_tickers) - len(uncovered_holdings),
+        "uncovered_holdings": len(uncovered_holdings),
+        "total_watchlist_candidates": len(watchlist_tickers),
+        "covered_watchlist_candidates": (
+            len(watchlist_tickers) - len(uncovered_watchlist)
+        ),
+        "uncovered_watchlist_candidates": len(uncovered_watchlist)
+    }

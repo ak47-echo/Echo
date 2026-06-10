@@ -6,10 +6,13 @@ from agents.research_agent import (
     get_buy_list,
     get_holding_comparable_score,
     get_ranked_watchlist,
+    get_research_coverage,
     get_replacement_plan,
     get_security_info,
     get_sell_candidates,
     get_thesis,
+    get_uncovered_holdings,
+    get_uncovered_watchlist,
     get_watchlist
 )
 
@@ -561,6 +564,50 @@ def get_portfolio_report():
             f"Total Score {candidate['total_score']:g} | "
             f"Notes {candidate['notes']}"
         )
+
+    report.append("")
+    report.append("RESEARCH COVERAGE")
+    report.append("")
+
+    research_coverage = get_research_coverage(holdings, watchlist)
+
+    report.append(
+        f"Total Holdings: {research_coverage['total_holdings']}"
+    )
+    report.append(
+        f"Covered Holdings: {research_coverage['covered_holdings']}"
+    )
+    report.append(
+        f"Uncovered Holdings: {research_coverage['uncovered_holdings']}"
+    )
+    report.append(
+        "Total Watchlist Candidates: "
+        f"{research_coverage['total_watchlist_candidates']}"
+    )
+    report.append(
+        "Covered Watchlist Candidates: "
+        f"{research_coverage['covered_watchlist_candidates']}"
+    )
+    report.append(
+        "Uncovered Watchlist Candidates: "
+        f"{research_coverage['uncovered_watchlist_candidates']}"
+    )
+
+    report.append("")
+    report.append("RESEARCH GAPS")
+    report.append("")
+
+    uncovered_holdings = get_uncovered_holdings(holdings)
+    uncovered_watchlist = get_uncovered_watchlist(watchlist)
+
+    if uncovered_holdings or uncovered_watchlist:
+        for ticker in uncovered_holdings:
+            report.append(f"Holding without thesis coverage: {ticker}")
+
+        for ticker in uncovered_watchlist:
+            report.append(f"Watchlist candidate without thesis coverage: {ticker}")
+    else:
+        report.append("No research coverage gaps detected.")
 
     report.append("")
     report.append("CANDIDATE RANKINGS")
