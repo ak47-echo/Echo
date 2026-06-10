@@ -429,6 +429,8 @@ def get_portfolio_report():
     report.append("REBALANCE ALERTS")
     report.append("")
 
+    rebalance_alert_count = 0
+
     for ticker, value in ticker_totals.items():
 
         if total_value > 0:
@@ -443,15 +445,22 @@ def get_portfolio_report():
             report.append(
                 f"{ticker}: OVERWEIGHT by {difference:.2f}%"
             )
+            rebalance_alert_count += 1
 
         elif difference <= -5:
             report.append(
                 f"{ticker}: UNDERWEIGHT by {abs(difference):.2f}%"
             )
+            rebalance_alert_count += 1
+
+    if rebalance_alert_count == 0:
+        report.append("No rebalance alerts.")
 
     report.append("")
     report.append("TAX IMPACT NOTES")
     report.append("")
+
+    tax_note_count = 0
 
     for position in positions:
 
@@ -467,6 +476,7 @@ def get_portfolio_report():
             report.append(
                 f"{ticker}: Roth position. No current tax impact from selling."
             )
+            tax_note_count += 1
         
         elif account_type == "Taxable":
 
@@ -475,34 +485,37 @@ def get_portfolio_report():
                 report.append(
                     f"{ticker}: LARGE taxable gain (${gain_loss:.2f}). Significant tax impact if sold."
                 )
+                tax_note_count += 1
 
             elif gain_loss >= 500:
 
                 report.append(
                     f"{ticker}: Moderate taxable gain (${gain_loss:.2f}). Review tax consequences before selling."
                 )
+                tax_note_count += 1
 
         elif gain_loss <= -500:
 
             report.append(
                 f"{ticker}: Large unrealized loss (${abs(gain_loss):.2f}). Strong tax-loss harvesting candidate."
             )
+            tax_note_count += 1
 
         elif gain_loss <= -100:
 
             report.append(
                 f"{ticker}: Moderate unrealized loss (${abs(gain_loss):.2f}). Possible tax-loss harvesting candidate."
             )
+            tax_note_count += 1
 
-        else:
-
-            report.append(
-                f"{ticker}: No material tax consideration."
-            )
+    if tax_note_count == 0:
+        report.append("No material tax impact notes.")
 
     report.append("")
     report.append("RECOMMENDATIONS")
     report.append("")
+
+    recommendation_count = 0
 
     for ticker, value in ticker_totals.items():
 
@@ -550,18 +563,21 @@ def get_portfolio_report():
             report.append(
                 f"{ticker}: Thesis is inactive. Recommendation: Review immediately."
             )
+            recommendation_count += 1
 
         elif difference >= 5 and conviction == "high" and taxable_gain > 0:
 
             report.append(
                 f"{ticker}: Overweight with high conviction and a taxable gain. Recommendation: Hold and monitor."
             )
+            recommendation_count += 1
 
         elif difference >= 5 and conviction == "low":
 
             report.append(
                 f"{ticker}: Overweight with low conviction. Recommendation: Consider reducing."
             )
+            recommendation_count += 1
 
         elif difference >= 10:
 
@@ -569,16 +585,19 @@ def get_portfolio_report():
                 report.append(
                     f"{ticker}: Severely overweight, but selling may trigger large taxable gain. Recommendation: Hold, monitor, and reduce only with deliberate tax planning."
                 )
+                recommendation_count += 1
 
             elif taxable_loss >= 500:
                 report.append(
                     f"{ticker}: Severely overweight and has material taxable loss. Recommendation: Consider trimming or tax-loss harvesting review."
                 )
+                recommendation_count += 1
 
             else:
                 report.append(
                     f"{ticker}: Severely overweight. Recommendation: Consider trimming position."
                 )
+                recommendation_count += 1
 
         elif difference >= 5:
 
@@ -586,23 +605,30 @@ def get_portfolio_report():
                 report.append(
                     f"{ticker}: Moderately overweight, but taxable gain is significant. Recommendation: Avoid impulsive sale."
                 )
+                recommendation_count += 1
 
             else:
                 report.append(
                     f"{ticker}: Moderately overweight. Recommendation: Do not add more capital."
                 )
+                recommendation_count += 1
 
         elif difference <= -10:
 
             report.append(
                 f"{ticker}: Severely underweight. Recommendation: Prioritize future contributions here."
             )
+            recommendation_count += 1
 
         elif difference <= -5:
 
             report.append(
                 f"{ticker}: Moderately underweight. Recommendation: Consider adding with new cash."
             )
+            recommendation_count += 1
+
+    if recommendation_count == 0:
+        report.append("No actionable recommendations.")
 
     report.append("")
     report.append("WATCHLIST")
@@ -798,12 +824,23 @@ def get_portfolio_report():
     report.append("CANDIDATE VS HOLDINGS")
     report.append("")
 
+    candidate_holding_issue_count = 0
+
     for candidate in ranked_candidates:
         candidate_score = candidate.get("total_score", 0) or 0
 
         for position in positions:
             holding_score = get_holding_comparable_score(position)
             action = get_candidate_holding_action(candidate, position)
+
+            if action == "No replacement signal":
+                continue
+
+            if (
+                action == "Not comparable asset objective"
+                and candidate_score < 30
+            ):
+                continue
 
             report.append(
                 f"{candidate['ticker']} | "
@@ -812,6 +849,10 @@ def get_portfolio_report():
                 f"Holding Comparable Score {holding_score:g} | "
                 f"Action {action}"
             )
+            candidate_holding_issue_count += 1
+
+    if candidate_holding_issue_count == 0:
+        report.append("No candidate-holding issues detected.")
 
     report.append("")
     report.append("BUY LIST")
