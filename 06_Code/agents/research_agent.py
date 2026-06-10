@@ -660,3 +660,164 @@ def get_investment_committee_summary(
             )
 
     return summary
+
+
+def get_decision_guardrails(
+    buy_list,
+    sell_candidates,
+    replacement_plan,
+    watchlist,
+    positions,
+    total_portfolio_value
+):
+
+    guardrails = []
+    buy_candidates_by_ticker = {
+        str(candidate.get("ticker") or "").strip().upper(): candidate
+        for candidate in buy_list
+        if str(candidate.get("ticker") or "").strip()
+    }
+    positions_by_key = {
+        (
+            str(position.get("ticker") or "").strip().upper(),
+            str(position.get("account") or "").strip().lower()
+        ): position
+        for position in positions
+        if str(position.get("ticker") or "").strip()
+    }
+
+    try:
+        portfolio_value = float(total_portfolio_value or 0)
+    except (TypeError, ValueError):
+        portfolio_value = 0
+
+    if not math.isfinite(portfolio_value) or portfolio_value < 0:
+        portfolio_value = 0
+
+    for replacement in replacement_plan:
+        sell_ticker = str(
+            replacement.get("sell") or "Unknown"
+        ).strip().upper()
+        buy_ticker = str(replacement.get("buy") or "").strip().upper()
+        account = str(replacement.get("account") or "").strip().lower()
+
+        if not buy_ticker:
+            continue
+
+        holding = positions_by_key.get((sell_ticker, account))
+
+        if holding is None:
+            holding = next(
+                (
+                    position
+                    for position in positions
+                    if str(position.get("ticker") or "").strip().upper()
+                    == sell_ticker
+                ),
+                {}
+            )
+
+        candidate = buy_candidates_by_ticker.get(buy_ticker, {})
+        holding_asset_class = get_holding_asset_class(holding)
+        candidate_asset_class = str(
+            candidate.get("asset_class") or "unknown"
+        ).strip().lower()
+
+        if holding_asset_class != candidate_asset_class:
+            guardrails.append({
+                "severity": "HIGH",
+                "ticker": sell_ticker,
+                "issue": "Replacement changes asset objective",
+                "recommendation": "Manual review required before action"
+            })
+
+        holding_score = get_holding_comparable_score(holding)
+
+        try:
+            candidate_score = float(candidate.get("total_score", 0) or 0)
+        except (TypeError, ValueError):
+            candidate_score = 0
+
+        if not math.isfinite(candidate_score):
+            candidate_score = 0
+
+        score_advantage = candidate_score - holding_score
+
+        if 0 < score_advantage < 10:
+            guardrails.append({
+                "severity": "MEDIUM",
+                "ticker": sell_ticker,
+                "issue": "Replacement advantage is not material",
+                "recommendation": "Avoid unnecessary trading"
+            })
+
+    for sell_candidate in sell_candidates:
+        ticker = str(
+            sell_candidate.get("ticker") or "Unknown"
+        ).strip().upper()
+
+        try:
+            position_value = float(sell_candidate.get("value", 0) or 0)
+        except (TypeError, ValueError):
+            position_value = 0
+
+        if not math.isfinite(position_value) or position_value < 0:
+            position_value = 0
+
+        if portfolio_value > 0 and position_value / portfolio_value > 0.20:
+            guardrails.append({
+                "severity": "HIGH",
+                "ticker": ticker,
+                "issue": "Major position change",
+                "recommendation": "Require manual review before sale"
+            })
+
+    for candidate in watchlist:
+        ticker = str(
+            candidate.get("ticker") or "Unknown"
+        ).strip().upper()
+        thesis_status = str(
+            candidate.get("thesis_status") or "unknown"
+        ).strip().lower()
+
+        try:
+            total_score = float(candidate.get("total_score", 0) or 0)
+        except (TypeError, ValueError):
+            total_score = 0
+
+        if not math.isfinite(total_score):
+            total_score = 0
+
+        if total_score >= 30 and thesis_status == "watch":
+            guardrails.append({
+                "severity": "MEDIUM",
+                "ticker": ticker,
+                "issue": "High-scoring candidate still in watch status",
+                "recommendation": "Complete research before deployment"
+            })
+
+    if buy_list:
+        top_buy = buy_list[0]
+        priority = str(top_buy.get("priority") or "unknown").strip().lower()
+
+        if priority == "low":
+            guardrails.append({
+                "severity": "MEDIUM",
+                "ticker": str(
+                    top_buy.get("ticker") or "Unknown"
+                ).strip().upper(),
+                "issue": "Low-priority candidate ranked as top buy",
+                "recommendation": "Review scoring inputs"
+            })
+
+    return sorted(
+        guardrails,
+        key=lambda guardrail: (
+            RESEARCH_HEALTH_SEVERITY_RANKS.get(
+                guardrail.get("severity"),
+                99
+            ),
+            guardrail.get("ticker", ""),
+            guardrail.get("issue", "")
+        )
+    )

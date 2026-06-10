@@ -4,6 +4,7 @@ from agents.policy_agent import get_policy
 from agents.research_agent import (
     are_asset_classes_compatible,
     get_buy_list,
+    get_decision_guardrails,
     get_holding_comparable_score,
     get_investment_committee_summary,
     get_ranked_watchlist,
@@ -701,6 +702,30 @@ def get_portfolio_report():
         "Top Capital Deployment: "
         f"{committee_summary['top_capital_deployment'] or 'None'}"
     )
+
+    decision_guardrails = get_decision_guardrails(
+        buy_list,
+        sell_candidates,
+        replacement_plan,
+        watchlist,
+        positions,
+        total_value
+    )
+
+    report.append("")
+    report.append("DECISION GUARDRAILS")
+    report.append("")
+
+    if decision_guardrails:
+        for guardrail in decision_guardrails:
+            report.append(
+                f"{guardrail['severity']} | "
+                f"{guardrail['ticker']} | "
+                f"{guardrail['issue']} | "
+                f"{guardrail['recommendation']}"
+            )
+    else:
+        report.append("No decision guardrail issues detected.")
 
     report.append("")
     report.append("CANDIDATE RANKINGS")
