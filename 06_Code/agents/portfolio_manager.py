@@ -1,7 +1,7 @@
 import csv
 import yfinance as yf
 from agents.policy_agent import get_policy
-from agents.research_agent import get_security_info, get_thesis
+from agents.research_agent import get_security_info, get_thesis, get_watchlist
 
 
 def get_account_type(account_name):
@@ -450,6 +450,20 @@ def get_portfolio_report():
             report.append(
                 f"{ticker}: Moderately underweight. Recommendation: Consider adding with new cash."
             )
+
+    report.append("")
+    report.append("WATCHLIST")
+    report.append("")
+
+    for candidate in get_watchlist():
+        report.append(
+            f"{candidate['ticker']} | "
+            f"Category {candidate['category']} | "
+            f"Priority {candidate['priority']} | "
+            f"Thesis Status {candidate['thesis_status']} | "
+            f"Conviction {candidate['conviction']} | "
+            f"Notes {candidate['notes']}"
+        )
 
     report.append("")
     report.append("ACCOUNT TOTALS")

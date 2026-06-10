@@ -1,6 +1,16 @@
 import csv
 
 
+WATCHLIST_FIELDS = (
+    "ticker",
+    "category",
+    "priority",
+    "thesis_status",
+    "conviction",
+    "notes"
+)
+
+
 def get_security_info(ticker):
 
     try:
@@ -23,6 +33,46 @@ def get_security_info(ticker):
     except:
 
         pass
+
+    return None
+
+
+def get_watchlist():
+
+    watchlist = []
+
+    try:
+
+        with open("../02_Data/watchlist.csv", "r", encoding="utf-8") as file:
+
+            reader = csv.DictReader(file)
+
+            for row in reader:
+
+                candidate = {}
+
+                for field in WATCHLIST_FIELDS:
+                    value = row.get(field)
+                    candidate[field] = value.strip() if value and value.strip() else "Unknown"
+
+                watchlist.append(candidate)
+
+    except (FileNotFoundError, OSError, csv.Error):
+
+        pass
+
+    return watchlist
+
+
+def get_candidate(ticker):
+
+    if not ticker:
+        return None
+
+    for candidate in get_watchlist():
+
+        if candidate["ticker"].upper() == ticker.upper():
+            return candidate
 
     return None
 
