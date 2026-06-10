@@ -1,7 +1,7 @@
 import csv
 import yfinance as yf
 from agents.policy_agent import get_policy
-from agents.research_agent import get_security_info
+from agents.research_agent import get_security_info, get_thesis
 
 
 def get_account_type(account_name):
@@ -122,6 +122,7 @@ def get_portfolio_report():
 
                 ticker = row["ticker"]
                 security_info = None
+                thesis_info = get_thesis(ticker)
 
                 if ticker != "CASH0":
                     security_info = get_security_info(ticker)
@@ -136,7 +137,8 @@ def get_portfolio_report():
                     "ticker": ticker,
                     "shares": shares,
                     "cost_basis": cost_basis,
-                    "security_info": security_info
+                    "security_info": security_info,
+                    "thesis_info": thesis_info
                 })
 
     for holding in holdings:
@@ -197,6 +199,17 @@ def get_portfolio_report():
                     category = "Unknown"
                     expense_ratio = 0
 
+            thesis_info = holding["thesis_info"]
+
+            if thesis_info:
+                thesis = thesis_info["thesis"]
+                thesis_status = thesis_info["thesis_status"]
+                conviction = thesis_info["conviction"]
+            else:
+                thesis = "No thesis on file."
+                thesis_status = "missing"
+                conviction = "unrated"
+
             positions.append({
                 "account": account,
                 "account_type": account_type,
@@ -209,7 +222,10 @@ def get_portfolio_report():
                 "value": position_value,
                 "cost_basis": cost_basis,
                 "gain_loss": gain_loss,
-                "gain_loss_percent": gain_loss_percent
+                "gain_loss_percent": gain_loss_percent,
+                "thesis": thesis,
+                "thesis_status": thesis_status,
+                "conviction": conviction
             })
 
         except:
@@ -230,7 +246,9 @@ def get_portfolio_report():
             f"Value ${position['value']:.2f} | "
             f"Cost Basis ${position['cost_basis']:.2f} | "
             f"Gain/Loss ${position['gain_loss']:.2f} | "
-            f"Gain/Loss {position['gain_loss_percent']:.2f}%"
+            f"Gain/Loss {position['gain_loss_percent']:.2f}% | "
+            f"Thesis Status {position['thesis_status']} | "
+            f"Conviction {position['conviction']}"
         )
 
     report.append("")
@@ -355,8 +373,13 @@ def get_portfolio_report():
         taxable_gain = 0
         taxable_loss = 0
         roth_value = 0
+        thesis_status = "missing"
+        conviction = "unrated"
 
         for position in related_positions:
+
+            thesis_status = position["thesis_status"]
+            conviction = position["conviction"]
 
             if position["account_type"] == "Taxable":
 
@@ -369,7 +392,25 @@ def get_portfolio_report():
             elif position["account_type"] == "Roth":
                 roth_value += position["value"]
 
-        if difference >= 10:
+        if thesis_status == "inactive":
+
+            report.append(
+                f"{ticker}: Thesis is inactive. Recommendation: Review immediately."
+            )
+
+        elif difference >= 5 and conviction == "high" and taxable_gain > 0:
+
+            report.append(
+                f"{ticker}: Overweight with high conviction and a taxable gain. Recommendation: Hold and monitor."
+            )
+
+        elif difference >= 5 and conviction == "low":
+
+            report.append(
+                f"{ticker}: Overweight with low conviction. Recommendation: Consider reducing."
+            )
+
+        elif difference >= 10:
 
             if taxable_gain >= 1000:
                 report.append(
