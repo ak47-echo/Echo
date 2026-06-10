@@ -1,4 +1,5 @@
 import csv
+import math
 
 
 WATCHLIST_FIELDS = (
@@ -9,6 +10,26 @@ WATCHLIST_FIELDS = (
     "conviction",
     "notes"
 )
+
+WATCHLIST_SCORE_FIELDS = (
+    "quality_score",
+    "valuation_score",
+    "diversification_score",
+    "risk_score"
+)
+
+
+def get_score(value):
+
+    try:
+        score = float(value)
+    except (TypeError, ValueError):
+        return 0
+
+    if not math.isfinite(score) or score < 1 or score > 10:
+        return 0
+
+    return score
 
 
 def get_security_info(ticker):
@@ -54,6 +75,13 @@ def get_watchlist():
                 for field in WATCHLIST_FIELDS:
                     value = row.get(field)
                     candidate[field] = value.strip() if value and value.strip() else "Unknown"
+
+                for field in WATCHLIST_SCORE_FIELDS:
+                    candidate[field] = get_score(row.get(field))
+
+                candidate["total_score"] = sum(
+                    candidate[field] for field in WATCHLIST_SCORE_FIELDS
+                )
 
                 watchlist.append(candidate)
 

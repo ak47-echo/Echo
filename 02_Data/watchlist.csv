@@ -1,4 +1,4 @@
-ticker,category,priority,thesis_status,conviction,notes
-AVUV,US Small Value,high,active,high,Potential small-cap value complement; review overlap with SCHA before adding.
-AVDV,Intl Small Value,medium,watch,medium,Potential international small-cap value diversifier; monitor valuation and fund fit.
-SGOV,Short-Term Treasury,low,active,high,Potential cash alternative for funds not needed for immediate liquidity.
+ticker,category,priority,thesis_status,conviction,quality_score,valuation_score,diversification_score,risk_score,notes
+AVUV,US Small Value,high,active,high,8,8,8,7,Potential small-cap value complement; review overlap with SCHA before adding.
+AVDV,Intl Small Value,medium,watch,medium,7,8,9,6,Potential international small-cap value diversifier; monitor valuation and fund fit.
+SGOV,Short-Term Treasury,low,active,high,9,7,7,10,Potential cash alternative for funds not needed for immediate liquidity.

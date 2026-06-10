@@ -455,14 +455,32 @@ def get_portfolio_report():
     report.append("WATCHLIST")
     report.append("")
 
-    for candidate in get_watchlist():
+    watchlist = get_watchlist()
+
+    for candidate in watchlist:
         report.append(
             f"{candidate['ticker']} | "
             f"Category {candidate['category']} | "
             f"Priority {candidate['priority']} | "
-            f"Thesis Status {candidate['thesis_status']} | "
             f"Conviction {candidate['conviction']} | "
+            f"Total Score {candidate['total_score']:g} | "
             f"Notes {candidate['notes']}"
+        )
+
+    report.append("")
+    report.append("CANDIDATE RANKINGS")
+    report.append("")
+
+    ranked_candidates = sorted(
+        watchlist,
+        key=lambda candidate: candidate["total_score"],
+        reverse=True
+    )
+
+    for rank, candidate in enumerate(ranked_candidates, start=1):
+        report.append(
+            f"{rank}. {candidate['ticker']} | "
+            f"Total Score {candidate['total_score']:g}"
         )
 
     report.append("")
