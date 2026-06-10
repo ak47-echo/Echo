@@ -22,6 +22,59 @@ from agents.research_agent import (
 
 DEPLOYMENT_AMOUNTS = (100, 500, 1000)
 
+PORTFOLIO_REPORT_SECTION_ORDER = (
+    "INVESTMENT COMMITTEE SUMMARY",
+    "DECISION GUARDRAILS",
+    "BUY LIST",
+    "CAPITAL DEPLOYMENT",
+    "SELL CANDIDATES",
+    "REPLACEMENT PLAN",
+    "RESEARCH HEALTH SUMMARY",
+    "RESEARCH HEALTH",
+    "RESEARCH COVERAGE",
+    "RESEARCH GAPS",
+    "POSITIONS",
+    "TICKER ALLOCATION",
+    "REBALANCE ALERTS",
+    "TAX IMPACT NOTES",
+    "RECOMMENDATIONS",
+    "WATCHLIST",
+    "CANDIDATE RANKINGS",
+    "CANDIDATE VS HOLDINGS",
+    "ACCOUNT TOTALS"
+)
+
+
+def order_portfolio_report_sections(report):
+
+    section_indexes = {
+        line: index
+        for index, line in enumerate(report)
+        if line in PORTFOLIO_REPORT_SECTION_ORDER
+    }
+
+    if not section_indexes:
+        return report
+
+    ordered_indexes = sorted(section_indexes.values())
+    prefix = report[:ordered_indexes[0]]
+    sections = {}
+
+    for position, start_index in enumerate(ordered_indexes):
+        if position + 1 < len(ordered_indexes):
+            end_index = ordered_indexes[position + 1]
+        else:
+            end_index = len(report)
+
+        sections[report[start_index]] = report[start_index:end_index]
+
+    ordered_report = prefix[:]
+
+    for section_name in PORTFOLIO_REPORT_SECTION_ORDER:
+        ordered_report.extend(sections.get(section_name, []))
+
+    return ordered_report
+
 
 def get_capital_deployment(buy_list, amount):
 
@@ -833,4 +886,4 @@ def get_portfolio_report():
     report.append("")
     report.append(f"Total Portfolio Value: ${total_value:.2f}")
 
-    return report
+    return order_portfolio_report_sections(report)
