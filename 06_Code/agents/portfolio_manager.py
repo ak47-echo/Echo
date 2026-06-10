@@ -2,19 +2,17 @@ import csv
 import yfinance as yf
 from agents.policy_agent import get_policy
 from agents.research_agent import (
+    are_asset_classes_compatible,
     get_buy_list,
+    get_holding_comparable_score,
     get_ranked_watchlist,
+    get_replacement_plan,
     get_security_info,
+    get_sell_candidates,
     get_thesis,
     get_watchlist
 )
 
-
-HOLDING_CONVICTION_SCORES = {
-    "high": 30,
-    "medium": 20,
-    "low": 10
-}
 
 DEPLOYMENT_AMOUNTS = (100, 500, 1000)
 
@@ -70,96 +68,6 @@ def get_capital_deployment(buy_list, amount):
         }
         for candidate, allocation in zip(deployment_candidates, allocations)
     ]
-
-
-def get_holding_asset_class(position):
-
-    ticker = str(position.get("ticker", "")).strip().upper()
-    category = str(position.get("category", "")).strip().lower()
-    name = str(position.get("name", "")).strip().lower()
-    description = f"{category} {name}"
-
-    if ticker == "CASH0" or category == "cash":
-        return "cash"
-
-    if any(
-        term in description
-        for term in ("treasury", "bond", "fixed income", "short-term")
-    ):
-        return "bond"
-
-    if any(
-        term in description
-        for term in ("bitcoin", "crypto", "non-traditional")
-    ):
-        return "bitcoin"
-
-    if any(
-        term in description
-        for term in (
-            "mlp",
-            "energy",
-            "marine shipping",
-            "commodity",
-            "natural resource"
-        )
-    ):
-        return "commodity"
-
-    if any(
-        term in description
-        for term in (
-            "equity",
-            "growth",
-            "value",
-            "blend",
-            "small",
-            "mid",
-            "large"
-        )
-    ):
-        return "equity"
-
-    if "alternative" in description:
-        return "alternative"
-
-    return "unknown"
-
-
-def are_asset_classes_compatible(candidate, position):
-
-    candidate_asset_class = str(
-        candidate.get("asset_class", "unknown")
-    ).strip().lower()
-    holding_asset_class = get_holding_asset_class(position)
-
-    if candidate_asset_class == "unknown":
-        return False
-
-    compatible_holding_classes = {
-        "equity": {"equity"},
-        "cash": {"cash"},
-        "bond": {"bond", "cash"},
-        "bitcoin": {"bitcoin"},
-        "commodity": {"commodity"},
-        "alternative": {"alternative", "bitcoin"}
-    }
-
-    return holding_asset_class in compatible_holding_classes.get(
-        candidate_asset_class,
-        set()
-    )
-
-
-def get_holding_comparable_score(position):
-
-    thesis_status = position.get("thesis_status", "missing")
-    conviction = position.get("conviction", "unrated")
-
-    if thesis_status == "inactive":
-        return 0
-
-    return HOLDING_CONVICTION_SCORES.get(conviction, 0)
 
 
 def get_candidate_holding_action(candidate, position):
@@ -250,6 +158,7 @@ def get_portfolio_report():
     total_value = 0
     account_totals = {}
     ticker_totals = {}
+    allocation_differences = {}
 
     report.append("Portfolio Manager operational.")
     report.append("")
@@ -409,6 +318,14 @@ def get_portfolio_report():
             report.append(
                 f"WARNING: {account} | {ticker}: Price lookup failed; position excluded from calculations."
             )
+
+    for ticker, value in ticker_totals.items():
+        if total_value > 0:
+            allocation = (value / total_value) * 100
+        else:
+            allocation = 0
+
+        allocation_differences[ticker] = allocation - targets.get(ticker, 0)
 
     report.append("POSITIONS")
     report.append("")
@@ -711,6 +628,45 @@ def get_portfolio_report():
             report.append(f"Next ${amount}: {allocation_text}")
     else:
         report.append("No eligible candidates.")
+
+    report.append("")
+    report.append("SELL CANDIDATES")
+    report.append("")
+
+    sell_candidates = get_sell_candidates(
+        positions,
+        buy_list,
+        allocation_differences
+    )
+
+    if sell_candidates:
+        for candidate in sell_candidates:
+            report.append(
+                f"{candidate['ticker']} | "
+                f"Account {candidate['account']} | "
+                f"Conviction {candidate['conviction']} | "
+                f"Thesis Status {candidate['thesis_status']} | "
+                f"Reason {candidate['reason']}"
+            )
+    else:
+        report.append("No sell candidates.")
+
+    report.append("")
+    report.append("REPLACEMENT PLAN")
+    report.append("")
+
+    replacement_plan = get_replacement_plan(sell_candidates, buy_list)
+
+    if replacement_plan:
+        for replacement in replacement_plan:
+            buy_ticker = replacement["buy"] or "None"
+            report.append(
+                f"Sell: {replacement['sell']} | "
+                f"Buy: {buy_ticker} | "
+                f"Reason: {replacement['reason']}"
+            )
+    else:
+        report.append("No replacement actions.")
 
     report.append("")
     report.append("ACCOUNT TOTALS")
