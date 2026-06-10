@@ -2,6 +2,7 @@ import csv
 import yfinance as yf
 from agents.policy_agent import get_policy
 from agents.research_agent import (
+    get_buy_list,
     get_ranked_watchlist,
     get_security_info,
     get_thesis,
@@ -14,6 +15,52 @@ HOLDING_CONVICTION_SCORES = {
     "medium": 20,
     "low": 10
 }
+
+DEPLOYMENT_AMOUNTS = (100, 500, 1000)
+
+
+def get_capital_deployment(buy_list, amount):
+
+    if not buy_list or amount <= 0:
+        return []
+
+    scores = [
+        max(float(candidate.get("total_score", 0) or 0), 0)
+        for candidate in buy_list
+    ]
+    total_score = sum(scores)
+
+    if total_score <= 0:
+        return []
+
+    exact_allocations = [
+        amount * score / total_score
+        for score in scores
+    ]
+    allocations = [
+        int(allocation)
+        for allocation in exact_allocations
+    ]
+    dollars_remaining = amount - sum(allocations)
+
+    remainder_order = sorted(
+        range(len(buy_list)),
+        key=lambda index: (
+            -(exact_allocations[index] - allocations[index]),
+            index
+        )
+    )
+
+    for index in remainder_order[:dollars_remaining]:
+        allocations[index] += 1
+
+    return [
+        {
+            "ticker": candidate["ticker"],
+            "allocation": allocation
+        }
+        for candidate, allocation in zip(buy_list, allocations)
+    ]
 
 
 def get_holding_comparable_score(position):
@@ -536,6 +583,39 @@ def get_portfolio_report():
                 f"Holding Comparable Score {holding_score:g} | "
                 f"Action {action}"
             )
+
+    report.append("")
+    report.append("BUY LIST")
+    report.append("")
+
+    buy_list = get_buy_list()
+
+    if buy_list:
+        for rank, candidate in enumerate(buy_list, start=1):
+            report.append(
+                f"{rank}. {candidate['ticker']} | "
+                f"Total Score {candidate['total_score']:g} | "
+                f"Priority {candidate['priority']} | "
+                f"Conviction {candidate['conviction']} | "
+                f"Reason {candidate['reason']}"
+            )
+    else:
+        report.append("No eligible candidates.")
+
+    report.append("")
+    report.append("CAPITAL DEPLOYMENT")
+    report.append("")
+
+    if buy_list:
+        for amount in DEPLOYMENT_AMOUNTS:
+            allocations = get_capital_deployment(buy_list, amount)
+            allocation_text = " | ".join(
+                f"{allocation['ticker']} ${allocation['allocation']}"
+                for allocation in allocations
+            )
+            report.append(f"Next ${amount}: {allocation_text}")
+    else:
+        report.append("No eligible candidates.")
 
     report.append("")
     report.append("ACCOUNT TOTALS")

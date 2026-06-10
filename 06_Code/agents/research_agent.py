@@ -18,6 +18,12 @@ WATCHLIST_SCORE_FIELDS = (
     "risk_score"
 )
 
+PRIORITY_RANKS = {
+    "high": 3,
+    "medium": 2,
+    "low": 1
+}
+
 
 def get_score(value):
 
@@ -98,6 +104,43 @@ def get_ranked_watchlist():
         get_watchlist(),
         key=lambda candidate: candidate.get("total_score", 0) or 0,
         reverse=True
+    )
+
+
+def get_buy_list():
+
+    buy_list = []
+
+    for candidate in get_ranked_watchlist():
+        total_score = candidate.get("total_score", 0) or 0
+        thesis_status = str(candidate.get("thesis_status", "")).strip().lower()
+        priority = str(candidate.get("priority", "")).strip().lower()
+
+        if thesis_status == "inactive" or total_score <= 0:
+            continue
+
+        if priority == "high" and total_score >= 30:
+            reason = "Highest ranked candidate."
+        elif priority == "high":
+            reason = "High priority research candidate."
+        elif priority == "medium":
+            reason = "Diversification or secondary opportunity."
+        else:
+            reason = "Lower priority monitoring candidate."
+
+        buy_candidate = candidate.copy()
+        buy_candidate["reason"] = reason
+        buy_list.append(buy_candidate)
+
+    return sorted(
+        buy_list,
+        key=lambda candidate: (
+            -(candidate.get("total_score", 0) or 0),
+            -PRIORITY_RANKS.get(
+                str(candidate.get("priority", "")).strip().lower(),
+                0
+            )
+        )
     )
 
 
