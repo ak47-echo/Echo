@@ -1,0 +1,15 @@
+account,ticker,shares,cost_basis,account_type
+Roth,SCHF,14,346.71
+Roth,SPYM,5.0123,403.10
+Roth,QMOM,6,421.08
+Roth,SCHA,17,500.23
+Roth,SCHG,18,531.99
+Roth,CASH0,183.76,1
+
+Brokerage,MSTR,1,171.02
+Brokerage,ECO,11,622.71
+Brokerage,VNOM,21,994.88
+Brokerage,SMCI,91,3555.26
+Brokerage,UNH,16,4573.17
+Brokerage,IBIT,25,1100.50
+Brokerage,CASH0,35.06,1

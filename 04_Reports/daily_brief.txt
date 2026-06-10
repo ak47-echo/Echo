@@ -1,0 +1,106 @@
+=================================
+         ECHO BRIEFING
+=================================
+
+NEWS AGENT REPORT
+-----------------
+
+No news sources connected.
+News Agent operational.
+
+MACRO AGENT REPORT
+------------------
+
+No macro data sources connected.
+Macro Agent operational.
+Current regime: Unknown.
+
+PORTFOLIO MANAGER REPORT
+------------------------
+
+Portfolio Manager operational.
+
+
+POSITIONS
+---------
+
+
+Roth (Roth) | SCHF: International Equity ETF | Intl Large Blend | 14.0 shares | Price $26.72 | Value $374.01 | Cost Basis $346.71 | Gain/Loss $27.30 | Gain/Loss 7.87%
+Roth (Roth) | SPYM: State Street® SPDR® Portfolio S&P 500® ETF | US Large Blend | 5.0123 shares | Price $85.52 | Value $428.65 | Cost Basis $403.10 | Gain/Loss $25.55 | Gain/Loss 6.34%
+Roth (Roth) | QMOM: Unknown | Unknown | 6.0 shares | Price $74.88 | Value $449.28 | Cost Basis $421.08 | Gain/Loss $28.20 | Gain/Loss 6.70%
+Roth (Roth) | SCHA: U.S. Small-Cap ETF | US Small Blend | 17.0 shares | Price $33.33 | Value $566.61 | Cost Basis $500.23 | Gain/Loss $66.38 | Gain/Loss 13.27%
+Roth (Roth) | SCHG: U.S. Large-Cap Growth ETF | US Large Growth | 18.0 shares | Price $32.91 | Value $592.38 | Cost Basis $531.99 | Gain/Loss $60.39 | Gain/Loss 11.35%
+Roth (Roth) | CASH: Meta Financial Group Inc | US Small Blend | 183.76 shares | Price $1.00 | Value $183.76 | Cost Basis $183.76 | Gain/Loss $0.00 | Gain/Loss 0.00%
+Brokerage (Taxable) | MSTR: MicroStrategy | US Small Blend | 1.0 shares | Price $115.89 | Value $115.89 | Cost Basis $171.02 | Gain/Loss $-55.13 | Gain/Loss -32.24%
+Brokerage (Taxable) | ECO: Unknown | Unknown | 11.0 shares | Price $49.13 | Value $540.43 | Cost Basis $622.71 | Gain/Loss $-82.28 | Gain/Loss -13.21%
+Brokerage (Taxable) | VNOM: Viper Energy Partners LP Common Units | MLP | 21.0 shares | Price $44.99 | Value $944.69 | Cost Basis $994.88 | Gain/Loss $-50.19 | Gain/Loss -5.05%
+Brokerage (Taxable) | SMCI: Super Micro Computer Inc | US Small Growth | 91.0 shares | Price $29.91 | Value $2721.81 | Cost Basis $3555.26 | Gain/Loss $-833.45 | Gain/Loss -23.44%
+Brokerage (Taxable) | UNH: UnitedHealth Group Inc | US Large Growth | 16.0 shares | Price $407.03 | Value $6512.48 | Cost Basis $4573.17 | Gain/Loss $1939.31 | Gain/Loss 42.41%
+Brokerage (Taxable) | IBIT: iShares Bitcoin Trust ETF | Non-Traditional | 25.0 shares | Price $35.08 | Value $876.88 | Cost Basis $1100.50 | Gain/Loss $-223.62 | Gain/Loss -20.32%
+Brokerage (Taxable) | CASH: Meta Financial Group Inc | US Small Blend | 35.06 shares | Price $1.00 | Value $35.06 | Cost Basis $35.06 | Gain/Loss $0.00 | Gain/Loss 0.00%
+
+
+TICKER ALLOCATION
+-----------------
+
+
+SCHF: Value $374.01 | Allocation 2.61% | Target 5.00% | Difference -2.39%
+SPYM: Value $428.65 | Allocation 2.99% | Target 10.00% | Difference -7.01%
+QMOM: Value $449.28 | Allocation 3.13% | Target 10.00% | Difference -6.87%
+SCHA: Value $566.61 | Allocation 3.95% | Target 10.00% | Difference -6.05%
+SCHG: Value $592.38 | Allocation 4.13% | Target 15.00% | Difference -10.87%
+CASH: Value $218.82 | Allocation 1.53% | Target 7.00% | Difference -5.47%
+MSTR: Value $115.89 | Allocation 0.81% | Target 3.00% | Difference -2.19%
+ECO: Value $540.43 | Allocation 3.77% | Target 5.00% | Difference -1.23%
+VNOM: Value $944.69 | Allocation 6.59% | Target 5.00% | Difference 1.59%
+SMCI: Value $2721.81 | Allocation 18.98% | Target 10.00% | Difference 8.98%
+UNH: Value $6512.48 | Allocation 45.41% | Target 10.00% | Difference 35.41%
+IBIT: Value $876.88 | Allocation 6.11% | Target 10.00% | Difference -3.89%
+
+
+REBALANCE ALERTS
+----------------
+
+
+SPYM: UNDERWEIGHT by 7.01%
+QMOM: UNDERWEIGHT by 6.87%
+SCHA: UNDERWEIGHT by 6.05%
+SCHG: UNDERWEIGHT by 10.87%
+CASH: UNDERWEIGHT by 5.47%
+SMCI: OVERWEIGHT by 8.98%
+UNH: OVERWEIGHT by 35.41%
+
+
+TAX IMPACT NOTES
+----------------
+
+
+SCHF: Roth position. No current tax impact from selling.
+SPYM: Roth position. No current tax impact from selling.
+QMOM: Roth position. No current tax impact from selling.
+SCHA: Roth position. No current tax impact from selling.
+SCHG: Roth position. No current tax impact from selling.
+UNH: LARGE taxable gain ($1939.31). Significant tax impact if sold.
+
+
+RECOMMENDATIONS
+---------------
+
+
+SPYM: Moderately underweight. Recommendation: Consider adding with new cash.
+QMOM: Moderately underweight. Recommendation: Consider adding with new cash.
+SCHA: Moderately underweight. Recommendation: Consider adding with new cash.
+SCHG: Severely underweight. Recommendation: Prioritize future contributions here.
+SMCI: Moderately overweight. Recommendation: Do not add more capital.
+UNH: Severely overweight, but selling may trigger large taxable gain. Recommendation: Hold, monitor, and reduce only with deliberate tax planning.
+
+
+ACCOUNT TOTALS
+--------------
+
+
+Roth: $2594.69
+Brokerage: $11747.23
+
+Total Portfolio Value: $14341.92
+
