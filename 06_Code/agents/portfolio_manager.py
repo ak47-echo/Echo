@@ -5,6 +5,7 @@ from agents.research_agent import (
     are_asset_classes_compatible,
     get_buy_list,
     get_holding_comparable_score,
+    get_investment_committee_summary,
     get_ranked_watchlist,
     get_research_coverage,
     get_research_health_checks,
@@ -657,6 +658,50 @@ def get_portfolio_report():
         f"Low Severity Issues: {severity_counts['LOW']}"
     )
 
+    buy_list = get_buy_list()
+    capital_deployment_plans = {
+        amount: get_capital_deployment(buy_list, amount)
+        for amount in DEPLOYMENT_AMOUNTS
+    }
+    sell_candidates = get_sell_candidates(
+        positions,
+        buy_list,
+        allocation_differences
+    )
+    replacement_plan = get_replacement_plan(sell_candidates, buy_list)
+    committee_summary = get_investment_committee_summary(
+        buy_list,
+        sell_candidates,
+        replacement_plan,
+        research_health_checks,
+        capital_deployment_plans.get(1000, [])
+    )
+
+    report.append("")
+    report.append("INVESTMENT COMMITTEE SUMMARY")
+    report.append("")
+
+    report.append(
+        "Top Buy Candidate: "
+        f"{committee_summary['top_buy_candidate'] or 'None'}"
+    )
+    report.append(
+        "Top Sell Candidate: "
+        f"{committee_summary['top_sell_candidate'] or 'None'}"
+    )
+    report.append(
+        "Top Replacement Plan: "
+        f"{committee_summary['top_replacement_plan'] or 'None'}"
+    )
+    report.append(
+        "Top Research Issue: "
+        f"{committee_summary['top_research_issue'] or 'None'}"
+    )
+    report.append(
+        "Top Capital Deployment: "
+        f"{committee_summary['top_capital_deployment'] or 'None'}"
+    )
+
     report.append("")
     report.append("CANDIDATE RANKINGS")
     report.append("")
@@ -694,8 +739,6 @@ def get_portfolio_report():
     report.append("BUY LIST")
     report.append("")
 
-    buy_list = get_buy_list()
-
     if buy_list:
         for rank, candidate in enumerate(buy_list, start=1):
             report.append(
@@ -715,7 +758,7 @@ def get_portfolio_report():
 
     if buy_list:
         for amount in DEPLOYMENT_AMOUNTS:
-            allocations = get_capital_deployment(buy_list, amount)
+            allocations = capital_deployment_plans[amount]
             allocation_text = " | ".join(
                 f"{allocation['ticker']} ${allocation['allocation']}"
                 for allocation in allocations
@@ -727,12 +770,6 @@ def get_portfolio_report():
     report.append("")
     report.append("SELL CANDIDATES")
     report.append("")
-
-    sell_candidates = get_sell_candidates(
-        positions,
-        buy_list,
-        allocation_differences
-    )
 
     if sell_candidates:
         for candidate in sell_candidates:
@@ -749,8 +786,6 @@ def get_portfolio_report():
     report.append("")
     report.append("REPLACEMENT PLAN")
     report.append("")
-
-    replacement_plan = get_replacement_plan(sell_candidates, buy_list)
 
     if replacement_plan:
         for replacement in replacement_plan:

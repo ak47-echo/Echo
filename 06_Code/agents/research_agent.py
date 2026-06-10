@@ -570,3 +570,93 @@ def get_research_health_checks(holdings, watchlist, allocation_differences):
             check["issue"]
         )
     )
+
+
+def get_investment_committee_summary(
+    buy_list,
+    sell_candidates,
+    replacement_plan,
+    research_health_checks,
+    capital_deployment
+):
+
+    summary = {
+        "top_buy_candidate": None,
+        "top_sell_candidate": None,
+        "top_replacement_plan": None,
+        "top_research_issue": None,
+        "top_capital_deployment": None
+    }
+
+    if buy_list:
+        candidate = buy_list[0]
+        ticker = str(candidate.get("ticker") or "Unknown").strip().upper()
+        reason = str(candidate.get("reason") or "No reason provided.").strip()
+        summary["top_buy_candidate"] = f"{ticker} | Reason {reason}"
+
+    if sell_candidates:
+        candidate = sell_candidates[0]
+        ticker = str(candidate.get("ticker") or "Unknown").strip().upper()
+        reason = str(candidate.get("reason") or "No reason provided.").strip()
+        summary["top_sell_candidate"] = f"{ticker} | Reason {reason}"
+
+    if replacement_plan:
+        replacement = replacement_plan[0]
+        sell_ticker = str(
+            replacement.get("sell") or "Unknown"
+        ).strip().upper()
+        raw_buy_ticker = replacement.get("buy")
+        buy_ticker = (
+            str(raw_buy_ticker).strip().upper()
+            if raw_buy_ticker
+            else "None"
+        )
+        reason = str(
+            replacement.get("reason") or "No reason provided."
+        ).strip()
+        summary["top_replacement_plan"] = (
+            f"Sell {sell_ticker} / Buy {buy_ticker} | Reason {reason}"
+        )
+
+    if research_health_checks:
+        issue = min(
+            research_health_checks,
+            key=lambda check: (
+                RESEARCH_HEALTH_SEVERITY_RANKS.get(
+                    str(check.get("severity") or "").strip().upper(),
+                    99
+                ),
+                str(check.get("ticker") or ""),
+                str(check.get("issue") or "")
+            )
+        )
+        severity = str(issue.get("severity") or "UNKNOWN").strip().upper()
+        ticker = str(issue.get("ticker") or "Unknown").strip().upper()
+        issue_text = str(issue.get("issue") or "Unknown issue").strip()
+        summary["top_research_issue"] = (
+            f"{severity} | {ticker} | Issue {issue_text}"
+        )
+
+    if capital_deployment:
+        formatted_allocations = []
+
+        for allocation in capital_deployment:
+            ticker = str(
+                allocation.get("ticker") or "Unknown"
+            ).strip().upper()
+
+            try:
+                amount = int(allocation.get("allocation", 0) or 0)
+            except (TypeError, ValueError):
+                amount = 0
+
+            formatted_allocations.append(f"{ticker} ${max(amount, 0)}")
+
+        allocation_text = " | ".join(formatted_allocations)
+
+        if allocation_text:
+            summary["top_capital_deployment"] = (
+                f"Next $1000 | {allocation_text}"
+            )
+
+    return summary
