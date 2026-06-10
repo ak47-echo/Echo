@@ -7,6 +7,7 @@ from agents.research_agent import (
     get_holding_comparable_score,
     get_ranked_watchlist,
     get_research_coverage,
+    get_research_health_checks,
     get_replacement_plan,
     get_security_info,
     get_sell_candidates,
@@ -608,6 +609,53 @@ def get_portfolio_report():
             report.append(f"Watchlist candidate without thesis coverage: {ticker}")
     else:
         report.append("No research coverage gaps detected.")
+
+    report.append("")
+    report.append("RESEARCH HEALTH")
+    report.append("")
+
+    research_health_checks = get_research_health_checks(
+        positions,
+        watchlist,
+        allocation_differences
+    )
+
+    if research_health_checks:
+        for health_check in research_health_checks:
+            report.append(
+                f"{health_check['severity']} | "
+                f"{health_check['ticker']} | "
+                f"{health_check['issue']} | "
+                f"{health_check['recommendation']}"
+            )
+    else:
+        report.append("No research health issues detected.")
+
+    report.append("")
+    report.append("RESEARCH HEALTH SUMMARY")
+    report.append("")
+
+    severity_counts = {
+        "HIGH": 0,
+        "MEDIUM": 0,
+        "LOW": 0
+    }
+
+    for health_check in research_health_checks:
+        severity = health_check.get("severity")
+
+        if severity in severity_counts:
+            severity_counts[severity] += 1
+
+    report.append(
+        f"High Severity Issues: {severity_counts['HIGH']}"
+    )
+    report.append(
+        f"Medium Severity Issues: {severity_counts['MEDIUM']}"
+    )
+    report.append(
+        f"Low Severity Issues: {severity_counts['LOW']}"
+    )
 
     report.append("")
     report.append("CANDIDATE RANKINGS")

@@ -40,6 +40,12 @@ HOLDING_CONVICTION_SCORES = {
     "low": 10
 }
 
+RESEARCH_HEALTH_SEVERITY_RANKS = {
+    "HIGH": 1,
+    "MEDIUM": 2,
+    "LOW": 3
+}
+
 
 def get_score(value):
 
@@ -474,3 +480,93 @@ def get_research_coverage(holdings, watchlist):
         ),
         "uncovered_watchlist_candidates": len(uncovered_watchlist)
     }
+
+
+def get_research_health_checks(holdings, watchlist, allocation_differences):
+
+    health_checks = []
+
+    for holding in holdings:
+        ticker = str(holding.get("ticker") or "Unknown").strip().upper()
+        thesis_status = str(
+            holding.get("thesis_status") or "missing"
+        ).strip().lower()
+        conviction = str(
+            holding.get("conviction") or "unrated"
+        ).strip().lower()
+
+        if thesis_status == "inactive":
+            health_checks.append({
+                "severity": "HIGH",
+                "ticker": ticker,
+                "issue": "Thesis inactive",
+                "recommendation": "Review immediately"
+            })
+
+        if conviction == "low":
+            health_checks.append({
+                "severity": "MEDIUM",
+                "ticker": ticker,
+                "issue": "Low conviction holding",
+                "recommendation": "Reevaluate thesis"
+            })
+
+        if (
+            allocation_differences.get(ticker, 0) >= 5
+            and conviction != "high"
+        ):
+            health_checks.append({
+                "severity": "MEDIUM",
+                "ticker": ticker,
+                "issue": "Overweight position with conviction not high",
+                "recommendation": "Review position size"
+            })
+
+    for candidate in watchlist:
+        ticker = str(candidate.get("ticker") or "Unknown").strip().upper()
+        thesis_status = str(
+            candidate.get("thesis_status") or "unknown"
+        ).strip().lower()
+        conviction = str(
+            candidate.get("conviction") or "unknown"
+        ).strip().lower()
+
+        try:
+            total_score = float(candidate.get("total_score", 0) or 0)
+        except (TypeError, ValueError):
+            total_score = 0
+
+        if total_score < 30:
+            continue
+
+        if conviction == "low":
+            health_checks.append({
+                "severity": "MEDIUM",
+                "ticker": ticker,
+                "issue": "High scoring candidate with low conviction",
+                "recommendation": "Reevaluate candidate conviction"
+            })
+
+        if thesis_status == "inactive":
+            health_checks.append({
+                "severity": "HIGH",
+                "ticker": ticker,
+                "issue": "High score candidate thesis inactive",
+                "recommendation": "Review immediately"
+            })
+        elif thesis_status == "watch":
+            health_checks.append({
+                "severity": "LOW",
+                "ticker": ticker,
+                "issue": "High score candidate still in watch status",
+                "recommendation": "Complete research review"
+            })
+
+    return sorted(
+        health_checks,
+        key=lambda check: (
+            RESEARCH_HEALTH_SEVERITY_RANKS.get(check["severity"], 99),
+            check["ticker"],
+            check["issue"]
+        )
+    )
