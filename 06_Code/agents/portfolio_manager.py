@@ -100,16 +100,21 @@ def get_portfolio_report():
 
             ticker_totals[ticker] += position_value
 
-            security_info = get_security_info(ticker)
-
-            if security_info:
-                security_name = security_info["name"]
-                category = security_info["category"]
-                expense_ratio = float(security_info["expense_ratio"])
+            if ticker == "CASH0":
+                security_name = "Cash"
+                category = "Cash"
+                expense_ratio = 0
             else:
-                security_name = "Unknown"
-                category = "Unknown"
-                expense_ratio = 0  
+                security_info = get_security_info(ticker)
+
+                if security_info:
+                    security_name = security_info["name"]
+                    category = security_info["category"]
+                    expense_ratio = float(security_info["expense_ratio"])
+                else:
+                    security_name = "Unknown"
+                    category = "Unknown"
+                    expense_ratio = 0
 
             positions.append({
                 "account": account,
@@ -127,7 +132,9 @@ def get_portfolio_report():
             })
 
         except:
-            report.append(f"{account} | {ticker}: Price unavailable")
+            report.append(
+                f"WARNING: {account} | {ticker}: Price lookup failed; position excluded from calculations."
+            )
 
     report.append("POSITIONS")
     report.append("")
@@ -201,7 +208,7 @@ def get_portfolio_report():
         gain_loss = position["gain_loss"]
         value = position["value"]
 
-        if ticker == "CASH":
+        if ticker == "CASH0":
             continue
 
         if account_type == "Roth":
@@ -247,7 +254,7 @@ def get_portfolio_report():
 
     for ticker, value in ticker_totals.items():
 
-        if ticker == "CASH":
+        if ticker == "CASH0":
             continue
 
         if total_value > 0:
