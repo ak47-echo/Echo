@@ -21,12 +21,21 @@ DEPLOYMENT_AMOUNTS = (100, 500, 1000)
 
 def get_capital_deployment(buy_list, amount):
 
-    if not buy_list or amount <= 0:
+    deployment_candidates = [
+        candidate
+        for candidate in buy_list
+        if (
+            str(candidate.get("asset_class", "unknown")).strip().lower() != "cash"
+            or str(candidate.get("priority", "")).strip().lower() == "high"
+        )
+    ]
+
+    if not deployment_candidates or amount <= 0:
         return []
 
     scores = [
         max(float(candidate.get("total_score", 0) or 0), 0)
-        for candidate in buy_list
+        for candidate in deployment_candidates
     ]
     total_score = sum(scores)
 
@@ -44,7 +53,7 @@ def get_capital_deployment(buy_list, amount):
     dollars_remaining = amount - sum(allocations)
 
     remainder_order = sorted(
-        range(len(buy_list)),
+        range(len(deployment_candidates)),
         key=lambda index: (
             -(exact_allocations[index] - allocations[index]),
             index
@@ -59,8 +68,87 @@ def get_capital_deployment(buy_list, amount):
             "ticker": candidate["ticker"],
             "allocation": allocation
         }
-        for candidate, allocation in zip(buy_list, allocations)
+        for candidate, allocation in zip(deployment_candidates, allocations)
     ]
+
+
+def get_holding_asset_class(position):
+
+    ticker = str(position.get("ticker", "")).strip().upper()
+    category = str(position.get("category", "")).strip().lower()
+    name = str(position.get("name", "")).strip().lower()
+    description = f"{category} {name}"
+
+    if ticker == "CASH0" or category == "cash":
+        return "cash"
+
+    if any(
+        term in description
+        for term in ("treasury", "bond", "fixed income", "short-term")
+    ):
+        return "bond"
+
+    if any(
+        term in description
+        for term in ("bitcoin", "crypto", "non-traditional")
+    ):
+        return "bitcoin"
+
+    if any(
+        term in description
+        for term in (
+            "mlp",
+            "energy",
+            "marine shipping",
+            "commodity",
+            "natural resource"
+        )
+    ):
+        return "commodity"
+
+    if any(
+        term in description
+        for term in (
+            "equity",
+            "growth",
+            "value",
+            "blend",
+            "small",
+            "mid",
+            "large"
+        )
+    ):
+        return "equity"
+
+    if "alternative" in description:
+        return "alternative"
+
+    return "unknown"
+
+
+def are_asset_classes_compatible(candidate, position):
+
+    candidate_asset_class = str(
+        candidate.get("asset_class", "unknown")
+    ).strip().lower()
+    holding_asset_class = get_holding_asset_class(position)
+
+    if candidate_asset_class == "unknown":
+        return False
+
+    compatible_holding_classes = {
+        "equity": {"equity"},
+        "cash": {"cash"},
+        "bond": {"bond", "cash"},
+        "bitcoin": {"bitcoin"},
+        "commodity": {"commodity"},
+        "alternative": {"alternative", "bitcoin"}
+    }
+
+    return holding_asset_class in compatible_holding_classes.get(
+        candidate_asset_class,
+        set()
+    )
 
 
 def get_holding_comparable_score(position):
@@ -74,11 +162,15 @@ def get_holding_comparable_score(position):
     return HOLDING_CONVICTION_SCORES.get(conviction, 0)
 
 
-def get_candidate_holding_action(candidate_score, position):
+def get_candidate_holding_action(candidate, position):
 
+    candidate_score = candidate.get("total_score", 0) or 0
     thesis_status = position.get("thesis_status", "missing")
     conviction = position.get("conviction", "unrated")
     holding_score = get_holding_comparable_score(position)
+
+    if not are_asset_classes_compatible(candidate, position):
+        return "Not comparable asset objective"
 
     if thesis_status == "inactive":
         return "Review holding immediately before adding candidate"
@@ -546,6 +638,7 @@ def get_portfolio_report():
         report.append(
             f"{candidate['ticker']} | "
             f"Category {candidate['category']} | "
+            f"Asset Class {candidate['asset_class']} | "
             f"Priority {candidate['priority']} | "
             f"Conviction {candidate['conviction']} | "
             f"Total Score {candidate['total_score']:g} | "
@@ -562,7 +655,8 @@ def get_portfolio_report():
         candidate_score = candidate.get("total_score", 0) or 0
         report.append(
             f"{rank}. {candidate['ticker']} | "
-            f"Total Score {candidate_score:g}"
+            f"Total Score {candidate_score:g} | "
+            f"Asset Class {candidate['asset_class']}"
         )
 
     report.append("")
@@ -574,7 +668,7 @@ def get_portfolio_report():
 
         for position in positions:
             holding_score = get_holding_comparable_score(position)
-            action = get_candidate_holding_action(candidate_score, position)
+            action = get_candidate_holding_action(candidate, position)
 
             report.append(
                 f"{candidate['ticker']} | "
@@ -595,6 +689,7 @@ def get_portfolio_report():
             report.append(
                 f"{rank}. {candidate['ticker']} | "
                 f"Total Score {candidate['total_score']:g} | "
+                f"Asset Class {candidate['asset_class']} | "
                 f"Priority {candidate['priority']} | "
                 f"Conviction {candidate['conviction']} | "
                 f"Reason {candidate['reason']}"

@@ -18,6 +18,16 @@ WATCHLIST_SCORE_FIELDS = (
     "risk_score"
 )
 
+VALID_ASSET_CLASSES = {
+    "equity",
+    "bond",
+    "cash",
+    "bitcoin",
+    "commodity",
+    "alternative",
+    "unknown"
+}
+
 PRIORITY_RANKS = {
     "high": 3,
     "medium": 2,
@@ -82,6 +92,11 @@ def get_watchlist():
                     value = row.get(field)
                     candidate[field] = value.strip() if value and value.strip() else "Unknown"
 
+                asset_class = str(row.get("asset_class") or "").strip().lower()
+                candidate["asset_class"] = (
+                    asset_class if asset_class in VALID_ASSET_CLASSES else "unknown"
+                )
+
                 for field in WATCHLIST_SCORE_FIELDS:
                     candidate[field] = get_score(row.get(field))
 
@@ -107,6 +122,27 @@ def get_ranked_watchlist():
     )
 
 
+def get_buy_list_reason(candidate):
+
+    total_score = candidate.get("total_score", 0) or 0
+    priority = str(candidate.get("priority", "")).strip().lower()
+    asset_class = str(candidate.get("asset_class", "unknown")).strip().lower()
+
+    if priority == "high" and total_score >= 30 and asset_class == "equity":
+        return "Highest ranked equity candidate."
+
+    if priority == "high":
+        return "High priority research candidate."
+
+    if priority == "medium":
+        return "Diversification or secondary opportunity."
+
+    if priority == "low" and asset_class == "cash":
+        return "Cash management candidate; excluded from growth deployment."
+
+    return "Lower priority monitoring candidate."
+
+
 def get_buy_list():
 
     buy_list = []
@@ -115,21 +151,17 @@ def get_buy_list():
         total_score = candidate.get("total_score", 0) or 0
         thesis_status = str(candidate.get("thesis_status", "")).strip().lower()
         priority = str(candidate.get("priority", "")).strip().lower()
+        asset_class = str(candidate.get("asset_class", "unknown")).strip().lower()
 
-        if thesis_status == "inactive" or total_score <= 0:
+        if (
+            thesis_status == "inactive"
+            or total_score <= 0
+            or (asset_class == "cash" and priority != "high")
+        ):
             continue
 
-        if priority == "high" and total_score >= 30:
-            reason = "Highest ranked candidate."
-        elif priority == "high":
-            reason = "High priority research candidate."
-        elif priority == "medium":
-            reason = "Diversification or secondary opportunity."
-        else:
-            reason = "Lower priority monitoring candidate."
-
         buy_candidate = candidate.copy()
-        buy_candidate["reason"] = reason
+        buy_candidate["reason"] = get_buy_list_reason(candidate)
         buy_list.append(buy_candidate)
 
     return sorted(
