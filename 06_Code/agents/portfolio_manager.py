@@ -1,7 +1,45 @@
 import csv
 import yfinance as yf
 from agents.policy_agent import get_policy
-from agents.research_agent import get_security_info, get_thesis, get_watchlist
+from agents.research_agent import (
+    get_ranked_watchlist,
+    get_security_info,
+    get_thesis,
+    get_watchlist
+)
+
+
+HOLDING_CONVICTION_SCORES = {
+    "high": 30,
+    "medium": 20,
+    "low": 10
+}
+
+
+def get_holding_comparable_score(position):
+
+    thesis_status = position.get("thesis_status", "missing")
+    conviction = position.get("conviction", "unrated")
+
+    if thesis_status == "inactive":
+        return 0
+
+    return HOLDING_CONVICTION_SCORES.get(conviction, 0)
+
+
+def get_candidate_holding_action(candidate_score, position):
+
+    thesis_status = position.get("thesis_status", "missing")
+    conviction = position.get("conviction", "unrated")
+    holding_score = get_holding_comparable_score(position)
+
+    if thesis_status == "inactive":
+        return "Review holding immediately before adding candidate"
+
+    if candidate_score > holding_score and conviction == "low":
+        return "Candidate may be superior to low-conviction holding"
+
+    return "No replacement signal"
 
 
 def get_account_type(account_name):
@@ -471,17 +509,33 @@ def get_portfolio_report():
     report.append("CANDIDATE RANKINGS")
     report.append("")
 
-    ranked_candidates = sorted(
-        watchlist,
-        key=lambda candidate: candidate["total_score"],
-        reverse=True
-    )
+    ranked_candidates = get_ranked_watchlist()
 
     for rank, candidate in enumerate(ranked_candidates, start=1):
+        candidate_score = candidate.get("total_score", 0) or 0
         report.append(
             f"{rank}. {candidate['ticker']} | "
-            f"Total Score {candidate['total_score']:g}"
+            f"Total Score {candidate_score:g}"
         )
+
+    report.append("")
+    report.append("CANDIDATE VS HOLDINGS")
+    report.append("")
+
+    for candidate in ranked_candidates:
+        candidate_score = candidate.get("total_score", 0) or 0
+
+        for position in positions:
+            holding_score = get_holding_comparable_score(position)
+            action = get_candidate_holding_action(candidate_score, position)
+
+            report.append(
+                f"{candidate['ticker']} | "
+                f"Candidate Score {candidate_score:g} | "
+                f"Holding {position['ticker']} | "
+                f"Holding Comparable Score {holding_score:g} | "
+                f"Action {action}"
+            )
 
     report.append("")
     report.append("ACCOUNT TOTALS")

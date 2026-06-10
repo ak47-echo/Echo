@@ -92,6 +92,15 @@ def get_watchlist():
     return watchlist
 
 
+def get_ranked_watchlist():
+
+    return sorted(
+        get_watchlist(),
+        key=lambda candidate: candidate.get("total_score", 0) or 0,
+        reverse=True
+    )
+
+
 def get_candidate(ticker):
 
     if not ticker:
