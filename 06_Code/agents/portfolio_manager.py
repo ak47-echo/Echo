@@ -21,16 +21,45 @@ def get_account_type(account_name):
         return "Unknown"
 
 
-def load_targets():
+def load_targets(report):
 
     targets = {}
 
     with open("../02_Data/targets.csv", "r") as file:
 
         reader = csv.DictReader(file)
+        required_columns = {"ticker", "target_percent"}
+        missing_columns = required_columns - set(reader.fieldnames or [])
 
-        for row in reader:
-            targets[row["ticker"]] = float(row["target_percent"])
+        if missing_columns:
+            report.append(
+                f"WARNING: targets.csv missing required columns: {', '.join(sorted(missing_columns))}"
+            )
+            return targets
+
+        for line_number, row in enumerate(reader, start=2):
+            try:
+                target_percent = float(row["target_percent"])
+            except (TypeError, ValueError):
+                report.append(
+                    f"WARNING: targets.csv line {line_number}: target_percent must be numeric."
+                )
+                continue
+
+            if target_percent < 0:
+                report.append(
+                    f"WARNING: targets.csv line {line_number}: target_percent must be >= 0."
+                )
+                continue
+
+            targets[row["ticker"]] = target_percent
+
+    target_total = sum(targets.values())
+
+    if abs(target_total - 100) > 0.000001:
+        report.append(
+            f"WARNING: targets.csv target_percent values sum to {target_total:.2f}, expected 100.00."
+        )
 
     return targets
 
@@ -45,26 +74,78 @@ def get_portfolio_report():
     account_totals = {}
     ticker_totals = {}
 
-    targets = load_targets()
+    report.append("Portfolio Manager operational.")
+    report.append("")
+
+    targets = load_targets(report)
     policy = get_policy()
 
     with open("../02_Data/holdings.csv", "r") as file:
 
         reader = csv.DictReader(file)
+        required_columns = {"account", "ticker", "shares", "cost_basis"}
+        missing_columns = required_columns - set(reader.fieldnames or [])
 
-        for row in reader:
-            holdings.append(row)
+        if missing_columns:
+            report.append(
+                f"WARNING: holdings.csv missing required columns: {', '.join(sorted(missing_columns))}"
+            )
+        else:
+            for line_number, row in enumerate(reader, start=2):
+                try:
+                    shares = float(row["shares"])
+                except (TypeError, ValueError):
+                    report.append(
+                        f"WARNING: holdings.csv line {line_number}: shares must be numeric."
+                    )
+                    continue
 
-    report.append("Portfolio Manager operational.")
-    report.append("")
+                if shares < 0:
+                    report.append(
+                        f"WARNING: holdings.csv line {line_number}: shares must be >= 0."
+                    )
+                    continue
+
+                try:
+                    cost_basis = float(row["cost_basis"])
+                except (TypeError, ValueError):
+                    report.append(
+                        f"WARNING: holdings.csv line {line_number}: cost_basis must be numeric."
+                    )
+                    continue
+
+                if cost_basis < 0:
+                    report.append(
+                        f"WARNING: holdings.csv line {line_number}: cost_basis must be >= 0."
+                    )
+                    continue
+
+                ticker = row["ticker"]
+                security_info = None
+
+                if ticker != "CASH0":
+                    security_info = get_security_info(ticker)
+
+                    if not security_info:
+                        report.append(
+                            f"WARNING: {ticker}: Security metadata missing."
+                        )
+
+                holdings.append({
+                    "account": row["account"],
+                    "ticker": ticker,
+                    "shares": shares,
+                    "cost_basis": cost_basis,
+                    "security_info": security_info
+                })
 
     for holding in holdings:
 
         account = holding["account"]
         account_type = get_account_type(account)
         ticker = holding["ticker"]
-        shares = float(holding["shares"])
-        cost_basis = float(holding["cost_basis"])
+        shares = holding["shares"]
+        cost_basis = holding["cost_basis"]
 
         try:
 
@@ -105,7 +186,7 @@ def get_portfolio_report():
                 category = "Cash"
                 expense_ratio = 0
             else:
-                security_info = get_security_info(ticker)
+                security_info = holding["security_info"]
 
                 if security_info:
                     security_name = security_info["name"]
