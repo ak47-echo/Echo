@@ -4114,6 +4114,258 @@ def get_monte_carlo_v2_report(
     }
 
 
+def get_executive_brief(positions, context=None):
+
+    valid_positions = []
+
+    for position in positions or []:
+        try:
+            value = float(position.get("value", 0) or 0)
+        except (AttributeError, TypeError, ValueError):
+            continue
+
+        if math.isfinite(value) and value > 0:
+            valid_positions.append(position)
+
+    if not valid_positions:
+        return ["No portfolio data available."]
+
+    context = context or {}
+    concentration = context.get("concentration_risk")
+    portfolio_exposure = context.get("portfolio_exposure")
+    stress_test = context.get("stress_test_report")
+
+    if concentration is None:
+        concentration = get_concentration_risk(valid_positions)
+
+    if portfolio_exposure is None:
+        portfolio_exposure = get_portfolio_exposure(valid_positions)
+
+    if stress_test is None:
+        stress_test = get_stress_test_report(valid_positions)
+
+    research_health_checks = context.get("research_health_checks", [])
+    research_coverage = context.get("research_coverage", {})
+    committee_summary = context.get("committee_summary", {})
+    monte_carlo_v2 = context.get("monte_carlo_v2_report", {})
+    reconciliation = context.get("assumption_reconciliation_report", {})
+    severity_counts = {
+        severity: sum(
+            str(check.get("severity") or "").strip().upper() == severity
+            for check in research_health_checks
+        )
+        for severity in ("HIGH", "MEDIUM", "LOW")
+    }
+    concentration_risk = concentration.get("portfolio_risk", "LOW")
+    worst_scenario = stress_test.get("worst_scenario")
+    worst_impact = (
+        worst_scenario.get("portfolio_impact", 0)
+        if worst_scenario
+        else 0
+    )
+    significant_stress = worst_impact <= -30
+    severe_research = severity_counts["HIGH"] > 0
+    several_medium_issues = severity_counts["MEDIUM"] >= 3
+
+    if (
+        (concentration_risk == "HIGH" and significant_stress)
+        or severe_research
+    ):
+        portfolio_health = "ELEVATED_RISK"
+    elif concentration_risk == "HIGH" or several_medium_issues:
+        portfolio_health = "MODERATE"
+    else:
+        portfolio_health = "HEALTHY"
+
+    top_research_check = (
+        research_health_checks[0]
+        if research_health_checks
+        else None
+    )
+    replacement = committee_summary.get("top_replacement_plan")
+    deployment = committee_summary.get("top_capital_deployment")
+    top_buy = committee_summary.get("top_buy_candidate")
+
+    if top_research_check and top_research_check.get("severity") == "HIGH":
+        highest_priority = (
+            f"{top_research_check.get('ticker', 'Unknown')}: "
+            f"{top_research_check.get('recommendation', 'Review')}"
+        )
+    elif replacement:
+        highest_priority = replacement
+    elif concentration_risk == "HIGH":
+        largest_position = concentration["largest_position"]
+        highest_priority = (
+            f"Review {largest_position['ticker']} concentration at "
+            f"{largest_position['percentage']:.1f}%"
+        )
+    elif top_research_check:
+        highest_priority = (
+            f"{top_research_check.get('ticker', 'Unknown')}: "
+            f"{top_research_check.get('recommendation', 'Review')}"
+        )
+    elif deployment:
+        highest_priority = deployment
+    else:
+        highest_priority = top_buy or "No immediate action identified"
+
+    largest_position = concentration["largest_position"]
+
+    if concentration_risk == "HIGH":
+        largest_risk = (
+            f"{largest_position['ticker']} concentration at "
+            f"{largest_position['percentage']:.1f}%"
+        )
+    elif top_research_check:
+        largest_risk = (
+            f"{top_research_check.get('ticker', 'Unknown')}: "
+            f"{top_research_check.get('issue', 'Research issue')}"
+        )
+    elif worst_scenario:
+        largest_risk = (
+            f"{worst_scenario['scenario']} stress exposure "
+            f"{worst_impact:.2f}%"
+        )
+    else:
+        largest_risk = "No material risk identified"
+
+    largest_opportunity = (
+        top_buy
+        or replacement
+        or deployment
+        or "No current opportunity identified"
+    )
+    diversification = (
+        f"{portfolio_exposure.get('diversification_score', 'N/A')} | "
+        f"Largest asset class "
+        f"{portfolio_exposure.get('largest_asset_class', 'unknown').title()} "
+        f"{portfolio_exposure.get('largest_percentage', 0):.1f}%"
+    )
+    concentration_text = (
+        f"{concentration_risk} | Largest position "
+        f"{largest_position['ticker']} "
+        f"{largest_position['percentage']:.1f}% | "
+        f"Top 3 {concentration.get('top_3_concentration', 0):.1f}%"
+    )
+    research_health = (
+        f"{severity_counts['HIGH']} high, "
+        f"{severity_counts['MEDIUM']} medium, "
+        f"{severity_counts['LOW']} low issues"
+    )
+    capital_deployment = deployment or "No deployment recommendation"
+    stress_text = (
+        f"{worst_scenario['scenario']} | Impact {worst_impact:.2f}%"
+        if worst_scenario
+        else "No stress test data available"
+    )
+
+    if monte_carlo_v2.get("simulation_count"):
+        expected_return_outlook = (
+            f"Monte Carlo V2 expected return "
+            f"{monte_carlo_v2['expected_return_input']:.2f}% | "
+            f"Negative outcome probability "
+            f"{monte_carlo_v2['probability_negative']:.1f}%"
+        )
+    else:
+        historical_return = context.get("historical_return_report", {})
+        expected_return_outlook = (
+            f"Static expected return "
+            f"{historical_return['portfolio_implied_return']:.2f}%"
+            if historical_return.get("positions")
+            else "Expected return data unavailable"
+        )
+
+    action_candidates = []
+
+    if replacement:
+        action_candidates.append(replacement)
+
+    if top_research_check:
+        action_candidates.append(
+            f"{top_research_check.get('ticker', 'Unknown')}: "
+            f"{top_research_check.get('recommendation', 'Review')}"
+        )
+
+    if deployment:
+        action_candidates.append(deployment)
+
+    if committee_summary.get("top_sell_candidate"):
+        action_candidates.append(committee_summary["top_sell_candidate"])
+
+    if top_buy:
+        action_candidates.append(top_buy)
+
+    actions = []
+
+    for action in action_candidates:
+        if action and action not in actions:
+            actions.append(action)
+
+        if len(actions) == 3:
+            break
+
+    while len(actions) < 3:
+        actions.append("No additional action identified")
+
+    input_report = (
+        monte_carlo_v2.get("covariance_report", {}).get("input_report", {})
+    )
+    coverage_values = (
+        input_report.get("return_coverage_percent", 0),
+        input_report.get("volatility_coverage_percent", 0),
+        input_report.get("correlation_pair_coverage_percent", 0)
+    )
+    covariance_quality = monte_carlo_v2.get(
+        "covariance_report",
+        {}
+    ).get("covariance_input_quality", "LOW")
+    reconciliation_quality = reconciliation.get(
+        "overall_assumption_reliability",
+        "N/A"
+    )
+    total_holdings = research_coverage.get("total_holdings", 0)
+    covered_holdings = research_coverage.get("covered_holdings", 0)
+    thesis_coverage = (
+        covered_holdings / total_holdings * 100
+        if total_holdings > 0
+        else 0
+    )
+
+    if (
+        covariance_quality == "HIGH"
+        and min(coverage_values) >= 80
+        and thesis_coverage >= 80
+        and reconciliation_quality in {"HIGH", "MEDIUM"}
+    ):
+        confidence = "HIGH"
+    elif (
+        covariance_quality == "LOW"
+        or min(coverage_values) < 50
+        or (total_holdings > 0 and thesis_coverage < 50)
+    ):
+        confidence = "LOW"
+    else:
+        confidence = "MEDIUM"
+
+    return [
+        f"Portfolio Health: {portfolio_health}",
+        f"Highest Priority: {highest_priority}",
+        f"Largest Risk: {largest_risk}",
+        f"Largest Opportunity: {largest_opportunity}",
+        f"Diversification: {diversification}",
+        f"Concentration: {concentration_text}",
+        f"Research Health: {research_health}",
+        f"Capital Deployment: {capital_deployment}",
+        f"Stress Test: {stress_text}",
+        f"Expected Return Outlook: {expected_return_outlook}",
+        "Recommended Actions:",
+        f"1. {actions[0]}",
+        f"2. {actions[1]}",
+        f"3. {actions[2]}",
+        f"Confidence: {confidence}"
+    ]
+
+
 def get_portfolio_exposure(positions):
 
     category_values = {

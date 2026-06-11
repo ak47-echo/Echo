@@ -9,6 +9,7 @@ from agents.research_agent import (
     get_correlation_proxy,
     get_decision_guardrails,
     get_default_regime,
+    get_executive_brief,
     get_factor_exposure,
     get_historical_market_data_report,
     get_historical_return_report,
@@ -43,6 +44,7 @@ from agents.research_agent import (
 DEPLOYMENT_AMOUNTS = (100, 500, 1000)
 
 PORTFOLIO_REPORT_SECTION_ORDER = (
+    "PORTFOLIO MANAGER EXECUTIVE BRIEF",
     "INVESTMENT COMMITTEE SUMMARY",
     "DECISION GUARDRAILS",
     "EXPOSURE SUMMARY",
@@ -2375,6 +2377,30 @@ def get_portfolio_report():
             report.append("V1 Probability < -10%: N/A")
     else:
         report.append("No Monte Carlo V2 data available.")
+
+    executive_brief = get_executive_brief(
+        positions,
+        context={
+            "committee_summary": committee_summary,
+            "concentration_risk": concentration_risk,
+            "portfolio_exposure": portfolio_exposure,
+            "research_health_checks": research_health_checks,
+            "research_coverage": research_coverage,
+            "stress_test_report": stress_test_report,
+            "macro_regime_report": macro_regime_report,
+            "tax_optimization_report": tax_optimization_report,
+            "historical_return_report": historical_return_report,
+            "monte_carlo_v2_report": monte_carlo_v2_report,
+            "assumption_reconciliation_report": (
+                assumption_reconciliation_report
+            )
+        }
+    )
+
+    report.append("")
+    report.append("PORTFOLIO MANAGER EXECUTIVE BRIEF")
+    report.append("")
+    report.extend(executive_brief)
 
     report.append("")
     report.append("CANDIDATE RANKINGS")
