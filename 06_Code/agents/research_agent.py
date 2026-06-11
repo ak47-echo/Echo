@@ -18,15 +18,59 @@ WATCHLIST_SCORE_FIELDS = (
     "risk_score"
 )
 
-VALID_ASSET_CLASSES = {
-    "equity",
-    "bond",
-    "cash",
-    "bitcoin",
-    "commodity",
-    "alternative",
-    "unknown"
-}
+ASSET_CLASS_TERMS = (
+    ("cash", ("cash",)),
+    ("bond", ("treasury", "bond", "fixed income", "short-term", "income")),
+    ("bitcoin", ("bitcoin", "crypto")),
+    (
+        "commodity",
+        (
+            "commodity",
+            "energy",
+            "marine shipping",
+            "mlp",
+            "natural resource",
+            "oil",
+            "gas",
+            "tanker"
+        )
+    ),
+    (
+        "equity",
+        (
+            "equity",
+            "growth",
+            "value",
+            "blend",
+            "large",
+            "mid",
+            "small",
+            "stock"
+        )
+    ),
+    (
+        "alternative",
+        (
+            "reit",
+            "real estate",
+            "infrastructure",
+            "private",
+            "alternative"
+        )
+    )
+)
+
+ETF_TERMS = (
+    "etf",
+    "fund",
+    "trust",
+    "ishares",
+    "spdr",
+    "schwab",
+    "vanguard",
+    "invesco",
+    "alpha architect"
+)
 
 PRIORITY_RANKS = {
     "high": 3,
@@ -62,6 +106,11 @@ def get_score(value):
 
 def get_security_info(ticker):
 
+    normalized_ticker = str(ticker or "").strip()
+
+    if not normalized_ticker:
+        return None
+
     try:
 
         with open("../02_Data/security_master.csv", "r", encoding="utf-8") as file:
@@ -70,20 +119,88 @@ def get_security_info(ticker):
 
             for row in reader:
 
-                if row["ticker"].upper() == ticker.upper():
+                row_ticker = str(row.get("ticker") or "").strip()
+
+                if row_ticker.upper() == normalized_ticker.upper():
 
                     return {
-                        "ticker": row["ticker"],
-                        "name": row["name"],
-                        "category": row["category"],
-                        "expense_ratio": row["expense_ratio"]
+                        "ticker": row_ticker,
+                        "name": str(row.get("name") or "").strip(),
+                        "category": str(row.get("category") or "").strip(),
+                        "expense_ratio": str(
+                            row.get("expense_ratio") or ""
+                        ).strip()
                     }
 
-    except:
+    except (FileNotFoundError, OSError, csv.Error):
 
         pass
 
     return None
+
+
+def classify_security(ticker, category=None, name=None):
+
+    normalized_ticker = str(ticker or "").strip().upper()
+    description = " ".join(
+        value
+        for value in (
+            str(category or "").strip().lower(),
+            str(name or "").strip().lower()
+        )
+        if value
+    )
+
+    if normalized_ticker == "CASH0":
+        asset_class = "cash"
+    else:
+        asset_class = "unknown"
+
+        for candidate_asset_class, terms in ASSET_CLASS_TERMS:
+            if any(term in description for term in terms):
+                asset_class = candidate_asset_class
+                break
+
+    if normalized_ticker == "CASH0":
+        security_type = "cash"
+    elif any(term in description for term in ETF_TERMS):
+        security_type = "ETF"
+    elif asset_class in {"equity", "commodity", "bitcoin", "alternative"}:
+        security_type = "stock"
+    else:
+        security_type = "unknown"
+
+    if asset_class in {"cash", "bond"}:
+        risk_bucket = "low"
+    elif asset_class == "equity" and security_type == "ETF":
+        risk_bucket = "medium"
+    elif asset_class == "equity" and security_type == "stock":
+        risk_bucket = "high"
+    elif asset_class in {"bitcoin", "commodity", "alternative"}:
+        risk_bucket = "speculative"
+    else:
+        risk_bucket = "unknown"
+
+    return {
+        "ticker": normalized_ticker,
+        "asset_class": asset_class,
+        "security_type": security_type,
+        "risk_bucket": risk_bucket
+    }
+
+
+def get_security_classification(ticker):
+
+    security_info = get_security_info(ticker)
+
+    if security_info:
+        return classify_security(
+            ticker,
+            category=security_info.get("category"),
+            name=security_info.get("name")
+        )
+
+    return classify_security(ticker)
 
 
 def get_watchlist():
@@ -104,10 +221,10 @@ def get_watchlist():
                     value = row.get(field)
                     candidate[field] = value.strip() if value and value.strip() else "Unknown"
 
-                asset_class = str(row.get("asset_class") or "").strip().lower()
-                candidate["asset_class"] = (
-                    asset_class if asset_class in VALID_ASSET_CLASSES else "unknown"
+                classification = get_security_classification(
+                    candidate["ticker"]
                 )
+                candidate["asset_class"] = classification["asset_class"]
 
                 for field in WATCHLIST_SCORE_FIELDS:
                     candidate[field] = get_score(row.get(field))
@@ -190,56 +307,11 @@ def get_buy_list():
 
 def get_holding_asset_class(position):
 
-    ticker = str(position.get("ticker", "")).strip().upper()
-    category = str(position.get("category", "")).strip().lower()
-    name = str(position.get("name", "")).strip().lower()
-    description = f"{category} {name}"
-
-    if ticker == "CASH0" or category == "cash":
-        return "cash"
-
-    if any(
-        term in description
-        for term in ("treasury", "bond", "fixed income", "short-term")
-    ):
-        return "bond"
-
-    if any(
-        term in description
-        for term in ("bitcoin", "crypto", "non-traditional")
-    ):
-        return "bitcoin"
-
-    if any(
-        term in description
-        for term in (
-            "mlp",
-            "energy",
-            "marine shipping",
-            "commodity",
-            "natural resource"
-        )
-    ):
-        return "commodity"
-
-    if any(
-        term in description
-        for term in (
-            "equity",
-            "growth",
-            "value",
-            "blend",
-            "small",
-            "mid",
-            "large"
-        )
-    ):
-        return "equity"
-
-    if "alternative" in description:
-        return "alternative"
-
-    return "unknown"
+    return classify_security(
+        position.get("ticker"),
+        category=position.get("category"),
+        name=position.get("name")
+    )["asset_class"]
 
 
 def are_asset_classes_compatible(candidate, position):

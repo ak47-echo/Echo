@@ -11,6 +11,7 @@ from agents.research_agent import (
     get_research_coverage,
     get_research_health_checks,
     get_replacement_plan,
+    get_security_classification,
     get_security_info,
     get_sell_candidates,
     get_thesis,
@@ -41,6 +42,7 @@ PORTFOLIO_REPORT_SECTION_ORDER = (
     "WATCHLIST",
     "CANDIDATE RANKINGS",
     "CANDIDATE VS HOLDINGS",
+    "SECURITY CLASSIFICATION",
     "ACCOUNT TOTALS"
 )
 
@@ -916,6 +918,25 @@ def get_portfolio_report():
             )
     else:
         report.append("No replacement actions.")
+
+    report.append("")
+    report.append("SECURITY CLASSIFICATION")
+    report.append("")
+
+    security_tickers = sorted({
+        str(item.get("ticker") or "").strip().upper()
+        for item in holdings + watchlist
+        if str(item.get("ticker") or "").strip()
+    })
+
+    for ticker in security_tickers:
+        classification = get_security_classification(ticker)
+        report.append(
+            f"{classification['ticker']} | "
+            f"Asset Class {classification['asset_class']} | "
+            f"Security Type {classification['security_type']} | "
+            f"Risk Bucket {classification['risk_bucket']}"
+        )
 
     report.append("")
     report.append("ACCOUNT TOTALS")
