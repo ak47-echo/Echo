@@ -82,6 +82,50 @@ EXPOSURE_CATEGORIES = (
     "unknown"
 )
 
+FACTOR_CATEGORIES = (
+    "growth",
+    "value",
+    "blend",
+    "small",
+    "mid",
+    "large",
+    "momentum",
+    "quality",
+    "income",
+    "real_estate",
+    "bitcoin",
+    "commodity",
+    "cash",
+    "unknown"
+)
+
+FACTOR_TERMS = (
+    ("growth", ("growth",)),
+    ("value", ("value",)),
+    ("blend", ("blend",)),
+    ("small", ("small", "small-cap", "micro")),
+    ("mid", ("mid", "mid-cap")),
+    ("large", ("large", "large-cap")),
+    ("momentum", ("momentum",)),
+    ("quality", ("quality",)),
+    ("income", ("income", "dividend", "yield")),
+    ("real_estate", ("reit", "real estate")),
+    ("bitcoin", ("bitcoin", "crypto")),
+    (
+        "commodity",
+        (
+            "commodity",
+            "energy",
+            "marine shipping",
+            "mlp",
+            "natural resource",
+            "oil",
+            "gas",
+            "tanker"
+        )
+    )
+)
+
 PRIORITY_RANKS = {
     "high": 3,
     "medium": 2,
@@ -211,6 +255,133 @@ def get_security_classification(ticker):
         )
 
     return classify_security(ticker)
+
+
+def classify_factor(category=None, name=None):
+
+    description = " ".join(
+        value
+        for value in (
+            str(category or "").strip().lower(),
+            str(name or "").strip().lower()
+        )
+        if value
+    )
+
+    if "cash" in description:
+        return ["cash"]
+
+    factors = [
+        factor
+        for factor, terms in FACTOR_TERMS
+        if any(term in description for term in terms)
+    ]
+
+    return factors or ["unknown"]
+
+
+def get_factor_exposure(positions):
+
+    factor_values = {
+        factor: 0
+        for factor in FACTOR_CATEGORIES
+    }
+    total_value = 0
+
+    for position in positions or []:
+        try:
+            ticker = str(position.get("ticker") or "").strip().upper()
+            value = float(position.get("value", 0) or 0)
+        except (AttributeError, TypeError, ValueError):
+            continue
+
+        if not math.isfinite(value) or value <= 0:
+            continue
+
+        total_value += value
+
+        if ticker == "CASH0":
+            factors = ["cash"]
+        else:
+            factors = classify_factor(
+                category=position.get("category"),
+                name=position.get("name")
+            )
+
+            if factors == ["unknown"] and ticker:
+                security_info = get_security_info(ticker)
+
+                if security_info:
+                    factors = classify_factor(
+                        category=security_info.get("category"),
+                        name=security_info.get("name")
+                    )
+
+        for factor in factors:
+            if factor not in factor_values:
+                factor = "unknown"
+
+            factor_values[factor] += value
+
+    if total_value > 0:
+        percentages = {
+            factor: value / total_value * 100
+            for factor, value in factor_values.items()
+        }
+    else:
+        percentages = {
+            factor: 0
+            for factor in FACTOR_CATEGORIES
+        }
+
+    ranked_factors = sorted(
+        (
+            {
+                "factor": factor,
+                "value": factor_values[factor],
+                "percentage": percentages[factor]
+            }
+            for factor in FACTOR_CATEGORIES
+            if factor_values[factor] > 0
+        ),
+        key=lambda exposure: (
+            -exposure["percentage"],
+            FACTOR_CATEGORIES.index(exposure["factor"])
+        )
+    )
+
+    if ranked_factors:
+        dominant_factor = ranked_factors[0]["factor"]
+        dominant_percentage = ranked_factors[0]["percentage"]
+    else:
+        dominant_factor = "unknown"
+        dominant_percentage = 0
+
+    non_cash_percentage = max(
+        (
+            percentages[factor]
+            for factor in FACTOR_CATEGORIES
+            if factor != "cash"
+        ),
+        default=0
+    )
+
+    if non_cash_percentage >= 50:
+        concentration_risk = "HIGH"
+    elif non_cash_percentage >= 30:
+        concentration_risk = "MEDIUM"
+    else:
+        concentration_risk = "LOW"
+
+    return {
+        "total_value": total_value,
+        "factor_values": factor_values,
+        "percentages": percentages,
+        "dominant_factor": dominant_factor,
+        "dominant_percentage": dominant_percentage,
+        "concentration_risk": concentration_risk,
+        "ranked_factors": ranked_factors
+    }
 
 
 def get_portfolio_exposure(positions):

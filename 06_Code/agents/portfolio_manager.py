@@ -6,6 +6,7 @@ from agents.research_agent import (
     get_buy_list,
     get_concentration_risk,
     get_decision_guardrails,
+    get_factor_exposure,
     get_holding_comparable_score,
     get_investment_committee_summary,
     get_portfolio_exposure,
@@ -32,6 +33,8 @@ PORTFOLIO_REPORT_SECTION_ORDER = (
     "EXPOSURE DETAILS",
     "CONCENTRATION RISK SUMMARY",
     "CONCENTRATION RISK DETAILS",
+    "FACTOR EXPOSURE SUMMARY",
+    "FACTOR EXPOSURE DETAILS",
     "BUY LIST",
     "CAPITAL DEPLOYMENT",
     "SELL CANDIDATES",
@@ -891,6 +894,35 @@ def get_portfolio_report():
             )
     else:
         report.append("No concentration risk issues detected.")
+
+    factor_exposure = get_factor_exposure(positions)
+
+    report.append("")
+    report.append("FACTOR EXPOSURE SUMMARY")
+    report.append("")
+
+    report.append(
+        "Dominant Factor: "
+        f"{factor_exposure['dominant_factor'].replace('_', ' ').title()} "
+        f"{factor_exposure['dominant_percentage']:.1f}%"
+    )
+    report.append(
+        "Factor Concentration Risk: "
+        f"{factor_exposure['concentration_risk']}"
+    )
+
+    report.append("")
+    report.append("FACTOR EXPOSURE DETAILS")
+    report.append("")
+
+    if factor_exposure["ranked_factors"]:
+        for exposure in factor_exposure["ranked_factors"]:
+            factor_name = exposure["factor"].replace("_", " ").title()
+            report.append(
+                f"{factor_name}: {exposure['percentage']:.1f}%"
+            )
+    else:
+        report.append("No factor exposure detected.")
 
     report.append("")
     report.append("CANDIDATE RANKINGS")
