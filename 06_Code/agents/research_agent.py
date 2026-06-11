@@ -167,6 +167,45 @@ MARKET_REGIMES = {
 
 DEFAULT_REGIME = "expansion"
 
+STRESS_SCENARIOS = {
+    "2008_STYLE_CRISIS": {
+        "equity": -0.50,
+        "bond": 0.05,
+        "cash": 0.00,
+        "bitcoin": -0.80,
+        "commodity": -0.40,
+        "alternative": -0.35,
+        "unknown": -0.25
+    },
+    "2022_INFLATION_SHOCK": {
+        "equity": -0.25,
+        "bond": -0.15,
+        "cash": 0.00,
+        "bitcoin": -0.60,
+        "commodity": 0.15,
+        "alternative": -0.20,
+        "unknown": -0.15
+    },
+    "DOT_COM_BUST": {
+        "equity": -0.35,
+        "bond": 0.05,
+        "cash": 0.00,
+        "bitcoin": -0.70,
+        "commodity": -0.10,
+        "alternative": -0.25,
+        "unknown": -0.20
+    },
+    "RISK_OFF_LIQUIDITY_EVENT": {
+        "equity": -0.20,
+        "bond": 0.03,
+        "cash": 0.00,
+        "bitcoin": -0.50,
+        "commodity": -0.25,
+        "alternative": -0.30,
+        "unknown": -0.15
+    }
+}
+
 PRIORITY_RANKS = {
     "high": 3,
     "medium": 2,
@@ -687,6 +726,162 @@ def get_correlation_proxy(positions):
         "highest_cluster": highest_cluster,
         "portfolio_risk": portfolio_risk,
         "clusters": clusters
+    }
+
+
+def get_stress_test_report(positions):
+
+    ticker_positions = {}
+
+    for position in positions or []:
+        try:
+            ticker = str(
+                position.get("ticker") or "UNKNOWN"
+            ).strip().upper()
+            value = float(position.get("value", 0) or 0)
+        except (AttributeError, TypeError, ValueError):
+            continue
+
+        if not ticker:
+            ticker = "UNKNOWN"
+
+        if not math.isfinite(value) or value <= 0:
+            continue
+
+        ticker_position = ticker_positions.setdefault(
+            ticker,
+            {
+                "ticker": ticker,
+                "value": 0,
+                "category": "",
+                "name": ""
+            }
+        )
+        ticker_position["value"] += value
+
+        category = str(position.get("category") or "").strip()
+        name = str(position.get("name") or "").strip()
+
+        if category and not ticker_position["category"]:
+            ticker_position["category"] = category
+
+        if name and not ticker_position["name"]:
+            ticker_position["name"] = name
+
+    total_value = sum(
+        position["value"]
+        for position in ticker_positions.values()
+    )
+    classified_positions = []
+
+    for ticker_position in ticker_positions.values():
+        ticker = ticker_position["ticker"]
+        category = ticker_position["category"]
+        name = ticker_position["name"]
+
+        if not category and not name and ticker != "UNKNOWN":
+            security_info = get_security_info(ticker)
+
+            if security_info:
+                category = security_info.get("category") or ""
+                name = security_info.get("name") or ""
+
+        classification = classify_security(
+            ticker,
+            category=category,
+            name=name
+        )
+        asset_class = classification.get("asset_class", "unknown")
+
+        if asset_class not in EXPOSURE_CATEGORIES:
+            asset_class = "unknown"
+
+        classified_positions.append({
+            "ticker": ticker,
+            "value": ticker_position["value"],
+            "asset_class": asset_class
+        })
+
+    scenarios = []
+
+    if total_value > 0:
+        for scenario_name, assumptions in STRESS_SCENARIOS.items():
+            contributions = []
+
+            for position in classified_positions:
+                stressed_return = assumptions.get(
+                    position["asset_class"],
+                    assumptions["unknown"]
+                )
+                dollar_impact = position["value"] * stressed_return
+                contributions.append({
+                    "ticker": position["ticker"],
+                    "asset_class": position["asset_class"],
+                    "dollar_impact": dollar_impact
+                })
+
+            estimated_dollar_impact = sum(
+                contribution["dollar_impact"]
+                for contribution in contributions
+            )
+            portfolio_impact = (
+                estimated_dollar_impact / total_value * 100
+            )
+            stressed_value = total_value + estimated_dollar_impact
+            loss_contributors = [
+                contribution
+                for contribution in contributions
+                if contribution["dollar_impact"] < 0
+            ]
+            gain_contributors = [
+                contribution
+                for contribution in contributions
+                if contribution["dollar_impact"] > 0
+            ]
+            largest_loss_contributor = (
+                min(
+                    loss_contributors,
+                    key=lambda contribution: (
+                        contribution["dollar_impact"],
+                        contribution["ticker"]
+                    )
+                )["ticker"]
+                if loss_contributors
+                else None
+            )
+            largest_gain_contributor = (
+                max(
+                    gain_contributors,
+                    key=lambda contribution: (
+                        contribution["dollar_impact"],
+                        contribution["ticker"]
+                    )
+                )["ticker"]
+                if gain_contributors
+                else None
+            )
+
+            scenarios.append({
+                "scenario": scenario_name,
+                "stressed_value": stressed_value,
+                "estimated_dollar_impact": estimated_dollar_impact,
+                "portfolio_impact": portfolio_impact,
+                "largest_loss_contributor": largest_loss_contributor,
+                "largest_gain_contributor": largest_gain_contributor,
+                "contributions": contributions
+            })
+
+    scenarios.sort(
+        key=lambda scenario: (
+            scenario["portfolio_impact"],
+            scenario["scenario"]
+        )
+    )
+
+    return {
+        "total_value": total_value,
+        "worst_scenario": scenarios[0] if scenarios else None,
+        "scenarios": scenarios
     }
 
 

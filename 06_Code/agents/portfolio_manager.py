@@ -20,6 +20,7 @@ from agents.research_agent import (
     get_security_classification,
     get_security_info,
     get_sell_candidates,
+    get_stress_test_report,
     get_thesis,
     get_uncovered_holdings,
     get_uncovered_watchlist,
@@ -42,6 +43,8 @@ PORTFOLIO_REPORT_SECTION_ORDER = (
     "REGIME ALIGNMENT DETAILS",
     "CORRELATION PROXY SUMMARY",
     "CORRELATION PROXY DETAILS",
+    "STRESS TEST SUMMARY",
+    "STRESS TEST DETAILS",
     "BUY LIST",
     "CAPITAL DEPLOYMENT",
     "SELL CANDIDATES",
@@ -1049,6 +1052,51 @@ def get_portfolio_report():
         report.append(
             "No material correlation proxy clusters detected."
         )
+
+    stress_test_report = get_stress_test_report(positions)
+    worst_scenario = stress_test_report["worst_scenario"]
+
+    report.append("")
+    report.append("STRESS TEST SUMMARY")
+    report.append("")
+
+    if worst_scenario:
+        estimated_dollar_loss = max(
+            -worst_scenario["estimated_dollar_impact"],
+            0
+        )
+        report.append(
+            f"Worst Scenario: {worst_scenario['scenario']} | "
+            f"Impact {worst_scenario['portfolio_impact']:.2f}%"
+        )
+        report.append(
+            f"Estimated Dollar Loss: ${estimated_dollar_loss:,.2f}"
+        )
+    else:
+        report.append("No stress test data available.")
+
+    report.append("")
+    report.append("STRESS TEST DETAILS")
+    report.append("")
+
+    if stress_test_report["scenarios"]:
+        for scenario in stress_test_report["scenarios"]:
+            loss_contributor = (
+                scenario["largest_loss_contributor"] or "None"
+            )
+            gain_contributor = (
+                scenario["largest_gain_contributor"] or "None"
+            )
+            report.append(
+                f"{scenario['scenario']} | "
+                f"Portfolio Impact {scenario['portfolio_impact']:.2f}% | "
+                "Estimated Dollar Impact "
+                f"${scenario['estimated_dollar_impact']:,.2f} | "
+                f"Largest Loss Contributor {loss_contributor} | "
+                f"Largest Gain Contributor {gain_contributor}"
+            )
+    else:
+        report.append("No stress test data available.")
 
     report.append("")
     report.append("CANDIDATE RANKINGS")
