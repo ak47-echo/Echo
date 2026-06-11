@@ -19,6 +19,7 @@ from agents.research_agent import (
     get_regime_analysis,
     get_ranked_watchlist,
     get_real_historical_return_report,
+    get_real_historical_volatility_report,
     get_research_coverage,
     get_research_health_checks,
     get_replacement_plan,
@@ -69,6 +70,8 @@ PORTFOLIO_REPORT_SECTION_ORDER = (
     "HISTORICAL MARKET DATA DETAILS",
     "REAL HISTORICAL RETURN SUMMARY",
     "REAL HISTORICAL RETURN DETAILS",
+    "REAL HISTORICAL VOLATILITY SUMMARY",
+    "REAL HISTORICAL VOLATILITY DETAILS",
     "BUY LIST",
     "CAPITAL DEPLOYMENT",
     "SELL CANDIDATES",
@@ -1651,6 +1654,84 @@ def get_portfolio_report():
                 report.append(detail)
     else:
         report.append("No real historical return data available.")
+
+    real_historical_volatility_report = (
+        get_real_historical_volatility_report(positions)
+    )
+
+    report.append("")
+    report.append("REAL HISTORICAL VOLATILITY SUMMARY")
+    report.append("")
+
+    if real_historical_volatility_report["tickers"]:
+        for window_name, window_result in (
+            real_historical_volatility_report["windows"].items()
+        ):
+            portfolio_volatility = window_result["portfolio_volatility"]
+            volatility_text = (
+                f"{portfolio_volatility:.2f}%"
+                if portfolio_volatility is not None
+                else "N/A"
+            )
+            report.append(
+                f"{window_name} Portfolio Volatility: "
+                f"{volatility_text} | "
+                f"Coverage {window_result['coverage_percent']:.1f}% | "
+                f"Risk {window_result['risk_level']}"
+            )
+        report.append("")
+        report.append(
+            "Real historical volatility uses available "
+            "cached/downloaded market data and does not alter "
+            "recommendations."
+        )
+    else:
+        report.append("No real historical volatility data available.")
+
+    report.append("")
+    report.append("REAL HISTORICAL VOLATILITY DETAILS")
+    report.append("")
+
+    if real_historical_volatility_report["tickers"]:
+        for ticker_result in real_historical_volatility_report["tickers"]:
+            if ticker_result["status"] == "FAILED":
+                report.append(
+                    f"{ticker_result['ticker']} | Status FAILED | "
+                    f"Note {ticker_result['note']}"
+                )
+            elif ticker_result["status"] == "SKIPPED_CASH":
+                report.append(
+                    f"{ticker_result['ticker']} | Status SKIPPED_CASH | "
+                    f"Note {ticker_result['note']}"
+                )
+            else:
+                volatility_parts = []
+
+                for window_name, window_volatility in (
+                    ticker_result["volatility"].items()
+                ):
+                    volatility_text = (
+                        f"{window_volatility:.2f}%"
+                        if window_volatility is not None
+                        else "N/A"
+                    )
+                    volatility_parts.append(
+                        f"{window_name} {volatility_text}"
+                    )
+
+                detail = (
+                    f"{ticker_result['ticker']} | "
+                    f"Allocation {ticker_result['allocation']:.2f}% | "
+                    f"{' | '.join(volatility_parts)} | "
+                    f"Status {ticker_result['status']}"
+                )
+
+                if ticker_result["note"]:
+                    detail += f" | Note {ticker_result['note']}"
+
+                report.append(detail)
+    else:
+        report.append("No real historical volatility data available.")
 
     report.append("")
     report.append("CANDIDATE RANKINGS")
