@@ -72,6 +72,16 @@ ETF_TERMS = (
     "alpha architect"
 )
 
+EXPOSURE_CATEGORIES = (
+    "equity",
+    "bond",
+    "cash",
+    "bitcoin",
+    "commodity",
+    "alternative",
+    "unknown"
+)
+
 PRIORITY_RANKS = {
     "high": 3,
     "medium": 2,
@@ -201,6 +211,102 @@ def get_security_classification(ticker):
         )
 
     return classify_security(ticker)
+
+
+def get_portfolio_exposure(positions):
+
+    category_values = {
+        category: 0
+        for category in EXPOSURE_CATEGORIES
+    }
+
+    for position in positions or []:
+        try:
+            value = float(position.get("value", 0) or 0)
+        except (AttributeError, TypeError, ValueError):
+            continue
+
+        if not math.isfinite(value) or value <= 0:
+            continue
+
+        try:
+            classification = classify_security(
+                position.get("ticker"),
+                category=position.get("category"),
+                name=position.get("name")
+            )
+        except AttributeError:
+            classification = {"asset_class": "unknown"}
+
+        asset_class = classification.get("asset_class", "unknown")
+
+        if asset_class == "unknown":
+            try:
+                classification = get_security_classification(
+                    position.get("ticker")
+                )
+            except AttributeError:
+                classification = {"asset_class": "unknown"}
+
+            asset_class = classification.get("asset_class", "unknown")
+
+        if asset_class not in category_values:
+            asset_class = "unknown"
+
+        category_values[asset_class] += value
+
+    total_value = sum(category_values.values())
+
+    if total_value > 0:
+        percentages = {
+            category: value / total_value * 100
+            for category, value in category_values.items()
+        }
+    else:
+        percentages = {
+            category: 0
+            for category in EXPOSURE_CATEGORIES
+        }
+
+    top_asset_classes = sorted(
+        (
+            {
+                "asset_class": category,
+                "value": category_values[category],
+                "percentage": percentages[category]
+            }
+            for category in EXPOSURE_CATEGORIES
+            if category_values[category] > 0
+        ),
+        key=lambda exposure: (
+            -exposure["percentage"],
+            EXPOSURE_CATEGORIES.index(exposure["asset_class"])
+        )
+    )
+
+    if top_asset_classes:
+        largest_asset_class = top_asset_classes[0]["asset_class"]
+        largest_percentage = top_asset_classes[0]["percentage"]
+    else:
+        largest_asset_class = "unknown"
+        largest_percentage = 0
+
+    if largest_percentage <= 60:
+        diversification_score = "HIGH"
+    elif largest_percentage <= 80:
+        diversification_score = "MEDIUM"
+    else:
+        diversification_score = "LOW"
+
+    return {
+        "total_value": total_value,
+        "category_values": category_values,
+        "percentages": percentages,
+        "largest_asset_class": largest_asset_class,
+        "largest_percentage": largest_percentage,
+        "diversification_score": diversification_score,
+        "top_asset_classes": top_asset_classes
+    }
 
 
 def get_watchlist():

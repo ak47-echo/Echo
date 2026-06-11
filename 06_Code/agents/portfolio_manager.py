@@ -7,6 +7,7 @@ from agents.research_agent import (
     get_decision_guardrails,
     get_holding_comparable_score,
     get_investment_committee_summary,
+    get_portfolio_exposure,
     get_ranked_watchlist,
     get_research_coverage,
     get_research_health_checks,
@@ -26,6 +27,8 @@ DEPLOYMENT_AMOUNTS = (100, 500, 1000)
 PORTFOLIO_REPORT_SECTION_ORDER = (
     "INVESTMENT COMMITTEE SUMMARY",
     "DECISION GUARDRAILS",
+    "EXPOSURE SUMMARY",
+    "EXPOSURE DETAILS",
     "BUY LIST",
     "CAPITAL DEPLOYMENT",
     "SELL CANDIDATES",
@@ -807,6 +810,46 @@ def get_portfolio_report():
             )
     else:
         report.append("No decision guardrail issues detected.")
+
+    portfolio_exposure = get_portfolio_exposure(positions)
+
+    report.append("")
+    report.append("EXPOSURE SUMMARY")
+    report.append("")
+
+    report.append(
+        "Largest Asset Class: "
+        f"{portfolio_exposure['largest_asset_class'].title()} "
+        f"{portfolio_exposure['largest_percentage']:.1f}%"
+    )
+    report.append("")
+    report.append(
+        "Diversification Score: "
+        f"{portfolio_exposure['diversification_score']}"
+    )
+
+    report.append("")
+    report.append("EXPOSURE DETAILS")
+    report.append("")
+
+    for category, percentage in portfolio_exposure["percentages"].items():
+        report.append(f"{category.title()}: {percentage:.1f}%")
+
+    report.append("")
+    report.append("Top Asset Classes")
+    report.append("")
+
+    if portfolio_exposure["top_asset_classes"]:
+        for rank, exposure in enumerate(
+            portfolio_exposure["top_asset_classes"],
+            start=1
+        ):
+            report.append(
+                f"{rank}. {exposure['asset_class'].title()} "
+                f"{exposure['percentage']:.1f}%"
+            )
+    else:
+        report.append("No portfolio exposure.")
 
     report.append("")
     report.append("CANDIDATE RANKINGS")
