@@ -1894,9 +1894,10 @@ def get_portfolio_report():
         )
         report.append("")
         report.append(
-            "Assumption reconciliation compares static assumptions "
-            "with real historical data and does not alter "
-            "recommendations."
+            "Return reconciliation compares annual static assumptions "
+            "with annualized real historical returns. Volatility and "
+            "correlation reconciliation use real historical data. "
+            "Reconciliation does not alter recommendations."
         )
     else:
         report.append("No assumption reconciliation data available.")
@@ -1925,7 +1926,7 @@ def get_portfolio_report():
             report.append(
                 f"{reconciliation['ticker']} | "
                 f"Static {reconciliation['static_assumption']:.2f}% | "
-                f"Real {real_text} | "
+                f"Real Annualized {real_text} | "
                 f"Difference {difference_text} | "
                 f"Classification {reconciliation['classification']}"
             )

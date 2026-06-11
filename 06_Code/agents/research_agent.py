@@ -84,6 +84,15 @@ REAL_RETURN_WINDOWS = (
     ("5Y", 60)
 )
 
+REAL_RETURN_WINDOW_YEARS = {
+    "1M": 1 / 12,
+    "3M": 0.25,
+    "6M": 0.5,
+    "1Y": 1,
+    "3Y": 3,
+    "5Y": 5
+}
+
 REAL_CORRELATION_WINDOWS = (
     ("3M", 3),
     ("6M", 6),
@@ -3181,6 +3190,50 @@ def _select_preferred_measurement(measurements, window_order):
     return None, None
 
 
+def _annualize_cumulative_return(cumulative_return, window_name):
+
+    try:
+        cumulative_return = float(cumulative_return)
+        years = REAL_RETURN_WINDOW_YEARS[window_name]
+    except (KeyError, TypeError, ValueError):
+        return None
+
+    if (
+        not math.isfinite(cumulative_return)
+        or cumulative_return <= -100
+    ):
+        return None
+
+    try:
+        annualized_return = (
+            (1 + cumulative_return / 100) ** (1 / years) - 1
+        ) * 100
+    except (OverflowError, ValueError, ZeroDivisionError):
+        return None
+
+    return (
+        annualized_return
+        if math.isfinite(annualized_return)
+        else None
+    )
+
+
+def _select_preferred_return(measurements, window_order):
+
+    for window_name in window_order:
+        measurement = measurements.get(window_name)
+
+        try:
+            numeric_measurement = float(measurement)
+        except (TypeError, ValueError):
+            continue
+
+        if math.isfinite(numeric_measurement):
+            return window_name, numeric_measurement
+
+    return None, None
+
+
 def _summarize_reconciliation(records):
 
     return {
@@ -3230,20 +3283,24 @@ def get_assumption_reconciliation_report(positions):
 
     for ticker, static_position in static_returns.items():
         real_position = real_returns.get(ticker)
-        selected_window, real_return = _select_preferred_measurement(
+        selected_window, cumulative_return = _select_preferred_return(
             real_position.get("returns", {}) if real_position else {},
             return_window_order
         )
+        annualized_return = _annualize_cumulative_return(
+            cumulative_return,
+            selected_window
+        )
         static_return = static_position["blended_return"]
         difference = (
-            real_return - static_return
-            if real_return is not None
+            annualized_return - static_return
+            if annualized_return is not None
             else None
         )
         return_reconciliation.append({
             "ticker": ticker,
             "static_assumption": static_return,
-            "real_measurement": real_return,
+            "real_measurement": annualized_return,
             "selected_window": selected_window,
             "difference": difference,
             "classification": _classify_assumption_gap(difference, 5.00)
