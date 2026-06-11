@@ -298,6 +298,31 @@ MACRO_REGIME_DEFINITIONS = {
     }
 }
 
+HISTORICAL_RETURN_ASSUMPTIONS = {
+    "asset_class": {
+        "equity": 8.00,
+        "bond": 4.00,
+        "cash": 2.50,
+        "bitcoin": 12.00,
+        "commodity": 5.00,
+        "alternative": 6.00,
+        "unknown": 5.00
+    },
+    "factor": {
+        "value": 8.50,
+        "growth": 8.00,
+        "quality": 7.50,
+        "momentum": 8.50,
+        "small": 8.75,
+        "large": 7.50,
+        "blend": 8.00,
+        "commodity": 5.00,
+        "bitcoin": 12.00,
+        "cash": 2.50,
+        "unknown": 5.00
+    }
+}
+
 PRIORITY_RANKS = {
     "high": 3,
     "medium": 2,
@@ -1319,6 +1344,165 @@ def get_tax_optimization_report(positions):
         "largest_taxable_loss": largest_taxable_loss,
         "tax_loss_harvest_candidates_count": len(taxable_loss_positions),
         "large_taxable_gain_positions_count": len(taxable_gain_positions),
+        "positions": analyzed_positions
+    }
+
+
+def get_historical_return_report(positions):
+
+    ticker_positions = {}
+
+    for position in positions or []:
+        try:
+            ticker = str(
+                position.get("ticker") or "UNKNOWN"
+            ).strip().upper()
+            value = float(position.get("value", 0) or 0)
+        except (AttributeError, TypeError, ValueError):
+            continue
+
+        if not ticker:
+            ticker = "UNKNOWN"
+
+        if not math.isfinite(value) or value <= 0:
+            continue
+
+        ticker_position = ticker_positions.setdefault(
+            ticker,
+            {
+                "ticker": ticker,
+                "value": 0,
+                "category": "",
+                "name": ""
+            }
+        )
+        ticker_position["value"] += value
+
+        category = str(position.get("category") or "").strip()
+        name = str(position.get("name") or "").strip()
+
+        if category and not ticker_position["category"]:
+            ticker_position["category"] = category
+
+        if name and not ticker_position["name"]:
+            ticker_position["name"] = name
+
+    total_value = sum(
+        position["value"]
+        for position in ticker_positions.values()
+    )
+
+    if total_value <= 0:
+        return {
+            "total_value": 0,
+            "portfolio_implied_return": 0,
+            "largest_return_contributor": None,
+            "highest_return_assumption": None,
+            "lowest_return_assumption": None,
+            "total_positions_included": 0,
+            "unknown_classification_count": 0,
+            "positions": []
+        }
+
+    asset_assumptions = HISTORICAL_RETURN_ASSUMPTIONS["asset_class"]
+    factor_assumptions = HISTORICAL_RETURN_ASSUMPTIONS["factor"]
+    analyzed_positions = []
+    unknown_classification_count = 0
+
+    for ticker_position in ticker_positions.values():
+        ticker = ticker_position["ticker"]
+        category = ticker_position["category"]
+        name = ticker_position["name"]
+
+        if not category and not name and ticker != "UNKNOWN":
+            security_info = get_security_info(ticker)
+
+            if security_info:
+                category = security_info.get("category") or ""
+                name = security_info.get("name") or ""
+
+        classification = classify_security(
+            ticker,
+            category=category,
+            name=name
+        )
+        asset_class = classification.get("asset_class", "unknown")
+
+        if asset_class not in asset_assumptions:
+            asset_class = "unknown"
+
+        if ticker == "CASH0":
+            factors = ["cash"]
+        else:
+            factors = classify_factor(category=category, name=name)
+
+        normalized_factors = [
+            factor if factor in factor_assumptions else "unknown"
+            for factor in factors
+        ]
+
+        if not normalized_factors:
+            normalized_factors = ["unknown"]
+
+        asset_return = asset_assumptions[asset_class]
+        factor_return = sum(
+            factor_assumptions[factor]
+            for factor in normalized_factors
+        ) / len(normalized_factors)
+        blended_return = asset_return * 0.50 + factor_return * 0.50
+        allocation = ticker_position["value"] / total_value * 100
+        weighted_contribution = allocation / 100 * blended_return
+
+        if asset_class == "unknown" or "unknown" in normalized_factors:
+            unknown_classification_count += 1
+
+        analyzed_positions.append({
+            "ticker": ticker,
+            "value": ticker_position["value"],
+            "allocation": allocation,
+            "asset_class": asset_class,
+            "factors": normalized_factors,
+            "factor": ", ".join(normalized_factors),
+            "asset_class_return": asset_return,
+            "factor_return": factor_return,
+            "blended_return": blended_return,
+            "weighted_contribution": weighted_contribution
+        })
+
+    analyzed_positions.sort(
+        key=lambda position: (
+            -position["weighted_contribution"],
+            position["ticker"]
+        )
+    )
+    portfolio_implied_return = sum(
+        position["weighted_contribution"]
+        for position in analyzed_positions
+    )
+    largest_return_contributor = analyzed_positions[0]
+    highest_return_assumption = max(
+        analyzed_positions,
+        key=lambda position: (
+            position["blended_return"],
+            position["ticker"]
+        )
+    )
+    lowest_return_assumption = min(
+        analyzed_positions,
+        key=lambda position: (
+            position["blended_return"],
+            position["ticker"]
+        )
+    )
+
+    return {
+        "total_value": total_value,
+        "portfolio_implied_return": portfolio_implied_return,
+        "largest_return_contributor": largest_return_contributor,
+        "highest_return_assumption": highest_return_assumption,
+        "lowest_return_assumption": lowest_return_assumption,
+        "total_positions_included": len(analyzed_positions),
+        "unknown_classification_count": unknown_classification_count,
         "positions": analyzed_positions
     }
 

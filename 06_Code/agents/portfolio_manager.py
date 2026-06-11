@@ -9,6 +9,7 @@ from agents.research_agent import (
     get_decision_guardrails,
     get_default_regime,
     get_factor_exposure,
+    get_historical_return_report,
     get_holding_comparable_score,
     get_investment_committee_summary,
     get_macro_regime_report,
@@ -51,6 +52,8 @@ PORTFOLIO_REPORT_SECTION_ORDER = (
     "MACRO REGIME DETAILS",
     "TAX OPTIMIZATION SUMMARY",
     "TAX OPTIMIZATION DETAILS",
+    "HISTORICAL RETURN SUMMARY",
+    "HISTORICAL RETURN DETAILS",
     "BUY LIST",
     "CAPITAL DEPLOYMENT",
     "SELL CANDIDATES",
@@ -1226,6 +1229,70 @@ def get_portfolio_report():
             )
     else:
         report.append("No tax optimization data available.")
+
+    historical_return_report = get_historical_return_report(positions)
+
+    report.append("")
+    report.append("HISTORICAL RETURN SUMMARY")
+    report.append("")
+
+    if historical_return_report["positions"]:
+        largest_contributor = historical_return_report[
+            "largest_return_contributor"
+        ]
+        highest_assumption = historical_return_report[
+            "highest_return_assumption"
+        ]
+        lowest_assumption = historical_return_report[
+            "lowest_return_assumption"
+        ]
+
+        report.append(
+            "Portfolio Implied Long Run Return: "
+            f"{historical_return_report['portfolio_implied_return']:.2f}%"
+        )
+        report.append(
+            "Largest Return Contributor: "
+            f"{largest_contributor['ticker']} | "
+            f"{largest_contributor['weighted_contribution']:.2f}%"
+        )
+        report.append(
+            "Highest Return Assumption: "
+            f"{highest_assumption['ticker']} | "
+            f"{highest_assumption['blended_return']:.2f}%"
+        )
+        report.append(
+            "Lowest Return Assumption: "
+            f"{lowest_assumption['ticker']} | "
+            f"{lowest_assumption['blended_return']:.2f}%"
+        )
+        report.append("")
+        report.append(
+            "Historical return assumptions are static long-run estimates, "
+            "not forecasts."
+        )
+    else:
+        report.append("No historical return data available.")
+
+    report.append("")
+    report.append("HISTORICAL RETURN DETAILS")
+    report.append("")
+
+    if historical_return_report["positions"]:
+        for position in historical_return_report["positions"]:
+            factor_name = position["factor"].replace("_", " ").title()
+            report.append(
+                f"{position['ticker']} | "
+                f"Allocation {position['allocation']:.2f}% | "
+                f"Asset Class {position['asset_class']} "
+                f"{position['asset_class_return']:.2f}% | "
+                f"Factor {factor_name} "
+                f"{position['factor_return']:.2f}% | "
+                f"Blended {position['blended_return']:.2f}% | "
+                f"Contribution {position['weighted_contribution']:.2f}%"
+            )
+    else:
+        report.append("No historical return data available.")
 
     report.append("")
     report.append("CANDIDATE RANKINGS")
