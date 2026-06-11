@@ -84,6 +84,14 @@ REAL_RETURN_WINDOWS = (
     ("5Y", 60)
 )
 
+REAL_CORRELATION_WINDOWS = (
+    ("3M", 3),
+    ("6M", 6),
+    ("1Y", 12),
+    ("3Y", 36),
+    ("5Y", 60)
+)
+
 ETF_TERMS = (
     "etf",
     "fund",
@@ -2814,6 +2822,333 @@ def get_real_historical_volatility_report(positions):
 
     return {
         "total_value": total_value,
+        "windows": window_results,
+        "tickers": ticker_results
+    }
+
+
+def _calculate_daily_return_series(rows):
+
+    price_history = []
+
+    for row in rows or []:
+        try:
+            date_value = datetime.strptime(row["date"], "%Y-%m-%d").date()
+            close = float(row["close"])
+        except (KeyError, TypeError, ValueError):
+            continue
+
+        if math.isfinite(close) and close > 0:
+            price_history.append((date_value, close))
+
+    price_history.sort(key=lambda price: price[0])
+
+    return {
+        current_date: current_close / previous_close - 1
+        for (
+            (_, previous_close),
+            (current_date, current_close)
+        ) in zip(price_history, price_history[1:])
+    }
+
+
+def _calculate_pearson_correlation(values_1, values_2):
+
+    if len(values_1) != len(values_2) or len(values_1) < 2:
+        return None
+
+    mean_1 = statistics.fmean(values_1)
+    mean_2 = statistics.fmean(values_2)
+    deviations_1 = [value - mean_1 for value in values_1]
+    deviations_2 = [value - mean_2 for value in values_2]
+    variance_1 = sum(value ** 2 for value in deviations_1)
+    variance_2 = sum(value ** 2 for value in deviations_2)
+    denominator = math.sqrt(variance_1 * variance_2)
+
+    if denominator == 0:
+        return None
+
+    correlation = (
+        sum(
+            value_1 * value_2
+            for value_1, value_2 in zip(deviations_1, deviations_2)
+        )
+        / denominator
+    )
+
+    return max(-1, min(1, correlation))
+
+
+def get_real_historical_correlation_report(positions):
+
+    ticker_values = {}
+
+    for position in positions or []:
+        try:
+            ticker = str(position.get("ticker") or "").strip().upper()
+            value = float(position.get("value", 0) or 0)
+        except (AttributeError, TypeError, ValueError):
+            continue
+
+        if not math.isfinite(value) or value <= 0:
+            continue
+
+        ticker = ticker or "UNKNOWN"
+        ticker_values[ticker] = ticker_values.get(ticker, 0) + value
+
+    total_value = sum(ticker_values.values())
+    non_cash_tickers = [
+        ticker
+        for ticker in ticker_values
+        if ticker != "CASH0"
+    ]
+    total_possible_pair_count = (
+        len(non_cash_tickers) * (len(non_cash_tickers) - 1) // 2
+    )
+
+    if total_value <= 0:
+        return {
+            "total_value": 0,
+            "total_possible_pair_count": 0,
+            "has_data": False,
+            "windows": {
+                window_name: {
+                    "weighted_average_correlation": None,
+                    "valid_pair_count": 0,
+                    "total_possible_pair_count": 0,
+                    "pair_coverage_percent": 0,
+                    "portfolio_value_coverage_percent": 0,
+                    "highest_correlation_pair": None,
+                    "lowest_correlation_pair": None,
+                    "risk_level": "N/A",
+                    "pairs": []
+                }
+                for window_name, _ in REAL_CORRELATION_WINDOWS
+            },
+            "tickers": []
+        }
+
+    ticker_results = []
+    usable_tickers = {}
+    latest_data_date = None
+
+    for ticker, value in ticker_values.items():
+        allocation = value / total_value * 100
+
+        if ticker == "CASH0":
+            ticker_results.append({
+                "ticker": ticker,
+                "status": "SKIPPED_CASH",
+                "value": value,
+                "allocation": allocation,
+                "note": "Cash excluded from return-correlation calculation"
+            })
+            continue
+
+        if ticker == "UNKNOWN":
+            market_data = get_historical_market_data_for_ticker("")
+        else:
+            market_data = get_historical_market_data_for_ticker(ticker)
+
+        if market_data["status"] == "FAILED":
+            ticker_results.append({
+                "ticker": ticker,
+                "status": "FAILED",
+                "value": value,
+                "allocation": allocation,
+                "note": market_data["error"] or "Market data unavailable"
+            })
+            continue
+
+        daily_returns = _calculate_daily_return_series(market_data["rows"])
+
+        if not daily_returns:
+            ticker_results.append({
+                "ticker": ticker,
+                "status": "INSUFFICIENT_DATA",
+                "value": value,
+                "allocation": allocation,
+                "note": "Insufficient daily returns"
+            })
+            continue
+
+        ticker_latest_date = max(daily_returns)
+
+        if latest_data_date is None or ticker_latest_date > latest_data_date:
+            latest_data_date = ticker_latest_date
+
+        usable_tickers[ticker] = {
+            "ticker": ticker,
+            "value": value,
+            "allocation": allocation,
+            "daily_returns": daily_returns
+        }
+        ticker_results.append({
+            "ticker": ticker,
+            "status": market_data["status"],
+            "value": value,
+            "allocation": allocation,
+            "note": ""
+        })
+
+    window_results = {}
+
+    for window_name, months in REAL_CORRELATION_WINDOWS:
+        pairs = []
+
+        if latest_data_date is not None:
+            target_date = _subtract_months(latest_data_date, months)
+            sorted_tickers = sorted(usable_tickers)
+
+            for ticker_index, ticker_1 in enumerate(sorted_tickers):
+                position_1 = usable_tickers[ticker_1]
+
+                for ticker_2 in sorted_tickers[ticker_index + 1:]:
+                    position_2 = usable_tickers[ticker_2]
+                    common_dates = sorted(
+                        date_value
+                        for date_value in (
+                            position_1["daily_returns"].keys()
+                            & position_2["daily_returns"].keys()
+                        )
+                        if date_value >= target_date
+                    )
+
+                    if len(common_dates) < 20:
+                        continue
+
+                    correlation = _calculate_pearson_correlation(
+                        [
+                            position_1["daily_returns"][date_value]
+                            for date_value in common_dates
+                        ],
+                        [
+                            position_2["daily_returns"][date_value]
+                            for date_value in common_dates
+                        ]
+                    )
+
+                    if correlation is None:
+                        continue
+
+                    pairs.append({
+                        "ticker_1": ticker_1,
+                        "ticker_2": ticker_2,
+                        "correlation": correlation,
+                        "overlap_days": len(common_dates),
+                        "pair_weight": (
+                            position_1["allocation"] / 100
+                            * position_2["allocation"] / 100
+                        )
+                    })
+
+        valid_pair_count = len(pairs)
+        pair_coverage_percent = (
+            valid_pair_count / total_possible_pair_count * 100
+            if total_possible_pair_count
+            else 0
+        )
+        pair_weight_total = sum(pair["pair_weight"] for pair in pairs)
+        weighted_average_correlation = (
+            sum(
+                pair["correlation"] * pair["pair_weight"]
+                for pair in pairs
+            )
+            / pair_weight_total
+            if pair_weight_total > 0
+            else None
+        )
+        covered_tickers = {
+            ticker
+            for pair in pairs
+            for ticker in (pair["ticker_1"], pair["ticker_2"])
+        }
+        portfolio_value_coverage_percent = (
+            sum(ticker_values[ticker] for ticker in covered_tickers)
+            / total_value
+            * 100
+        )
+        highest_correlation_pair = (
+            max(
+                pairs,
+                key=lambda pair: (
+                    pair["correlation"],
+                    pair["ticker_1"],
+                    pair["ticker_2"]
+                )
+            )
+            if pairs
+            else None
+        )
+        lowest_correlation_pair = (
+            min(
+                pairs,
+                key=lambda pair: (
+                    pair["correlation"],
+                    pair["ticker_1"],
+                    pair["ticker_2"]
+                )
+            )
+            if pairs
+            else None
+        )
+
+        if weighted_average_correlation is None:
+            risk_level = "N/A"
+        elif weighted_average_correlation >= 0.70:
+            risk_level = "HIGH"
+        elif weighted_average_correlation >= 0.40:
+            risk_level = "MEDIUM"
+        else:
+            risk_level = "LOW"
+
+        pairs.sort(
+            key=lambda pair: (
+                -abs(pair["correlation"]),
+                pair["ticker_1"],
+                pair["ticker_2"]
+            )
+        )
+        window_results[window_name] = {
+            "weighted_average_correlation": weighted_average_correlation,
+            "valid_pair_count": valid_pair_count,
+            "total_possible_pair_count": total_possible_pair_count,
+            "pair_coverage_percent": pair_coverage_percent,
+            "portfolio_value_coverage_percent": (
+                portfolio_value_coverage_percent
+            ),
+            "highest_correlation_pair": highest_correlation_pair,
+            "lowest_correlation_pair": lowest_correlation_pair,
+            "risk_level": risk_level,
+            "pairs": pairs[:10]
+        }
+
+    status_rank = {
+        "CACHE_HIT": 0,
+        "FRESH_DOWNLOAD": 0,
+        "INSUFFICIENT_DATA": 1,
+        "FAILED": 2,
+        "SKIPPED_CASH": 3
+    }
+    ticker_results.sort(
+        key=lambda ticker_result: (
+            status_rank.get(ticker_result["status"], 2),
+            (
+                -ticker_result["allocation"]
+                if status_rank.get(ticker_result["status"], 2) == 0
+                else 0
+            ),
+            ticker_result["ticker"]
+        )
+    )
+
+    return {
+        "total_value": total_value,
+        "total_possible_pair_count": total_possible_pair_count,
+        "has_data": any(
+            window_result["valid_pair_count"] > 0
+            for window_result in window_results.values()
+        ),
         "windows": window_results,
         "tickers": ticker_results
     }

@@ -18,6 +18,7 @@ from agents.research_agent import (
     get_portfolio_exposure,
     get_regime_analysis,
     get_ranked_watchlist,
+    get_real_historical_correlation_report,
     get_real_historical_return_report,
     get_real_historical_volatility_report,
     get_research_coverage,
@@ -72,6 +73,8 @@ PORTFOLIO_REPORT_SECTION_ORDER = (
     "REAL HISTORICAL RETURN DETAILS",
     "REAL HISTORICAL VOLATILITY SUMMARY",
     "REAL HISTORICAL VOLATILITY DETAILS",
+    "REAL HISTORICAL CORRELATION SUMMARY",
+    "REAL HISTORICAL CORRELATION DETAILS",
     "BUY LIST",
     "CAPITAL DEPLOYMENT",
     "SELL CANDIDATES",
@@ -1732,6 +1735,86 @@ def get_portfolio_report():
                 report.append(detail)
     else:
         report.append("No real historical volatility data available.")
+
+    real_historical_correlation_report = (
+        get_real_historical_correlation_report(positions)
+    )
+
+    report.append("")
+    report.append("REAL HISTORICAL CORRELATION SUMMARY")
+    report.append("")
+
+    if real_historical_correlation_report["has_data"]:
+        for window_name, window_result in (
+            real_historical_correlation_report["windows"].items()
+        ):
+            weighted_correlation = window_result[
+                "weighted_average_correlation"
+            ]
+            correlation_text = (
+                f"{weighted_correlation:.2f}"
+                if weighted_correlation is not None
+                else "N/A"
+            )
+            report.append(
+                f"{window_name} Weighted Correlation: "
+                f"{correlation_text} | "
+                f"Pair Coverage "
+                f"{window_result['pair_coverage_percent']:.1f}% | "
+                f"Risk {window_result['risk_level']}"
+            )
+        report.append("")
+        report.append(
+            "Real historical correlation uses available "
+            "cached/downloaded market data and does not alter "
+            "recommendations."
+        )
+    else:
+        report.append("No real historical correlation data available.")
+
+    report.append("")
+    report.append("REAL HISTORICAL CORRELATION DETAILS")
+    report.append("")
+
+    if real_historical_correlation_report["has_data"]:
+        for window_name, window_result in (
+            real_historical_correlation_report["windows"].items()
+        ):
+            weighted_correlation = window_result[
+                "weighted_average_correlation"
+            ]
+            correlation_text = (
+                f"{weighted_correlation:.2f}"
+                if weighted_correlation is not None
+                else "N/A"
+            )
+            highest_pair = window_result["highest_correlation_pair"]
+            lowest_pair = window_result["lowest_correlation_pair"]
+            highest_text = (
+                f"{highest_pair['ticker_1']}/"
+                f"{highest_pair['ticker_2']} "
+                f"{highest_pair['correlation']:.2f}"
+                if highest_pair
+                else "N/A"
+            )
+            lowest_text = (
+                f"{lowest_pair['ticker_1']}/"
+                f"{lowest_pair['ticker_2']} "
+                f"{lowest_pair['correlation']:.2f}"
+                if lowest_pair
+                else "N/A"
+            )
+            report.append(
+                f"{window_name} | "
+                f"Weighted Correlation {correlation_text} | "
+                f"Highest Pair {highest_text} | "
+                f"Lowest Pair {lowest_text} | "
+                f"Valid Pairs {window_result['valid_pair_count']}/"
+                f"{window_result['total_possible_pair_count']} | "
+                f"Risk {window_result['risk_level']}"
+            )
+    else:
+        report.append("No real historical correlation data available.")
 
     report.append("")
     report.append("CANDIDATE RANKINGS")
