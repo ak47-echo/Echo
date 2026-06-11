@@ -1,5 +1,7 @@
 import csv
 import math
+import random
+import statistics
 
 
 WATCHLIST_FIELDS = (
@@ -1988,6 +1990,72 @@ def get_volatility_report(positions):
         "high_volatility_positions_count": high_volatility_positions_count,
         "unknown_classification_count": unknown_classification_count,
         "positions": analyzed_positions
+    }
+
+
+def get_monte_carlo_report(positions):
+
+    simulation_count = 1000
+    return_report = get_historical_return_report(positions)
+    volatility_report = get_volatility_report(positions)
+
+    if not return_report["positions"] or not volatility_report["positions"]:
+        return {
+            "simulation_count": 0,
+            "expected_return": 0,
+            "median_return": 0,
+            "mean_outcome": 0,
+            "best_outcome": 0,
+            "worst_outcome": 0,
+            "probability_positive": 0,
+            "probability_negative": 0,
+            "probability_greater_than_10": 0,
+            "probability_less_than_negative_10": 0,
+            "assumption_expected_return": 0,
+            "assumption_volatility": 0,
+            "simulated_returns": []
+        }
+
+    expected_return = return_report["portfolio_implied_return"]
+    volatility = volatility_report["portfolio_weighted_volatility"]
+
+    # A local fixed seed keeps informational reports reproducible.
+    random_generator = random.Random(55)
+    simulated_returns = [
+        random_generator.normalvariate(expected_return, volatility)
+        for _ in range(simulation_count)
+    ]
+    mean_outcome = statistics.fmean(simulated_returns)
+    median_outcome = statistics.median(simulated_returns)
+    positive_count = sum(result > 0 for result in simulated_returns)
+    negative_count = sum(result < 0 for result in simulated_returns)
+    greater_than_10_count = sum(
+        result > 10
+        for result in simulated_returns
+    )
+    less_than_negative_10_count = sum(
+        result < -10
+        for result in simulated_returns
+    )
+
+    return {
+        "simulation_count": simulation_count,
+        "expected_return": mean_outcome,
+        "median_return": median_outcome,
+        "mean_outcome": mean_outcome,
+        "best_outcome": max(simulated_returns),
+        "worst_outcome": min(simulated_returns),
+        "probability_positive": positive_count / simulation_count * 100,
+        "probability_negative": negative_count / simulation_count * 100,
+        "probability_greater_than_10": (
+            greater_than_10_count / simulation_count * 100
+        ),
+        "probability_less_than_negative_10": (
+            less_than_negative_10_count / simulation_count * 100
+        ),
+        "assumption_expected_return": expected_return,
+        "assumption_volatility": volatility,
+        "simulated_returns": simulated_returns
     }
 
 

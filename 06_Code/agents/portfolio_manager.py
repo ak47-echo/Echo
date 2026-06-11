@@ -13,6 +13,7 @@ from agents.research_agent import (
     get_holding_comparable_score,
     get_investment_committee_summary,
     get_macro_regime_report,
+    get_monte_carlo_report,
     get_portfolio_exposure,
     get_regime_analysis,
     get_ranked_watchlist,
@@ -60,6 +61,8 @@ PORTFOLIO_REPORT_SECTION_ORDER = (
     "STATISTICAL CORRELATION DETAILS",
     "VOLATILITY SUMMARY",
     "VOLATILITY DETAILS",
+    "MONTE CARLO SUMMARY",
+    "MONTE CARLO DETAILS",
     "BUY LIST",
     "CAPITAL DEPLOYMENT",
     "SELL CANDIDATES",
@@ -1418,6 +1421,86 @@ def get_portfolio_report():
             )
     else:
         report.append("No volatility data available.")
+
+    monte_carlo_report = get_monte_carlo_report(positions)
+
+    report.append("")
+    report.append("MONTE CARLO SUMMARY")
+    report.append("")
+
+    if monte_carlo_report["simulation_count"]:
+        report.append(
+            f"Simulation Count: {monte_carlo_report['simulation_count']}"
+        )
+        report.append("")
+        report.append(
+            f"Expected Return: {monte_carlo_report['expected_return']:.2f}%"
+        )
+        report.append("")
+        report.append(
+            f"Median Return: {monte_carlo_report['median_return']:.2f}%"
+        )
+        report.append("")
+        report.append(
+            "Probability Positive: "
+            f"{monte_carlo_report['probability_positive']:.1f}%"
+        )
+        report.append("")
+        report.append(
+            "Probability Negative: "
+            f"{monte_carlo_report['probability_negative']:.1f}%"
+        )
+        report.append("")
+        report.append(
+            "Monte Carlo results are based on static assumptions "
+            "and are not forecasts."
+        )
+        report.append(
+            "Assumptions are derived from Phase 52 historical return "
+            "and Phase 54 volatility estimates."
+        )
+        report.append(
+            "This analysis is informational only and does not include "
+            "investment advice, taxes, inflation, or withdrawals."
+        )
+    else:
+        report.append("No Monte Carlo data available.")
+
+    report.append("")
+    report.append("MONTE CARLO DETAILS")
+    report.append("")
+
+    if monte_carlo_report["simulation_count"]:
+        report.append(
+            f"Best Outcome: {monte_carlo_report['best_outcome']:.2f}%"
+        )
+        report.append("")
+        report.append(
+            f"Worst Outcome: {monte_carlo_report['worst_outcome']:.2f}%"
+        )
+        report.append("")
+        report.append(
+            "Probability Return > 10%: "
+            f"{monte_carlo_report['probability_greater_than_10']:.1f}%"
+        )
+        report.append("")
+        report.append(
+            "Probability Return < -10%: "
+            f"{monte_carlo_report['probability_less_than_negative_10']:.1f}%"
+        )
+        report.append("")
+        report.append("Assumption Inputs")
+        report.append("")
+        report.append(
+            "Expected Return: "
+            f"{monte_carlo_report['assumption_expected_return']:.2f}%"
+        )
+        report.append("")
+        report.append(
+            f"Volatility: {monte_carlo_report['assumption_volatility']:.2f}%"
+        )
+    else:
+        report.append("No Monte Carlo data available.")
 
     report.append("")
     report.append("CANDIDATE RANKINGS")
