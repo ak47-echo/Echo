@@ -1,4 +1,4 @@
-from agents.news_agent import get_news
+from agents.news_agent import get_news_report
 from agents.macro_agent import get_macro_report
 from agents.portfolio_manager import get_portfolio_report
 from agents.policy_agent import get_policy
@@ -30,7 +30,7 @@ def add_section(title, items):
 
 def build_morning_brief():
 
-    news = get_news()
+    news = get_news_report()
     macro = get_macro_report()
     portfolio = get_portfolio_report()
     policy = get_policy()
@@ -41,7 +41,11 @@ def build_morning_brief():
     brief += "         ECHO BRIEFING\n"
     brief += "=================================\n\n"
 
-    brief += add_section("NEWS AGENT REPORT", news)
+    brief += add_section(
+        "NEWS AGENT EXECUTIVE BRIEF",
+        news["executive_brief"]
+    )
+    brief += add_section("NEWS AGENT FULL REPORT", news["full_report"])
     brief += add_section("MACRO AGENT REPORT", macro)
     brief += add_section("PORTFOLIO MANAGER REPORT", portfolio)
 
