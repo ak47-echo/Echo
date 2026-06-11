@@ -18,6 +18,7 @@ from agents.research_agent import (
     get_portfolio_exposure,
     get_regime_analysis,
     get_ranked_watchlist,
+    get_real_historical_return_report,
     get_research_coverage,
     get_research_health_checks,
     get_replacement_plan,
@@ -66,6 +67,8 @@ PORTFOLIO_REPORT_SECTION_ORDER = (
     "MONTE CARLO DETAILS",
     "HISTORICAL MARKET DATA SUMMARY",
     "HISTORICAL MARKET DATA DETAILS",
+    "REAL HISTORICAL RETURN SUMMARY",
+    "REAL HISTORICAL RETURN DETAILS",
     "BUY LIST",
     "CAPITAL DEPLOYMENT",
     "SELL CANDIDATES",
@@ -1575,6 +1578,79 @@ def get_portfolio_report():
                 )
     else:
         report.append("No historical market data available.")
+
+    real_historical_return_report = get_real_historical_return_report(
+        positions
+    )
+
+    report.append("")
+    report.append("REAL HISTORICAL RETURN SUMMARY")
+    report.append("")
+
+    if real_historical_return_report["tickers"]:
+        for window_name, window_result in (
+            real_historical_return_report["windows"].items()
+        ):
+            portfolio_return = window_result["portfolio_return"]
+            return_text = (
+                f"{portfolio_return:.2f}%"
+                if portfolio_return is not None
+                else "N/A"
+            )
+            report.append(
+                f"{window_name} Portfolio Return: {return_text} | "
+                f"Coverage {window_result['coverage_percent']:.1f}%"
+            )
+        report.append("")
+        report.append(
+            "Real historical returns use available cached/downloaded "
+            "market data and do not alter recommendations."
+        )
+    else:
+        report.append("No real historical return data available.")
+
+    report.append("")
+    report.append("REAL HISTORICAL RETURN DETAILS")
+    report.append("")
+
+    if real_historical_return_report["tickers"]:
+        for ticker_result in real_historical_return_report["tickers"]:
+            if ticker_result["status"] == "FAILED":
+                report.append(
+                    f"{ticker_result['ticker']} | Status FAILED | "
+                    f"Note {ticker_result['note']}"
+                )
+            elif ticker_result["status"] == "SKIPPED_CASH":
+                report.append(
+                    f"{ticker_result['ticker']} | Status SKIPPED_CASH | "
+                    f"Note {ticker_result['note']}"
+                )
+            else:
+                return_parts = []
+
+                for window_name, value_return in (
+                    ticker_result["returns"].items()
+                ):
+                    return_text = (
+                        f"{value_return:.2f}%"
+                        if value_return is not None
+                        else "N/A"
+                    )
+                    return_parts.append(f"{window_name} {return_text}")
+
+                detail = (
+                    f"{ticker_result['ticker']} | "
+                    f"Allocation {ticker_result['allocation']:.2f}% | "
+                    f"{' | '.join(return_parts)} | "
+                    f"Status {ticker_result['status']}"
+                )
+
+                if ticker_result["note"]:
+                    detail += f" | Note {ticker_result['note']}"
+
+                report.append(detail)
+    else:
+        report.append("No real historical return data available.")
 
     report.append("")
     report.append("CANDIDATE RANKINGS")

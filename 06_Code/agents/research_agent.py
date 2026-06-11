@@ -1,8 +1,10 @@
+import calendar
 import csv
 import math
 import random
 import re
 import statistics
+from datetime import datetime
 from pathlib import Path
 
 import yfinance as yf
@@ -71,6 +73,15 @@ MARKET_DATA_CACHE_DIR = (
     / "data"
     / "cache"
     / "market_data"
+)
+
+REAL_RETURN_WINDOWS = (
+    ("1M", 1),
+    ("3M", 3),
+    ("6M", 6),
+    ("1Y", 12),
+    ("3Y", 36),
+    ("5Y", 60)
 )
 
 ETF_TERMS = (
@@ -2373,6 +2384,215 @@ def get_historical_market_data_report(positions):
         ),
         "skipped_cash_tickers": skipped_cash_tickers,
         "market_data_coverage_percent": market_data_coverage_percent,
+        "tickers": ticker_results
+    }
+
+
+def _subtract_months(date_value, months):
+
+    target_month_index = date_value.year * 12 + date_value.month - 1 - months
+    target_year, zero_based_month = divmod(target_month_index, 12)
+    target_month = zero_based_month + 1
+    target_day = min(
+        date_value.day,
+        calendar.monthrange(target_year, target_month)[1]
+    )
+
+    return date_value.replace(
+        year=target_year,
+        month=target_month,
+        day=target_day
+    )
+
+
+def _calculate_trailing_returns(rows):
+
+    price_history = []
+
+    for row in rows or []:
+        try:
+            date_value = datetime.strptime(row["date"], "%Y-%m-%d").date()
+            close = float(row["close"])
+        except (KeyError, TypeError, ValueError):
+            continue
+
+        if math.isfinite(close) and close > 0:
+            price_history.append((date_value, close))
+
+    price_history.sort(key=lambda price: price[0])
+    returns = {
+        window_name: None
+        for window_name, _ in REAL_RETURN_WINDOWS
+    }
+
+    if not price_history:
+        return returns
+
+    latest_date, latest_close = price_history[-1]
+
+    for window_name, months in REAL_RETURN_WINDOWS:
+        target_date = _subtract_months(latest_date, months)
+        historical_close = None
+
+        for price_date, close in reversed(price_history):
+            if price_date <= target_date:
+                historical_close = close
+                break
+
+        if historical_close is not None:
+            returns[window_name] = (
+                latest_close / historical_close - 1
+            ) * 100
+
+    return returns
+
+
+def get_real_historical_return_report(positions):
+
+    ticker_values = {}
+
+    for position in positions or []:
+        try:
+            ticker = str(position.get("ticker") or "").strip().upper()
+            value = float(position.get("value", 0) or 0)
+        except (AttributeError, TypeError, ValueError):
+            continue
+
+        if not math.isfinite(value) or value <= 0:
+            continue
+
+        ticker = ticker or "UNKNOWN"
+        ticker_values[ticker] = ticker_values.get(ticker, 0) + value
+
+    total_value = sum(ticker_values.values())
+
+    if total_value <= 0:
+        return {
+            "total_value": 0,
+            "windows": {
+                window_name: {
+                    "portfolio_return": None,
+                    "valid_ticker_count": 0,
+                    "coverage_percent": 0
+                }
+                for window_name, _ in REAL_RETURN_WINDOWS
+            },
+            "tickers": []
+        }
+
+    ticker_results = []
+
+    for ticker, value in ticker_values.items():
+        allocation = value / total_value * 100
+
+        if ticker == "UNKNOWN":
+            market_data = get_historical_market_data_for_ticker("")
+        else:
+            market_data = get_historical_market_data_for_ticker(ticker)
+
+        if market_data["status"] == "FAILED":
+            ticker_results.append({
+                "ticker": ticker,
+                "status": "FAILED",
+                "value": value,
+                "allocation": allocation,
+                "returns": {
+                    window_name: None
+                    for window_name, _ in REAL_RETURN_WINDOWS
+                },
+                "data_start_date": "",
+                "data_end_date": "",
+                "note": market_data["error"] or "Market data unavailable"
+            })
+            continue
+
+        if market_data["status"] == "SKIPPED_CASH":
+            ticker_results.append({
+                "ticker": ticker,
+                "status": "SKIPPED_CASH",
+                "value": value,
+                "allocation": allocation,
+                "returns": {
+                    window_name: None
+                    for window_name, _ in REAL_RETURN_WINDOWS
+                },
+                "data_start_date": "",
+                "data_end_date": "",
+                "note": "Cash excluded from price-return calculation"
+            })
+            continue
+
+        trailing_returns = _calculate_trailing_returns(market_data["rows"])
+        missing_windows = [
+            window_name
+            for window_name, value_return in trailing_returns.items()
+            if value_return is None
+        ]
+        note = (
+            f"Insufficient history for: {', '.join(missing_windows)}"
+            if missing_windows
+            else ""
+        )
+        ticker_results.append({
+            "ticker": ticker,
+            "status": market_data["status"],
+            "value": value,
+            "allocation": allocation,
+            "returns": trailing_returns,
+            "data_start_date": market_data["start_date"],
+            "data_end_date": market_data["end_date"],
+            "note": note
+        })
+
+    window_results = {}
+
+    for window_name, _ in REAL_RETURN_WINDOWS:
+        valid_tickers = [
+            ticker_result
+            for ticker_result in ticker_results
+            if ticker_result["returns"][window_name] is not None
+        ]
+        covered_value = sum(
+            ticker_result["value"]
+            for ticker_result in valid_tickers
+        )
+        coverage_percent = covered_value / total_value * 100
+        portfolio_return = (
+            sum(
+                ticker_result["allocation"] / 100
+                * ticker_result["returns"][window_name]
+                for ticker_result in valid_tickers
+            )
+            if covered_value > 0
+            else None
+        )
+        window_results[window_name] = {
+            "portfolio_return": portfolio_return,
+            "valid_ticker_count": len(valid_tickers),
+            "coverage_percent": coverage_percent
+        }
+
+    status_rank = {
+        "CACHE_HIT": 0,
+        "FRESH_DOWNLOAD": 0,
+        "FAILED": 1,
+        "SKIPPED_CASH": 2
+    }
+    ticker_results.sort(
+        key=lambda ticker_result: (
+            status_rank.get(ticker_result["status"], 1),
+            (
+                -ticker_result["allocation"]
+                if status_rank.get(ticker_result["status"], 1) == 0
+                else 0
+            ),
+            ticker_result["ticker"]
+        )
+    )
+
+    return {
+        "total_value": total_value,
+        "windows": window_results,
         "tickers": ticker_results
     }
 
