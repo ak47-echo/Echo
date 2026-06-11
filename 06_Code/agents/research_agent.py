@@ -356,6 +356,31 @@ CORRELATION_ASSUMPTIONS = {
     }
 }
 
+VOLATILITY_ASSUMPTIONS = {
+    "asset_class": {
+        "equity": 18.00,
+        "bond": 6.00,
+        "cash": 1.00,
+        "bitcoin": 70.00,
+        "commodity": 25.00,
+        "alternative": 20.00,
+        "unknown": 18.00
+    },
+    "factor_adjustments": {
+        "value": 1.00,
+        "growth": 3.00,
+        "quality": -2.00,
+        "momentum": 4.00,
+        "small": 5.00,
+        "large": -1.00,
+        "blend": 0.00,
+        "commodity": 0.00,
+        "bitcoin": 0.00,
+        "cash": 0.00,
+        "unknown": 0.00
+    }
+}
+
 PRIORITY_RANKS = {
     "high": 3,
     "medium": 2,
@@ -1790,6 +1815,179 @@ def get_statistical_correlation_report(positions):
         "pair_count": len(pairs),
         "unknown_classification_count": unknown_classification_count,
         "pairs": pairs
+    }
+
+
+def get_volatility_report(positions):
+
+    ticker_positions = {}
+
+    for position in positions or []:
+        try:
+            ticker = str(
+                position.get("ticker") or "UNKNOWN"
+            ).strip().upper()
+            value = float(position.get("value", 0) or 0)
+        except (AttributeError, TypeError, ValueError):
+            continue
+
+        if not ticker:
+            ticker = "UNKNOWN"
+
+        if not math.isfinite(value) or value <= 0:
+            continue
+
+        ticker_position = ticker_positions.setdefault(
+            ticker,
+            {
+                "ticker": ticker,
+                "value": 0,
+                "category": "",
+                "name": ""
+            }
+        )
+        ticker_position["value"] += value
+
+        category = str(position.get("category") or "").strip()
+        name = str(position.get("name") or "").strip()
+
+        if category and not ticker_position["category"]:
+            ticker_position["category"] = category
+
+        if name and not ticker_position["name"]:
+            ticker_position["name"] = name
+
+    total_value = sum(
+        position["value"]
+        for position in ticker_positions.values()
+    )
+
+    if total_value <= 0:
+        return {
+            "total_value": 0,
+            "portfolio_weighted_volatility": 0,
+            "volatility_risk_level": "LOW",
+            "largest_volatility_contributor": None,
+            "highest_volatility_position": None,
+            "lowest_volatility_position": None,
+            "high_volatility_positions_count": 0,
+            "unknown_classification_count": 0,
+            "positions": []
+        }
+
+    asset_assumptions = VOLATILITY_ASSUMPTIONS["asset_class"]
+    factor_adjustments = VOLATILITY_ASSUMPTIONS["factor_adjustments"]
+    analyzed_positions = []
+    unknown_classification_count = 0
+
+    for ticker_position in ticker_positions.values():
+        ticker = ticker_position["ticker"]
+        category = ticker_position["category"]
+        name = ticker_position["name"]
+
+        if not category and not name and ticker != "UNKNOWN":
+            security_info = get_security_info(ticker)
+
+            if security_info:
+                category = security_info.get("category") or ""
+                name = security_info.get("name") or ""
+
+        classification = classify_security(
+            ticker,
+            category=category,
+            name=name
+        )
+        asset_class = classification.get("asset_class", "unknown")
+
+        if asset_class not in asset_assumptions:
+            asset_class = "unknown"
+
+        if ticker == "CASH0":
+            factors = ["cash"]
+        else:
+            factors = classify_factor(category=category, name=name)
+
+        normalized_factors = [
+            factor if factor in factor_adjustments else "unknown"
+            for factor in factors
+        ] or ["unknown"]
+        factor_adjustment = sum(
+            factor_adjustments[factor]
+            for factor in normalized_factors
+        )
+        asset_class_volatility = asset_assumptions[asset_class]
+        position_volatility = max(
+            asset_class_volatility + factor_adjustment,
+            0
+        )
+        allocation = ticker_position["value"] / total_value * 100
+        weighted_contribution = (
+            allocation / 100 * position_volatility
+        )
+
+        if asset_class == "unknown" or "unknown" in normalized_factors:
+            unknown_classification_count += 1
+
+        analyzed_positions.append({
+            "ticker": ticker,
+            "value": ticker_position["value"],
+            "allocation": allocation,
+            "asset_class": asset_class,
+            "factors": normalized_factors,
+            "factor": ", ".join(normalized_factors),
+            "asset_class_volatility": asset_class_volatility,
+            "factor_adjustment": factor_adjustment,
+            "position_volatility": position_volatility,
+            "weighted_contribution": weighted_contribution
+        })
+
+    analyzed_positions.sort(
+        key=lambda position: (
+            -position["weighted_contribution"],
+            position["ticker"]
+        )
+    )
+    portfolio_weighted_volatility = sum(
+        position["weighted_contribution"]
+        for position in analyzed_positions
+    )
+    largest_volatility_contributor = analyzed_positions[0]
+    highest_volatility_position = max(
+        analyzed_positions,
+        key=lambda position: (
+            position["position_volatility"],
+            position["ticker"]
+        )
+    )
+    lowest_volatility_position = min(
+        analyzed_positions,
+        key=lambda position: (
+            position["position_volatility"],
+            position["ticker"]
+        )
+    )
+    high_volatility_positions_count = sum(
+        position["position_volatility"] >= 25
+        for position in analyzed_positions
+    )
+
+    if portfolio_weighted_volatility >= 25:
+        volatility_risk_level = "HIGH"
+    elif portfolio_weighted_volatility >= 12:
+        volatility_risk_level = "MEDIUM"
+    else:
+        volatility_risk_level = "LOW"
+
+    return {
+        "total_value": total_value,
+        "portfolio_weighted_volatility": portfolio_weighted_volatility,
+        "volatility_risk_level": volatility_risk_level,
+        "largest_volatility_contributor": largest_volatility_contributor,
+        "highest_volatility_position": highest_volatility_position,
+        "lowest_volatility_position": lowest_volatility_position,
+        "high_volatility_positions_count": high_volatility_positions_count,
+        "unknown_classification_count": unknown_classification_count,
+        "positions": analyzed_positions
     }
 
 

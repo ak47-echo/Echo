@@ -28,6 +28,7 @@ from agents.research_agent import (
     get_thesis,
     get_uncovered_holdings,
     get_uncovered_watchlist,
+    get_volatility_report,
     get_watchlist
 )
 
@@ -57,6 +58,8 @@ PORTFOLIO_REPORT_SECTION_ORDER = (
     "HISTORICAL RETURN DETAILS",
     "STATISTICAL CORRELATION SUMMARY",
     "STATISTICAL CORRELATION DETAILS",
+    "VOLATILITY SUMMARY",
+    "VOLATILITY DETAILS",
     "BUY LIST",
     "CAPITAL DEPLOYMENT",
     "SELL CANDIDATES",
@@ -1352,6 +1355,69 @@ def get_portfolio_report():
             )
     else:
         report.append("No statistical correlation data available.")
+
+    volatility_report = get_volatility_report(positions)
+
+    report.append("")
+    report.append("VOLATILITY SUMMARY")
+    report.append("")
+
+    if volatility_report["positions"]:
+        largest_contributor = volatility_report[
+            "largest_volatility_contributor"
+        ]
+        highest_volatility = volatility_report[
+            "highest_volatility_position"
+        ]
+        report.append(
+            "Portfolio Weighted Volatility: "
+            f"{volatility_report['portfolio_weighted_volatility']:.2f}%"
+        )
+        report.append(
+            "Volatility Risk Level: "
+            f"{volatility_report['volatility_risk_level']}"
+        )
+        report.append(
+            "Largest Volatility Contributor: "
+            f"{largest_contributor['ticker']} | "
+            f"{largest_contributor['weighted_contribution']:.2f}%"
+        )
+        report.append(
+            "Highest Volatility Position: "
+            f"{highest_volatility['ticker']} | "
+            f"{highest_volatility['position_volatility']:.2f}%"
+        )
+        report.append(
+            "High Volatility Positions: "
+            f"{volatility_report['high_volatility_positions_count']}"
+        )
+        report.append("")
+        report.append(
+            "Volatility assumptions are static estimates, "
+            "not historical realized volatility."
+        )
+    else:
+        report.append("No volatility data available.")
+
+    report.append("")
+    report.append("VOLATILITY DETAILS")
+    report.append("")
+
+    if volatility_report["positions"]:
+        for position in volatility_report["positions"]:
+            factor_name = position["factor"].replace("_", " ").title()
+            report.append(
+                f"{position['ticker']} | "
+                f"Allocation {position['allocation']:.2f}% | "
+                f"Asset Class {position['asset_class']} Vol "
+                f"{position['asset_class_volatility']:.2f}% | "
+                f"Factor {factor_name} Adj "
+                f"{position['factor_adjustment']:+.2f}% | "
+                f"Position Vol {position['position_volatility']:.2f}% | "
+                f"Contribution {position['weighted_contribution']:.2f}%"
+            )
+    else:
+        report.append("No volatility data available.")
 
     report.append("")
     report.append("CANDIDATE RANKINGS")
