@@ -11,6 +11,7 @@ from agents.research_agent import (
     get_factor_exposure,
     get_holding_comparable_score,
     get_investment_committee_summary,
+    get_macro_regime_report,
     get_portfolio_exposure,
     get_regime_analysis,
     get_ranked_watchlist,
@@ -45,6 +46,8 @@ PORTFOLIO_REPORT_SECTION_ORDER = (
     "CORRELATION PROXY DETAILS",
     "STRESS TEST SUMMARY",
     "STRESS TEST DETAILS",
+    "MACRO REGIME SUMMARY",
+    "MACRO REGIME DETAILS",
     "BUY LIST",
     "CAPITAL DEPLOYMENT",
     "SELL CANDIDATES",
@@ -1097,6 +1100,48 @@ def get_portfolio_report():
             )
     else:
         report.append("No stress test data available.")
+
+    macro_regime_report = get_macro_regime_report(positions)
+
+    report.append("")
+    report.append("MACRO REGIME SUMMARY")
+    report.append("")
+
+    if macro_regime_report["total_value"] > 0:
+        report.append(
+            "Current Regime: "
+            f"{macro_regime_report['current_regime']} | "
+            f"Confidence {macro_regime_report['confidence']:.2f}%"
+        )
+        report.append(
+            f"Alignment Level: {macro_regime_report['alignment_level']}"
+        )
+        report.append(
+            f"Top Signal: {macro_regime_report['top_signal']}"
+        )
+        report.append("")
+        report.append(
+            "Macro regime is inferred from portfolio classifications, "
+            "not external macroeconomic data."
+        )
+    else:
+        report.append("No macro regime data available.")
+
+    report.append("")
+    report.append("MACRO REGIME DETAILS")
+    report.append("")
+
+    if macro_regime_report["regime_ranking"]:
+        for regime in macro_regime_report["regime_ranking"]:
+            report.append(
+                f"{regime['regime']} | "
+                f"Score {regime['score']:.2f} | "
+                f"Confidence {regime['confidence']:.2f}% | "
+                f"Alignment {regime['alignment_level']} | "
+                f"Top Signal {regime['top_signal']}"
+            )
+    else:
+        report.append("No macro regime data available.")
 
     report.append("")
     report.append("CANDIDATE RANKINGS")

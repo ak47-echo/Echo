@@ -206,6 +206,98 @@ STRESS_SCENARIOS = {
     }
 }
 
+MACRO_REGIME_DEFINITIONS = {
+    "EXPANSION": {
+        "asset_weights": {
+            "equity": 1.00,
+            "bitcoin": 0.70,
+            "alternative": 0.40,
+            "cash": -0.40,
+            "bond": -0.20
+        },
+        "factor_weights": {
+            "growth": 0.50,
+            "momentum": 0.80,
+            "small": 0.60,
+            "bitcoin": 0.70
+        }
+    },
+    "DISINFLATION": {
+        "asset_weights": {
+            "bond": 1.00,
+            "equity": 0.30,
+            "cash": 0.30,
+            "commodity": -0.80
+        },
+        "factor_weights": {
+            "growth": 0.80,
+            "quality": 0.70,
+            "large": 0.50,
+            "commodity": -0.80
+        }
+    },
+    "INFLATION_SHOCK": {
+        "asset_weights": {
+            "commodity": 1.50,
+            "alternative": 0.50,
+            "bond": -0.60
+        },
+        "factor_weights": {
+            "commodity": 1.20,
+            "value": 0.70,
+            "income": 0.40,
+            "real_estate": 0.50,
+            "growth": -0.40
+        }
+    },
+    "RECESSION": {
+        "asset_weights": {
+            "bond": 1.00,
+            "cash": 0.90,
+            "bitcoin": -0.80,
+            "commodity": -0.30
+        },
+        "factor_weights": {
+            "quality": 0.90,
+            "large": 0.50,
+            "income": 0.70,
+            "small": -0.40,
+            "bitcoin": -0.80
+        }
+    },
+    "STAGFLATION": {
+        "asset_weights": {
+            "commodity": 1.20,
+            "alternative": 0.60,
+            "cash": 0.40,
+            "bond": -0.30
+        },
+        "factor_weights": {
+            "commodity": 1.00,
+            "value": 0.80,
+            "income": 0.80,
+            "real_estate": 0.70,
+            "growth": -0.70
+        }
+    },
+    "RISK_OFF": {
+        "asset_weights": {
+            "cash": 1.30,
+            "bond": 1.10,
+            "bitcoin": -1.00,
+            "commodity": -0.30
+        },
+        "factor_weights": {
+            "quality": 1.00,
+            "large": 0.60,
+            "income": 0.50,
+            "momentum": -0.50,
+            "small": -0.50,
+            "bitcoin": -1.00
+        }
+    }
+}
+
 PRIORITY_RANKS = {
     "high": 3,
     "medium": 2,
@@ -882,6 +974,131 @@ def get_stress_test_report(positions):
         "total_value": total_value,
         "worst_scenario": scenarios[0] if scenarios else None,
         "scenarios": scenarios
+    }
+
+
+def get_macro_regime_report(positions):
+
+    portfolio_exposure = get_portfolio_exposure(positions)
+    factor_exposure = get_factor_exposure(positions)
+    total_value = portfolio_exposure["total_value"]
+
+    if total_value <= 0:
+        return {
+            "total_value": 0,
+            "current_regime": "UNKNOWN",
+            "confidence": 0,
+            "alignment_level": "LOW",
+            "top_signal": "No positive portfolio value",
+            "top_supporting_signals": [],
+            "regime_ranking": []
+        }
+
+    asset_percentages = portfolio_exposure["percentages"]
+    factor_percentages = factor_exposure["percentages"]
+    regime_ranking = []
+
+    for regime, definition in MACRO_REGIME_DEFINITIONS.items():
+        raw_score = 0
+        supporting_signals = []
+
+        for asset_class, weight in definition["asset_weights"].items():
+            exposure = asset_percentages.get(asset_class, 0)
+            contribution = exposure * weight
+            raw_score += contribution
+
+            if contribution > 0:
+                supporting_signals.append({
+                    "signal": (
+                        f"{asset_class.replace('_', ' ').title()} "
+                        f"asset exposure {exposure:.1f}%"
+                    ),
+                    "contribution": contribution
+                })
+
+        for factor, weight in definition["factor_weights"].items():
+            exposure = factor_percentages.get(factor, 0)
+            contribution = exposure * weight
+            raw_score += contribution
+
+            if contribution > 0:
+                supporting_signals.append({
+                    "signal": (
+                        f"{factor.replace('_', ' ').title()} "
+                        f"factor exposure {exposure:.1f}%"
+                    ),
+                    "contribution": contribution
+                })
+
+        supporting_signals.sort(
+            key=lambda signal: (
+                -signal["contribution"],
+                signal["signal"]
+            )
+        )
+        score = max(raw_score, 0)
+        regime_ranking.append({
+            "regime": regime,
+            "score": score,
+            "confidence": 0,
+            "alignment_level": "LOW",
+            "top_signal": (
+                supporting_signals[0]["signal"]
+                if supporting_signals
+                else "No supporting signals"
+            ),
+            "supporting_signals": supporting_signals
+        })
+
+    total_score = sum(
+        regime["score"]
+        for regime in regime_ranking
+    )
+
+    for regime in regime_ranking:
+        if total_score > 0:
+            confidence = regime["score"] / total_score * 100
+        else:
+            confidence = 0
+
+        if confidence >= 35:
+            alignment_level = "HIGH"
+        elif confidence >= 20:
+            alignment_level = "MEDIUM"
+        else:
+            alignment_level = "LOW"
+
+        regime["confidence"] = confidence
+        regime["alignment_level"] = alignment_level
+
+    regime_ranking.sort(
+        key=lambda regime: (
+            -regime["score"],
+            regime["regime"]
+        )
+    )
+
+    if total_score <= 0:
+        return {
+            "total_value": total_value,
+            "current_regime": "UNKNOWN",
+            "confidence": 0,
+            "alignment_level": "LOW",
+            "top_signal": "No classified macro signals",
+            "top_supporting_signals": [],
+            "regime_ranking": regime_ranking
+        }
+
+    current_regime = regime_ranking[0]
+
+    return {
+        "total_value": total_value,
+        "current_regime": current_regime["regime"],
+        "confidence": current_regime["confidence"],
+        "alignment_level": current_regime["alignment_level"],
+        "top_signal": current_regime["top_signal"],
+        "top_supporting_signals": current_regime["supporting_signals"],
+        "regime_ranking": regime_ranking
     }
 
 
