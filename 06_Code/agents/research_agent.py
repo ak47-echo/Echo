@@ -1102,6 +1102,227 @@ def get_macro_regime_report(positions):
     }
 
 
+def get_tax_optimization_report(positions):
+
+    analyzed_positions = []
+    total_value = 0
+    total_taxable_value = 0
+    total_tax_advantaged_value = 0
+    total_unrealized_gains = 0
+    total_unrealized_losses = 0
+
+    for position in positions or []:
+        try:
+            ticker = str(
+                position.get("ticker") or "UNKNOWN"
+            ).strip().upper()
+            account = str(position.get("account") or "").strip()
+            account_type = str(
+                position.get("account_type") or ""
+            ).strip()
+            value = float(position.get("value", 0) or 0)
+        except (AttributeError, TypeError, ValueError):
+            continue
+
+        if not ticker:
+            ticker = "UNKNOWN"
+
+        if not math.isfinite(value) or value < 0:
+            value = 0
+
+        account_description = f"{account_type} {account}".strip().lower()
+
+        if any(
+            term in account_description
+            for term in (
+                "roth",
+                "traditional ira",
+                "ira",
+                "401k",
+                "401(k)",
+                "tax deferred",
+                "tax-deferred"
+            )
+        ):
+            tax_status = "Tax Advantaged"
+        elif any(
+            term in account_description
+            for term in ("brokerage", "taxable")
+        ):
+            tax_status = "Taxable"
+        else:
+            tax_status = "Unknown"
+
+        raw_gain_loss = position.get("gain_loss")
+
+        try:
+            gain_loss = float(raw_gain_loss)
+        except (TypeError, ValueError):
+            raw_cost_basis = position.get("cost_basis")
+
+            try:
+                cost_basis = float(raw_cost_basis)
+            except (TypeError, ValueError):
+                cost_basis = 0
+
+            if not math.isfinite(cost_basis) or cost_basis < 0:
+                cost_basis = 0
+
+            gain_loss = (
+                value - cost_basis
+                if raw_cost_basis not in (None, "")
+                else 0
+            )
+
+        if not math.isfinite(gain_loss):
+            gain_loss = 0
+
+        raw_gain_loss_percent = position.get("gain_loss_percent")
+
+        try:
+            gain_loss_percent = float(raw_gain_loss_percent)
+        except (TypeError, ValueError):
+            try:
+                cost_basis = float(position.get("cost_basis", 0) or 0)
+            except (TypeError, ValueError):
+                cost_basis = 0
+
+            if math.isfinite(cost_basis) and cost_basis > 0:
+                gain_loss_percent = gain_loss / cost_basis * 100
+            else:
+                gain_loss_percent = 0
+
+        if not math.isfinite(gain_loss_percent):
+            gain_loss_percent = 0
+
+        if gain_loss_percent >= 20:
+            gain_status = "Large Gain"
+        elif gain_loss_percent > 0:
+            gain_status = "Gain"
+        elif gain_loss_percent <= -20:
+            gain_status = "Large Loss"
+        elif gain_loss_percent < 0:
+            gain_status = "Loss"
+        else:
+            gain_status = "Neutral"
+
+        if tax_status == "Taxable" and gain_loss < 0:
+            tax_flag = "Tax Loss Harvest Candidate"
+        elif tax_status == "Taxable" and gain_status == "Large Gain":
+            tax_flag = "Large Taxable Gain"
+        elif tax_status == "Taxable":
+            tax_flag = "Taxable Position"
+        elif tax_status == "Tax Advantaged":
+            tax_flag = "Tax Efficient Location"
+        else:
+            tax_flag = "Unknown Account Status"
+
+        if tax_status == "Taxable" and gain_status == "Large Gain":
+            sort_group = 0
+        elif tax_status == "Taxable" and gain_status == "Large Loss":
+            sort_group = 1
+        elif tax_status == "Taxable":
+            sort_group = 2
+        elif tax_status == "Tax Advantaged":
+            sort_group = 3
+        else:
+            sort_group = 4
+
+        total_value += value
+
+        if tax_status == "Taxable":
+            total_taxable_value += value
+        elif tax_status == "Tax Advantaged":
+            total_tax_advantaged_value += value
+
+        if gain_loss > 0:
+            total_unrealized_gains += gain_loss
+        elif gain_loss < 0:
+            total_unrealized_losses += abs(gain_loss)
+
+        analyzed_positions.append({
+            "ticker": ticker,
+            "account": account,
+            "tax_status": tax_status,
+            "value": value,
+            "gain_loss": gain_loss,
+            "gain_loss_percent": gain_loss_percent,
+            "gain_status": gain_status,
+            "tax_flag": tax_flag,
+            "sort_group": sort_group
+        })
+
+    taxable_gain_positions = [
+        position
+        for position in analyzed_positions
+        if position["tax_status"] == "Taxable"
+        and position["gain_loss"] > 0
+    ]
+    taxable_loss_positions = [
+        position
+        for position in analyzed_positions
+        if position["tax_status"] == "Taxable"
+        and position["gain_loss"] < 0
+    ]
+    largest_taxable_gain = (
+        max(
+            taxable_gain_positions,
+            key=lambda position: (
+                position["gain_loss"],
+                position["ticker"],
+                position["account"]
+            )
+        )
+        if taxable_gain_positions
+        else None
+    )
+    largest_taxable_loss = (
+        min(
+            taxable_loss_positions,
+            key=lambda position: (
+                position["gain_loss"],
+                position["ticker"],
+                position["account"]
+            )
+        )
+        if taxable_loss_positions
+        else None
+    )
+
+    analyzed_positions.sort(
+        key=lambda position: (
+            position["sort_group"],
+            -abs(position["gain_loss"]),
+            position["ticker"],
+            position["account"]
+        )
+    )
+
+    if total_value > 0:
+        taxable_percentage = total_taxable_value / total_value * 100
+        tax_advantaged_percentage = (
+            total_tax_advantaged_value / total_value * 100
+        )
+    else:
+        taxable_percentage = 0
+        tax_advantaged_percentage = 0
+
+    return {
+        "total_value": total_value,
+        "total_taxable_value": total_taxable_value,
+        "total_tax_advantaged_value": total_tax_advantaged_value,
+        "taxable_percentage": taxable_percentage,
+        "tax_advantaged_percentage": tax_advantaged_percentage,
+        "total_unrealized_gains": total_unrealized_gains,
+        "total_unrealized_losses": total_unrealized_losses,
+        "largest_taxable_gain": largest_taxable_gain,
+        "largest_taxable_loss": largest_taxable_loss,
+        "tax_loss_harvest_candidates_count": len(taxable_loss_positions),
+        "large_taxable_gain_positions_count": len(taxable_gain_positions),
+        "positions": analyzed_positions
+    }
+
+
 def get_portfolio_exposure(positions):
 
     category_values = {

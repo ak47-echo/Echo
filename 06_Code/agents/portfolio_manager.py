@@ -22,6 +22,7 @@ from agents.research_agent import (
     get_security_info,
     get_sell_candidates,
     get_stress_test_report,
+    get_tax_optimization_report,
     get_thesis,
     get_uncovered_holdings,
     get_uncovered_watchlist,
@@ -48,6 +49,8 @@ PORTFOLIO_REPORT_SECTION_ORDER = (
     "STRESS TEST DETAILS",
     "MACRO REGIME SUMMARY",
     "MACRO REGIME DETAILS",
+    "TAX OPTIMIZATION SUMMARY",
+    "TAX OPTIMIZATION DETAILS",
     "BUY LIST",
     "CAPITAL DEPLOYMENT",
     "SELL CANDIDATES",
@@ -1142,6 +1145,87 @@ def get_portfolio_report():
             )
     else:
         report.append("No macro regime data available.")
+
+    tax_optimization_report = get_tax_optimization_report(positions)
+
+    report.append("")
+    report.append("TAX OPTIMIZATION SUMMARY")
+    report.append("")
+
+    if tax_optimization_report["positions"]:
+        report.append(
+            "Taxable Assets: "
+            f"{tax_optimization_report['taxable_percentage']:.1f}%"
+        )
+        report.append(
+            "Tax Advantaged Assets: "
+            f"{tax_optimization_report['tax_advantaged_percentage']:.1f}%"
+        )
+        report.append("")
+
+        largest_taxable_gain = tax_optimization_report[
+            "largest_taxable_gain"
+        ]
+        largest_taxable_loss = tax_optimization_report[
+            "largest_taxable_loss"
+        ]
+
+        if largest_taxable_gain:
+            report.append(
+                "Largest Taxable Gain: "
+                f"{largest_taxable_gain['ticker']} | "
+                f"+${largest_taxable_gain['gain_loss']:,.2f}"
+            )
+        else:
+            report.append("Largest Taxable Gain: None")
+
+        if largest_taxable_loss:
+            report.append(
+                "Largest Taxable Loss: "
+                f"{largest_taxable_loss['ticker']} | "
+                f"-${abs(largest_taxable_loss['gain_loss']):,.2f}"
+            )
+        else:
+            report.append("Largest Taxable Loss: None")
+
+        report.append("")
+        report.append(
+            "Tax Loss Harvest Candidates: "
+            f"{tax_optimization_report['tax_loss_harvest_candidates_count']}"
+        )
+        report.append(
+            "Large Taxable Gain Positions: "
+            f"{tax_optimization_report['large_taxable_gain_positions_count']}"
+        )
+        report.append("")
+        report.append(
+            "Tax analysis is informational only and not tax advice."
+        )
+    else:
+        report.append("No tax optimization data available.")
+
+    report.append("")
+    report.append("TAX OPTIMIZATION DETAILS")
+    report.append("")
+
+    if tax_optimization_report["positions"]:
+        for position in tax_optimization_report["positions"]:
+            if position["gain_loss"] > 0:
+                gain_loss_text = f"+${position['gain_loss']:,.2f}"
+            elif position["gain_loss"] < 0:
+                gain_loss_text = f"-${abs(position['gain_loss']):,.2f}"
+            else:
+                gain_loss_text = "$0.00"
+
+            report.append(
+                f"{position['ticker']} | "
+                f"{position['tax_status']} | "
+                f"{position['gain_status']} | "
+                f"{gain_loss_text} | "
+                f"{position['tax_flag']}"
+            )
+    else:
+        report.append("No tax optimization data available.")
 
     report.append("")
     report.append("CANDIDATE RANKINGS")
