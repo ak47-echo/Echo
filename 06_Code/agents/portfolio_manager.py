@@ -16,6 +16,7 @@ from agents.research_agent import (
     get_investment_committee_summary,
     get_macro_regime_report,
     get_monte_carlo_report,
+    get_monte_carlo_v2_input_report,
     get_portfolio_exposure,
     get_regime_analysis,
     get_ranked_watchlist,
@@ -78,6 +79,8 @@ PORTFOLIO_REPORT_SECTION_ORDER = (
     "REAL HISTORICAL CORRELATION DETAILS",
     "ASSUMPTION RECONCILIATION SUMMARY",
     "ASSUMPTION RECONCILIATION DETAILS",
+    "MONTE CARLO V2 INPUT SUMMARY",
+    "MONTE CARLO V2 INPUT DETAILS",
     "BUY LIST",
     "CAPITAL DEPLOYMENT",
     "SELL CANDIDATES",
@@ -1983,6 +1986,103 @@ def get_portfolio_report():
             )
     else:
         report.append("No assumption reconciliation data available.")
+
+    monte_carlo_v2_input_report = get_monte_carlo_v2_input_report(
+        positions
+    )
+
+    report.append("")
+    report.append("MONTE CARLO V2 INPUT SUMMARY")
+    report.append("")
+
+    if monte_carlo_v2_input_report["has_data"]:
+        report.append(
+            "Portfolio Expected Return: "
+            f"{monte_carlo_v2_input_report[
+                'portfolio_expected_return'
+            ]:.2f}%"
+        )
+        report.append(
+            "Portfolio Weighted Volatility: "
+            f"{monte_carlo_v2_input_report[
+                'portfolio_weighted_volatility'
+            ]:.2f}%"
+        )
+        report.append(
+            "Weighted Average Correlation: "
+            f"{monte_carlo_v2_input_report[
+                'weighted_average_correlation'
+            ]:.2f}"
+        )
+        report.append("")
+        report.append(
+            "Return Data Coverage: "
+            f"{monte_carlo_v2_input_report[
+                'return_coverage_percent'
+            ]:.1f}%"
+        )
+        report.append(
+            "Volatility Data Coverage: "
+            f"{monte_carlo_v2_input_report[
+                'volatility_coverage_percent'
+            ]:.1f}%"
+        )
+        report.append(
+            "Correlation Pair Coverage: "
+            f"{monte_carlo_v2_input_report[
+                'correlation_pair_coverage_percent'
+            ]:.1f}%"
+        )
+        report.append("")
+        report.append(
+            "Overall Input Quality: "
+            f"{monte_carlo_v2_input_report['overall_input_quality']}"
+        )
+        report.append("")
+        report.append(
+            "Monte Carlo V2 inputs use real historical data where "
+            "available and static assumptions as fallback."
+        )
+        report.append(
+            "This phase prepares inputs only and does not run "
+            "Monte Carlo V2."
+        )
+    else:
+        report.append("No Monte Carlo V2 input data available.")
+
+    report.append("")
+    report.append("MONTE CARLO V2 INPUT DETAILS")
+    report.append("")
+
+    if monte_carlo_v2_input_report["has_data"]:
+        for position_input in monte_carlo_v2_input_report["positions"]:
+            report.append(
+                f"{position_input['ticker']} | "
+                f"Allocation {position_input['allocation']:.2f}% | "
+                f"Return {position_input['expected_return']:.2f}% "
+                f"{position_input['expected_return_source']} | "
+                f"Volatility {position_input['volatility']:.2f}% "
+                f"{position_input['volatility_source']} | "
+                f"Input Quality {position_input['input_quality']}"
+            )
+
+        report.append("")
+        report.append("Correlation Input:")
+        report.append(
+            "Weighted Average Correlation "
+            f"{monte_carlo_v2_input_report[
+                'weighted_average_correlation'
+            ]:.2f} | "
+            f"Source {monte_carlo_v2_input_report[
+                'correlation_source'
+            ]} | "
+            "Pair Coverage "
+            f"{monte_carlo_v2_input_report[
+                'correlation_pair_coverage_percent'
+            ]:.1f}%"
+        )
+    else:
+        report.append("No Monte Carlo V2 input data available.")
 
     report.append("")
     report.append("CANDIDATE RANKINGS")

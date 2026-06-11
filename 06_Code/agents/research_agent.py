@@ -3234,6 +3234,22 @@ def _select_preferred_return(measurements, window_order):
     return None, None
 
 
+def _select_preferred_nonnegative_measurement(measurements, window_order):
+
+    for window_name in window_order:
+        measurement = measurements.get(window_name)
+
+        try:
+            numeric_measurement = float(measurement)
+        except (TypeError, ValueError):
+            continue
+
+        if math.isfinite(numeric_measurement) and numeric_measurement >= 0:
+            return window_name, numeric_measurement
+
+    return None, None
+
+
 def _summarize_reconciliation(records):
 
     return {
@@ -3481,6 +3497,250 @@ def get_assumption_reconciliation_report(positions):
         "return_reconciliation": return_reconciliation,
         "volatility_reconciliation": volatility_reconciliation,
         "correlation_reconciliation": correlation_reconciliation
+    }
+
+
+def get_monte_carlo_v2_input_report(positions):
+
+    static_return_report = get_historical_return_report(positions)
+    static_volatility_report = get_volatility_report(positions)
+    static_correlation_report = get_statistical_correlation_report(positions)
+
+    if not static_return_report["positions"]:
+        return {
+            "has_data": False,
+            "portfolio_expected_return": 0,
+            "portfolio_weighted_volatility": 0,
+            "weighted_average_correlation": 0,
+            "return_coverage_percent": 0,
+            "volatility_coverage_percent": 0,
+            "correlation_pair_coverage_percent": 0,
+            "overall_input_quality": "LOW",
+            "correlation_source": "STATIC_MIXED",
+            "positions": [],
+            "correlations": []
+        }
+
+    real_return_report = get_real_historical_return_report(positions)
+    real_volatility_report = get_real_historical_volatility_report(positions)
+    real_correlation_report = get_real_historical_correlation_report(
+        positions
+    )
+    return_window_order = ("5Y", "3Y", "1Y", "6M", "3M", "1M")
+    correlation_window_order = ("5Y", "3Y", "1Y", "6M", "3M")
+
+    static_volatility = {
+        position["ticker"]: position
+        for position in static_volatility_report["positions"]
+    }
+    real_returns = {
+        position["ticker"]: position
+        for position in real_return_report.get("tickers", [])
+    }
+    real_volatility = {
+        position["ticker"]: position
+        for position in real_volatility_report.get("tickers", [])
+    }
+    position_inputs = []
+
+    for static_return in static_return_report["positions"]:
+        ticker = static_return["ticker"]
+        allocation = static_return["allocation"]
+        return_window, cumulative_return = _select_preferred_return(
+            real_returns.get(ticker, {}).get("returns", {}),
+            return_window_order
+        )
+        annualized_return = _annualize_cumulative_return(
+            cumulative_return,
+            return_window
+        )
+
+        if annualized_return is None:
+            expected_return = static_return["blended_return"]
+            return_source = "STATIC_FALLBACK"
+        else:
+            expected_return = annualized_return
+            return_source = f"REAL_{return_window}"
+
+        static_volatility_position = static_volatility.get(ticker, {})
+        volatility_window, realized_volatility = (
+            _select_preferred_nonnegative_measurement(
+                real_volatility.get(ticker, {}).get("volatility", {}),
+                return_window_order
+            )
+        )
+
+        if realized_volatility is None:
+            volatility = static_volatility_position.get(
+                "position_volatility",
+                0
+            )
+            volatility_source = "STATIC_FALLBACK"
+        else:
+            volatility = realized_volatility
+            volatility_source = f"REAL_{volatility_window}"
+
+        real_input_count = sum((
+            return_source != "STATIC_FALLBACK",
+            volatility_source != "STATIC_FALLBACK"
+        ))
+
+        if real_input_count == 2:
+            input_quality = "HIGH"
+        elif real_input_count == 1:
+            input_quality = "MEDIUM"
+        else:
+            input_quality = "LOW"
+
+        position_inputs.append({
+            "ticker": ticker,
+            "allocation": allocation,
+            "expected_return": expected_return,
+            "expected_return_source": return_source,
+            "volatility": volatility,
+            "volatility_source": volatility_source,
+            "input_quality": input_quality
+        })
+
+    position_inputs.sort(
+        key=lambda position: (
+            -position["allocation"],
+            position["ticker"]
+        )
+    )
+    portfolio_expected_return = sum(
+        position["allocation"] / 100 * position["expected_return"]
+        for position in position_inputs
+    )
+    portfolio_weighted_volatility = sum(
+        position["allocation"] / 100 * position["volatility"]
+        for position in position_inputs
+    )
+    return_coverage_percent = sum(
+        position["allocation"]
+        for position in position_inputs
+        if position["expected_return_source"] != "STATIC_FALLBACK"
+    )
+    volatility_coverage_percent = sum(
+        position["allocation"]
+        for position in position_inputs
+        if position["volatility_source"] != "STATIC_FALLBACK"
+    )
+
+    real_pairs_by_window = {}
+    real_correlation_windows = real_correlation_report.get("windows", {})
+
+    for window_name in correlation_window_order:
+        window_result = real_correlation_windows.get(
+            window_name,
+            {}
+        )
+        window_pairs = window_result.get(
+            "all_pairs",
+            window_result.get("pairs", [])
+        )
+        real_pairs_by_window[window_name] = {
+            tuple(sorted((pair["ticker_1"], pair["ticker_2"]))): pair
+            for pair in window_pairs
+        }
+
+    correlation_inputs = []
+    real_non_cash_pair_count = 0
+    total_non_cash_pair_count = 0
+
+    for static_pair in static_correlation_report["pairs"]:
+        pair_key = tuple(sorted((
+            static_pair["ticker_1"],
+            static_pair["ticker_2"]
+        )))
+        correlation = static_pair["correlation"]
+        source = "STATIC_FALLBACK"
+
+        for window_name in correlation_window_order:
+            real_pair = real_pairs_by_window[window_name].get(pair_key)
+
+            if real_pair is None:
+                continue
+
+            try:
+                real_correlation = float(real_pair["correlation"])
+            except (KeyError, TypeError, ValueError):
+                continue
+
+            if math.isfinite(real_correlation):
+                correlation = max(-1, min(1, real_correlation))
+                source = f"REAL_{window_name}"
+                break
+
+        is_non_cash_pair = "CASH0" not in pair_key
+
+        if is_non_cash_pair:
+            total_non_cash_pair_count += 1
+
+            if source != "STATIC_FALLBACK":
+                real_non_cash_pair_count += 1
+
+        correlation_inputs.append({
+            "ticker_1": pair_key[0],
+            "ticker_2": pair_key[1],
+            "correlation": correlation,
+            "source": source,
+            "raw_pair_weight": static_pair["raw_pair_weight"]
+        })
+
+    total_pair_weight = sum(
+        pair["raw_pair_weight"]
+        for pair in correlation_inputs
+    )
+    weighted_average_correlation = (
+        sum(
+            pair["correlation"] * pair["raw_pair_weight"]
+            for pair in correlation_inputs
+        ) / total_pair_weight
+        if total_pair_weight > 0
+        else 0
+    )
+    correlation_pair_coverage_percent = (
+        real_non_cash_pair_count / total_non_cash_pair_count * 100
+        if total_non_cash_pair_count > 0
+        else 0
+    )
+    correlation_source = (
+        "REAL"
+        if correlation_inputs
+        and all(
+            pair["source"] != "STATIC_FALLBACK"
+            for pair in correlation_inputs
+        )
+        else "STATIC_MIXED"
+    )
+    coverage_metrics = (
+        return_coverage_percent,
+        volatility_coverage_percent,
+        correlation_pair_coverage_percent
+    )
+
+    if all(coverage >= 80 for coverage in coverage_metrics):
+        overall_input_quality = "HIGH"
+    elif all(coverage >= 50 for coverage in coverage_metrics):
+        overall_input_quality = "MEDIUM"
+    else:
+        overall_input_quality = "LOW"
+
+    return {
+        "has_data": True,
+        "portfolio_expected_return": portfolio_expected_return,
+        "portfolio_weighted_volatility": portfolio_weighted_volatility,
+        "weighted_average_correlation": weighted_average_correlation,
+        "return_coverage_percent": return_coverage_percent,
+        "volatility_coverage_percent": volatility_coverage_percent,
+        "correlation_pair_coverage_percent": (
+            correlation_pair_coverage_percent
+        ),
+        "overall_input_quality": overall_input_quality,
+        "correlation_source": correlation_source,
+        "positions": position_inputs,
+        "correlations": correlation_inputs
     }
 
 
