@@ -323,6 +323,39 @@ HISTORICAL_RETURN_ASSUMPTIONS = {
     }
 }
 
+CORRELATION_ASSUMPTIONS = {
+    "asset_class": {
+        ("equity", "equity"): 0.85,
+        ("bond", "equity"): 0.25,
+        ("cash", "equity"): 0.05,
+        ("bitcoin", "equity"): 0.55,
+        ("commodity", "equity"): 0.40,
+        ("alternative", "equity"): 0.50,
+        ("bond", "bond"): 0.80,
+        ("bond", "cash"): 0.20,
+        ("bitcoin", "bond"): 0.15,
+        ("bond", "commodity"): 0.10,
+        ("alternative", "bond"): 0.30,
+        ("cash", "cash"): 1.00,
+        ("bitcoin", "cash"): 0.05,
+        ("cash", "commodity"): 0.05,
+        ("alternative", "cash"): 0.10,
+        ("bitcoin", "bitcoin"): 0.90,
+        ("bitcoin", "commodity"): 0.30,
+        ("alternative", "bitcoin"): 0.45,
+        ("commodity", "commodity"): 0.75,
+        ("alternative", "commodity"): 0.45,
+        ("alternative", "alternative"): 0.70
+    },
+    "unknown": 0.50,
+    "factor_adjustments": {
+        "same_factor": 0.10,
+        "growth_value": -0.05,
+        "large_small": -0.05,
+        "cash_non_cash": -0.05
+    }
+}
+
 PRIORITY_RANKS = {
     "high": 3,
     "medium": 2,
@@ -1504,6 +1537,259 @@ def get_historical_return_report(positions):
         "total_positions_included": len(analyzed_positions),
         "unknown_classification_count": unknown_classification_count,
         "positions": analyzed_positions
+    }
+
+
+def get_statistical_correlation_report(positions):
+
+    ticker_positions = {}
+
+    for position in positions or []:
+        try:
+            ticker = str(
+                position.get("ticker") or "UNKNOWN"
+            ).strip().upper()
+            value = float(position.get("value", 0) or 0)
+        except (AttributeError, TypeError, ValueError):
+            continue
+
+        if not ticker:
+            ticker = "UNKNOWN"
+
+        if not math.isfinite(value) or value <= 0:
+            continue
+
+        ticker_position = ticker_positions.setdefault(
+            ticker,
+            {
+                "ticker": ticker,
+                "value": 0,
+                "category": "",
+                "name": ""
+            }
+        )
+        ticker_position["value"] += value
+
+        category = str(position.get("category") or "").strip()
+        name = str(position.get("name") or "").strip()
+
+        if category and not ticker_position["category"]:
+            ticker_position["category"] = category
+
+        if name and not ticker_position["name"]:
+            ticker_position["name"] = name
+
+    total_value = sum(
+        position["value"]
+        for position in ticker_positions.values()
+    )
+
+    if total_value <= 0 or len(ticker_positions) < 2:
+        return {
+            "total_value": max(total_value, 0),
+            "average_correlation": 0,
+            "weighted_average_correlation": 0,
+            "highest_correlation_pair": None,
+            "lowest_correlation_pair": None,
+            "diversification_benefit": 0,
+            "correlation_risk_level": "LOW",
+            "pair_count": 0,
+            "unknown_classification_count": 0,
+            "pairs": []
+        }
+
+    classified_positions = []
+    unknown_classification_count = 0
+
+    for ticker_position in ticker_positions.values():
+        ticker = ticker_position["ticker"]
+        category = ticker_position["category"]
+        name = ticker_position["name"]
+
+        if not category and not name and ticker != "UNKNOWN":
+            security_info = get_security_info(ticker)
+
+            if security_info:
+                category = security_info.get("category") or ""
+                name = security_info.get("name") or ""
+
+        classification = classify_security(
+            ticker,
+            category=category,
+            name=name
+        )
+        asset_class = classification.get("asset_class", "unknown")
+
+        if asset_class not in EXPOSURE_CATEGORIES:
+            asset_class = "unknown"
+
+        if ticker == "CASH0":
+            factors = ["cash"]
+        else:
+            factors = classify_factor(category=category, name=name)
+
+        normalized_factors = {
+            factor if factor in FACTOR_CATEGORIES else "unknown"
+            for factor in factors
+        } or {"unknown"}
+
+        if asset_class == "unknown" or "unknown" in normalized_factors:
+            unknown_classification_count += 1
+
+        classified_positions.append({
+            "ticker": ticker,
+            "value": ticker_position["value"],
+            "allocation": ticker_position["value"] / total_value,
+            "asset_class": asset_class,
+            "factors": normalized_factors
+        })
+
+    classified_positions.sort(key=lambda position: position["ticker"])
+    pairs = []
+    adjustments = CORRELATION_ASSUMPTIONS["factor_adjustments"]
+
+    for first_index, first in enumerate(classified_positions):
+        for second in classified_positions[first_index + 1:]:
+            asset_pair = tuple(sorted((
+                first["asset_class"],
+                second["asset_class"]
+            )))
+
+            if "unknown" in asset_pair:
+                base_correlation = CORRELATION_ASSUMPTIONS["unknown"]
+            else:
+                base_correlation = CORRELATION_ASSUMPTIONS[
+                    "asset_class"
+                ].get(
+                    asset_pair,
+                    CORRELATION_ASSUMPTIONS["unknown"]
+                )
+
+            factor_adjustment = 0
+            adjustment_labels = []
+            shared_factors = (
+                first["factors"] & second["factors"]
+            ) - {"unknown"}
+
+            if shared_factors:
+                factor_adjustment += adjustments["same_factor"]
+                adjustment_labels.append("shared factor")
+
+            if (
+                ("growth" in first["factors"] and "value" in second["factors"])
+                or (
+                    "value" in first["factors"]
+                    and "growth" in second["factors"]
+                )
+            ):
+                factor_adjustment += adjustments["growth_value"]
+                adjustment_labels.append("growth/value")
+
+            if (
+                ("large" in first["factors"] and "small" in second["factors"])
+                or (
+                    "small" in first["factors"]
+                    and "large" in second["factors"]
+                )
+            ):
+                factor_adjustment += adjustments["large_small"]
+                adjustment_labels.append("large/small")
+
+            first_cash = "cash" in first["factors"]
+            second_cash = "cash" in second["factors"]
+
+            if first_cash != second_cash:
+                factor_adjustment += adjustments["cash_non_cash"]
+                adjustment_labels.append("cash/non-cash")
+
+            correlation = max(
+                0,
+                min(1, base_correlation + factor_adjustment)
+            )
+            raw_pair_weight = (
+                first["allocation"] * second["allocation"]
+            )
+            basis = (
+                f"{first['asset_class']}/{second['asset_class']}"
+            )
+
+            if adjustment_labels:
+                basis += f" + {', '.join(adjustment_labels)}"
+
+            pairs.append({
+                "ticker_1": first["ticker"],
+                "ticker_2": second["ticker"],
+                "correlation": correlation,
+                "basis": basis,
+                "raw_pair_weight": raw_pair_weight,
+                "weight_impact": 0
+            })
+
+    total_pair_weight = sum(
+        pair["raw_pair_weight"]
+        for pair in pairs
+    )
+
+    for pair in pairs:
+        pair["weight_impact"] = (
+            pair["raw_pair_weight"] / total_pair_weight * 100
+            if total_pair_weight > 0
+            else 0
+        )
+
+    average_correlation = (
+        sum(pair["correlation"] for pair in pairs) / len(pairs)
+        if pairs
+        else 0
+    )
+    weighted_average_correlation = (
+        sum(
+            pair["correlation"] * pair["raw_pair_weight"]
+            for pair in pairs
+        ) / total_pair_weight
+        if total_pair_weight > 0
+        else 0
+    )
+
+    pairs.sort(
+        key=lambda pair: (
+            -pair["correlation"],
+            pair["ticker_1"],
+            pair["ticker_2"]
+        )
+    )
+    highest_correlation_pair = pairs[0] if pairs else None
+    lowest_correlation_pair = (
+        min(
+            pairs,
+            key=lambda pair: (
+                pair["correlation"],
+                pair["ticker_1"],
+                pair["ticker_2"]
+            )
+        )
+        if pairs
+        else None
+    )
+
+    if weighted_average_correlation >= 0.70:
+        correlation_risk_level = "HIGH"
+    elif weighted_average_correlation >= 0.40:
+        correlation_risk_level = "MEDIUM"
+    else:
+        correlation_risk_level = "LOW"
+
+    return {
+        "total_value": total_value,
+        "average_correlation": average_correlation,
+        "weighted_average_correlation": weighted_average_correlation,
+        "highest_correlation_pair": highest_correlation_pair,
+        "lowest_correlation_pair": lowest_correlation_pair,
+        "diversification_benefit": 1 - weighted_average_correlation,
+        "correlation_risk_level": correlation_risk_level,
+        "pair_count": len(pairs),
+        "unknown_classification_count": unknown_classification_count,
+        "pairs": pairs
     }
 
 

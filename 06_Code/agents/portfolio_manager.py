@@ -22,6 +22,7 @@ from agents.research_agent import (
     get_security_classification,
     get_security_info,
     get_sell_candidates,
+    get_statistical_correlation_report,
     get_stress_test_report,
     get_tax_optimization_report,
     get_thesis,
@@ -54,6 +55,8 @@ PORTFOLIO_REPORT_SECTION_ORDER = (
     "TAX OPTIMIZATION DETAILS",
     "HISTORICAL RETURN SUMMARY",
     "HISTORICAL RETURN DETAILS",
+    "STATISTICAL CORRELATION SUMMARY",
+    "STATISTICAL CORRELATION DETAILS",
     "BUY LIST",
     "CAPITAL DEPLOYMENT",
     "SELL CANDIDATES",
@@ -1293,6 +1296,62 @@ def get_portfolio_report():
             )
     else:
         report.append("No historical return data available.")
+
+    statistical_correlation_report = get_statistical_correlation_report(
+        positions
+    )
+
+    report.append("")
+    report.append("STATISTICAL CORRELATION SUMMARY")
+    report.append("")
+
+    if statistical_correlation_report["pairs"]:
+        highest_pair = statistical_correlation_report[
+            "highest_correlation_pair"
+        ]
+        lowest_pair = statistical_correlation_report[
+            "lowest_correlation_pair"
+        ]
+        report.append(
+            "Weighted Average Correlation: "
+            f"{statistical_correlation_report['weighted_average_correlation']:.2f}"
+        )
+        report.append(
+            "Correlation Risk Level: "
+            f"{statistical_correlation_report['correlation_risk_level']}"
+        )
+        report.append(
+            "Highest Correlation Pair: "
+            f"{highest_pair['ticker_1']} / {highest_pair['ticker_2']} | "
+            f"{highest_pair['correlation']:.2f}"
+        )
+        report.append(
+            "Lowest Correlation Pair: "
+            f"{lowest_pair['ticker_1']} / {lowest_pair['ticker_2']} | "
+            f"{lowest_pair['correlation']:.2f}"
+        )
+        report.append("")
+        report.append(
+            "Correlation assumptions are static estimates, "
+            "not historical return correlations."
+        )
+    else:
+        report.append("No statistical correlation data available.")
+
+    report.append("")
+    report.append("STATISTICAL CORRELATION DETAILS")
+    report.append("")
+
+    if statistical_correlation_report["pairs"]:
+        for pair in statistical_correlation_report["pairs"]:
+            report.append(
+                f"{pair['ticker_1']} / {pair['ticker_2']} | "
+                f"Correlation {pair['correlation']:.2f} | "
+                f"Basis {pair['basis']} | "
+                f"Weight Impact {pair['weight_impact']:.2f}%"
+            )
+    else:
+        report.append("No statistical correlation data available.")
 
     report.append("")
     report.append("CANDIDATE RANKINGS")
