@@ -3,6 +3,7 @@ import yfinance as yf
 from agents.policy_agent import get_policy
 from agents.research_agent import (
     are_asset_classes_compatible,
+    get_assumption_reconciliation_report,
     get_buy_list,
     get_concentration_risk,
     get_correlation_proxy,
@@ -75,6 +76,8 @@ PORTFOLIO_REPORT_SECTION_ORDER = (
     "REAL HISTORICAL VOLATILITY DETAILS",
     "REAL HISTORICAL CORRELATION SUMMARY",
     "REAL HISTORICAL CORRELATION DETAILS",
+    "ASSUMPTION RECONCILIATION SUMMARY",
+    "ASSUMPTION RECONCILIATION DETAILS",
     "BUY LIST",
     "CAPITAL DEPLOYMENT",
     "SELL CANDIDATES",
@@ -1815,6 +1818,170 @@ def get_portfolio_report():
             )
     else:
         report.append("No real historical correlation data available.")
+
+    assumption_reconciliation_report = (
+        get_assumption_reconciliation_report(positions)
+    )
+
+    report.append("")
+    report.append("ASSUMPTION RECONCILIATION SUMMARY")
+    report.append("")
+
+    if assumption_reconciliation_report["has_data"]:
+        report.append(
+            "Overall Assumption Reliability: "
+            f"{assumption_reconciliation_report[
+                'overall_assumption_reliability'
+            ]}"
+        )
+        report.append("")
+
+        for label, summary_key in (
+            ("Return Assumptions", "return_summary"),
+            ("Volatility Assumptions", "volatility_summary"),
+            ("Correlation Assumptions", "correlation_summary")
+        ):
+            summary = assumption_reconciliation_report[summary_key]
+            report.append(f"{label}:")
+            report.append(
+                f"Inline {summary['inline']} | "
+                f"Real Above {summary['real_above']} | "
+                f"Real Below {summary['real_below']} | "
+                f"Insufficient {summary['insufficient']}"
+            )
+            report.append("")
+
+        largest_return_gap = assumption_reconciliation_report[
+            "largest_return_gap"
+        ]
+        report.append("Largest Return Gap:")
+        report.append(
+            (
+                f"{largest_return_gap['ticker']} | Difference "
+                f"{largest_return_gap['difference']:+.2f}%"
+            )
+            if largest_return_gap
+            else "N/A"
+        )
+        report.append("")
+
+        largest_volatility_gap = assumption_reconciliation_report[
+            "largest_volatility_gap"
+        ]
+        report.append("Largest Volatility Gap:")
+        report.append(
+            (
+                f"{largest_volatility_gap['ticker']} | Difference "
+                f"{largest_volatility_gap['difference']:+.2f}%"
+            )
+            if largest_volatility_gap
+            else "N/A"
+        )
+        report.append("")
+
+        largest_correlation_gap = assumption_reconciliation_report[
+            "largest_correlation_gap"
+        ]
+        report.append("Largest Correlation Gap:")
+        report.append(
+            (
+                f"{largest_correlation_gap['ticker_1']}/"
+                f"{largest_correlation_gap['ticker_2']} | Difference "
+                f"{largest_correlation_gap['difference']:+.2f}"
+            )
+            if largest_correlation_gap
+            else "N/A"
+        )
+        report.append("")
+        report.append(
+            "Assumption reconciliation compares static assumptions "
+            "with real historical data and does not alter "
+            "recommendations."
+        )
+    else:
+        report.append("No assumption reconciliation data available.")
+
+    report.append("")
+    report.append("ASSUMPTION RECONCILIATION DETAILS")
+    report.append("")
+
+    if assumption_reconciliation_report["has_data"]:
+        report.append("Return Gaps")
+
+        for reconciliation in assumption_reconciliation_report[
+            "return_reconciliation"
+        ]:
+            real_text = (
+                f"{reconciliation['selected_window']} "
+                f"{reconciliation['real_measurement']:.2f}%"
+                if reconciliation["real_measurement"] is not None
+                else "N/A"
+            )
+            difference_text = (
+                f"{reconciliation['difference']:+.2f}%"
+                if reconciliation["difference"] is not None
+                else "N/A"
+            )
+            report.append(
+                f"{reconciliation['ticker']} | "
+                f"Static {reconciliation['static_assumption']:.2f}% | "
+                f"Real {real_text} | "
+                f"Difference {difference_text} | "
+                f"Classification {reconciliation['classification']}"
+            )
+
+        report.append("")
+        report.append("Volatility Gaps")
+
+        for reconciliation in assumption_reconciliation_report[
+            "volatility_reconciliation"
+        ]:
+            real_text = (
+                f"{reconciliation['selected_window']} "
+                f"{reconciliation['real_measurement']:.2f}%"
+                if reconciliation["real_measurement"] is not None
+                else "N/A"
+            )
+            difference_text = (
+                f"{reconciliation['difference']:+.2f}%"
+                if reconciliation["difference"] is not None
+                else "N/A"
+            )
+            report.append(
+                f"{reconciliation['ticker']} | "
+                f"Static {reconciliation['static_assumption']:.2f}% | "
+                f"Real {real_text} | "
+                f"Difference {difference_text} | "
+                f"Classification {reconciliation['classification']}"
+            )
+
+        report.append("")
+        report.append("Correlation Gaps")
+
+        for reconciliation in assumption_reconciliation_report[
+            "correlation_reconciliation"
+        ][:20]:
+            real_text = (
+                f"{reconciliation['selected_window']} "
+                f"{reconciliation['real_measurement']:.2f}"
+                if reconciliation["real_measurement"] is not None
+                else "N/A"
+            )
+            difference_text = (
+                f"{reconciliation['difference']:+.2f}"
+                if reconciliation["difference"] is not None
+                else "N/A"
+            )
+            report.append(
+                f"{reconciliation['ticker_1']}/"
+                f"{reconciliation['ticker_2']} | "
+                f"Static {reconciliation['static_assumption']:.2f} | "
+                f"Real {real_text} | "
+                f"Difference {difference_text} | "
+                f"Classification {reconciliation['classification']}"
+            )
+    else:
+        report.append("No assumption reconciliation data available.")
 
     report.append("")
     report.append("CANDIDATE RANKINGS")

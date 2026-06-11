@@ -2921,6 +2921,7 @@ def get_real_historical_correlation_report(positions):
                     "highest_correlation_pair": None,
                     "lowest_correlation_pair": None,
                     "risk_level": "N/A",
+                    "all_pairs": [],
                     "pairs": []
                 }
                 for window_name, _ in REAL_CORRELATION_WINDOWS
@@ -3120,6 +3121,7 @@ def get_real_historical_correlation_report(positions):
             "highest_correlation_pair": highest_correlation_pair,
             "lowest_correlation_pair": lowest_correlation_pair,
             "risk_level": risk_level,
+            "all_pairs": pairs,
             "pairs": pairs[:10]
         }
 
@@ -3151,6 +3153,277 @@ def get_real_historical_correlation_report(positions):
         ),
         "windows": window_results,
         "tickers": ticker_results
+    }
+
+
+def _classify_assumption_gap(difference, threshold):
+
+    if difference is None:
+        return "INSUFFICIENT_DATA"
+
+    if difference > threshold:
+        return "REAL_ABOVE_ASSUMPTION"
+
+    if difference < -threshold:
+        return "REAL_BELOW_ASSUMPTION"
+
+    return "INLINE"
+
+
+def _select_preferred_measurement(measurements, window_order):
+
+    for window_name in window_order:
+        measurement = measurements.get(window_name)
+
+        if measurement is not None:
+            return window_name, measurement
+
+    return None, None
+
+
+def _summarize_reconciliation(records):
+
+    return {
+        "inline": sum(
+            record["classification"] == "INLINE"
+            for record in records
+        ),
+        "real_above": sum(
+            record["classification"] == "REAL_ABOVE_ASSUMPTION"
+            for record in records
+        ),
+        "real_below": sum(
+            record["classification"] == "REAL_BELOW_ASSUMPTION"
+            for record in records
+        ),
+        "insufficient": sum(
+            record["classification"] == "INSUFFICIENT_DATA"
+            for record in records
+        )
+    }
+
+
+def get_assumption_reconciliation_report(positions):
+
+    static_return_report = get_historical_return_report(positions)
+    static_correlation_report = get_statistical_correlation_report(positions)
+    static_volatility_report = get_volatility_report(positions)
+    real_return_report = get_real_historical_return_report(positions)
+    real_volatility_report = get_real_historical_volatility_report(positions)
+    real_correlation_report = get_real_historical_correlation_report(
+        positions
+    )
+    return_window_order = ("5Y", "3Y", "1Y", "6M", "3M", "1M")
+    correlation_window_order = ("5Y", "3Y", "1Y", "6M", "3M")
+
+    static_returns = {
+        position["ticker"]: position
+        for position in static_return_report["positions"]
+        if position["ticker"] != "CASH0"
+    }
+    real_returns = {
+        position["ticker"]: position
+        for position in real_return_report["tickers"]
+        if position["ticker"] != "CASH0"
+    }
+    return_reconciliation = []
+
+    for ticker, static_position in static_returns.items():
+        real_position = real_returns.get(ticker)
+        selected_window, real_return = _select_preferred_measurement(
+            real_position.get("returns", {}) if real_position else {},
+            return_window_order
+        )
+        static_return = static_position["blended_return"]
+        difference = (
+            real_return - static_return
+            if real_return is not None
+            else None
+        )
+        return_reconciliation.append({
+            "ticker": ticker,
+            "static_assumption": static_return,
+            "real_measurement": real_return,
+            "selected_window": selected_window,
+            "difference": difference,
+            "classification": _classify_assumption_gap(difference, 5.00)
+        })
+
+    static_volatility = {
+        position["ticker"]: position
+        for position in static_volatility_report["positions"]
+        if position["ticker"] != "CASH0"
+    }
+    real_volatility = {
+        position["ticker"]: position
+        for position in real_volatility_report["tickers"]
+        if position["ticker"] != "CASH0"
+    }
+    volatility_reconciliation = []
+
+    for ticker, static_position in static_volatility.items():
+        real_position = real_volatility.get(ticker)
+        selected_window, realized_volatility = (
+            _select_preferred_measurement(
+                (
+                    real_position.get("volatility", {})
+                    if real_position
+                    else {}
+                ),
+                return_window_order
+            )
+        )
+        static_assumption = static_position["position_volatility"]
+        difference = (
+            realized_volatility - static_assumption
+            if realized_volatility is not None
+            else None
+        )
+        volatility_reconciliation.append({
+            "ticker": ticker,
+            "static_assumption": static_assumption,
+            "real_measurement": realized_volatility,
+            "selected_window": selected_window,
+            "difference": difference,
+            "classification": _classify_assumption_gap(difference, 5.00)
+        })
+
+    static_pairs = {}
+
+    for pair in static_correlation_report["pairs"]:
+        pair_key = tuple(sorted((pair["ticker_1"], pair["ticker_2"])))
+
+        if "CASH0" not in pair_key:
+            static_pairs[pair_key] = pair
+
+    real_pairs_by_window = {}
+
+    for window_name in correlation_window_order:
+        window_result = real_correlation_report["windows"].get(
+            window_name,
+            {}
+        )
+        window_pairs = window_result.get(
+            "all_pairs",
+            window_result.get("pairs", [])
+        )
+        real_pairs_by_window[window_name] = {
+            tuple(sorted((pair["ticker_1"], pair["ticker_2"]))): pair
+            for pair in window_pairs
+        }
+
+    correlation_reconciliation = []
+
+    for pair_key, static_pair in static_pairs.items():
+        selected_window = None
+        real_correlation = None
+
+        for window_name in correlation_window_order:
+            real_pair = real_pairs_by_window[window_name].get(pair_key)
+
+            if real_pair is not None:
+                selected_window = window_name
+                real_correlation = real_pair["correlation"]
+                break
+
+        static_assumption = static_pair["correlation"]
+        difference = (
+            real_correlation - static_assumption
+            if real_correlation is not None
+            else None
+        )
+        correlation_reconciliation.append({
+            "ticker_1": pair_key[0],
+            "ticker_2": pair_key[1],
+            "static_assumption": static_assumption,
+            "real_measurement": real_correlation,
+            "selected_window": selected_window,
+            "difference": difference,
+            "classification": _classify_assumption_gap(difference, 0.15)
+        })
+
+    for records in (
+        return_reconciliation,
+        volatility_reconciliation,
+        correlation_reconciliation
+    ):
+        records.sort(
+            key=lambda record: (
+                (
+                    -abs(record["difference"])
+                    if record["difference"] is not None
+                    else float("inf")
+                ),
+                record.get("ticker", record.get("ticker_1", "")),
+                record.get("ticker_2", "")
+            )
+        )
+
+    return_summary = _summarize_reconciliation(return_reconciliation)
+    volatility_summary = _summarize_reconciliation(
+        volatility_reconciliation
+    )
+    correlation_summary = _summarize_reconciliation(
+        correlation_reconciliation
+    )
+    all_records = (
+        return_reconciliation
+        + volatility_reconciliation
+        + correlation_reconciliation
+    )
+    inline_count = sum(
+        record["classification"] == "INLINE"
+        for record in all_records
+    )
+    inline_percent = (
+        inline_count / len(all_records) * 100
+        if all_records
+        else 0
+    )
+
+    if not all_records:
+        overall_reliability = "N/A"
+    elif inline_percent >= 70:
+        overall_reliability = "HIGH"
+    elif inline_percent >= 40:
+        overall_reliability = "MEDIUM"
+    else:
+        overall_reliability = "LOW"
+
+    return {
+        "has_data": bool(all_records),
+        "overall_assumption_reliability": overall_reliability,
+        "inline_percentage": inline_percent,
+        "return_summary": return_summary,
+        "volatility_summary": volatility_summary,
+        "correlation_summary": correlation_summary,
+        "largest_return_gap": next(
+            (
+                record
+                for record in return_reconciliation
+                if record["difference"] is not None
+            ),
+            None
+        ),
+        "largest_volatility_gap": next(
+            (
+                record
+                for record in volatility_reconciliation
+                if record["difference"] is not None
+            ),
+            None
+        ),
+        "largest_correlation_gap": next(
+            (
+                record
+                for record in correlation_reconciliation
+                if record["difference"] is not None
+            ),
+            None
+        ),
+        "return_reconciliation": return_reconciliation,
+        "volatility_reconciliation": volatility_reconciliation,
+        "correlation_reconciliation": correlation_reconciliation
     }
 
 
