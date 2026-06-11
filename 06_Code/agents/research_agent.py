@@ -508,6 +508,188 @@ def get_regime_analysis(factor_exposure, regime):
     }
 
 
+def get_correlation_proxy(positions):
+
+    ticker_positions = {}
+
+    for position in positions or []:
+        try:
+            ticker = str(
+                position.get("ticker") or "UNKNOWN"
+            ).strip().upper()
+            value = float(position.get("value", 0) or 0)
+        except (AttributeError, TypeError, ValueError):
+            continue
+
+        if not ticker:
+            ticker = "UNKNOWN"
+
+        if not math.isfinite(value) or value <= 0:
+            continue
+
+        ticker_position = ticker_positions.setdefault(
+            ticker,
+            {
+                "ticker": ticker,
+                "value": 0,
+                "category": "",
+                "name": ""
+            }
+        )
+        ticker_position["value"] += value
+
+        category = str(position.get("category") or "").strip()
+        name = str(position.get("name") or "").strip()
+
+        if category and not ticker_position["category"]:
+            ticker_position["category"] = category
+
+        if name and not ticker_position["name"]:
+            ticker_position["name"] = name
+
+    total_value = sum(
+        position["value"]
+        for position in ticker_positions.values()
+    )
+    cluster_positions = []
+
+    for ticker_position in ticker_positions.values():
+        ticker = ticker_position["ticker"]
+
+        if ticker == "CASH0":
+            continue
+
+        category = ticker_position["category"]
+        name = ticker_position["name"]
+
+        if not category and not name and ticker != "UNKNOWN":
+            security_info = get_security_info(ticker)
+
+            if security_info:
+                category = security_info.get("category") or ""
+                name = security_info.get("name") or ""
+
+        classification = classify_security(
+            ticker,
+            category=category,
+            name=name
+        )
+        factors = classify_factor(category=category, name=name)
+
+        cluster_positions.append({
+            "ticker": ticker,
+            "value": ticker_position["value"],
+            "asset_class": classification["asset_class"],
+            "security_type": classification["security_type"],
+            "factors": factors
+        })
+
+    high_groups = {}
+    asset_class_groups = {}
+
+    for position in cluster_positions:
+        asset_class = position["asset_class"]
+        security_type = position["security_type"]
+        asset_class_groups.setdefault(asset_class, []).append(position)
+
+        for factor in position["factors"]:
+            group_key = (asset_class, security_type, factor)
+            high_groups.setdefault(group_key, []).append(position)
+
+    clusters = []
+
+    for group_key, members in high_groups.items():
+        unique_members = sorted({
+            member["ticker"]
+            for member in members
+        })
+
+        if len(unique_members) < 2 or total_value <= 0:
+            continue
+
+        group_value = sum(member["value"] for member in members)
+        exposure = group_value / total_value * 100
+        asset_class, security_type, factor = group_key
+        high_threshold = (
+            50
+            if "unknown" in group_key
+            else 40
+        )
+
+        if exposure < high_threshold:
+            continue
+
+        clusters.append({
+            "severity": "HIGH",
+            "group_name": " / ".join(
+                part.replace("_", " ").title()
+                for part in (asset_class, security_type, factor)
+            ),
+            "exposure": exposure,
+            "members": unique_members
+        })
+
+    for asset_class, members in asset_class_groups.items():
+        unique_members = sorted({
+            member["ticker"]
+            for member in members
+        })
+
+        if len(unique_members) < 2 or total_value <= 0:
+            continue
+
+        group_value = sum(member["value"] for member in members)
+        exposure = group_value / total_value * 100
+
+        if exposure < 30:
+            continue
+
+        clusters.append({
+            "severity": "MEDIUM",
+            "group_name": asset_class.replace("_", " ").title(),
+            "exposure": exposure,
+            "members": unique_members
+        })
+
+    severity_ranks = {
+        "HIGH": 0,
+        "MEDIUM": 1
+    }
+    clusters.sort(
+        key=lambda cluster: (
+            severity_ranks[cluster["severity"]],
+            -cluster["exposure"],
+            cluster["group_name"]
+        )
+    )
+
+    if clusters:
+        highest_cluster = max(
+            clusters,
+            key=lambda cluster: (
+                cluster["exposure"],
+                -severity_ranks[cluster["severity"]],
+                cluster["group_name"]
+            )
+        )
+    else:
+        highest_cluster = None
+
+    if any(cluster["severity"] == "HIGH" for cluster in clusters):
+        portfolio_risk = "HIGH"
+    elif any(cluster["severity"] == "MEDIUM" for cluster in clusters):
+        portfolio_risk = "MEDIUM"
+    else:
+        portfolio_risk = "LOW"
+
+    return {
+        "total_value": total_value,
+        "highest_cluster": highest_cluster,
+        "portfolio_risk": portfolio_risk,
+        "clusters": clusters
+    }
+
+
 def get_portfolio_exposure(positions):
 
     category_values = {

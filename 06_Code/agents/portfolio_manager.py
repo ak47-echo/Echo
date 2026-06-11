@@ -5,6 +5,7 @@ from agents.research_agent import (
     are_asset_classes_compatible,
     get_buy_list,
     get_concentration_risk,
+    get_correlation_proxy,
     get_decision_guardrails,
     get_default_regime,
     get_factor_exposure,
@@ -39,6 +40,8 @@ PORTFOLIO_REPORT_SECTION_ORDER = (
     "FACTOR EXPOSURE DETAILS",
     "REGIME ALIGNMENT SUMMARY",
     "REGIME ALIGNMENT DETAILS",
+    "CORRELATION PROXY SUMMARY",
+    "CORRELATION PROXY DETAILS",
     "BUY LIST",
     "CAPITAL DEPLOYMENT",
     "SELL CANDIDATES",
@@ -1003,6 +1006,49 @@ def get_portfolio_report():
                 )
     else:
         report.append("No regime alignment issues detected.")
+
+    correlation_proxy = get_correlation_proxy(positions)
+    highest_cluster = correlation_proxy["highest_cluster"]
+
+    report.append("")
+    report.append("CORRELATION PROXY SUMMARY")
+    report.append("")
+
+    if highest_cluster:
+        report.append(
+            "Highest Correlation Cluster: "
+            f"{highest_cluster['group_name']} | "
+            f"{highest_cluster['exposure']:.1f}%"
+        )
+    else:
+        report.append("Highest Correlation Cluster: None | 0.0%")
+
+    report.append(
+        "Portfolio Correlation Proxy Risk: "
+        f"{correlation_proxy['portfolio_risk']}"
+    )
+    report.append("")
+    report.append(
+        "Correlation proxy is based on classification overlap, "
+        "not historical return correlation."
+    )
+
+    report.append("")
+    report.append("CORRELATION PROXY DETAILS")
+    report.append("")
+
+    if correlation_proxy["clusters"]:
+        for cluster in correlation_proxy["clusters"]:
+            report.append(
+                f"{cluster['severity']} | "
+                f"{cluster['group_name']} | "
+                f"Exposure {cluster['exposure']:.1f}% | "
+                f"Members {', '.join(cluster['members'])}"
+            )
+    else:
+        report.append(
+            "No material correlation proxy clusters detected."
+        )
 
     report.append("")
     report.append("CANDIDATE RANKINGS")
