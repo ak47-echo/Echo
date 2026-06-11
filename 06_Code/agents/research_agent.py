@@ -1,7 +1,11 @@
 import csv
 import math
 import random
+import re
 import statistics
+from pathlib import Path
+
+import yfinance as yf
 
 
 WATCHLIST_FIELDS = (
@@ -60,6 +64,13 @@ ASSET_CLASS_TERMS = (
             "alternative"
         )
     )
+)
+
+MARKET_DATA_CACHE_DIR = (
+    Path(__file__).resolve().parent.parent
+    / "data"
+    / "cache"
+    / "market_data"
 )
 
 ETF_TERMS = (
@@ -2056,6 +2067,313 @@ def get_monte_carlo_report(positions):
         "assumption_expected_return": expected_return,
         "assumption_volatility": volatility,
         "simulated_returns": simulated_returns
+    }
+
+
+def get_safe_market_data_filename(ticker):
+
+    normalized_ticker = str(ticker or "UNKNOWN").strip().upper()
+    safe_ticker = re.sub(r"[^A-Z0-9._-]+", "_", normalized_ticker)
+    safe_ticker = safe_ticker.strip("._") or "UNKNOWN"
+
+    return f"{safe_ticker}.csv"
+
+
+def get_market_data_cache_path(ticker):
+
+    return MARKET_DATA_CACHE_DIR / get_safe_market_data_filename(ticker)
+
+
+def _get_market_data_result(
+    ticker,
+    status,
+    rows=None,
+    source="",
+    error=""
+):
+
+    normalized_rows = sorted(rows or [], key=lambda row: row["date"])
+
+    return {
+        "ticker": ticker,
+        "status": status,
+        "row_count": len(normalized_rows),
+        "start_date": (
+            normalized_rows[0]["date"]
+            if normalized_rows
+            else ""
+        ),
+        "end_date": (
+            normalized_rows[-1]["date"]
+            if normalized_rows
+            else ""
+        ),
+        "latest_close": (
+            normalized_rows[-1]["close"]
+            if normalized_rows
+            else None
+        ),
+        "source": source,
+        "error": error,
+        "rows": normalized_rows
+    }
+
+
+def load_cached_market_data(ticker):
+
+    normalized_ticker = str(ticker or "").strip().upper()
+
+    if not normalized_ticker:
+        return None
+
+    cache_path = get_market_data_cache_path(normalized_ticker)
+
+    if not cache_path.is_file():
+        return None
+
+    rows = []
+
+    try:
+        with cache_path.open("r", encoding="utf-8", newline="") as file:
+            reader = csv.DictReader(file)
+
+            for row in reader:
+                date = str(row.get("Date") or "").strip()
+
+                try:
+                    close = float(row.get("Close", 0) or 0)
+                except (TypeError, ValueError):
+                    continue
+
+                if date and math.isfinite(close):
+                    rows.append({"date": date, "close": close})
+    except (OSError, csv.Error):
+        return None
+
+    if not rows:
+        return None
+
+    return _get_market_data_result(
+        normalized_ticker,
+        "CACHE_HIT",
+        rows=rows,
+        source="CACHE"
+    )
+
+
+def _extract_historical_market_data_rows(data):
+
+    if data is None or getattr(data, "empty", True):
+        return []
+
+    close_series = None
+
+    for column_name in ("Adj Close", "Close"):
+        try:
+            if column_name in data.columns:
+                close_series = data[column_name]
+            elif (
+                getattr(data.columns, "nlevels", 1) > 1
+                and column_name in data.columns.get_level_values(0)
+            ):
+                close_series = data[column_name]
+        except (AttributeError, KeyError, TypeError):
+            close_series = None
+
+        if close_series is not None:
+            break
+
+    if close_series is None:
+        return []
+
+    if getattr(close_series, "ndim", 1) > 1:
+        close_series = close_series.iloc[:, 0]
+
+    rows = []
+
+    for date_value, close_value in close_series.items():
+        try:
+            close = float(close_value)
+        except (TypeError, ValueError):
+            continue
+
+        if not math.isfinite(close):
+            continue
+
+        if hasattr(date_value, "strftime"):
+            date = date_value.strftime("%Y-%m-%d")
+        else:
+            date = str(date_value).split(" ")[0]
+
+        if date:
+            rows.append({"date": date, "close": close})
+
+    return rows
+
+
+def download_historical_market_data(ticker, period="5y"):
+
+    normalized_ticker = str(ticker or "").strip().upper()
+
+    if not normalized_ticker:
+        return _get_market_data_result(
+            "UNKNOWN",
+            "FAILED",
+            source="YFINANCE",
+            error="Missing ticker"
+        )
+
+    try:
+        data = yf.download(
+            normalized_ticker,
+            period=period,
+            auto_adjust=False,
+            progress=False,
+            threads=False,
+            timeout=10
+        )
+        rows = _extract_historical_market_data_rows(data)
+
+        if not rows:
+            return _get_market_data_result(
+                normalized_ticker,
+                "FAILED",
+                source="YFINANCE",
+                error="No historical price data returned"
+            )
+
+        cache_path = get_market_data_cache_path(normalized_ticker)
+        cache_path.parent.mkdir(parents=True, exist_ok=True)
+
+        with cache_path.open("w", encoding="utf-8", newline="") as file:
+            writer = csv.DictWriter(file, fieldnames=("Date", "Close"))
+            writer.writeheader()
+            writer.writerows(
+                {"Date": row["date"], "Close": row["close"]}
+                for row in rows
+            )
+
+        return _get_market_data_result(
+            normalized_ticker,
+            "FRESH_DOWNLOAD",
+            rows=rows,
+            source="YFINANCE"
+        )
+    except Exception as error:
+        error_text = " ".join(str(error).split()) or error.__class__.__name__
+
+        return _get_market_data_result(
+            normalized_ticker,
+            "FAILED",
+            source="YFINANCE",
+            error=error_text[:200]
+        )
+
+
+def get_historical_market_data_for_ticker(ticker, period="5y"):
+
+    normalized_ticker = str(ticker or "").strip().upper()
+
+    if not normalized_ticker:
+        return _get_market_data_result(
+            "UNKNOWN",
+            "FAILED",
+            error="Missing ticker"
+        )
+
+    if normalized_ticker == "CASH0":
+        return _get_market_data_result(
+            normalized_ticker,
+            "SKIPPED_CASH",
+            source="CASH"
+        )
+
+    cached_result = load_cached_market_data(normalized_ticker)
+
+    if cached_result:
+        return cached_result
+
+    return download_historical_market_data(normalized_ticker, period=period)
+
+
+def get_historical_market_data_report(positions):
+
+    tickers = set()
+
+    for position in positions or []:
+        try:
+            ticker = str(position.get("ticker") or "").strip().upper()
+        except AttributeError:
+            ticker = ""
+
+        tickers.add(ticker or "UNKNOWN")
+
+    if not tickers:
+        return {
+            "total_tickers_checked": 0,
+            "successful_tickers": 0,
+            "failed_tickers": 0,
+            "cache_hits": 0,
+            "fresh_downloads": 0,
+            "skipped_cash_tickers": 0,
+            "market_data_coverage_percent": 0,
+            "tickers": []
+        }
+
+    ticker_results = [
+        (
+            get_historical_market_data_for_ticker("")
+            if ticker == "UNKNOWN"
+            else get_historical_market_data_for_ticker(ticker)
+        )
+        for ticker in tickers
+    ]
+    successful_tickers = sum(
+        result["status"] in ("CACHE_HIT", "FRESH_DOWNLOAD")
+        for result in ticker_results
+    )
+    failed_tickers = sum(
+        result["status"] == "FAILED"
+        for result in ticker_results
+    )
+    skipped_cash_tickers = sum(
+        result["status"] == "SKIPPED_CASH"
+        for result in ticker_results
+    )
+    eligible_tickers = successful_tickers + failed_tickers
+    market_data_coverage_percent = (
+        successful_tickers / eligible_tickers * 100
+        if eligible_tickers
+        else 0
+    )
+    status_rank = {
+        "CACHE_HIT": 0,
+        "FRESH_DOWNLOAD": 0,
+        "FAILED": 1,
+        "SKIPPED_CASH": 2
+    }
+    ticker_results.sort(
+        key=lambda result: (
+            status_rank.get(result["status"], 1),
+            result["ticker"]
+        )
+    )
+
+    return {
+        "total_tickers_checked": len(ticker_results),
+        "successful_tickers": successful_tickers,
+        "failed_tickers": failed_tickers,
+        "cache_hits": sum(
+            result["status"] == "CACHE_HIT"
+            for result in ticker_results
+        ),
+        "fresh_downloads": sum(
+            result["status"] == "FRESH_DOWNLOAD"
+            for result in ticker_results
+        ),
+        "skipped_cash_tickers": skipped_cash_tickers,
+        "market_data_coverage_percent": market_data_coverage_percent,
+        "tickers": ticker_results
     }
 
 

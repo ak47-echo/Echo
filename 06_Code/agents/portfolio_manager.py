@@ -9,6 +9,7 @@ from agents.research_agent import (
     get_decision_guardrails,
     get_default_regime,
     get_factor_exposure,
+    get_historical_market_data_report,
     get_historical_return_report,
     get_holding_comparable_score,
     get_investment_committee_summary,
@@ -63,6 +64,8 @@ PORTFOLIO_REPORT_SECTION_ORDER = (
     "VOLATILITY DETAILS",
     "MONTE CARLO SUMMARY",
     "MONTE CARLO DETAILS",
+    "HISTORICAL MARKET DATA SUMMARY",
+    "HISTORICAL MARKET DATA DETAILS",
     "BUY LIST",
     "CAPITAL DEPLOYMENT",
     "SELL CANDIDATES",
@@ -1501,6 +1504,77 @@ def get_portfolio_report():
         )
     else:
         report.append("No Monte Carlo data available.")
+
+    historical_market_data_report = get_historical_market_data_report(
+        positions
+    )
+
+    report.append("")
+    report.append("HISTORICAL MARKET DATA SUMMARY")
+    report.append("")
+
+    if historical_market_data_report["tickers"]:
+        report.append(
+            "Market Data Coverage: "
+            f"{historical_market_data_report[
+                'market_data_coverage_percent'
+            ]:.1f}%"
+        )
+        report.append(
+            "Successful Tickers: "
+            f"{historical_market_data_report['successful_tickers']}"
+        )
+        report.append(
+            "Failed Tickers: "
+            f"{historical_market_data_report['failed_tickers']}"
+        )
+        report.append(
+            f"Cache Hits: {historical_market_data_report['cache_hits']}"
+        )
+        report.append(
+            "Fresh Downloads: "
+            f"{historical_market_data_report['fresh_downloads']}"
+        )
+        report.append(
+            "Skipped Cash Tickers: "
+            f"{historical_market_data_report['skipped_cash_tickers']}"
+        )
+        report.append("")
+        report.append(
+            "Historical market data is used for future analytics "
+            "and does not alter recommendations yet."
+        )
+    else:
+        report.append("No historical market data available.")
+
+    report.append("")
+    report.append("HISTORICAL MARKET DATA DETAILS")
+    report.append("")
+
+    if historical_market_data_report["tickers"]:
+        for ticker_result in historical_market_data_report["tickers"]:
+            if ticker_result["status"] == "FAILED":
+                report.append(
+                    f"{ticker_result['ticker']} | Status FAILED | "
+                    f"Error {ticker_result['error']}"
+                )
+            else:
+                latest_close = (
+                    f"${ticker_result['latest_close']:.2f}"
+                    if ticker_result["latest_close"] is not None
+                    else "N/A"
+                )
+                report.append(
+                    f"{ticker_result['ticker']} | "
+                    f"Status {ticker_result['status']} | "
+                    f"Rows {ticker_result['row_count']} | "
+                    f"Start {ticker_result['start_date'] or 'N/A'} | "
+                    f"End {ticker_result['end_date'] or 'N/A'} | "
+                    f"Latest Close {latest_close} | "
+                    f"Source {ticker_result['source'] or 'N/A'}"
+                )
+    else:
+        report.append("No historical market data available.")
 
     report.append("")
     report.append("CANDIDATE RANKINGS")
