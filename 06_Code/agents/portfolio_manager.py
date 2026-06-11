@@ -16,7 +16,7 @@ from agents.research_agent import (
     get_investment_committee_summary,
     get_macro_regime_report,
     get_monte_carlo_report,
-    get_monte_carlo_v2_input_report,
+    get_monte_carlo_v2_covariance_report,
     get_portfolio_exposure,
     get_regime_analysis,
     get_ranked_watchlist,
@@ -81,6 +81,8 @@ PORTFOLIO_REPORT_SECTION_ORDER = (
     "ASSUMPTION RECONCILIATION DETAILS",
     "MONTE CARLO V2 INPUT SUMMARY",
     "MONTE CARLO V2 INPUT DETAILS",
+    "MONTE CARLO V2 COVARIANCE SUMMARY",
+    "MONTE CARLO V2 COVARIANCE DETAILS",
     "BUY LIST",
     "CAPITAL DEPLOYMENT",
     "SELL CANDIDATES",
@@ -1987,9 +1989,12 @@ def get_portfolio_report():
     else:
         report.append("No assumption reconciliation data available.")
 
-    monte_carlo_v2_input_report = get_monte_carlo_v2_input_report(
-        positions
+    monte_carlo_v2_covariance_report = (
+        get_monte_carlo_v2_covariance_report(positions)
     )
+    monte_carlo_v2_input_report = monte_carlo_v2_covariance_report[
+        "input_report"
+    ]
 
     report.append("")
     report.append("MONTE CARLO V2 INPUT SUMMARY")
@@ -2083,6 +2088,103 @@ def get_portfolio_report():
         )
     else:
         report.append("No Monte Carlo V2 input data available.")
+
+    report.append("")
+    report.append("MONTE CARLO V2 COVARIANCE SUMMARY")
+    report.append("")
+
+    if monte_carlo_v2_covariance_report["has_data"]:
+        report.append(
+            "Covariance Adjusted Portfolio Volatility: "
+            f"{monte_carlo_v2_covariance_report[
+                'covariance_adjusted_volatility'
+            ]:.2f}%"
+        )
+        report.append(
+            "Weighted Average Volatility: "
+            f"{monte_carlo_v2_covariance_report[
+                'weighted_average_volatility'
+            ]:.2f}%"
+        )
+        report.append(
+            "Diversification Benefit: "
+            f"{monte_carlo_v2_covariance_report[
+                'diversification_benefit'
+            ]:.2f}%"
+        )
+        report.append(
+            "Diversification Benefit Percent: "
+            f"{monte_carlo_v2_covariance_report[
+                'diversification_benefit_percent'
+            ]:.1f}%"
+        )
+        report.append(
+            "Weighted Average Correlation: "
+            f"{monte_carlo_v2_covariance_report[
+                'weighted_average_correlation'
+            ]:.2f}"
+        )
+        report.append(
+            "Covariance Matrix Pair Count: "
+            f"{monte_carlo_v2_covariance_report[
+                'covariance_matrix_pair_count'
+            ]}"
+        )
+        report.append(
+            "Covariance Input Quality: "
+            f"{monte_carlo_v2_covariance_report[
+                'covariance_input_quality'
+            ]}"
+        )
+        report.append(
+            "Concentration Risk Note: "
+            f"{monte_carlo_v2_covariance_report[
+                'concentration_risk_note'
+            ]}"
+        )
+        report.append("")
+        report.append(
+            "Covariance analysis uses Monte Carlo V2 inputs and does "
+            "not run Monte Carlo V2 yet."
+        )
+    else:
+        report.append("No Monte Carlo V2 covariance data available.")
+
+    report.append("")
+    report.append("MONTE CARLO V2 COVARIANCE DETAILS")
+    report.append("")
+
+    if monte_carlo_v2_covariance_report["has_data"]:
+        report.append("Top Variance Contributors")
+
+        if monte_carlo_v2_covariance_report["pairs"]:
+            for pair in monte_carlo_v2_covariance_report["pairs"][:20]:
+                report.append(
+                    f"{pair['ticker_1']}/{pair['ticker_2']} | "
+                    f"Correlation {pair['correlation']:.2f} | "
+                    f"Covariance {pair['covariance']:.4f} | "
+                    "Variance Contribution "
+                    f"{pair['variance_contribution'] * 100:.2f}% | "
+                    f"Source {pair['correlation_source']}"
+                )
+        else:
+            report.append("Insufficient pair data.")
+
+        report.append("")
+        report.append("Position Risk Inputs")
+
+        for position_input in monte_carlo_v2_covariance_report[
+            "positions"
+        ]:
+            report.append(
+                f"{position_input['ticker']} | "
+                f"Weight {position_input['allocation']:.2f}% | "
+                f"Volatility {position_input['volatility']:.2f}% | "
+                f"Return {position_input['expected_return']:.2f}% | "
+                f"Input Quality {position_input['input_quality']}"
+            )
+    else:
+        report.append("No Monte Carlo V2 covariance data available.")
 
     report.append("")
     report.append("CANDIDATE RANKINGS")

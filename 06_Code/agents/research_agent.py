@@ -3744,6 +3744,169 @@ def get_monte_carlo_v2_input_report(positions):
     }
 
 
+def get_monte_carlo_v2_covariance_report(positions):
+
+    input_report = get_monte_carlo_v2_input_report(positions)
+
+    if not input_report["has_data"]:
+        return {
+            "has_data": False,
+            "covariance_adjusted_volatility": 0,
+            "weighted_average_volatility": 0,
+            "diversification_benefit": 0,
+            "diversification_benefit_percent": 0,
+            "weighted_average_correlation": 0,
+            "covariance_matrix_pair_count": 0,
+            "covariance_input_quality": "LOW",
+            "concentration_risk_note": "NORMAL_CONCENTRATION",
+            "positions": [],
+            "pairs": [],
+            "input_report": input_report
+        }
+
+    position_inputs = input_report["positions"]
+    positions_by_ticker = {
+        position["ticker"]: position
+        for position in position_inputs
+    }
+    correlation_inputs = {
+        tuple(sorted((pair["ticker_1"], pair["ticker_2"]))): pair
+        for pair in input_report.get("correlations", [])
+    }
+    portfolio_variance = 0
+
+    for position in position_inputs:
+        weight = position["allocation"] / 100
+        volatility = position["volatility"] / 100
+        portfolio_variance += weight ** 2 * volatility ** 2
+
+    pair_metrics = []
+    sorted_tickers = sorted(positions_by_ticker)
+
+    for ticker_index, ticker_1 in enumerate(sorted_tickers):
+        position_1 = positions_by_ticker[ticker_1]
+        weight_1 = position_1["allocation"] / 100
+        volatility_1 = position_1["volatility"] / 100
+
+        for ticker_2 in sorted_tickers[ticker_index + 1:]:
+            position_2 = positions_by_ticker[ticker_2]
+            weight_2 = position_2["allocation"] / 100
+            volatility_2 = position_2["volatility"] / 100
+            pair_key = (ticker_1, ticker_2)
+            correlation_input = correlation_inputs.get(pair_key, {})
+
+            try:
+                correlation = float(
+                    correlation_input.get("correlation", 0)
+                )
+            except (AttributeError, TypeError, ValueError):
+                correlation = 0
+
+            if not math.isfinite(correlation):
+                correlation = 0
+
+            correlation = max(-1, min(1, correlation))
+            source = str(
+                correlation_input.get("source") or "UNKNOWN"
+            ).strip().upper()
+
+            if source not in {
+                "REAL_5Y",
+                "REAL_3Y",
+                "REAL_1Y",
+                "REAL_6M",
+                "REAL_3M",
+                "STATIC_FALLBACK",
+                "STATIC_MIXED",
+                "UNKNOWN"
+            }:
+                source = "UNKNOWN"
+
+            covariance = correlation * volatility_1 * volatility_2
+            variance_contribution = (
+                2 * weight_1 * weight_2 * covariance
+            )
+            portfolio_variance += variance_contribution
+            pair_metrics.append({
+                "ticker_1": ticker_1,
+                "ticker_2": ticker_2,
+                "weight_1": position_1["allocation"],
+                "weight_2": position_2["allocation"],
+                "volatility_1": position_1["volatility"],
+                "volatility_2": position_2["volatility"],
+                "correlation": correlation,
+                "covariance": covariance,
+                "variance_contribution": variance_contribution,
+                "correlation_source": source
+            })
+
+    portfolio_variance = max(portfolio_variance, 0)
+    covariance_adjusted_volatility = math.sqrt(portfolio_variance) * 100
+    weighted_average_volatility = input_report[
+        "portfolio_weighted_volatility"
+    ]
+    diversification_benefit = (
+        weighted_average_volatility - covariance_adjusted_volatility
+    )
+    diversification_benefit_percent = (
+        diversification_benefit / weighted_average_volatility * 100
+        if weighted_average_volatility > 0
+        else 0
+    )
+    correlation_coverage = input_report[
+        "correlation_pair_coverage_percent"
+    ]
+    overall_input_quality = input_report["overall_input_quality"]
+
+    if overall_input_quality == "HIGH" and correlation_coverage >= 80:
+        covariance_input_quality = "HIGH"
+    elif overall_input_quality == "MEDIUM" or correlation_coverage >= 50:
+        covariance_input_quality = "MEDIUM"
+    else:
+        covariance_input_quality = "LOW"
+
+    largest_allocation = max(
+        position["allocation"]
+        for position in position_inputs
+    )
+
+    if largest_allocation >= 30:
+        concentration_risk_note = "HIGH_CONCENTRATION"
+    elif largest_allocation >= 15:
+        concentration_risk_note = "MODERATE_CONCENTRATION"
+    else:
+        concentration_risk_note = "NORMAL_CONCENTRATION"
+
+    pair_metrics.sort(
+        key=lambda pair: (
+            -abs(pair["variance_contribution"]),
+            pair["ticker_1"],
+            pair["ticker_2"]
+        )
+    )
+
+    return {
+        "has_data": True,
+        "covariance_adjusted_volatility": (
+            covariance_adjusted_volatility
+        ),
+        "weighted_average_volatility": weighted_average_volatility,
+        "diversification_benefit": diversification_benefit,
+        "diversification_benefit_percent": (
+            diversification_benefit_percent
+        ),
+        "weighted_average_correlation": input_report[
+            "weighted_average_correlation"
+        ],
+        "covariance_matrix_pair_count": len(pair_metrics),
+        "covariance_input_quality": covariance_input_quality,
+        "concentration_risk_note": concentration_risk_note,
+        "positions": position_inputs,
+        "pairs": pair_metrics,
+        "input_report": input_report
+    }
+
+
 def get_portfolio_exposure(positions):
 
     category_values = {
