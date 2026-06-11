@@ -309,6 +309,116 @@ def get_portfolio_exposure(positions):
     }
 
 
+def get_concentration_risk(positions):
+
+    ticker_values = {}
+
+    for position in positions or []:
+        try:
+            ticker = str(position.get("ticker") or "UNKNOWN").strip().upper()
+            value = float(position.get("value", 0) or 0)
+        except (AttributeError, TypeError, ValueError):
+            continue
+
+        if not ticker:
+            ticker = "UNKNOWN"
+
+        if not math.isfinite(value) or value <= 0:
+            continue
+
+        ticker_values[ticker] = ticker_values.get(ticker, 0) + value
+
+    total_value = sum(ticker_values.values())
+    ranked_positions = sorted(
+        ticker_values.items(),
+        key=lambda item: (-item[1], item[0])
+    )
+
+    position_concentrations = []
+
+    for ticker, value in ranked_positions:
+        percentage = value / total_value * 100 if total_value > 0 else 0
+
+        if percentage >= 25:
+            severity = "HIGH"
+        elif percentage >= 15:
+            severity = "MEDIUM"
+        else:
+            severity = "LOW"
+
+        position_concentrations.append({
+            "ticker": ticker,
+            "value": value,
+            "percentage": percentage,
+            "severity": severity
+        })
+
+    if position_concentrations:
+        largest_position = position_concentrations[0]
+    else:
+        largest_position = {
+            "ticker": "None",
+            "value": 0,
+            "percentage": 0,
+            "severity": "LOW"
+        }
+
+    if total_value > 0:
+        top_3_concentration = (
+            sum(value for _, value in ranked_positions[:3])
+            / total_value
+            * 100
+        )
+        top_5_concentration = (
+            sum(value for _, value in ranked_positions[:5])
+            / total_value
+            * 100
+        )
+    else:
+        top_3_concentration = 0
+        top_5_concentration = 0
+
+    largest_percentage = largest_position["percentage"]
+
+    if largest_percentage >= 25 or top_5_concentration >= 75:
+        portfolio_risk = "HIGH"
+    elif largest_percentage >= 15 or top_5_concentration >= 60:
+        portfolio_risk = "MEDIUM"
+    else:
+        portfolio_risk = "LOW"
+
+    alert_eligible_positions = [
+        position
+        for position in position_concentrations
+        if position["ticker"] != "CASH0"
+    ]
+    elevated_issues = [
+        position
+        for position in alert_eligible_positions
+        if position["severity"] in {"HIGH", "MEDIUM"}
+    ]
+    detail_rows = (
+        elevated_issues
+        if elevated_issues
+        else [
+            position
+            for position in alert_eligible_positions
+            if position["severity"] == "LOW"
+        ]
+    )
+
+    return {
+        "total_value": total_value,
+        "ticker_values": ticker_values,
+        "largest_position": largest_position,
+        "top_3_concentration": top_3_concentration,
+        "top_5_concentration": top_5_concentration,
+        "portfolio_risk": portfolio_risk,
+        "position_concentrations": position_concentrations,
+        "detail_rows": detail_rows
+    }
+
+
 def get_watchlist():
 
     watchlist = []

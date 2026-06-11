@@ -4,6 +4,7 @@ from agents.policy_agent import get_policy
 from agents.research_agent import (
     are_asset_classes_compatible,
     get_buy_list,
+    get_concentration_risk,
     get_decision_guardrails,
     get_holding_comparable_score,
     get_investment_committee_summary,
@@ -29,6 +30,8 @@ PORTFOLIO_REPORT_SECTION_ORDER = (
     "DECISION GUARDRAILS",
     "EXPOSURE SUMMARY",
     "EXPOSURE DETAILS",
+    "CONCENTRATION RISK SUMMARY",
+    "CONCENTRATION RISK DETAILS",
     "BUY LIST",
     "CAPITAL DEPLOYMENT",
     "SELL CANDIDATES",
@@ -850,6 +853,44 @@ def get_portfolio_report():
             )
     else:
         report.append("No portfolio exposure.")
+
+    concentration_risk = get_concentration_risk(positions)
+    largest_position = concentration_risk["largest_position"]
+
+    report.append("")
+    report.append("CONCENTRATION RISK SUMMARY")
+    report.append("")
+
+    report.append(
+        f"Largest Position: {largest_position['ticker']} | "
+        f"{largest_position['percentage']:.1f}%"
+    )
+    report.append(
+        "Top 3 Concentration: "
+        f"{concentration_risk['top_3_concentration']:.1f}%"
+    )
+    report.append(
+        "Top 5 Concentration: "
+        f"{concentration_risk['top_5_concentration']:.1f}%"
+    )
+    report.append(
+        "Portfolio Concentration Risk: "
+        f"{concentration_risk['portfolio_risk']}"
+    )
+
+    report.append("")
+    report.append("CONCENTRATION RISK DETAILS")
+    report.append("")
+
+    if concentration_risk["detail_rows"]:
+        for issue in concentration_risk["detail_rows"]:
+            report.append(
+                f"{issue['severity']} | "
+                f"{issue['ticker']} | "
+                f"Position concentration {issue['percentage']:.1f}%"
+            )
+    else:
+        report.append("No concentration risk issues detected.")
 
     report.append("")
     report.append("CANDIDATE RANKINGS")
