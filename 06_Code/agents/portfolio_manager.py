@@ -6,10 +6,12 @@ from agents.research_agent import (
     get_buy_list,
     get_concentration_risk,
     get_decision_guardrails,
+    get_default_regime,
     get_factor_exposure,
     get_holding_comparable_score,
     get_investment_committee_summary,
     get_portfolio_exposure,
+    get_regime_analysis,
     get_ranked_watchlist,
     get_research_coverage,
     get_research_health_checks,
@@ -35,6 +37,8 @@ PORTFOLIO_REPORT_SECTION_ORDER = (
     "CONCENTRATION RISK DETAILS",
     "FACTOR EXPOSURE SUMMARY",
     "FACTOR EXPOSURE DETAILS",
+    "REGIME ALIGNMENT SUMMARY",
+    "REGIME ALIGNMENT DETAILS",
     "BUY LIST",
     "CAPITAL DEPLOYMENT",
     "SELL CANDIDATES",
@@ -923,6 +927,82 @@ def get_portfolio_report():
             )
     else:
         report.append("No factor exposure detected.")
+
+    regime_analysis = get_regime_analysis(
+        factor_exposure,
+        get_default_regime()
+    )
+    alignment_score = regime_analysis["alignment_score"]
+
+    if alignment_score >= 70:
+        portfolio_alignment = "HIGH"
+    elif alignment_score >= 40:
+        portfolio_alignment = "MEDIUM"
+    else:
+        portfolio_alignment = "LOW"
+
+    report.append("")
+    report.append("REGIME ALIGNMENT SUMMARY")
+    report.append("")
+
+    report.append(
+        "Current Regime: "
+        f"{regime_analysis['regime'].replace('_', ' ').title()}"
+    )
+    report.append("")
+    report.append(
+        f"Confidence: {regime_analysis['confidence'].title()}"
+    )
+    report.append("")
+    report.append(f"Alignment Score: {alignment_score:.0f}")
+    report.append("")
+    report.append(f"Portfolio Alignment: {portfolio_alignment}")
+
+    report.append("")
+    report.append("REGIME ALIGNMENT DETAILS")
+    report.append("")
+
+    has_regime_details = (
+        regime_analysis["strengths"]
+        or regime_analysis["gaps"]
+        or regime_analysis["disfavored_exposures"]
+    )
+
+    if has_regime_details:
+        if regime_analysis["strengths"]:
+            report.append("Strengths")
+            report.append("")
+
+            for strength in regime_analysis["strengths"]:
+                factor_name = strength["factor"].replace("_", " ").title()
+                report.append(
+                    f"Preferred Factor: {factor_name} | "
+                    f"{strength['percentage']:.1f}%"
+                )
+
+        if regime_analysis["gaps"]:
+            report.append("")
+            report.append("Gaps")
+            report.append("")
+
+            for factor in regime_analysis["gaps"]:
+                factor_name = factor.replace("_", " ").title()
+                report.append(
+                    f"Preferred Factor Missing: {factor_name}"
+                )
+
+        if regime_analysis["disfavored_exposures"]:
+            report.append("")
+            report.append("Disfavored Exposure")
+            report.append("")
+
+            for exposure in regime_analysis["disfavored_exposures"]:
+                factor_name = exposure["factor"].replace("_", " ").title()
+                report.append(
+                    f"{factor_name} | {exposure['percentage']:.1f}%"
+                )
+    else:
+        report.append("No regime alignment issues detected.")
 
     report.append("")
     report.append("CANDIDATE RANKINGS")

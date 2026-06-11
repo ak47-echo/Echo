@@ -126,6 +126,47 @@ FACTOR_TERMS = (
     )
 )
 
+MARKET_REGIMES = {
+    "recession": {
+        "preferred_factors": ("quality", "large", "income", "cash"),
+        "neutral_factors": ("value",),
+        "disfavored_factors": ("small", "commodity", "bitcoin"),
+        "confidence": "medium"
+    },
+    "expansion": {
+        "preferred_factors": ("small", "value", "momentum"),
+        "neutral_factors": ("growth", "quality"),
+        "disfavored_factors": ("cash",),
+        "confidence": "medium"
+    },
+    "inflation": {
+        "preferred_factors": ("commodity", "value", "income"),
+        "neutral_factors": ("quality",),
+        "disfavored_factors": ("growth", "cash"),
+        "confidence": "medium"
+    },
+    "disinflation": {
+        "preferred_factors": ("growth", "quality", "large"),
+        "neutral_factors": ("value",),
+        "disfavored_factors": ("commodity",),
+        "confidence": "medium"
+    },
+    "risk_off": {
+        "preferred_factors": ("cash", "quality", "large"),
+        "neutral_factors": ("income",),
+        "disfavored_factors": ("bitcoin", "commodity", "small"),
+        "confidence": "low"
+    },
+    "risk_on": {
+        "preferred_factors": ("momentum", "small", "growth", "bitcoin"),
+        "neutral_factors": ("value",),
+        "disfavored_factors": ("cash",),
+        "confidence": "low"
+    }
+}
+
+DEFAULT_REGIME = "expansion"
+
 PRIORITY_RANKS = {
     "high": 3,
     "medium": 2,
@@ -381,6 +422,89 @@ def get_factor_exposure(positions):
         "dominant_percentage": dominant_percentage,
         "concentration_risk": concentration_risk,
         "ranked_factors": ranked_factors
+    }
+
+
+def get_default_regime():
+
+    return DEFAULT_REGIME
+
+
+def get_regime_analysis(factor_exposure, regime):
+
+    normalized_regime = str(regime or "").strip().lower()
+
+    if normalized_regime not in MARKET_REGIMES:
+        normalized_regime = get_default_regime()
+
+    regime_preferences = MARKET_REGIMES[normalized_regime]
+
+    try:
+        raw_percentages = factor_exposure.get("percentages") or {}
+    except AttributeError:
+        raw_percentages = {}
+
+    percentages = {}
+
+    for factor in FACTOR_CATEGORIES:
+        try:
+            percentage = float(raw_percentages.get(factor, 0) or 0)
+        except (AttributeError, TypeError, ValueError):
+            percentage = 0
+
+        if not math.isfinite(percentage) or percentage < 0:
+            percentage = 0
+
+        percentages[factor] = percentage
+
+    preferred_factors = regime_preferences["preferred_factors"]
+    disfavored_factors = regime_preferences["disfavored_factors"]
+    preferred_exposure = sum(
+        percentages[factor]
+        for factor in preferred_factors
+    )
+    disfavored_exposure = sum(
+        percentages[factor]
+        for factor in disfavored_factors
+    )
+    alignment_score = max(
+        0,
+        min(100, preferred_exposure - disfavored_exposure)
+    )
+    strengths = [
+        {
+            "factor": factor,
+            "percentage": percentages[factor]
+        }
+        for factor in preferred_factors
+        if percentages[factor] > 0
+    ]
+    gaps = [
+        factor
+        for factor in preferred_factors
+        if percentages[factor] <= 0
+    ]
+    disfavored_exposures = [
+        {
+            "factor": factor,
+            "percentage": percentages[factor]
+        }
+        for factor in disfavored_factors
+        if percentages[factor] > 0
+    ]
+
+    strengths.sort(key=lambda item: -item["percentage"])
+    disfavored_exposures.sort(key=lambda item: -item["percentage"])
+
+    return {
+        "regime": normalized_regime,
+        "confidence": regime_preferences["confidence"],
+        "alignment_score": alignment_score,
+        "preferred_exposure": preferred_exposure,
+        "disfavored_exposure": disfavored_exposure,
+        "gaps": gaps,
+        "strengths": strengths,
+        "disfavored_exposures": disfavored_exposures
     }
 
 
