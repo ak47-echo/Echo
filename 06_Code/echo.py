@@ -151,6 +151,103 @@ AGENT_REGISTRY = (
     }
 )
 
+AGENT_QUERY_CAPABILITIES = {
+    "Portfolio Manager": {
+        "supported_query_types": (),
+        "planned_query_types": (
+            "portfolio impact",
+            "position review",
+            "allocation question",
+            "rebalancing question",
+            "candidate comparison"
+        ),
+        "example_queries": (
+            "What happens if I sell SMCI?",
+            "How does buying AVUV affect concentration?",
+            "Is UNH too large?"
+        )
+    },
+    "News Agent": {
+        "supported_query_types": (),
+        "planned_query_types": (
+            "ticker news lookup",
+            "portfolio news relevance",
+            "world event lookup",
+            "market headline review"
+        ),
+        "example_queries": (
+            "What happened with UNH today?",
+            "Any news affecting semiconductors?",
+            "What world events matter for markets?"
+        )
+    },
+    "Macro Agent": {
+        "supported_query_types": (),
+        "planned_query_types": (
+            "macro regime question",
+            "inflation question",
+            "rates question",
+            "labor market question",
+            "yield curve question"
+        ),
+        "example_queries": (
+            "What is the current macro regime?",
+            "Are rates restrictive?",
+            "Is inflation rising or falling?"
+        )
+    },
+    "Research Agent": {
+        "supported_query_types": (),
+        "planned_query_types": (
+            "thesis review",
+            "evidence check",
+            "watchlist analysis",
+            "conviction review"
+        ),
+        "example_queries": (
+            "What research is missing for ECO?",
+            "What is the thesis for SMCI?",
+            "Which holdings have weak conviction?"
+        )
+    }
+}
+
+FUTURE_AGENT_QUERY_CAPABILITY = {
+    "supported_query_types": (),
+    "planned_query_types": ("basic future capability description",),
+    "example_queries": ("What capabilities are planned for this agent?",)
+}
+
+AGENT_NAME_ALIASES = {
+    "news": "News Agent",
+    "macro": "Macro Agent",
+    "portfolio": "Portfolio Manager",
+    "portfolio agent": "Portfolio Manager",
+    "research": "Research Agent",
+    "calendar": "Calendar Agent",
+    "email": "Email Agent",
+    "project manager": "Project Manager Agent",
+    "project": "Project Manager Agent",
+    "knowledge": "Knowledge Agent",
+    "career": "Career Agent",
+    "health": "Health Agent",
+    "deal flow": "Deal Flow Agent"
+}
+
+QUERY_INTERFACE_AGENT_ORDER = (
+    "Portfolio Manager",
+    "News Agent",
+    "Macro Agent",
+    "Research Agent",
+    "Calendar Agent",
+    "Email Agent",
+    "Project Manager Agent",
+    "Knowledge Agent",
+    "Career Agent",
+    "Health Agent",
+    "Deal Flow Agent"
+)
+
 
 def add_section(title, items):
 
@@ -178,7 +275,26 @@ def add_section(title, items):
 
 def create_agent_registry():
 
-    return [dict(agent) for agent in AGENT_REGISTRY]
+    registry = []
+
+    for definition in AGENT_REGISTRY:
+        agent = dict(definition)
+        capability = AGENT_QUERY_CAPABILITIES.get(
+            agent["agent_name"],
+            FUTURE_AGENT_QUERY_CAPABILITY
+        )
+        agent.update({
+            key: tuple(value)
+            for key, value in capability.items()
+        })
+        registry.append(agent)
+
+    return registry
+
+
+def get_agent_registry():
+
+    return create_agent_registry()
 
 
 def get_registry_agent(registry, agent_name):
@@ -187,6 +303,106 @@ def get_registry_agent(registry, agent_name):
         agent for agent in registry
         if agent["agent_name"] == agent_name
     )
+
+
+def normalize_agent_name(agent_name):
+
+    normalized = " ".join(str(agent_name or "").split()).casefold()
+
+    if not normalized:
+        return ""
+
+    if normalized in AGENT_NAME_ALIASES:
+        return AGENT_NAME_ALIASES[normalized]
+
+    for agent in AGENT_REGISTRY:
+        if agent["agent_name"].casefold() == normalized:
+            return agent["agent_name"]
+
+    return " ".join(str(agent_name).split())
+
+
+def get_agent_by_name(agent_name, registry=None):
+
+    normalized_name = normalize_agent_name(agent_name)
+    registry = registry if registry is not None else get_agent_registry()
+
+    return next(
+        (
+            agent for agent in registry
+            if agent["agent_name"].casefold() == normalized_name.casefold()
+        ),
+        None
+    )
+
+
+def get_agent_query_capability(agent_name):
+
+    agent = get_agent_by_name(agent_name)
+
+    if agent is None:
+        return None
+
+    return {
+        "agent_name": agent["agent_name"],
+        "query_mode": agent["query_mode"],
+        "supported_query_types": agent["supported_query_types"],
+        "planned_query_types": agent["planned_query_types"],
+        "example_queries": agent["example_queries"]
+    }
+
+
+def answer_agent_query(agent_name, query, context=None):
+
+    normalized_query = " ".join(str(query or "").split())
+    agent = get_agent_by_name(agent_name)
+
+    if agent is None:
+        return {
+            "agent_name": normalize_agent_name(agent_name),
+            "query": normalized_query,
+            "status": "UNKNOWN_AGENT",
+            "answer": "Agent not found.",
+            "confidence": "LOW",
+            "requires_full_report": False,
+            "notes": "No registry entry matched the requested agent."
+        }
+
+    if not normalized_query:
+        return {
+            "agent_name": agent["agent_name"],
+            "query": "",
+            "status": "EMPTY_QUERY",
+            "answer": "Query cannot be empty.",
+            "confidence": "LOW",
+            "requires_full_report": False,
+            "notes": "Provide a non-empty query for this agent."
+        }
+
+    if agent["query_mode"] == "PLANNED":
+        status = "QUERY_MODE_PLANNED"
+        answer = (
+            "Query mode is planned for this agent but not yet implemented."
+        )
+    elif agent["query_mode"] == "NOT_SUPPORTED":
+        status = "QUERY_MODE_NOT_SUPPORTED"
+        answer = "Query mode is not supported for this agent."
+    else:
+        status = "ERROR"
+        answer = "Query execution is not active in this phase."
+
+    return {
+        "agent_name": agent["agent_name"],
+        "query": normalized_query,
+        "status": status,
+        "answer": answer,
+        "confidence": "LOW",
+        "requires_full_report": False,
+        "notes": (
+            "Phase 69 provides the deterministic query contract only; "
+            "no agent reasoning was executed."
+        )
+    }
 
 
 def run_report_agent(registry, agent_name, report_function, fallback):
@@ -294,6 +510,59 @@ def get_registry_report(registry):
     }
 
 
+def get_query_interface_report(registry):
+
+    summary = [
+        "Query Interface Status: PLANNED",
+        (
+            "Query Mode Supported Agents: "
+            f"{sum(
+                agent['query_mode'] == 'SUPPORTED'
+                for agent in registry
+            )}"
+        ),
+        (
+            "Query Mode Planned Agents: "
+            f"{sum(agent['query_mode'] == 'PLANNED' for agent in registry)}"
+        ),
+        (
+            "Query Mode Not Supported Agents: "
+            f"{sum(
+                agent['query_mode'] == 'NOT_SUPPORTED'
+                for agent in registry
+            )}"
+        ),
+        "Unknown Agent Handling: ENABLED",
+        "Empty Query Handling: ENABLED",
+        "",
+        "Echo conversational query mode is planned but not active yet."
+    ]
+    details = []
+
+    agents_by_name = {
+        agent["agent_name"]: agent
+        for agent in registry
+    }
+
+    for agent_name in QUERY_INTERFACE_AGENT_ORDER:
+        agent = agents_by_name[agent_name]
+        planned_types = ", ".join(agent["planned_query_types"]) or "None"
+        example = (
+            agent["example_queries"][0]
+            if agent["example_queries"]
+            else "None"
+        )
+        details.append(
+            f"{agent['agent_name']} | Query Mode {agent['query_mode']} | "
+            f"Planned Types {planned_types} | Example {example}"
+        )
+
+    return {
+        "summary": summary,
+        "details": details
+    }
+
+
 def build_morning_brief():
 
     registry = create_agent_registry()
@@ -323,6 +592,7 @@ def build_morning_brief():
     )
     policy = get_policy()
     registry_report = get_registry_report(registry)
+    query_interface_report = get_query_interface_report(registry)
 
     brief = ""
 
@@ -337,6 +607,14 @@ def build_morning_brief():
     brief += add_section(
         "AGENT REGISTRY DETAILS",
         registry_report["details"]
+    )
+    brief += add_section(
+        "AGENT QUERY INTERFACE SUMMARY",
+        query_interface_report["summary"]
+    )
+    brief += add_section(
+        "AGENT QUERY INTERFACE DETAILS",
+        query_interface_report["details"]
     )
     brief += add_section(
         "NEWS AGENT EXECUTIVE BRIEF",
@@ -360,6 +638,7 @@ def save_report(brief):
 
 
 
-briefing = build_morning_brief()
-print(briefing)
-save_report(briefing)
+if __name__ == "__main__":
+    briefing = build_morning_brief()
+    print(briefing)
+    save_report(briefing)
