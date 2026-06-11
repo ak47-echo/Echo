@@ -3907,6 +3907,213 @@ def get_monte_carlo_v2_covariance_report(positions):
     }
 
 
+def _calculate_percentile(sorted_values, percentile):
+
+    if not sorted_values:
+        return None
+
+    if len(sorted_values) == 1:
+        return sorted_values[0]
+
+    rank = (len(sorted_values) - 1) * percentile
+    lower_index = math.floor(rank)
+    upper_index = math.ceil(rank)
+
+    if lower_index == upper_index:
+        return sorted_values[lower_index]
+
+    fraction = rank - lower_index
+
+    return (
+        sorted_values[lower_index] * (1 - fraction)
+        + sorted_values[upper_index] * fraction
+    )
+
+
+def _get_empty_monte_carlo_v2_report(covariance_report):
+
+    return {
+        "simulation_count": 0,
+        "expected_return_input": 0,
+        "covariance_adjusted_volatility_input": 0,
+        "mean_simulated_return": 0,
+        "median_simulated_return": 0,
+        "best_outcome": 0,
+        "worst_outcome": 0,
+        "probability_positive": 0,
+        "probability_negative": 0,
+        "probability_greater_than_10": 0,
+        "probability_less_than_negative_10": 0,
+        "probability_less_than_negative_20": 0,
+        "percentile_5": 0,
+        "percentile_25": 0,
+        "percentile_75": 0,
+        "percentile_95": 0,
+        "v1_expected_return": 0,
+        "v1_volatility": 0,
+        "expected_return_difference": 0,
+        "volatility_difference": 0,
+        "v1_probability_negative": None,
+        "probability_negative_difference": None,
+        "v1_probability_less_than_negative_10": None,
+        "probability_less_than_negative_10_difference": None,
+        "simulated_returns": [],
+        "covariance_report": covariance_report
+    }
+
+
+def get_monte_carlo_v2_report(
+    positions,
+    v1_report=None,
+    covariance_report=None
+):
+
+    simulation_count = 1000
+    covariance_report = (
+        covariance_report
+        if covariance_report is not None
+        else get_monte_carlo_v2_covariance_report(positions)
+    )
+    v1_report = (
+        v1_report
+        if v1_report is not None
+        else get_monte_carlo_report(positions)
+    )
+
+    if not covariance_report["has_data"]:
+        return _get_empty_monte_carlo_v2_report(covariance_report)
+
+    input_report = covariance_report["input_report"]
+
+    try:
+        expected_return = float(
+            input_report["portfolio_expected_return"]
+        ) / 100
+        volatility = float(
+            covariance_report["covariance_adjusted_volatility"]
+        ) / 100
+    except (KeyError, TypeError, ValueError):
+        return _get_empty_monte_carlo_v2_report(covariance_report)
+
+    if not math.isfinite(expected_return) or not math.isfinite(volatility):
+        return _get_empty_monte_carlo_v2_report(covariance_report)
+
+    volatility = max(volatility, 0)
+    random_generator = random.Random(64)
+    simulated_returns = [
+        random_generator.normalvariate(expected_return, volatility)
+        for _ in range(simulation_count)
+    ]
+    sorted_returns = sorted(simulated_returns)
+    mean_simulated_return = statistics.fmean(simulated_returns)
+    median_simulated_return = statistics.median(simulated_returns)
+    probability_positive = (
+        sum(result > 0 for result in simulated_returns)
+        / simulation_count
+        * 100
+    )
+    probability_negative = (
+        sum(result < 0 for result in simulated_returns)
+        / simulation_count
+        * 100
+    )
+    probability_greater_than_10 = (
+        sum(result > 0.10 for result in simulated_returns)
+        / simulation_count
+        * 100
+    )
+    probability_less_than_negative_10 = (
+        sum(result < -0.10 for result in simulated_returns)
+        / simulation_count
+        * 100
+    )
+    probability_less_than_negative_20 = (
+        sum(result < -0.20 for result in simulated_returns)
+        / simulation_count
+        * 100
+    )
+    v1_has_data = bool(v1_report.get("simulation_count"))
+    v1_expected_return = (
+        v1_report.get("assumption_expected_return", 0)
+        if v1_has_data
+        else 0
+    )
+    v1_volatility = (
+        v1_report.get("assumption_volatility", 0)
+        if v1_has_data
+        else 0
+    )
+    v1_probability_negative = (
+        v1_report.get("probability_negative")
+        if v1_has_data
+        else None
+    )
+    v1_probability_less_than_negative_10 = (
+        v1_report.get("probability_less_than_negative_10")
+        if v1_has_data
+        else None
+    )
+    expected_return_input = expected_return * 100
+    volatility_input = volatility * 100
+
+    return {
+        "simulation_count": simulation_count,
+        "expected_return_input": expected_return_input,
+        "covariance_adjusted_volatility_input": volatility_input,
+        "mean_simulated_return": mean_simulated_return * 100,
+        "median_simulated_return": median_simulated_return * 100,
+        "best_outcome": max(simulated_returns) * 100,
+        "worst_outcome": min(simulated_returns) * 100,
+        "probability_positive": probability_positive,
+        "probability_negative": probability_negative,
+        "probability_greater_than_10": probability_greater_than_10,
+        "probability_less_than_negative_10": (
+            probability_less_than_negative_10
+        ),
+        "probability_less_than_negative_20": (
+            probability_less_than_negative_20
+        ),
+        "percentile_5": (
+            _calculate_percentile(sorted_returns, 0.05) * 100
+        ),
+        "percentile_25": (
+            _calculate_percentile(sorted_returns, 0.25) * 100
+        ),
+        "percentile_75": (
+            _calculate_percentile(sorted_returns, 0.75) * 100
+        ),
+        "percentile_95": (
+            _calculate_percentile(sorted_returns, 0.95) * 100
+        ),
+        "v1_expected_return": v1_expected_return,
+        "v1_volatility": v1_volatility,
+        "expected_return_difference": (
+            expected_return_input - v1_expected_return
+        ),
+        "volatility_difference": volatility_input - v1_volatility,
+        "v1_probability_negative": v1_probability_negative,
+        "probability_negative_difference": (
+            probability_negative - v1_probability_negative
+            if v1_probability_negative is not None
+            else None
+        ),
+        "v1_probability_less_than_negative_10": (
+            v1_probability_less_than_negative_10
+        ),
+        "probability_less_than_negative_10_difference": (
+            probability_less_than_negative_10
+            - v1_probability_less_than_negative_10
+            if v1_probability_less_than_negative_10 is not None
+            else None
+        ),
+        "simulated_returns": [
+            simulated_return * 100
+            for simulated_return in simulated_returns
+        ],
+        "covariance_report": covariance_report
+    }
+
+
 def get_portfolio_exposure(positions):
 
     category_values = {

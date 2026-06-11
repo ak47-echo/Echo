@@ -16,7 +16,7 @@ from agents.research_agent import (
     get_investment_committee_summary,
     get_macro_regime_report,
     get_monte_carlo_report,
-    get_monte_carlo_v2_covariance_report,
+    get_monte_carlo_v2_report,
     get_portfolio_exposure,
     get_regime_analysis,
     get_ranked_watchlist,
@@ -83,6 +83,8 @@ PORTFOLIO_REPORT_SECTION_ORDER = (
     "MONTE CARLO V2 INPUT DETAILS",
     "MONTE CARLO V2 COVARIANCE SUMMARY",
     "MONTE CARLO V2 COVARIANCE DETAILS",
+    "MONTE CARLO V2 SUMMARY",
+    "MONTE CARLO V2 DETAILS",
     "BUY LIST",
     "CAPITAL DEPLOYMENT",
     "SELL CANDIDATES",
@@ -1989,9 +1991,13 @@ def get_portfolio_report():
     else:
         report.append("No assumption reconciliation data available.")
 
-    monte_carlo_v2_covariance_report = (
-        get_monte_carlo_v2_covariance_report(positions)
+    monte_carlo_v2_report = get_monte_carlo_v2_report(
+        positions,
+        v1_report=monte_carlo_report
     )
+    monte_carlo_v2_covariance_report = monte_carlo_v2_report[
+        "covariance_report"
+    ]
     monte_carlo_v2_input_report = monte_carlo_v2_covariance_report[
         "input_report"
     ]
@@ -2185,6 +2191,190 @@ def get_portfolio_report():
             )
     else:
         report.append("No Monte Carlo V2 covariance data available.")
+
+    report.append("")
+    report.append("MONTE CARLO V2 SUMMARY")
+    report.append("")
+
+    if monte_carlo_v2_report["simulation_count"]:
+        report.append(
+            f"Simulation Count: "
+            f"{monte_carlo_v2_report['simulation_count']}"
+        )
+        report.append("")
+        report.append(
+            "Expected Return Input: "
+            f"{monte_carlo_v2_report['expected_return_input']:.2f}%"
+        )
+        report.append(
+            "Covariance Adjusted Volatility Input: "
+            f"{monte_carlo_v2_report[
+                'covariance_adjusted_volatility_input'
+            ]:.2f}%"
+        )
+        report.append("")
+        report.append(
+            "Mean Simulated Return: "
+            f"{monte_carlo_v2_report['mean_simulated_return']:.2f}%"
+        )
+        report.append(
+            "Median Simulated Return: "
+            f"{monte_carlo_v2_report['median_simulated_return']:.2f}%"
+        )
+        report.append("")
+        report.append(
+            "Probability Positive: "
+            f"{monte_carlo_v2_report['probability_positive']:.1f}%"
+        )
+        report.append(
+            "Probability Negative: "
+            f"{monte_carlo_v2_report['probability_negative']:.1f}%"
+        )
+        report.append("")
+        report.append(
+            "Monte Carlo V2 uses real historical data where available, "
+            "static fallbacks where needed, and covariance-adjusted "
+            "volatility."
+        )
+        report.append("Monte Carlo V2 results are not forecasts.")
+    else:
+        report.append("No Monte Carlo V2 data available.")
+
+    report.append("")
+    report.append("MONTE CARLO V2 DETAILS")
+    report.append("")
+
+    if monte_carlo_v2_report["simulation_count"]:
+        report.append(
+            f"Best Outcome: "
+            f"{monte_carlo_v2_report['best_outcome']:.2f}%"
+        )
+        report.append(
+            f"Worst Outcome: "
+            f"{monte_carlo_v2_report['worst_outcome']:.2f}%"
+        )
+        report.append("")
+        report.append(
+            f"5th Percentile: "
+            f"{monte_carlo_v2_report['percentile_5']:.2f}%"
+        )
+        report.append(
+            f"25th Percentile: "
+            f"{monte_carlo_v2_report['percentile_25']:.2f}%"
+        )
+        report.append(
+            f"75th Percentile: "
+            f"{monte_carlo_v2_report['percentile_75']:.2f}%"
+        )
+        report.append(
+            f"95th Percentile: "
+            f"{monte_carlo_v2_report['percentile_95']:.2f}%"
+        )
+        report.append("")
+        report.append(
+            "Probability Return > 10%: "
+            f"{monte_carlo_v2_report[
+                'probability_greater_than_10'
+            ]:.1f}%"
+        )
+        report.append(
+            "Probability Return < -10%: "
+            f"{monte_carlo_v2_report[
+                'probability_less_than_negative_10'
+            ]:.1f}%"
+        )
+        report.append(
+            "Probability Return < -20%: "
+            f"{monte_carlo_v2_report[
+                'probability_less_than_negative_20'
+            ]:.1f}%"
+        )
+        report.append("")
+        report.append("V1 vs V2 Comparison")
+        report.append("")
+        report.append(
+            "V1 Expected Return: "
+            f"{monte_carlo_v2_report['v1_expected_return']:.2f}%"
+        )
+        report.append(
+            "V2 Expected Return: "
+            f"{monte_carlo_v2_report['expected_return_input']:.2f}%"
+        )
+        report.append(
+            "Expected Return Difference: "
+            f"{monte_carlo_v2_report[
+                'expected_return_difference'
+            ]:+.2f}%"
+        )
+        report.append("")
+        report.append(
+            "V1 Volatility: "
+            f"{monte_carlo_v2_report['v1_volatility']:.2f}%"
+        )
+        report.append(
+            "V2 Volatility: "
+            f"{monte_carlo_v2_report[
+                'covariance_adjusted_volatility_input'
+            ]:.2f}%"
+        )
+        report.append(
+            "Volatility Difference: "
+            f"{monte_carlo_v2_report['volatility_difference']:+.2f}%"
+        )
+        report.append("")
+
+        if monte_carlo_v2_report["v1_probability_negative"] is not None:
+            report.append(
+                "V1 Probability Negative: "
+                f"{monte_carlo_v2_report[
+                    'v1_probability_negative'
+                ]:.1f}%"
+            )
+            report.append(
+                "V2 Probability Negative: "
+                f"{monte_carlo_v2_report[
+                    'probability_negative'
+                ]:.1f}%"
+            )
+            report.append(
+                "Probability Negative Difference: "
+                f"{monte_carlo_v2_report[
+                    'probability_negative_difference'
+                ]:+.1f}%"
+            )
+        else:
+            report.append("V1 Probability Negative: N/A")
+
+        report.append("")
+
+        if (
+            monte_carlo_v2_report[
+                "v1_probability_less_than_negative_10"
+            ]
+            is not None
+        ):
+            report.append(
+                "V1 Probability < -10%: "
+                f"{monte_carlo_v2_report[
+                    'v1_probability_less_than_negative_10'
+                ]:.1f}%"
+            )
+            report.append(
+                "V2 Probability < -10%: "
+                f"{monte_carlo_v2_report[
+                    'probability_less_than_negative_10'
+                ]:.1f}%"
+            )
+            report.append(
+                "Probability < -10% Difference: "
+                f"{monte_carlo_v2_report[
+                    'probability_less_than_negative_10_difference'
+                ]:+.1f}%"
+            )
+        else:
+            report.append("V1 Probability < -10%: N/A")
+    else:
+        report.append("No Monte Carlo V2 data available.")
 
     report.append("")
     report.append("CANDIDATE RANKINGS")
