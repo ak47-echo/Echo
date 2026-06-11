@@ -46,7 +46,11 @@ def build_morning_brief():
         news["executive_brief"]
     )
     brief += add_section("NEWS AGENT FULL REPORT", news["full_report"])
-    brief += add_section("MACRO AGENT REPORT", macro)
+    brief += add_section(
+        "MACRO AGENT EXECUTIVE BRIEF",
+        macro["executive_brief"]
+    )
+    brief += add_section("MACRO AGENT FULL REPORT", macro["full_report"])
     brief += add_section("PORTFOLIO MANAGER REPORT", portfolio)
 
     return brief
