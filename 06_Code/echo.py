@@ -1678,6 +1678,115 @@ def build_signal_driven_executive_summary(registry, signals):
     return summary
 
 
+def compress_action_queue(actions):
+
+    compressed = []
+
+    for action in actions or []:
+        action = _concise(action, limit=120)
+
+        if action and action.casefold() not in {
+            item.casefold() for item in compressed
+        }:
+            compressed.append(action)
+
+        if len(compressed) == 3:
+            break
+
+    return compressed
+
+
+def determine_full_report_trigger(system_health, signals, portfolio_risk):
+
+    if system_health in {"DEGRADED", "CRITICAL"}:
+        return "Agent failure detected."
+
+    weighted_signals = rank_weighted_signals(signals)
+    top_priority = weighted_signals[0] if weighted_signals else None
+
+    if (
+        top_priority
+        and top_priority.get("severity") in {"HIGH", "CRITICAL"}
+    ):
+        return "High-priority signal requires review."
+
+    if portfolio_risk is not None:
+        return "Portfolio risk details need review."
+
+    return "No immediate full-report review required."
+
+
+def build_echo_executive_brief(registry, signals):
+
+    weighted_signals = rank_weighted_signals(signals)
+    system_health = determine_signal_driven_system_health(
+        registry,
+        weighted_signals
+    )
+    top_priority = weighted_signals[0] if weighted_signals else None
+    portfolio_risk = _select_portfolio_risk_signal(weighted_signals)
+    macro_backdrop = _select_macro_environment_signal(weighted_signals)
+    market_watch = select_signal_by_category(
+        weighted_signals,
+        ("Market Event",)
+    )
+    actions = compress_action_queue(
+        build_signal_driven_action_queue(weighted_signals)
+    )
+    brief = [
+        f"System: {system_health}",
+        (
+            f"Top Priority: {_concise(top_priority['title'], limit=140)}"
+            if top_priority
+            else "Top Priority: None identified."
+        ),
+        (
+            f"Portfolio Risk: {_concise(portfolio_risk['title'], limit=140)}"
+            if portfolio_risk
+            else "Portfolio Risk: No major portfolio risk identified."
+        ),
+        (
+            f"Macro Backdrop: {_concise(macro_backdrop['title'], limit=140)}"
+            if macro_backdrop
+            else "Macro Backdrop: Unknown"
+        ),
+        (
+            f"Market Watch: {_concise(market_watch['title'], limit=140)}"
+            if market_watch
+            else "Market Watch: No major market development identified."
+        ),
+        "",
+        "Action Queue:"
+    ]
+
+    if actions:
+        brief.extend(
+            f"{number}. {action}"
+            for number, action in enumerate(actions, start=1)
+        )
+    else:
+        brief.append("No priority actions identified.")
+
+    brief.extend([
+        "",
+        (
+            "Read Full Report If: "
+            f"{determine_full_report_trigger(
+                system_health,
+                weighted_signals,
+                portfolio_risk
+            )}"
+        ),
+        "",
+        (
+            "Echo Executive Brief is a compressed command brief. "
+            "Full agent reports remain below."
+        )
+    ])
+
+    return brief
+
+
 def create_agent_registry():
 
     registry = []
@@ -2024,6 +2133,10 @@ def build_morning_brief():
         registry,
         signals
     )
+    executive_brief = build_echo_executive_brief(
+        registry,
+        signals
+    )
 
     brief = ""
 
@@ -2031,6 +2144,10 @@ def build_morning_brief():
     brief += "         ECHO BRIEFING\n"
     brief += "=================================\n\n"
 
+    brief += add_section(
+        "ECHO EXECUTIVE BRIEF",
+        executive_brief
+    )
     brief += add_section(
         "ECHO EXECUTIVE SUMMARY",
         executive_summary
