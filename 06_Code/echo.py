@@ -260,14 +260,16 @@ PRIORITY_SEVERITY_SCORES = {
     "CRITICAL": 100,
     "HIGH": 75,
     "MEDIUM": 50,
-    "LOW": 25
+    "LOW": 25,
+    "INFO": 10
 }
 
 PRIORITY_AGENT_RANKS = {
     "Portfolio Manager": 0,
     "Research Agent": 1,
     "Macro Agent": 2,
-    "News Agent": 3
+    "News Agent": 3,
+    "Agent Registry": 4
 }
 
 
@@ -382,43 +384,61 @@ def score_priority(severity):
     )
 
 
-def _priority_candidate(
+def normalize_signal(
     source_agent,
-    category,
+    signal_type,
+    severity,
     title,
     description,
-    severity
+    confidence="UNKNOWN",
+    category="System Infrastructure",
+    metadata=None
 ):
 
+    source_agent = " ".join(str(source_agent or "").split())
+    signal_type = " ".join(str(signal_type or "").split()).upper()
     title = " ".join(str(title or "").split())
     description = " ".join(str(description or "").split())
     severity = str(severity or "").strip().upper()
+    confidence = str(confidence or "UNKNOWN").strip().upper()
+    category = " ".join(str(category or "").split())
 
-    if not title or severity not in PRIORITY_SEVERITY_SCORES:
+    if (
+        not source_agent
+        or not signal_type
+        or not title
+        or severity not in PRIORITY_SEVERITY_SCORES
+    ):
         return None
+
+    if confidence not in {"HIGH", "MEDIUM", "LOW", "UNKNOWN"}:
+        confidence = "UNKNOWN"
 
     return {
         "source_agent": source_agent,
-        "category": category,
+        "signal_type": signal_type,
+        "severity": severity,
         "title": _concise(title),
         "description": _concise(description or title, limit=240),
-        "severity": severity,
-        "score": score_priority(severity)
+        "confidence": confidence,
+        "category": category or "System Infrastructure",
+        "score": score_priority(severity),
+        "metadata": dict(metadata) if isinstance(metadata, dict) else {}
     }
 
 
-def _append_priority(candidates, *args):
+def _append_signal(signals, *args, **kwargs):
 
-    candidate = _priority_candidate(*args)
+    signal = normalize_signal(*args, **kwargs)
 
-    if candidate is not None:
-        candidates.append(candidate)
+    if signal is not None:
+        signals.append(signal)
 
 
-def _build_portfolio_priority_candidates(portfolio):
+def build_portfolio_signals(portfolio):
 
     lines = _report_lines(portfolio)
-    candidates = []
+    signals = []
     concentration = _report_section(lines, "CONCENTRATION RISK DETAILS")
 
     for line in concentration:
@@ -426,27 +446,33 @@ def _build_portfolio_priority_candidates(portfolio):
 
         if len(parts) >= 3 and parts[0] in {"HIGH", "MEDIUM"}:
             title = f"{parts[1]} {parts[2].lower()}"
-            _append_priority(
-                candidates,
+            _append_signal(
+                signals,
                 "Portfolio Manager",
-                "CONCENTRATION",
+                "CONCENTRATION_RISK",
+                "HIGH",
                 title,
                 line,
-                "HIGH"
+                "HIGH",
+                "Portfolio Risk",
+                {"reported_severity": parts[0], "ticker": parts[1]}
             )
 
     stress = _report_section(lines, "STRESS TEST SUMMARY")
     worst_scenario = _field_value(stress, "Worst Scenario")
 
     if worst_scenario:
-        _append_priority(
-            candidates,
+        _append_signal(
+            signals,
             "Portfolio Manager",
-            "STRESS_TEST",
+            "STRESS_TEST_RISK",
+            "HIGH",
             f"Stress-test exposure: {worst_scenario}",
             "Portfolio Manager identified this as the worst stress-test "
             "exposure.",
-            "HIGH"
+            "HIGH",
+            "Portfolio Risk",
+            {"worst_scenario": worst_scenario}
         )
 
     monte_carlo = _report_section(lines, "MONTE CARLO V2 SUMMARY")
@@ -459,13 +485,16 @@ def _build_portfolio_priority_candidates(portfolio):
             downside_value = 0
 
         if downside_value >= 40:
-            _append_priority(
-                candidates,
+            _append_signal(
+                signals,
                 "Portfolio Manager",
-                "MONTE_CARLO",
+                "MONTE_CARLO_DOWNSIDE",
+                "HIGH",
                 f"Monte Carlo downside probability {downside}",
                 "Modeled probability of a negative outcome is elevated.",
-                "HIGH"
+                "MEDIUM",
+                "Portfolio Risk",
+                {"probability_negative": downside_value}
             )
 
     tax_summary = _report_section(lines, "TAX OPTIMIZATION SUMMARY")
@@ -477,41 +506,47 @@ def _build_portfolio_priority_candidates(portfolio):
         value = _field_value(tax_summary, label)
 
         if value and value != "0":
-            _append_priority(
-                candidates,
+            _append_signal(
+                signals,
                 "Portfolio Manager",
-                "TAX",
+                "TAX_RISK",
+                "MEDIUM",
                 f"{label}: {value}",
                 "Portfolio Manager identified a tax optimization warning.",
-                "MEDIUM"
+                "HIGH",
+                "Portfolio Risk",
+                {"metric": label, "value": value}
             )
 
     committee = _report_section(lines, "INVESTMENT COMMITTEE SUMMARY")
 
-    for label, category in (
-        ("Top Replacement Plan", "REPLACEMENT"),
-        ("Top Capital Deployment", "DEPLOYMENT")
+    for label, signal_type in (
+        ("Top Replacement Plan", "REPLACEMENT_CANDIDATE"),
+        ("Top Capital Deployment", "DEPLOYMENT_OPPORTUNITY")
     ):
         value = _field_value(committee, label)
 
         if value:
-            _append_priority(
-                candidates,
+            _append_signal(
+                signals,
                 "Portfolio Manager",
-                category,
+                signal_type,
+                "MEDIUM",
                 value,
                 f"Portfolio Manager {label.lower()}.",
-                "MEDIUM"
+                "HIGH",
+                "Portfolio Opportunity",
+                {"source_field": label}
             )
 
-    return candidates
+    return signals
 
 
-def _build_research_priority_candidates(research):
+def build_research_signals(research):
 
     executive = _report_lines(research)
     full_report = _full_report_lines(research)
-    candidates = []
+    signals = []
     health_issues = _report_section(full_report, "Research Health Issues:")
 
     for line in health_issues:
@@ -532,13 +567,21 @@ def _build_research_priority_candidates(research):
             if "low conviction holding" in issue.casefold()
             else parts[0]
         )
-        _append_priority(
-            candidates,
+        signal_type = (
+            "LOW_CONVICTION"
+            if "low conviction" in issue.casefold()
+            else "RESEARCH_HEALTH_ISSUE"
+        )
+        _append_signal(
+            signals,
             "Research Agent",
-            "RESEARCH_HEALTH",
+            signal_type,
+            severity,
             f"{ticker}: {issue}",
             recommendation,
-            severity
+            "HIGH",
+            "Research Gap",
+            {"ticker": ticker, "reported_severity": parts[0]}
         )
 
     coverage = _report_section(full_report, "Coverage Summary:")
@@ -547,26 +590,32 @@ def _build_research_priority_candidates(research):
         ticker = ticker.strip()
 
         if ticker and ticker.casefold() != "none":
-            _append_priority(
-                candidates,
+            _append_signal(
+                signals,
                 "Research Agent",
                 "UNCOVERED_HOLDING",
+                "HIGH",
                 f"{ticker}: Research coverage missing",
                 "Holding does not have research coverage.",
-                "HIGH"
+                "HIGH",
+                "Research Gap",
+                {"ticker": ticker}
             )
 
     for ticker in _field_value(coverage, "Uncovered Watchlist").split(","):
         ticker = ticker.strip()
 
         if ticker and ticker.casefold() != "none":
-            _append_priority(
-                candidates,
+            _append_signal(
+                signals,
                 "Research Agent",
                 "UNCOVERED_WATCHLIST",
+                "MEDIUM",
                 f"{ticker}: Watchlist research coverage missing",
                 "Watchlist candidate does not have research coverage.",
-                "MEDIUM"
+                "HIGH",
+                "Research Gap",
+                {"ticker": ticker}
             )
 
     holding_quality = _report_section(full_report, "Holding Thesis Quality:")
@@ -576,13 +625,16 @@ def _build_research_priority_candidates(research):
             continue
 
         ticker = line.split("|", 1)[0].strip()
-        _append_priority(
-            candidates,
+        _append_signal(
+            signals,
             "Research Agent",
             "MISSING_THESIS",
+            "HIGH",
             f"{ticker}: Missing thesis",
             line,
-            "HIGH"
+            "HIGH",
+            "Research Gap",
+            {"ticker": ticker}
         )
 
     top_priority = _field_value(executive, "Top Research Priority")
@@ -591,93 +643,131 @@ def _build_research_priority_candidates(research):
         top_priority
         and "no urgent research priority" not in top_priority.casefold()
     ):
-        _append_priority(
-            candidates,
+        _append_signal(
+            signals,
             "Research Agent",
-            "RESEARCH_GAP",
+            "RESEARCH_HEALTH_ISSUE",
+            "MEDIUM",
             top_priority,
             "Research Agent identified this as its top research priority.",
-            "MEDIUM"
+            "HIGH",
+            "Research Gap",
+            {"source_field": "Top Research Priority"}
         )
 
-    return candidates
+    return signals
 
 
-def _build_macro_priority_candidates(macro):
+def build_macro_signals(macro):
 
     lines = _report_lines(macro)
-    candidates = []
+    signals = []
     regime = _field_value(lines, "Current Macro Regime")
     regime_key = regime.casefold().replace("_", " ").replace("-", " ")
 
-    if any(
-        risk in regime_key
-        for risk in ("recession", "stagflation", "inflation shock")
-    ):
-        _append_priority(
-            candidates,
+    if regime:
+        high_risk_regime = any(
+            risk in regime_key
+            for risk in ("recession", "stagflation", "inflation shock")
+        )
+        _append_signal(
+            signals,
             "Macro Agent",
             "MACRO_REGIME",
+            "HIGH" if high_risk_regime else "INFO",
             f"Macro regime: {regime}",
-            "Macro Agent identified a high-risk macro regime.",
-            "HIGH"
+            (
+                "Macro Agent identified a high-risk macro regime."
+                if high_risk_regime
+                else "Macro Agent reported the current macro regime."
+            ),
+            "MEDIUM",
+            "Macro Risk" if high_risk_regime else "Macro Environment",
+            {"regime": regime}
         )
 
     yield_curve = _field_value(lines, "Yield Curve")
 
     if "invert" in yield_curve.casefold():
-        _append_priority(
-            candidates,
+        _append_signal(
+            signals,
             "Macro Agent",
-            "YIELD_CURVE",
+            "YIELD_CURVE_INVERTED",
+            "HIGH",
             f"Yield curve: {yield_curve}",
             "Macro Agent identified an inverted yield curve.",
-            "HIGH"
+            "MEDIUM",
+            "Macro Risk",
+            {"yield_curve": yield_curve}
         )
 
     inflation = _field_value(lines, "Inflation Trend")
 
     if "ris" in inflation.casefold() or "accelerat" in inflation.casefold():
-        _append_priority(
-            candidates,
+        _append_signal(
+            signals,
             "Macro Agent",
-            "INFLATION",
+            "INFLATION_RISING",
+            "MEDIUM",
             f"Inflation trend: {inflation}",
             "Macro Agent identified rising inflation.",
-            "MEDIUM"
+            "MEDIUM",
+            "Macro Risk",
+            {"inflation_trend": inflation}
         )
 
     labor = _field_value(lines, "Labor Market")
 
     if any(term in labor.casefold() for term in ("weak", "deteriorat")):
-        _append_priority(
-            candidates,
+        _append_signal(
+            signals,
             "Macro Agent",
-            "LABOR",
+            "LABOR_WEAK",
+            "MEDIUM",
             f"Labor market: {labor}",
             "Macro Agent identified labor-market weakness.",
-            "MEDIUM"
+            "MEDIUM",
+            "Macro Risk",
+            {"labor_market": labor}
         )
 
     policy = _field_value(lines, "Policy Rate")
 
     if "restrict" in policy.casefold():
-        _append_priority(
-            candidates,
+        _append_signal(
+            signals,
             "Macro Agent",
-            "POLICY",
+            "POLICY_RESTRICTIVE",
+            "MEDIUM",
             f"Policy rate: {policy}",
             "Macro Agent identified restrictive monetary policy.",
-            "MEDIUM"
+            "MEDIUM",
+            "Macro Risk",
+            {"policy_rate": policy}
         )
 
-    return candidates
+    energy = _field_value(lines, "Energy")
+
+    if "ris" in energy.casefold() or "accelerat" in energy.casefold():
+        _append_signal(
+            signals,
+            "Macro Agent",
+            "ENERGY_RISING",
+            "MEDIUM",
+            f"Energy trend: {energy}",
+            "Macro Agent identified rising energy pressure.",
+            "MEDIUM",
+            "Macro Risk",
+            {"energy": energy}
+        )
+
+    return signals
 
 
-def _build_news_priority_candidates(news):
+def build_news_signals(news):
 
     lines = _report_lines(news)
-    candidates = []
+    signals = []
     high_relevance = _field_value(lines, "High Relevance Stories")
 
     try:
@@ -687,17 +777,20 @@ def _build_news_priority_candidates(news):
 
     if high_relevance_count > 0:
         top_story = _field_value(lines, "Top Market Story")
-        _append_priority(
-            candidates,
+        _append_signal(
+            signals,
             "News Agent",
-            "HIGH_RELEVANCE_NEWS",
+            "HIGH_RELEVANCE_STORY",
+            "MEDIUM",
             top_story or f"{high_relevance_count} high-relevance stories",
             f"News Agent identified {high_relevance_count} "
             "high-relevance stories.",
-            "MEDIUM"
+            "MEDIUM",
+            "Market Event",
+            {"story_count": high_relevance_count}
         )
 
-    for label, category in (
+    for label, signal_type in (
         ("Top Portfolio Story", "PORTFOLIO_NEWS"),
         ("Top World Event Story", "WORLD_EVENT"),
         ("Top Macro Story", "MACRO_NEWS")
@@ -705,26 +798,192 @@ def _build_news_priority_candidates(news):
         value = _field_value(lines, label)
 
         if value:
-            _append_priority(
-                candidates,
+            _append_signal(
+                signals,
                 "News Agent",
-                category,
+                signal_type,
+                "MEDIUM",
                 value,
                 f"News Agent identified this as the {label.lower()}.",
-                "MEDIUM"
+                "MEDIUM",
+                "Market Event",
+                {"source_field": label}
             )
 
-    return candidates
+    return signals
 
 
-def build_priority_candidates(portfolio, research, macro, news):
+def build_registry_signals(registry):
 
-    return (
-        _build_portfolio_priority_candidates(portfolio)
-        + _build_research_priority_candidates(research)
-        + _build_macro_priority_candidates(macro)
-        + _build_news_priority_candidates(news)
+    signals = []
+
+    for agent in registry or []:
+        agent_name = str(agent.get("agent_name") or "Unknown Agent").strip()
+        last_run = str(agent.get("last_run_status") or "").strip().upper()
+        health = str(agent.get("health") or "").strip().upper()
+        status = str(agent.get("status") or "").strip().upper()
+        failure = str(agent.get("failure_message") or "").strip()
+
+        if last_run == "FAILED" or status == "ERROR":
+            signal_type = "AGENT_FAILURE"
+            severity = "HIGH"
+            title = f"{agent_name} failed"
+        elif status == "OFFLINE":
+            signal_type = "AGENT_OFFLINE"
+            severity = "HIGH"
+            title = f"{agent_name} offline"
+        elif health == "DEGRADED":
+            signal_type = "AGENT_DEGRADED"
+            severity = "MEDIUM"
+            title = f"{agent_name} degraded"
+        else:
+            continue
+
+        _append_signal(
+            signals,
+            "Agent Registry",
+            signal_type,
+            severity,
+            title,
+            failure or f"Agent Registry reports {agent_name} as {status}.",
+            "HIGH",
+            "Agent Health",
+            {"agent_name": agent_name, "last_run_status": last_run}
+        )
+
+    return signals
+
+
+def deduplicate_signals(signals):
+
+    unique_signals = {}
+
+    for signal in signals or []:
+        if not isinstance(signal, dict):
+            continue
+
+        normalized = normalize_signal(
+            signal.get("source_agent"),
+            signal.get("signal_type"),
+            signal.get("severity"),
+            signal.get("title"),
+            signal.get("description"),
+            signal.get("confidence"),
+            signal.get("category"),
+            signal.get("metadata")
+        )
+
+        if normalized is None:
+            continue
+
+        key = (
+            normalized["source_agent"].casefold(),
+            normalized["signal_type"],
+            normalized["title"].casefold().rstrip(".")
+        )
+        current = unique_signals.get(key)
+
+        if current is None or normalized["score"] > current["score"]:
+            unique_signals[key] = normalized
+
+    return list(unique_signals.values())
+
+
+def rank_signals(signals):
+
+    return sorted(
+        deduplicate_signals(signals),
+        key=lambda signal: (
+            -signal["score"],
+            PRIORITY_AGENT_RANKS.get(signal["source_agent"], 99),
+            signal["title"].casefold()
+        )
     )
+
+
+def build_agent_signals(portfolio, research, macro, news, registry):
+
+    return rank_signals(
+        build_portfolio_signals(portfolio)
+        + build_research_signals(research)
+        + build_macro_signals(macro)
+        + build_news_signals(news)
+        + build_registry_signals(registry)
+    )
+
+
+def build_agent_signal_bus_report(signals):
+
+    ranked_signals = rank_signals(signals)
+    severity_counts = {
+        severity: sum(
+            signal["severity"] == severity
+            for signal in ranked_signals
+        )
+        for severity in PRIORITY_SEVERITY_SCORES
+    }
+    emitting_agents = {
+        signal["source_agent"]
+        for signal in ranked_signals
+    }
+    summary = [
+        "Signal Bus Status: ACTIVE",
+        f"Total Signals: {len(ranked_signals)}",
+        f"Critical Signals: {severity_counts['CRITICAL']}",
+        f"High Signals: {severity_counts['HIGH']}",
+        f"Medium Signals: {severity_counts['MEDIUM']}",
+        f"Low Signals: {severity_counts['LOW']}",
+        f"Info Signals: {severity_counts['INFO']}",
+        f"Agents Emitting Signals: {len(emitting_agents)}",
+        "",
+        (
+            "Agent Signal Bus normalizes agent outputs into structured "
+            "internal signals."
+        )
+    ]
+    details = []
+
+    for number, signal in enumerate(ranked_signals[:15], start=1):
+        details.extend([
+            f"{number}. {signal['title']}",
+            f"   Source: {signal['source_agent']}",
+            f"   Type: {signal['signal_type']}",
+            f"   Severity: {signal['severity']}",
+            f"   Confidence: {signal['confidence']}",
+            f"   Category: {signal['category']}",
+            f"   Description: {signal['description']}",
+            ""
+        ])
+
+    if not details:
+        details.append("No agent signals available.")
+
+    return {
+        "summary": summary,
+        "details": details,
+        "signals": ranked_signals
+    }
+
+
+def build_priority_candidates(signals):
+
+    candidates = []
+
+    for signal in rank_signals(signals):
+        if signal["severity"] == "INFO":
+            continue
+
+        candidates.append({
+            "source_agent": signal["source_agent"],
+            "category": signal["category"],
+            "title": signal["title"],
+            "description": signal["description"],
+            "severity": signal["severity"],
+            "score": signal["score"],
+            "signal_type": signal["signal_type"]
+        })
+
+    return candidates
 
 
 def rank_priorities(candidates):
@@ -777,10 +1036,10 @@ def determine_top_priority(priorities):
     return priorities[0] if priorities else None
 
 
-def build_cross_agent_priority_report(portfolio, research, macro, news):
+def build_cross_agent_priority_report(signals):
 
     priorities = rank_priorities(
-        build_priority_candidates(portfolio, research, macro, news)
+        build_priority_candidates(signals)
     )
     top_priority = determine_top_priority(priorities)
     severity_counts = {
@@ -788,7 +1047,7 @@ def build_cross_agent_priority_report(portfolio, research, macro, news):
             priority["severity"] == severity
             for priority in priorities
         )
-        for severity in PRIORITY_SEVERITY_SCORES
+        for severity in ("CRITICAL", "HIGH", "MEDIUM", "LOW")
     }
     summary = [
         "Priority Engine Status: ACTIVE",
@@ -1432,12 +1691,15 @@ def build_morning_brief():
     policy = get_policy()
     registry_report = get_registry_report(registry)
     query_interface_report = get_query_interface_report(registry)
-    priority_report = build_cross_agent_priority_report(
+    signals = build_agent_signals(
         portfolio,
         research,
         macro,
-        news
+        news,
+        registry
     )
+    signal_bus_report = build_agent_signal_bus_report(signals)
+    priority_report = build_cross_agent_priority_report(signals)
     executive_summary = build_echo_executive_summary(
         registry,
         news,
@@ -1463,6 +1725,14 @@ def build_morning_brief():
     brief += add_section(
         "CROSS-AGENT PRIORITY DETAILS",
         priority_report["details"]
+    )
+    brief += add_section(
+        "AGENT SIGNAL BUS SUMMARY",
+        signal_bus_report["summary"]
+    )
+    brief += add_section(
+        "AGENT SIGNAL BUS DETAILS",
+        signal_bus_report["details"]
     )
     brief += add_section(
         "AGENT REGISTRY SUMMARY",
