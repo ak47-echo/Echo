@@ -272,6 +272,32 @@ PRIORITY_AGENT_RANKS = {
     "Agent Registry": 4
 }
 
+SIGNAL_SOURCE_WEIGHTS = {
+    "Portfolio Manager": 10,
+    "Research Agent": 8,
+    "Macro Agent": 6,
+    "News Agent": 4,
+    "Agent Registry": 10
+}
+
+SIGNAL_CONFIDENCE_WEIGHTS = {
+    "HIGH": 5,
+    "MEDIUM": 2,
+    "LOW": 0,
+    "UNKNOWN": 0
+}
+
+SIGNAL_CATEGORY_WEIGHTS = {
+    "Portfolio Risk": 10,
+    "Research Gap": 8,
+    "Macro Risk": 7,
+    "Market Event": 5,
+    "Portfolio Opportunity": 4,
+    "Macro Environment": 3,
+    "Agent Health": 10,
+    "System Infrastructure": 3
+}
+
 
 def add_section(title, items):
 
@@ -965,6 +991,135 @@ def build_agent_signal_bus_report(signals):
     }
 
 
+def get_signal_weight(signal):
+
+    if not isinstance(signal, dict):
+        return 0
+
+    return (
+        signal.get("score", 0)
+        + SIGNAL_SOURCE_WEIGHTS.get(signal.get("source_agent"), 0)
+        + SIGNAL_CONFIDENCE_WEIGHTS.get(signal.get("confidence"), 0)
+        + SIGNAL_CATEGORY_WEIGHTS.get(signal.get("category"), 0)
+    )
+
+
+def rank_weighted_signals(signals):
+
+    weighted_signals = []
+
+    for signal in rank_signals(signals):
+        weighted_signal = dict(signal)
+        weighted_signal["weighted_score"] = get_signal_weight(signal)
+        weighted_signals.append(weighted_signal)
+
+    return sorted(
+        weighted_signals,
+        key=lambda signal: (
+            -signal["weighted_score"],
+            PRIORITY_AGENT_RANKS.get(signal["source_agent"], 99),
+            signal["title"].casefold()
+        )
+    )
+
+
+def select_signal_by_category(signals, categories):
+
+    categories = set(categories or ())
+
+    return next(
+        (
+            signal for signal in rank_weighted_signals(signals)
+            if signal.get("category") in categories
+        ),
+        None
+    )
+
+
+def _dominant_signal_value(signals, field):
+
+    counts = {}
+
+    for signal in signals:
+        value = signal.get(field)
+
+        if value:
+            counts[value] = counts.get(value, 0) + 1
+
+    if not counts:
+        return "None"
+
+    highest_count = max(counts.values())
+    tied_values = {
+        value for value, count in counts.items()
+        if count == highest_count
+    }
+
+    return next(
+        signal[field]
+        for signal in signals
+        if signal.get(field) in tied_values
+    )
+
+
+def build_signal_weighting_report(signals):
+
+    weighted_signals = rank_weighted_signals(signals)
+    highest = weighted_signals[0] if weighted_signals else None
+    dominant_category = _dominant_signal_value(
+        weighted_signals,
+        "category"
+    )
+    dominant_source = _dominant_signal_value(
+        weighted_signals,
+        "source_agent"
+    )
+    summary = [
+        (
+            f"Highest Weighted Signal: {highest['title']}"
+            if highest
+            else "Highest Weighted Signal: None"
+        ),
+        (
+            f"Source: {highest['source_agent']}"
+            if highest
+            else "Source: None"
+        ),
+        (
+            f"Weighted Score: {highest['weighted_score']}"
+            if highest
+            else "Weighted Score: 0"
+        ),
+        f"Dominant Category: {dominant_category}",
+        f"Dominant Source Agent: {dominant_source}",
+        "",
+        (
+            "Signal weighting is deterministic and used to drive Echo "
+            "Executive Summary."
+        )
+    ]
+    details = [
+        (
+            f"{number}. {signal['title']} | "
+            f"Source {signal['source_agent']} | "
+            f"Category {signal['category']} | "
+            f"Severity {signal['severity']} | "
+            f"Base Score {signal['score']} | "
+            f"Weighted Score {signal['weighted_score']}"
+        )
+        for number, signal in enumerate(weighted_signals[:10], start=1)
+    ]
+
+    if not details:
+        details.append("No weighted signals available.")
+
+    return {
+        "summary": summary,
+        "details": details,
+        "signals": weighted_signals
+    }
+
+
 def build_priority_candidates(signals):
 
     candidates = []
@@ -1289,37 +1444,179 @@ def build_priority_action_queue(portfolio, macro, news):
     return actions[:3]
 
 
-def build_echo_executive_summary(
-    registry,
-    news,
-    macro,
-    portfolio,
-    priorities=None
-):
+def determine_signal_driven_system_health(registry, signals):
 
-    macro_environment = determine_top_macro_environment(macro)
-    portfolio_risk = determine_top_portfolio_risk(portfolio)
-    portfolio_opportunity = determine_top_portfolio_opportunity(portfolio)
-    market_development = determine_top_market_development(news)
-    top_priority = determine_top_priority(priorities or [])
-    actions = build_priority_action_queue(portfolio, macro, news)
-    high_relevance = _field_value(
-        _report_lines(news),
-        "High Relevance Stories"
+    health_signals = [
+        signal for signal in signals
+        if signal.get("category") == "Agent Health"
+    ]
+    failures = sum(
+        signal.get("signal_type") in {"AGENT_FAILURE", "AGENT_OFFLINE"}
+        for signal in health_signals
     )
-    news_note = (
-        f"News flow includes {high_relevance} high-relevance stories"
-        if high_relevance
-        else "News relevance is unavailable"
+
+    if failures >= 2:
+        return "CRITICAL"
+
+    if failures == 1 or health_signals:
+        return "DEGRADED"
+
+    return determine_system_health(registry)
+
+
+def _select_macro_environment_signal(signals):
+
+    weighted_signals = rank_weighted_signals(signals)
+    environment = next(
+        (
+            signal for signal in weighted_signals
+            if signal.get("category") == "Macro Environment"
+        ),
+        None
     )
-    notes = _concise(
-        f"Macro environment: {macro_environment.rstrip('.')}; "
-        f"portfolio risk: {portfolio_risk.rstrip('.')}.",
-        limit=260
+    risk = next(
+        (
+            signal for signal in weighted_signals
+            if signal.get("category") == "Macro Risk"
+        ),
+        None
     )
-    notes += f" {news_note}."
+
+    if environment and risk:
+        if risk["weighted_score"] - environment["weighted_score"] <= 10:
+            return environment
+
+        return risk
+
+    return environment or risk
+
+
+def _select_portfolio_risk_signal(signals):
+
+    eligible_signals = []
+    holding_research_types = {
+        "MISSING_THESIS",
+        "LOW_CONVICTION",
+        "UNCOVERED_HOLDING"
+    }
+
+    for signal in rank_weighted_signals(signals):
+        if signal.get("category") == "Portfolio Risk":
+            eligible_signals.append(signal)
+        elif (
+            signal.get("category") == "Research Gap"
+            and signal.get("signal_type") in holding_research_types
+        ):
+            eligible_signals.append(signal)
+
+    return eligible_signals[0] if eligible_signals else None
+
+
+def _signal_action_verb(signal):
+
+    category = signal.get("category")
+
+    if category == "Research Gap":
+        return "Reevaluate"
+
+    if category in {"Macro Risk", "Macro Environment", "Market Event"}:
+        return "Monitor"
+
+    if category == "Agent Health":
+        return "Investigate"
+
+    if category == "System Infrastructure":
+        return "Confirm"
+
+    return "Review"
+
+
+def build_signal_driven_action_queue(signals):
+
+    actions = []
+    seen_titles = set()
+
+    for signal in rank_weighted_signals(signals):
+        title = signal.get("title", "").strip().rstrip(".")
+        normalized_title = title.casefold()
+
+        if not title or normalized_title in seen_titles:
+            continue
+
+        action = _concise(f"{_signal_action_verb(signal)} {title}")
+
+        if action.casefold() not in {item.casefold() for item in actions}:
+            actions.append(action)
+            seen_titles.add(normalized_title)
+
+        if len(actions) == 3:
+            break
+
+    return actions
+
+
+def _build_signal_executive_notes(signals):
+
+    weighted_signals = rank_weighted_signals(signals)
+
+    if not weighted_signals:
+        return "No material agent signals are available."
+
+    dominant_category = _dominant_signal_value(
+        weighted_signals,
+        "category"
+    )
+    highest_risk = next(
+        (
+            signal for signal in weighted_signals
+            if signal.get("severity") in {"CRITICAL", "HIGH"}
+        ),
+        weighted_signals[0]
+    )
+    sources = {
+        signal["source_agent"]
+        for signal in weighted_signals
+    }
+    first_sentence = (
+        f"{dominant_category} signals dominate today's signal stack, "
+        f"led by {highest_risk['source_agent']}."
+    )
+
+    if len(sources) >= 3:
+        second_sentence = (
+            f"Signals are broad across {len(sources)} source agents."
+        )
+    elif len(sources) == 2:
+        second_sentence = "Signals span two source agents."
+    else:
+        second_sentence = (
+            f"Signals are concentrated in {highest_risk['source_agent']}."
+        )
+
+    return f"{first_sentence} {second_sentence}"
+
+
+def build_signal_driven_executive_summary(registry, signals):
+
+    weighted_signals = rank_weighted_signals(signals)
+    top_priority = weighted_signals[0] if weighted_signals else None
+    macro_environment = _select_macro_environment_signal(weighted_signals)
+    portfolio_risk = _select_portfolio_risk_signal(weighted_signals)
+    portfolio_opportunity = select_signal_by_category(
+        weighted_signals,
+        ("Portfolio Opportunity",)
+    )
+    market_development = select_signal_by_category(
+        weighted_signals,
+        ("Market Event",)
+    )
+    actions = build_signal_driven_action_queue(weighted_signals)
+    notes = _build_signal_executive_notes(weighted_signals)
     summary = [
-        f"System Health: {determine_system_health(registry)}",
+        (
+            "System Health: "
+            f"{determine_signal_driven_system_health(registry, signals)}"
+        ),
         "",
         (
             f"Top Priority: {top_priority['title']}"
@@ -1327,13 +1624,35 @@ def build_echo_executive_summary(
             else "Top Priority: None identified."
         ),
         "",
-        f"Top Macro Environment: {macro_environment}",
+        (
+            f"Top Macro Environment: {macro_environment['title']}"
+            if macro_environment
+            else "Top Macro Environment: Unknown"
+        ),
         "",
-        f"Top Portfolio Risk: {portfolio_risk}",
+        (
+            f"Top Portfolio Risk: {portfolio_risk['title']}"
+            if portfolio_risk
+            else "Top Portfolio Risk: No major portfolio risk identified."
+        ),
         "",
-        f"Top Portfolio Opportunity: {portfolio_opportunity}",
+        (
+            f"Top Portfolio Opportunity: {portfolio_opportunity['title']}"
+            if portfolio_opportunity
+            else (
+                "Top Portfolio Opportunity: "
+                "No major portfolio opportunity identified."
+            )
+        ),
         "",
-        f"Top Market Development: {market_development}",
+        (
+            f"Top Market Development: {market_development['title']}"
+            if market_development
+            else (
+                "Top Market Development: "
+                "No major market development identified."
+            )
+        ),
         "",
         "Priority Action Queue:"
     ]
@@ -1352,7 +1671,7 @@ def build_echo_executive_summary(
         "",
         (
             "Echo Executive Summary is generated deterministically from "
-            "agent outputs and does not constitute investment advice."
+            "agent signals and does not constitute investment advice."
         )
     ])
 
@@ -1699,13 +2018,11 @@ def build_morning_brief():
         registry
     )
     signal_bus_report = build_agent_signal_bus_report(signals)
+    signal_weighting_report = build_signal_weighting_report(signals)
     priority_report = build_cross_agent_priority_report(signals)
-    executive_summary = build_echo_executive_summary(
+    executive_summary = build_signal_driven_executive_summary(
         registry,
-        news,
-        macro,
-        portfolio,
-        priority_report["priorities"]
+        signals
     )
 
     brief = ""
@@ -1733,6 +2050,14 @@ def build_morning_brief():
     brief += add_section(
         "AGENT SIGNAL BUS DETAILS",
         signal_bus_report["details"]
+    )
+    brief += add_section(
+        "SIGNAL WEIGHTING SUMMARY",
+        signal_weighting_report["summary"]
+    )
+    brief += add_section(
+        "SIGNAL WEIGHTING DETAILS",
+        signal_weighting_report["details"]
     )
     brief += add_section(
         "AGENT REGISTRY SUMMARY",
