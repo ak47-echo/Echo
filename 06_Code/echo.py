@@ -3,8 +3,11 @@ from agents.macro_agent import get_macro_report
 from agents.portfolio_manager import get_portfolio_report
 from agents.research_agent import get_research_agent_report
 from agents.policy_agent import get_policy
+from pathlib import Path
 from time import perf_counter
 
+
+REPORTS_DIR = Path(__file__).resolve().parent.parent / "04_Reports"
 
 AGENT_REGISTRY = (
     {
@@ -2077,7 +2080,145 @@ def get_query_interface_report(registry):
     }
 
 
-def build_morning_brief():
+def _briefing_title():
+
+    return (
+        "=================================\n"
+        "         ECHO BRIEFING\n"
+        "=================================\n\n"
+    )
+
+
+def build_report_outputs_section(failures=None):
+
+    outputs = [
+        "Executive Brief: 04_Reports/echo_executive_brief.txt",
+        "Full Echo Brief: 04_Reports/echo_full_brief.txt",
+        "News Report: 04_Reports/agents/news_full_report.txt",
+        "Macro Report: 04_Reports/agents/macro_full_report.txt",
+        "Research Report: 04_Reports/agents/research_full_report.txt",
+        "Portfolio Report: 04_Reports/agents/portfolio_full_report.txt",
+        "",
+        (
+            "Full report separation is active. daily_brief.txt remains "
+            "backward compatible."
+        )
+    ]
+
+    if failures:
+        outputs.extend([
+            "",
+            "Report Write Failures: " + "; ".join(failures)
+        ])
+
+    return outputs
+
+
+def _assemble_report_bundle(sections, report_output_failures=None):
+
+    title = _briefing_title()
+    report_outputs = add_section(
+        "REPORT OUTPUTS",
+        build_report_outputs_section(report_output_failures)
+    )
+    executive_brief_report = (
+        title
+        + add_section(
+            "ECHO EXECUTIVE BRIEF",
+            sections["executive_brief"]
+        )
+    )
+    full_echo_report = executive_brief_report
+
+    for title_key, content_key in (
+        ("ECHO EXECUTIVE SUMMARY", "executive_summary"),
+        ("CROSS-AGENT PRIORITY SUMMARY", "priority_summary"),
+        ("CROSS-AGENT PRIORITY DETAILS", "priority_details"),
+        ("AGENT SIGNAL BUS SUMMARY", "signal_bus_summary"),
+        ("AGENT SIGNAL BUS DETAILS", "signal_bus_details"),
+        ("SIGNAL WEIGHTING SUMMARY", "signal_weighting_summary"),
+        ("SIGNAL WEIGHTING DETAILS", "signal_weighting_details"),
+        ("AGENT REGISTRY SUMMARY", "registry_summary"),
+        ("AGENT REGISTRY DETAILS", "registry_details"),
+        ("AGENT QUERY INTERFACE SUMMARY", "query_summary"),
+        ("AGENT QUERY INTERFACE DETAILS", "query_details")
+    ):
+        full_echo_report += add_section(title_key, sections[content_key])
+
+    daily_brief = executive_brief_report + report_outputs
+    daily_brief += full_echo_report[len(executive_brief_report):]
+    daily_brief += add_section(
+        "NEWS AGENT EXECUTIVE BRIEF",
+        sections["news"]["executive_brief"]
+    )
+    daily_brief += add_section(
+        "NEWS AGENT FULL REPORT",
+        sections["news"]["full_report"]
+    )
+    daily_brief += add_section(
+        "MACRO AGENT EXECUTIVE BRIEF",
+        sections["macro"]["executive_brief"]
+    )
+    daily_brief += add_section(
+        "MACRO AGENT FULL REPORT",
+        sections["macro"]["full_report"]
+    )
+    daily_brief += add_section(
+        "RESEARCH AGENT EXECUTIVE BRIEF",
+        sections["research"]["executive_brief"]
+    )
+    daily_brief += add_section(
+        "RESEARCH AGENT FULL REPORT",
+        sections["research"]["full_report"]
+    )
+    daily_brief += add_section(
+        "PORTFOLIO MANAGER REPORT",
+        sections["portfolio"]
+    )
+
+    return {
+        "daily_brief": daily_brief,
+        "echo_executive_brief": executive_brief_report,
+        "echo_full_brief": full_echo_report,
+        "news_full_report": (
+            add_section(
+                "NEWS AGENT EXECUTIVE BRIEF",
+                sections["news"]["executive_brief"]
+            )
+            + add_section(
+                "NEWS AGENT FULL REPORT",
+                sections["news"]["full_report"]
+            )
+        ),
+        "macro_full_report": (
+            add_section(
+                "MACRO AGENT EXECUTIVE BRIEF",
+                sections["macro"]["executive_brief"]
+            )
+            + add_section(
+                "MACRO AGENT FULL REPORT",
+                sections["macro"]["full_report"]
+            )
+        ),
+        "research_full_report": (
+            add_section(
+                "RESEARCH AGENT EXECUTIVE BRIEF",
+                sections["research"]["executive_brief"]
+            )
+            + add_section(
+                "RESEARCH AGENT FULL REPORT",
+                sections["research"]["full_report"]
+            )
+        ),
+        "portfolio_full_report": add_section(
+            "PORTFOLIO MANAGER REPORT",
+            sections["portfolio"]
+        ),
+        "sections": sections
+    }
+
+
+def build_morning_brief(return_bundle=False, report_output_failures=None):
 
     registry = create_agent_registry()
     news = run_report_agent(
@@ -2138,91 +2279,94 @@ def build_morning_brief():
         signals
     )
 
-    brief = ""
+    sections = {
+        "executive_brief": executive_brief,
+        "executive_summary": executive_summary,
+        "priority_summary": priority_report["summary"],
+        "priority_details": priority_report["details"],
+        "signal_bus_summary": signal_bus_report["summary"],
+        "signal_bus_details": signal_bus_report["details"],
+        "signal_weighting_summary": signal_weighting_report["summary"],
+        "signal_weighting_details": signal_weighting_report["details"],
+        "registry_summary": registry_report["summary"],
+        "registry_details": registry_report["details"],
+        "query_summary": query_interface_report["summary"],
+        "query_details": query_interface_report["details"],
+        "news": news,
+        "macro": macro,
+        "research": research,
+        "portfolio": portfolio
+    }
+    bundle = _assemble_report_bundle(
+        sections,
+        report_output_failures
+    )
 
-    brief += "=================================\n"
-    brief += "         ECHO BRIEFING\n"
-    brief += "=================================\n\n"
+    return bundle if return_bundle else bundle["daily_brief"]
 
-    brief += add_section(
-        "ECHO EXECUTIVE BRIEF",
-        executive_brief
-    )
-    brief += add_section(
-        "ECHO EXECUTIVE SUMMARY",
-        executive_summary
-    )
-    brief += add_section(
-        "CROSS-AGENT PRIORITY SUMMARY",
-        priority_report["summary"]
-    )
-    brief += add_section(
-        "CROSS-AGENT PRIORITY DETAILS",
-        priority_report["details"]
-    )
-    brief += add_section(
-        "AGENT SIGNAL BUS SUMMARY",
-        signal_bus_report["summary"]
-    )
-    brief += add_section(
-        "AGENT SIGNAL BUS DETAILS",
-        signal_bus_report["details"]
-    )
-    brief += add_section(
-        "SIGNAL WEIGHTING SUMMARY",
-        signal_weighting_report["summary"]
-    )
-    brief += add_section(
-        "SIGNAL WEIGHTING DETAILS",
-        signal_weighting_report["details"]
-    )
-    brief += add_section(
-        "AGENT REGISTRY SUMMARY",
-        registry_report["summary"]
-    )
-    brief += add_section(
-        "AGENT REGISTRY DETAILS",
-        registry_report["details"]
-    )
-    brief += add_section(
-        "AGENT QUERY INTERFACE SUMMARY",
-        query_interface_report["summary"]
-    )
-    brief += add_section(
-        "AGENT QUERY INTERFACE DETAILS",
-        query_interface_report["details"]
-    )
-    brief += add_section(
-        "NEWS AGENT EXECUTIVE BRIEF",
-        news["executive_brief"]
-    )
-    brief += add_section("NEWS AGENT FULL REPORT", news["full_report"])
-    brief += add_section(
-        "MACRO AGENT EXECUTIVE BRIEF",
-        macro["executive_brief"]
-    )
-    brief += add_section("MACRO AGENT FULL REPORT", macro["full_report"])
-    brief += add_section(
-        "RESEARCH AGENT EXECUTIVE BRIEF",
-        research["executive_brief"]
-    )
-    brief += add_section(
-        "RESEARCH AGENT FULL REPORT",
-        research["full_report"]
-    )
-    brief += add_section("PORTFOLIO MANAGER REPORT", portfolio)
 
-    return brief
+def write_report_file(path, content):
+
+    path = Path(path)
+
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(str(content), encoding="utf-8")
+    except (OSError, ValueError) as error:
+        return {
+            "success": False,
+            "path": str(path),
+            "error": " ".join(str(error).split())[:180]
+        }
+
+    return {
+        "success": True,
+        "path": str(path),
+        "error": ""
+    }
+
+
+def write_separated_reports(bundle):
+
+    report_paths = {
+        "echo_executive_brief": REPORTS_DIR / "echo_executive_brief.txt",
+        "echo_full_brief": REPORTS_DIR / "echo_full_brief.txt",
+        "news_full_report": REPORTS_DIR / "agents" / "news_full_report.txt",
+        "macro_full_report": REPORTS_DIR / "agents" / "macro_full_report.txt",
+        "research_full_report": (
+            REPORTS_DIR / "agents" / "research_full_report.txt"
+        ),
+        "portfolio_full_report": (
+            REPORTS_DIR / "agents" / "portfolio_full_report.txt"
+        )
+    }
+
+    return {
+        name: write_report_file(path, bundle[name])
+        for name, path in report_paths.items()
+    }
 
 
 def save_report(brief):
 
-    with open("../04_Reports/daily_brief.txt", "w") as file:
-        file.write(brief)
+    return write_report_file(REPORTS_DIR / "daily_brief.txt", brief)
 
 
 
 if __name__ == "__main__":
-    briefing = build_morning_brief()
-    print(briefing)
-    save_report(briefing)
+    report_bundle = build_morning_brief(return_bundle=True)
+    separated_results = write_separated_reports(report_bundle)
+    separated_failures = [
+        f"{result['path']}: {result['error']}"
+        for result in separated_results.values()
+        if not result["success"]
+    ]
+
+    if separated_failures:
+        report_bundle = _assemble_report_bundle(
+            report_bundle["sections"],
+            separated_failures
+        )
+
+    print(report_bundle["daily_brief"])
+    save_report(report_bundle["daily_brief"])
