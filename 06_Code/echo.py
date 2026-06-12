@@ -256,6 +256,20 @@ ACTIVE_REPORT_AGENTS = (
     "Portfolio Manager"
 )
 
+PRIORITY_SEVERITY_SCORES = {
+    "CRITICAL": 100,
+    "HIGH": 75,
+    "MEDIUM": 50,
+    "LOW": 25
+}
+
+PRIORITY_AGENT_RANKS = {
+    "Portfolio Manager": 0,
+    "Research Agent": 1,
+    "Macro Agent": 2,
+    "News Agent": 3
+}
+
 
 def add_section(title, items):
 
@@ -285,6 +299,19 @@ def _report_lines(report):
 
     if isinstance(report, dict):
         lines = report.get("executive_brief", [])
+    else:
+        lines = report or []
+
+    if isinstance(lines, str):
+        lines = lines.splitlines()
+
+    return [str(line).strip() for line in lines]
+
+
+def _full_report_lines(report):
+
+    if isinstance(report, dict):
+        lines = report.get("full_report", [])
     else:
         lines = report or []
 
@@ -345,6 +372,469 @@ def _concise(text, limit=180):
         return text
 
     return text[:limit - 3].rstrip() + "..."
+
+
+def score_priority(severity):
+
+    return PRIORITY_SEVERITY_SCORES.get(
+        str(severity or "").strip().upper(),
+        0
+    )
+
+
+def _priority_candidate(
+    source_agent,
+    category,
+    title,
+    description,
+    severity
+):
+
+    title = " ".join(str(title or "").split())
+    description = " ".join(str(description or "").split())
+    severity = str(severity or "").strip().upper()
+
+    if not title or severity not in PRIORITY_SEVERITY_SCORES:
+        return None
+
+    return {
+        "source_agent": source_agent,
+        "category": category,
+        "title": _concise(title),
+        "description": _concise(description or title, limit=240),
+        "severity": severity,
+        "score": score_priority(severity)
+    }
+
+
+def _append_priority(candidates, *args):
+
+    candidate = _priority_candidate(*args)
+
+    if candidate is not None:
+        candidates.append(candidate)
+
+
+def _build_portfolio_priority_candidates(portfolio):
+
+    lines = _report_lines(portfolio)
+    candidates = []
+    concentration = _report_section(lines, "CONCENTRATION RISK DETAILS")
+
+    for line in concentration:
+        parts = [part.strip() for part in line.split("|")]
+
+        if len(parts) >= 3 and parts[0] in {"HIGH", "MEDIUM"}:
+            title = f"{parts[1]} {parts[2].lower()}"
+            _append_priority(
+                candidates,
+                "Portfolio Manager",
+                "CONCENTRATION",
+                title,
+                line,
+                "HIGH"
+            )
+
+    stress = _report_section(lines, "STRESS TEST SUMMARY")
+    worst_scenario = _field_value(stress, "Worst Scenario")
+
+    if worst_scenario:
+        _append_priority(
+            candidates,
+            "Portfolio Manager",
+            "STRESS_TEST",
+            f"Stress-test exposure: {worst_scenario}",
+            "Portfolio Manager identified this as the worst stress-test "
+            "exposure.",
+            "HIGH"
+        )
+
+    monte_carlo = _report_section(lines, "MONTE CARLO V2 SUMMARY")
+    downside = _field_value(monte_carlo, "Probability Negative")
+
+    if downside:
+        try:
+            downside_value = float(downside.rstrip("%"))
+        except ValueError:
+            downside_value = 0
+
+        if downside_value >= 40:
+            _append_priority(
+                candidates,
+                "Portfolio Manager",
+                "MONTE_CARLO",
+                f"Monte Carlo downside probability {downside}",
+                "Modeled probability of a negative outcome is elevated.",
+                "HIGH"
+            )
+
+    tax_summary = _report_section(lines, "TAX OPTIMIZATION SUMMARY")
+
+    for label in (
+        "Tax Loss Harvest Candidates",
+        "Large Taxable Gain Positions"
+    ):
+        value = _field_value(tax_summary, label)
+
+        if value and value != "0":
+            _append_priority(
+                candidates,
+                "Portfolio Manager",
+                "TAX",
+                f"{label}: {value}",
+                "Portfolio Manager identified a tax optimization warning.",
+                "MEDIUM"
+            )
+
+    committee = _report_section(lines, "INVESTMENT COMMITTEE SUMMARY")
+
+    for label, category in (
+        ("Top Replacement Plan", "REPLACEMENT"),
+        ("Top Capital Deployment", "DEPLOYMENT")
+    ):
+        value = _field_value(committee, label)
+
+        if value:
+            _append_priority(
+                candidates,
+                "Portfolio Manager",
+                category,
+                value,
+                f"Portfolio Manager {label.lower()}.",
+                "MEDIUM"
+            )
+
+    return candidates
+
+
+def _build_research_priority_candidates(research):
+
+    executive = _report_lines(research)
+    full_report = _full_report_lines(research)
+    candidates = []
+    health_issues = _report_section(full_report, "Research Health Issues:")
+
+    for line in health_issues:
+        parts = [part.strip() for part in line.split("|")]
+
+        if len(parts) < 3 or parts[0] not in {"HIGH", "MEDIUM", "LOW"}:
+            continue
+
+        ticker = parts[1]
+        issue = parts[2].removeprefix("Issue ").strip()
+        recommendation = (
+            parts[3].removeprefix("Recommendation ").strip()
+            if len(parts) >= 4
+            else issue
+        )
+        severity = (
+            "HIGH"
+            if "low conviction holding" in issue.casefold()
+            else parts[0]
+        )
+        _append_priority(
+            candidates,
+            "Research Agent",
+            "RESEARCH_HEALTH",
+            f"{ticker}: {issue}",
+            recommendation,
+            severity
+        )
+
+    coverage = _report_section(full_report, "Coverage Summary:")
+
+    for ticker in _field_value(coverage, "Uncovered Holdings").split(","):
+        ticker = ticker.strip()
+
+        if ticker and ticker.casefold() != "none":
+            _append_priority(
+                candidates,
+                "Research Agent",
+                "UNCOVERED_HOLDING",
+                f"{ticker}: Research coverage missing",
+                "Holding does not have research coverage.",
+                "HIGH"
+            )
+
+    for ticker in _field_value(coverage, "Uncovered Watchlist").split(","):
+        ticker = ticker.strip()
+
+        if ticker and ticker.casefold() != "none":
+            _append_priority(
+                candidates,
+                "Research Agent",
+                "UNCOVERED_WATCHLIST",
+                f"{ticker}: Watchlist research coverage missing",
+                "Watchlist candidate does not have research coverage.",
+                "MEDIUM"
+            )
+
+    holding_quality = _report_section(full_report, "Holding Thesis Quality:")
+
+    for line in holding_quality:
+        if "Research Status MISSING" not in line:
+            continue
+
+        ticker = line.split("|", 1)[0].strip()
+        _append_priority(
+            candidates,
+            "Research Agent",
+            "MISSING_THESIS",
+            f"{ticker}: Missing thesis",
+            line,
+            "HIGH"
+        )
+
+    top_priority = _field_value(executive, "Top Research Priority")
+
+    if (
+        top_priority
+        and "no urgent research priority" not in top_priority.casefold()
+    ):
+        _append_priority(
+            candidates,
+            "Research Agent",
+            "RESEARCH_GAP",
+            top_priority,
+            "Research Agent identified this as its top research priority.",
+            "MEDIUM"
+        )
+
+    return candidates
+
+
+def _build_macro_priority_candidates(macro):
+
+    lines = _report_lines(macro)
+    candidates = []
+    regime = _field_value(lines, "Current Macro Regime")
+    regime_key = regime.casefold().replace("_", " ").replace("-", " ")
+
+    if any(
+        risk in regime_key
+        for risk in ("recession", "stagflation", "inflation shock")
+    ):
+        _append_priority(
+            candidates,
+            "Macro Agent",
+            "MACRO_REGIME",
+            f"Macro regime: {regime}",
+            "Macro Agent identified a high-risk macro regime.",
+            "HIGH"
+        )
+
+    yield_curve = _field_value(lines, "Yield Curve")
+
+    if "invert" in yield_curve.casefold():
+        _append_priority(
+            candidates,
+            "Macro Agent",
+            "YIELD_CURVE",
+            f"Yield curve: {yield_curve}",
+            "Macro Agent identified an inverted yield curve.",
+            "HIGH"
+        )
+
+    inflation = _field_value(lines, "Inflation Trend")
+
+    if "ris" in inflation.casefold() or "accelerat" in inflation.casefold():
+        _append_priority(
+            candidates,
+            "Macro Agent",
+            "INFLATION",
+            f"Inflation trend: {inflation}",
+            "Macro Agent identified rising inflation.",
+            "MEDIUM"
+        )
+
+    labor = _field_value(lines, "Labor Market")
+
+    if any(term in labor.casefold() for term in ("weak", "deteriorat")):
+        _append_priority(
+            candidates,
+            "Macro Agent",
+            "LABOR",
+            f"Labor market: {labor}",
+            "Macro Agent identified labor-market weakness.",
+            "MEDIUM"
+        )
+
+    policy = _field_value(lines, "Policy Rate")
+
+    if "restrict" in policy.casefold():
+        _append_priority(
+            candidates,
+            "Macro Agent",
+            "POLICY",
+            f"Policy rate: {policy}",
+            "Macro Agent identified restrictive monetary policy.",
+            "MEDIUM"
+        )
+
+    return candidates
+
+
+def _build_news_priority_candidates(news):
+
+    lines = _report_lines(news)
+    candidates = []
+    high_relevance = _field_value(lines, "High Relevance Stories")
+
+    try:
+        high_relevance_count = int(high_relevance)
+    except ValueError:
+        high_relevance_count = 0
+
+    if high_relevance_count > 0:
+        top_story = _field_value(lines, "Top Market Story")
+        _append_priority(
+            candidates,
+            "News Agent",
+            "HIGH_RELEVANCE_NEWS",
+            top_story or f"{high_relevance_count} high-relevance stories",
+            f"News Agent identified {high_relevance_count} "
+            "high-relevance stories.",
+            "MEDIUM"
+        )
+
+    for label, category in (
+        ("Top Portfolio Story", "PORTFOLIO_NEWS"),
+        ("Top World Event Story", "WORLD_EVENT"),
+        ("Top Macro Story", "MACRO_NEWS")
+    ):
+        value = _field_value(lines, label)
+
+        if value:
+            _append_priority(
+                candidates,
+                "News Agent",
+                category,
+                value,
+                f"News Agent identified this as the {label.lower()}.",
+                "MEDIUM"
+            )
+
+    return candidates
+
+
+def build_priority_candidates(portfolio, research, macro, news):
+
+    return (
+        _build_portfolio_priority_candidates(portfolio)
+        + _build_research_priority_candidates(research)
+        + _build_macro_priority_candidates(macro)
+        + _build_news_priority_candidates(news)
+    )
+
+
+def rank_priorities(candidates):
+
+    unique_priorities = {}
+
+    for candidate in candidates or []:
+        if not isinstance(candidate, dict):
+            continue
+
+        title = " ".join(str(candidate.get("title") or "").split())
+
+        if not title:
+            continue
+
+        normalized_title = title.casefold().rstrip(".")
+        current = unique_priorities.get(normalized_title)
+
+        if current is None:
+            unique_priorities[normalized_title] = candidate
+            continue
+
+        candidate_key = (
+            -candidate.get("score", 0),
+            PRIORITY_AGENT_RANKS.get(candidate.get("source_agent"), 99)
+        )
+        current_key = (
+            -current.get("score", 0),
+            PRIORITY_AGENT_RANKS.get(current.get("source_agent"), 99)
+        )
+
+        if candidate_key < current_key:
+            unique_priorities[normalized_title] = candidate
+
+    return sorted(
+        unique_priorities.values(),
+        key=lambda priority: (
+            -priority.get("score", 0),
+            PRIORITY_AGENT_RANKS.get(
+                priority.get("source_agent"),
+                99
+            ),
+            priority.get("title", "").casefold()
+        )
+    )
+
+
+def determine_top_priority(priorities):
+
+    return priorities[0] if priorities else None
+
+
+def build_cross_agent_priority_report(portfolio, research, macro, news):
+
+    priorities = rank_priorities(
+        build_priority_candidates(portfolio, research, macro, news)
+    )
+    top_priority = determine_top_priority(priorities)
+    severity_counts = {
+        severity: sum(
+            priority["severity"] == severity
+            for priority in priorities
+        )
+        for severity in PRIORITY_SEVERITY_SCORES
+    }
+    summary = [
+        "Priority Engine Status: ACTIVE",
+        "",
+        (
+            f"Top Priority: {top_priority['title']}"
+            if top_priority
+            else "Top Priority: None identified."
+        ),
+        "",
+        (
+            f"Priority Source: {top_priority['source_agent']}"
+            if top_priority
+            else "Priority Source: None"
+        ),
+        "",
+        f"Critical Priorities: {severity_counts['CRITICAL']}",
+        f"High Priorities: {severity_counts['HIGH']}",
+        f"Medium Priorities: {severity_counts['MEDIUM']}",
+        f"Low Priorities: {severity_counts['LOW']}",
+        "",
+        (
+            "Cross-Agent Priority Engine ranks issues across all active "
+            "agents."
+        )
+    ]
+    details = []
+
+    for number, priority in enumerate(priorities[:10], start=1):
+        details.extend([
+            f"{number}. {priority['title']}",
+            f"   Source: {priority['source_agent']}",
+            f"   Severity: {priority['severity']}",
+            f"   Category: {priority['category']}",
+            f"   Reason: {priority['description']}",
+            ""
+        ])
+
+    if not details:
+        details.append("No cross-agent priorities identified.")
+
+    return {
+        "summary": summary,
+        "details": details,
+        "priorities": priorities
+    }
 
 
 def determine_system_health(registry):
@@ -540,12 +1030,19 @@ def build_priority_action_queue(portfolio, macro, news):
     return actions[:3]
 
 
-def build_echo_executive_summary(registry, news, macro, portfolio):
+def build_echo_executive_summary(
+    registry,
+    news,
+    macro,
+    portfolio,
+    priorities=None
+):
 
     macro_environment = determine_top_macro_environment(macro)
     portfolio_risk = determine_top_portfolio_risk(portfolio)
     portfolio_opportunity = determine_top_portfolio_opportunity(portfolio)
     market_development = determine_top_market_development(news)
+    top_priority = determine_top_priority(priorities or [])
     actions = build_priority_action_queue(portfolio, macro, news)
     high_relevance = _field_value(
         _report_lines(news),
@@ -564,6 +1061,12 @@ def build_echo_executive_summary(registry, news, macro, portfolio):
     notes += f" {news_note}."
     summary = [
         f"System Health: {determine_system_health(registry)}",
+        "",
+        (
+            f"Top Priority: {top_priority['title']}"
+            if top_priority
+            else "Top Priority: None identified."
+        ),
         "",
         f"Top Macro Environment: {macro_environment}",
         "",
@@ -929,11 +1432,18 @@ def build_morning_brief():
     policy = get_policy()
     registry_report = get_registry_report(registry)
     query_interface_report = get_query_interface_report(registry)
+    priority_report = build_cross_agent_priority_report(
+        portfolio,
+        research,
+        macro,
+        news
+    )
     executive_summary = build_echo_executive_summary(
         registry,
         news,
         macro,
-        portfolio
+        portfolio,
+        priority_report["priorities"]
     )
 
     brief = ""
@@ -945,6 +1455,14 @@ def build_morning_brief():
     brief += add_section(
         "ECHO EXECUTIVE SUMMARY",
         executive_summary
+    )
+    brief += add_section(
+        "CROSS-AGENT PRIORITY SUMMARY",
+        priority_report["summary"]
+    )
+    brief += add_section(
+        "CROSS-AGENT PRIORITY DETAILS",
+        priority_report["details"]
     )
     brief += add_section(
         "AGENT REGISTRY SUMMARY",
