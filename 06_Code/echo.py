@@ -248,6 +248,12 @@ QUERY_INTERFACE_AGENT_ORDER = (
     "Deal Flow Agent"
 )
 
+ACTIVE_REPORT_AGENTS = (
+    "News Agent",
+    "Macro Agent",
+    "Portfolio Manager"
+)
+
 
 def add_section(title, items):
 
@@ -271,6 +277,322 @@ def add_section(title, items):
     section += "\n"
 
     return section
+
+
+def _report_lines(report):
+
+    if isinstance(report, dict):
+        lines = report.get("executive_brief", [])
+    else:
+        lines = report or []
+
+    if isinstance(lines, str):
+        lines = lines.splitlines()
+
+    return [str(line).strip() for line in lines]
+
+
+def _field_value(lines, label):
+
+    prefix = f"{label}:"
+
+    for line in lines:
+        if line.startswith(prefix):
+            value = line[len(prefix):].strip()
+
+            if value and value.casefold() not in {
+                "none",
+                "n/a",
+                "unknown"
+            }:
+                return value
+
+    return ""
+
+
+def _report_section(lines, heading):
+
+    try:
+        start = lines.index(heading) + 1
+    except ValueError:
+        return []
+
+    section = []
+
+    for line in lines[start:]:
+        if line and line.isupper():
+            break
+
+        if line:
+            section.append(line)
+
+    return section
+
+
+def _sentence(text):
+
+    text = " ".join(str(text or "").split()).rstrip(".")
+    return f"{text}." if text else ""
+
+
+def _concise(text, limit=180):
+
+    text = " ".join(str(text or "").split())
+
+    if len(text) <= limit:
+        return text
+
+    return text[:limit - 3].rstrip() + "..."
+
+
+def determine_system_health(registry):
+
+    failed_agents = sum(
+        agent["agent_name"] in ACTIVE_REPORT_AGENTS
+        and agent["last_run_status"] == "FAILED"
+        for agent in registry
+    )
+
+    if failed_agents >= 2:
+        return "CRITICAL"
+
+    if failed_agents == 1:
+        return "DEGRADED"
+
+    return "HEALTHY"
+
+
+def determine_top_macro_environment(macro):
+
+    lines = _report_lines(macro)
+    values = [
+        _field_value(lines, label)
+        for label in (
+            "Current Macro Regime",
+            "Inflation Trend",
+            "Labor Market",
+            "Policy Rate"
+        )
+    ]
+    available_values = [value for value in values if value]
+
+    return " | ".join(available_values) if available_values else "Unknown"
+
+
+def determine_top_portfolio_risk(portfolio):
+
+    lines = _report_lines(portfolio)
+    concentration_details = _report_section(
+        lines,
+        "CONCENTRATION RISK DETAILS"
+    )
+
+    for severity in ("HIGH", "MEDIUM"):
+        for line in concentration_details:
+            parts = [part.strip() for part in line.split("|")]
+
+            if len(parts) >= 3 and parts[0] == severity:
+                return _sentence(f"{parts[1]} {parts[2].lower()}")
+
+    stress_summary = _report_section(lines, "STRESS TEST SUMMARY")
+    stress_details = _report_section(lines, "STRESS TEST DETAILS")
+    worst_scenario = _field_value(stress_summary, "Worst Scenario")
+
+    if worst_scenario:
+        scenario_name = worst_scenario.split("|", 1)[0].strip()
+
+        for line in stress_details:
+            if line.startswith(f"{scenario_name} |"):
+                marker = "Largest Loss Contributor "
+
+                if marker in line:
+                    contributor = line.split(marker, 1)[1].split("|", 1)[0]
+
+                    if contributor.strip().casefold() != "none":
+                        return _sentence(
+                            f"{contributor.strip()} contributes the largest "
+                            f"downside exposure in {scenario_name}"
+                        )
+
+        return _sentence(f"{worst_scenario} is the largest stress-test risk")
+
+    volatility = _report_section(lines, "VOLATILITY SUMMARY")
+    volatility_level = _field_value(volatility, "Volatility Risk Level")
+    volatility_contributor = _field_value(
+        volatility,
+        "Largest Volatility Contributor"
+    )
+
+    if volatility_level in {"HIGH", "MEDIUM"} and volatility_contributor:
+        return _sentence(
+            f"Portfolio volatility is {volatility_level.lower()}; "
+            f"largest contributor {volatility_contributor}"
+        )
+
+    monte_carlo = _report_section(lines, "MONTE CARLO V2 SUMMARY")
+    downside = _field_value(monte_carlo, "Probability Negative")
+
+    if downside:
+        return _sentence(f"Monte Carlo downside probability is {downside}")
+
+    return "No major portfolio risk identified."
+
+
+def determine_top_portfolio_opportunity(portfolio):
+
+    lines = _report_lines(portfolio)
+    committee = _report_section(lines, "INVESTMENT COMMITTEE SUMMARY")
+    executive = _report_section(
+        lines,
+        "PORTFOLIO MANAGER EXECUTIVE BRIEF"
+    )
+
+    for source, label in (
+        (committee, "Top Replacement Plan"),
+        (committee, "Top Capital Deployment"),
+        (executive, "Largest Opportunity")
+    ):
+        value = _field_value(source, label)
+
+        if value and "no current opportunity" not in value.casefold():
+            return _sentence(value)
+
+    return "No major opportunity identified."
+
+
+def determine_top_market_development(news):
+
+    lines = _report_lines(news)
+
+    for label in (
+        "Top Market Story",
+        "Top Macro Story",
+        "Top Portfolio Story",
+        "Top World Event Story"
+    ):
+        value = _field_value(lines, label)
+
+        if value:
+            return _sentence(value)
+
+    return "No major market development identified."
+
+
+def build_priority_action_queue(portfolio, macro, news):
+
+    portfolio_lines = _report_lines(portfolio)
+    executive = _report_section(
+        portfolio_lines,
+        "PORTFOLIO MANAGER EXECUTIVE BRIEF"
+    )
+    actions = []
+
+    try:
+        action_start = executive.index("Recommended Actions:") + 1
+    except ValueError:
+        action_start = len(executive)
+
+    for line in executive[action_start:]:
+        if not line[:1].isdigit():
+            break
+
+        action = line.split(".", 1)[1].strip() if "." in line else line
+
+        if (
+            action
+            and "no additional action" not in action.casefold()
+            and action not in actions
+        ):
+            actions.append(_concise(action))
+
+        if len(actions) == 3:
+            return actions
+
+    highest_priority = _field_value(executive, "Highest Priority")
+
+    if (
+        highest_priority
+        and "no immediate action" not in highest_priority.casefold()
+        and highest_priority not in actions
+    ):
+        actions.append(_concise(highest_priority))
+
+    macro_environment = determine_top_macro_environment(macro)
+
+    if len(actions) < 3 and macro_environment != "Unknown":
+        actions.append(_concise(f"Monitor macro environment: {macro_environment}"))
+
+    market_development = determine_top_market_development(news)
+
+    if (
+        len(actions) < 3
+        and market_development != "No major market development identified."
+    ):
+        actions.append(
+            _concise(
+                "Monitor market development: "
+                f"{market_development.rstrip('.')}"
+            )
+        )
+
+    return actions[:3]
+
+
+def build_echo_executive_summary(registry, news, macro, portfolio):
+
+    macro_environment = determine_top_macro_environment(macro)
+    portfolio_risk = determine_top_portfolio_risk(portfolio)
+    portfolio_opportunity = determine_top_portfolio_opportunity(portfolio)
+    market_development = determine_top_market_development(news)
+    actions = build_priority_action_queue(portfolio, macro, news)
+    high_relevance = _field_value(
+        _report_lines(news),
+        "High Relevance Stories"
+    )
+    news_note = (
+        f"News flow includes {high_relevance} high-relevance stories"
+        if high_relevance
+        else "News relevance is unavailable"
+    )
+    notes = _concise(
+        f"Macro environment: {macro_environment.rstrip('.')}; "
+        f"portfolio risk: {portfolio_risk.rstrip('.')}.",
+        limit=260
+    )
+    notes += f" {news_note}."
+    summary = [
+        f"System Health: {determine_system_health(registry)}",
+        "",
+        f"Top Macro Environment: {macro_environment}",
+        "",
+        f"Top Portfolio Risk: {portfolio_risk}",
+        "",
+        f"Top Portfolio Opportunity: {portfolio_opportunity}",
+        "",
+        f"Top Market Development: {market_development}",
+        "",
+        "Priority Action Queue:"
+    ]
+
+    if actions:
+        summary.extend(
+            f"{number}. {action}"
+            for number, action in enumerate(actions, start=1)
+        )
+    else:
+        summary.append("No priority actions identified.")
+
+    summary.extend([
+        "",
+        f"Executive Notes: {notes}",
+        "",
+        (
+            "Echo Executive Summary is generated deterministically from "
+            "agent outputs and does not constitute investment advice."
+        )
+    ])
+
+    return summary
 
 
 def create_agent_registry():
@@ -593,6 +915,12 @@ def build_morning_brief():
     policy = get_policy()
     registry_report = get_registry_report(registry)
     query_interface_report = get_query_interface_report(registry)
+    executive_summary = build_echo_executive_summary(
+        registry,
+        news,
+        macro,
+        portfolio
+    )
 
     brief = ""
 
@@ -600,6 +928,10 @@ def build_morning_brief():
     brief += "         ECHO BRIEFING\n"
     brief += "=================================\n\n"
 
+    brief += add_section(
+        "ECHO EXECUTIVE SUMMARY",
+        executive_summary
+    )
     brief += add_section(
         "AGENT REGISTRY SUMMARY",
         registry_report["summary"]
