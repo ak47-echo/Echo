@@ -1,6 +1,7 @@
 from agents.news_agent import get_news_report
 from agents.macro_agent import get_macro_report
 from agents.portfolio_manager import get_portfolio_report
+from agents.research_agent import get_research_agent_report
 from agents.policy_agent import get_policy
 from time import perf_counter
 
@@ -48,15 +49,15 @@ AGENT_REGISTRY = (
     {
         "agent_name": "Research Agent",
         "role": "Research Analyst",
-        "status": "PARTIAL_ACTIVE",
-        "health": "HEALTHY",
-        "report_mode": "PARTIAL",
+        "status": "ACTIVE",
+        "health": "UNKNOWN",
+        "report_mode": "SUPPORTED",
         "query_mode": "PLANNED",
         "last_run_status": "NOT_RUN",
         "execution_time_seconds": None,
-        "output_section_name": "Portfolio Manager analytical support",
+        "output_section_name": "RESEARCH AGENT EXECUTIVE BRIEF",
         "failure_message": "",
-        "notes": "Analytical support layer used by Portfolio Manager"
+        "notes": ""
     },
     {
         "agent_name": "Calendar Agent",
@@ -251,6 +252,7 @@ QUERY_INTERFACE_AGENT_ORDER = (
 ACTIVE_REPORT_AGENTS = (
     "News Agent",
     "Macro Agent",
+    "Research Agent",
     "Portfolio Manager"
 )
 
@@ -906,6 +908,18 @@ def build_morning_brief():
             "full_report": ["No macro data available."]
         }
     )
+    research = run_report_agent(
+        registry,
+        "Research Agent",
+        get_research_agent_report,
+        lambda error: {
+            "executive_brief": [
+                f"Research Agent Status: OFFLINE",
+                f"Research Agent unavailable: {error}"
+            ],
+            "full_report": ["No research data available."]
+        }
+    )
     portfolio = run_report_agent(
         registry,
         "Portfolio Manager",
@@ -958,6 +972,14 @@ def build_morning_brief():
         macro["executive_brief"]
     )
     brief += add_section("MACRO AGENT FULL REPORT", macro["full_report"])
+    brief += add_section(
+        "RESEARCH AGENT EXECUTIVE BRIEF",
+        research["executive_brief"]
+    )
+    brief += add_section(
+        "RESEARCH AGENT FULL REPORT",
+        research["full_report"]
+    )
     brief += add_section("PORTFOLIO MANAGER REPORT", portfolio)
 
     return brief

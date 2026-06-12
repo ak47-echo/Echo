@@ -5013,6 +5013,512 @@ def get_research_health_checks(holdings, watchlist, allocation_differences):
     )
 
 
+def _load_research_agent_holdings():
+
+    holdings = []
+    theses = get_theses()
+
+    try:
+        with open("../02_Data/holdings.csv", "r", encoding="utf-8") as file:
+            reader = csv.DictReader(file)
+
+            for row in reader:
+                ticker = str(row.get("ticker") or "").strip().upper()
+
+                if not ticker:
+                    continue
+
+                try:
+                    cost_basis = float(row.get("cost_basis", 0) or 0)
+                except (TypeError, ValueError):
+                    cost_basis = 0
+
+                thesis = theses.get(ticker, {})
+                holdings.append({
+                    "ticker": ticker,
+                    "value": max(cost_basis, 0),
+                    "thesis": thesis.get("thesis", ""),
+                    "thesis_status": thesis.get(
+                        "thesis_status",
+                        "missing"
+                    ),
+                    "conviction": thesis.get("conviction", "unrated")
+                })
+
+    except (FileNotFoundError, OSError, csv.Error):
+        pass
+
+    return holdings
+
+
+def _research_agent_number(value):
+
+    try:
+        number = float(value or 0)
+    except (TypeError, ValueError):
+        return 0
+
+    return number if math.isfinite(number) else 0
+
+
+def _research_agent_status(thesis_present, thesis_status, conviction):
+
+    thesis_status = str(thesis_status or "").strip().lower()
+    conviction = str(conviction or "").strip().lower()
+
+    if (
+        not thesis_present
+        or thesis_status in {"", "missing", "unknown"}
+        or conviction in {"", "missing", "unknown", "unrated"}
+    ):
+        return "MISSING"
+
+    if thesis_status == "active" and conviction == "high":
+        return "STRONG"
+
+    if conviction == "low" or thesis_status == "watch":
+        return "WEAK"
+
+    if thesis_status == "active" or conviction == "medium":
+        return "MODERATE"
+
+    return "WEAK"
+
+
+def _research_agent_holding_records(holdings, theses):
+
+    records = {}
+
+    for holding in holdings:
+        ticker = str(holding.get("ticker") or "").strip().upper()
+
+        if not ticker:
+            continue
+
+        thesis = theses.get(ticker)
+        thesis_status = (
+            thesis.get("thesis_status")
+            if thesis
+            else holding.get("thesis_status")
+        )
+        conviction = (
+            thesis.get("conviction")
+            if thesis
+            else holding.get("conviction")
+        )
+        allocation_value = _research_agent_number(
+            holding.get("allocation", holding.get("value", 0))
+        )
+
+        if ticker not in records:
+            records[ticker] = {
+                "ticker": ticker,
+                "thesis_status": thesis_status or "missing",
+                "conviction": conviction or "unrated",
+                "allocation": 0,
+                "thesis_present": thesis is not None
+            }
+
+        records[ticker]["allocation"] += max(allocation_value, 0)
+
+    total_value = sum(record["allocation"] for record in records.values())
+
+    if total_value > 0:
+        for record in records.values():
+            record["allocation"] = record["allocation"] / total_value * 100
+
+    for record in records.values():
+        record["research_status"] = _research_agent_status(
+            record["thesis_present"],
+            record["thesis_status"],
+            record["conviction"]
+        )
+
+    return sorted(records.values(), key=lambda record: record["ticker"])
+
+
+def _research_agent_watchlist_records(watchlist, theses):
+
+    records = []
+
+    for candidate in watchlist:
+        ticker = str(candidate.get("ticker") or "").strip().upper()
+
+        if not ticker:
+            continue
+
+        thesis = theses.get(ticker)
+        thesis_status = (
+            thesis.get("thesis_status")
+            if thesis
+            else candidate.get("thesis_status")
+        )
+        conviction = (
+            thesis.get("conviction")
+            if thesis
+            else candidate.get("conviction")
+        )
+        total_score = _research_agent_number(
+            candidate.get("total_score", 0)
+        )
+        records.append({
+            "ticker": ticker,
+            "priority": str(
+                candidate.get("priority") or "unknown"
+            ).strip().lower(),
+            "thesis_status": thesis_status or "missing",
+            "conviction": conviction or "unrated",
+            "score": total_score,
+            "total_score": total_score,
+            "research_status": _research_agent_status(
+                thesis is not None,
+                thesis_status,
+                conviction
+            )
+        })
+
+    return sorted(records, key=lambda record: record["ticker"])
+
+
+def _weakest_research_record(records, watchlist=False):
+
+    status_rank = {
+        "MISSING": 0,
+        "WEAK": 1,
+        "MODERATE": 2,
+        "STRONG": 3
+    }
+    eligible = [
+        record for record in records
+        if record["research_status"] != "STRONG"
+    ]
+
+    if not eligible:
+        return None
+
+    if watchlist:
+        return min(
+            eligible,
+            key=lambda record: (
+                status_rank[record["research_status"]],
+                -record["score"],
+                -PRIORITY_RANKS.get(record["priority"], 0),
+                record["ticker"]
+            )
+        )
+
+    return min(
+        eligible,
+        key=lambda record: (
+            status_rank[record["research_status"]],
+            -record["allocation"],
+            record["ticker"]
+        )
+    )
+
+
+def _format_research_priority(check):
+
+    ticker = str(check.get("ticker") or "Unknown").strip().upper()
+    recommendation = str(
+        check.get("recommendation") or ""
+    ).strip()
+    issue = str(check.get("issue") or "Research issue").strip()
+
+    if recommendation:
+        return f"{ticker}: {recommendation}"
+
+    return f"{ticker}: {issue}"
+
+
+def _build_research_priorities(
+    health_checks,
+    uncovered_holdings,
+    uncovered_watchlist,
+    weakest_holding,
+    weakest_watchlist
+):
+
+    priorities = []
+
+    for check in health_checks:
+        priority = _format_research_priority(check)
+
+        if priority not in priorities:
+            priorities.append(priority)
+
+        if len(priorities) == 3:
+            return priorities
+
+    for ticker in uncovered_holdings:
+        priority = f"{ticker}: Research coverage missing"
+
+        if priority not in priorities:
+            priorities.append(priority)
+
+        if len(priorities) == 3:
+            return priorities
+
+    for ticker in uncovered_watchlist:
+        priority = f"{ticker}: Watchlist research coverage missing"
+
+        if priority not in priorities:
+            priorities.append(priority)
+
+        if len(priorities) == 3:
+            return priorities
+
+    for record in (weakest_holding, weakest_watchlist):
+        if record is None:
+            continue
+
+        priority = (
+            f"{record['ticker']}: "
+            f"{record['research_status'].lower()} thesis quality"
+        )
+
+        if priority not in priorities:
+            priorities.append(priority)
+
+        if len(priorities) == 3:
+            break
+
+    return priorities
+
+
+def get_research_agent_report(
+    holdings=None,
+    watchlist=None,
+    allocation_differences=None
+):
+
+    holdings = (
+        _load_research_agent_holdings()
+        if holdings is None
+        else list(holdings)
+    )
+    watchlist = (
+        get_ranked_watchlist()
+        if watchlist is None
+        else list(watchlist)
+    )
+    allocation_differences = allocation_differences or {}
+    theses = get_theses()
+    holding_records = _research_agent_holding_records(holdings, theses)
+    watchlist_records = _research_agent_watchlist_records(watchlist, theses)
+    coverage = get_research_coverage(holdings, watchlist)
+    uncovered_holdings = get_uncovered_holdings(holdings)
+    uncovered_watchlist = get_uncovered_watchlist(watchlist)
+    health_checks = get_research_health_checks(
+        holding_records,
+        watchlist_records,
+        allocation_differences
+    )
+    weakest_holding = _weakest_research_record(holding_records)
+    weakest_watchlist = _weakest_research_record(
+        watchlist_records,
+        watchlist=True
+    )
+    high_conviction_holdings = [
+        record for record in holding_records
+        if str(record["conviction"]).strip().lower() == "high"
+    ]
+    highest_conviction = (
+        min(
+            high_conviction_holdings,
+            key=lambda record: (
+                -record["allocation"],
+                record["ticker"]
+            )
+        )
+        if high_conviction_holdings
+        else None
+    )
+    lowest_conviction = (
+        min(
+            holding_records,
+            key=lambda record: (
+                {
+                    "MISSING": 0,
+                    "WEAK": 1,
+                    "MODERATE": 2,
+                    "STRONG": 3
+                }[record["research_status"]],
+                -record["allocation"],
+                record["ticker"]
+            )
+        )
+        if holding_records
+        else None
+    )
+    priorities = _build_research_priorities(
+        health_checks,
+        uncovered_holdings,
+        uncovered_watchlist,
+        weakest_holding,
+        weakest_watchlist
+    )
+    missing_research = any(
+        record["research_status"] == "MISSING"
+        for record in holding_records + watchlist_records
+    )
+
+    if not holding_records and not watchlist_records:
+        agent_status = "OFFLINE"
+    elif uncovered_holdings or uncovered_watchlist or missing_research:
+        agent_status = "DEGRADED"
+    else:
+        agent_status = "ACTIVE"
+
+    severity_counts = {
+        severity: sum(
+            check.get("severity") == severity
+            for check in health_checks
+        )
+        for severity in ("HIGH", "MEDIUM", "LOW")
+    }
+    open_gaps = sum(
+        record["research_status"] == "MISSING"
+        for record in holding_records + watchlist_records
+    )
+    top_priority = (
+        priorities[0]
+        if priorities
+        else "No urgent research priority identified"
+    )
+    executive_brief = [
+        f"Research Agent Status: {agent_status}",
+        (
+            "Research Coverage: "
+            f"{coverage['covered_holdings']}/"
+            f"{coverage['total_holdings']} holdings | "
+            f"{coverage['covered_watchlist_candidates']}/"
+            f"{coverage['total_watchlist_candidates']} "
+            "watchlist candidates"
+        ),
+        (
+            "Research Health: "
+            f"{severity_counts['HIGH']} high | "
+            f"{severity_counts['MEDIUM']} medium | "
+            f"{severity_counts['LOW']} low issues"
+        ),
+        (
+            "Weakest Holding Thesis: "
+            f"{weakest_holding['ticker'] if weakest_holding else 'None'}"
+        ),
+        (
+            "Weakest Watchlist Thesis: "
+            f"{weakest_watchlist['ticker'] if weakest_watchlist else 'None'}"
+        ),
+        (
+            "Highest Conviction Holding: "
+            f"{highest_conviction['ticker'] if highest_conviction else 'None'}"
+        ),
+        (
+            "Lowest Conviction Holding: "
+            f"{lowest_conviction['ticker'] if lowest_conviction else 'None'}"
+        ),
+        f"Top Research Priority: {top_priority}",
+        f"Open Research Gaps: {open_gaps}",
+        "",
+        (
+            "Research Agent is observational only and does not generate "
+            "investment recommendations."
+        )
+    ]
+    full_report = [
+        "Coverage Summary:",
+        (
+            "Holdings Covered: "
+            f"{coverage['covered_holdings']}/"
+            f"{coverage['total_holdings']}"
+        ),
+        (
+            "Watchlist Covered: "
+            f"{coverage['covered_watchlist_candidates']}/"
+            f"{coverage['total_watchlist_candidates']}"
+        ),
+        (
+            "Uncovered Holdings: "
+            f"{', '.join(uncovered_holdings) or 'None'}"
+        ),
+        (
+            "Uncovered Watchlist: "
+            f"{', '.join(uncovered_watchlist) or 'None'}"
+        ),
+        "",
+        "Research Health Issues:"
+    ]
+
+    if health_checks:
+        full_report.extend(
+            (
+                f"{check['severity']} | {check['ticker']} | "
+                f"Issue {check['issue']} | "
+                f"Recommendation {check['recommendation']}"
+            )
+            for check in health_checks
+        )
+    else:
+        full_report.append("None")
+
+    full_report.extend(["", "Holding Thesis Quality:"])
+
+    if holding_records:
+        full_report.extend(
+            (
+                f"{record['ticker']} | "
+                f"Thesis Status {record['thesis_status']} | "
+                f"Conviction {record['conviction']} | "
+                f"Research Status {record['research_status']}"
+            )
+            for record in holding_records
+        )
+    else:
+        full_report.append("None")
+
+    full_report.extend(["", "Watchlist Thesis Quality:"])
+
+    if watchlist_records:
+        full_report.extend(
+            (
+                f"{record['ticker']} | Priority {record['priority']} | "
+                f"Thesis Status {record['thesis_status']} | "
+                f"Conviction {record['conviction']} | "
+                f"Score {record['score']:g} | "
+                f"Research Status {record['research_status']}"
+            )
+            for record in watchlist_records
+        )
+    else:
+        full_report.append("None")
+
+    full_report.extend(["", "Top Research Priorities:"])
+
+    if priorities:
+        full_report.extend(
+            f"{number}. {priority}"
+            for number, priority in enumerate(priorities, start=1)
+        )
+    else:
+        full_report.append("No urgent research priority identified.")
+
+    full_report.extend([
+        "",
+        "Research Agent Notes:",
+        (
+            "- Research Agent evaluates coverage, conviction, and "
+            "thesis quality."
+        ),
+        "- Research Agent does not generate trade recommendations."
+    ])
+
+    return {
+        "executive_brief": executive_brief,
+        "full_report": full_report
+    }
+
+
 def get_investment_committee_summary(
     buy_list,
     sell_candidates,
