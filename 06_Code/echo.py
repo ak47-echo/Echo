@@ -5,6 +5,7 @@ from agents.research_agent import get_research_agent_report
 from agents.policy_agent import get_policy
 from datetime import datetime
 from pathlib import Path
+import re
 import shutil
 from time import perf_counter
 
@@ -426,7 +427,11 @@ def normalize_signal(
     description,
     confidence="UNKNOWN",
     category="System Infrastructure",
-    metadata=None
+    metadata=None,
+    magnitude_value=None,
+    magnitude_unit="none",
+    magnitude_score=0,
+    magnitude_basis="No magnitude adjustment."
 ):
 
     source_agent = " ".join(str(source_agent or "").split())
@@ -448,6 +453,14 @@ def normalize_signal(
     if confidence not in {"HIGH", "MEDIUM", "LOW", "UNKNOWN"}:
         confidence = "UNKNOWN"
 
+    base_score = score_priority(severity)
+    weighted_score = (
+        base_score
+        + SIGNAL_SOURCE_WEIGHTS.get(source_agent, 0)
+        + SIGNAL_CONFIDENCE_WEIGHTS.get(confidence, 0)
+        + SIGNAL_CATEGORY_WEIGHTS.get(category, 0)
+    )
+
     return {
         "source_agent": source_agent,
         "signal_type": signal_type,
@@ -456,8 +469,19 @@ def normalize_signal(
         "description": _concise(description or title, limit=240),
         "confidence": confidence,
         "category": category or "System Infrastructure",
-        "score": score_priority(severity),
-        "metadata": dict(metadata) if isinstance(metadata, dict) else {}
+        "score": base_score,
+        "metadata": dict(metadata) if isinstance(metadata, dict) else {},
+        "magnitude_value": magnitude_value,
+        "magnitude_unit": magnitude_unit or "none",
+        "magnitude_score": int(magnitude_score or 0),
+        "magnitude_basis": (
+            " ".join(str(magnitude_basis or "").split())
+            or "No magnitude adjustment."
+        ),
+        "weighted_score": weighted_score,
+        "magnitude_adjusted_score": (
+            weighted_score + int(magnitude_score or 0)
+        )
     }
 
 
@@ -888,6 +912,254 @@ def build_registry_signals(registry):
     return signals
 
 
+def _extract_numeric_values(text, pattern):
+
+    return [
+        float(value.replace(",", ""))
+        for value in re.findall(pattern, str(text or ""), flags=re.IGNORECASE)
+    ]
+
+
+def _extract_portfolio_allocations(portfolio):
+
+    allocations = {}
+    allocation_lines = _report_section(
+        _report_lines(portfolio),
+        "TICKER ALLOCATION"
+    )
+
+    for line in allocation_lines:
+        match = re.search(
+            r"^([A-Z0-9.]+):.*?\bAllocation\s+(-?\d+(?:\.\d+)?)%",
+            line
+        )
+
+        if match:
+            allocations[match.group(1)] = float(match.group(2))
+
+    return allocations
+
+
+def _attach_signal_allocations(signals, allocations):
+
+    for signal in signals:
+        metadata = signal.setdefault("metadata", {})
+        ticker = str(metadata.get("ticker") or "").strip().upper()
+
+        if not ticker and signal.get("signal_type") == "REPLACEMENT_CANDIDATE":
+            match = re.search(
+                r"\bSell\s+([A-Z0-9.]+)\b",
+                signal.get("title", ""),
+                flags=re.IGNORECASE
+            )
+            ticker = match.group(1).upper() if match else ""
+
+        if not ticker:
+            first_token = str(signal.get("title") or "").split(":", 1)[0]
+            first_token = first_token.strip().upper()
+            ticker = first_token if first_token in allocations else ""
+
+        if ticker in allocations:
+            metadata["ticker"] = ticker
+            metadata["allocation_percent"] = allocations[ticker]
+
+
+def _threshold_score(value, thresholds):
+
+    for threshold, score in thresholds:
+        if value >= threshold:
+            return score
+
+    return 0
+
+
+def _signal_magnitude(signal):
+
+    signal_type = signal.get("signal_type", "")
+    text = f"{signal.get('title', '')} {signal.get('description', '')}"
+    metadata = signal.get("metadata", {})
+    value = None
+    unit = "none"
+    score = 0
+    basis = "No numeric magnitude available."
+
+    if signal_type == "CONCENTRATION_RISK":
+        percentages = _extract_numeric_values(
+            text,
+            r"(-?\d+(?:\.\d+)?)\s*%"
+        )
+
+        if percentages:
+            value = max(percentages)
+            unit = "percent"
+            score = _threshold_score(
+                value,
+                ((40, 35), (30, 25), (25, 20), (20, 12), (15, 8))
+            )
+            basis = f"Concentration {value:g}%."
+
+    elif signal_type == "STRESS_TEST_RISK":
+        impacts = _extract_numeric_values(
+            text,
+            r"Impact\s+(-?\d+(?:\.\d+)?)\s*%"
+        )
+        downside = min((impact for impact in impacts if impact < 0), default=0)
+
+        if downside:
+            value = downside
+            unit = "percent"
+            score = _threshold_score(
+                abs(downside),
+                ((50, 35), (40, 28), (30, 20), (20, 12), (10, 5))
+            )
+            basis = f"Stress-test downside {downside:g}%."
+
+    elif signal_type in {"LOW_CONVICTION", "RESEARCH_HEALTH_ISSUE"}:
+        allocation = metadata.get("allocation_percent")
+
+        if isinstance(allocation, (int, float)):
+            value = float(allocation)
+            unit = "percent"
+            score = _threshold_score(
+                value,
+                ((20, 25), (10, 15), (5, 8), (1, 3))
+            )
+            basis = f"Holding allocation {value:g}%."
+
+    elif signal_type == "TAX_RISK":
+        dollar_values = _extract_numeric_values(
+            text,
+            r"\$\s*([\d,]+(?:\.\d+)?)"
+        )
+        count_values = _extract_numeric_values(
+            str(metadata.get("value") or text),
+            r"\b(\d+(?:\.\d+)?)\b"
+        )
+        dollar_value = max(dollar_values, default=0)
+        count_value = max(count_values, default=0)
+        dollar_score = _threshold_score(
+            dollar_value,
+            ((5000, 20), (2500, 12), (1000, 8), (500, 4))
+        )
+        count_score = _threshold_score(
+            count_value,
+            ((5, 8), (3, 5), (1, 2))
+        )
+
+        if dollar_score >= count_score and dollar_value:
+            value = dollar_value
+            unit = "dollars"
+            score = dollar_score
+            basis = f"Tax amount ${dollar_value:g}."
+        elif count_value:
+            value = count_value
+            unit = "count"
+            score = count_score
+            basis = f"Tax item count {count_value:g}."
+
+    elif signal_type == "DEPLOYMENT_OPPORTUNITY":
+        dollar_values = _extract_numeric_values(
+            text,
+            r"\$\s*([\d,]+(?:\.\d+)?)"
+        )
+
+        if dollar_values:
+            value = max(dollar_values)
+            unit = "dollars"
+            score = _threshold_score(
+                value,
+                ((5000, 15), (2500, 10), (1000, 6), (500, 3))
+            )
+            basis = f"Deployment amount ${value:g}."
+
+    elif signal_type == "REPLACEMENT_CANDIDATE":
+        allocation = metadata.get("allocation_percent")
+
+        if isinstance(allocation, (int, float)):
+            value = float(allocation)
+            unit = "percent"
+            score = _threshold_score(
+                value,
+                ((20, 20), (10, 12), (5, 6), (1, 3))
+            )
+            basis = f"Replacement source allocation {value:g}%."
+
+    elif signal_type in {
+        "INFLATION_RISING",
+        "ENERGY_RISING",
+        "YIELD_CURVE_INVERTED",
+        "POLICY_RESTRICTIVE",
+        "LABOR_WEAK"
+    }:
+        score = {
+            "INFLATION_RISING": 8,
+            "ENERGY_RISING": 6,
+            "YIELD_CURVE_INVERTED": 12,
+            "POLICY_RESTRICTIVE": 6,
+            "LABOR_WEAK": 10
+        }[signal_type]
+        basis = f"Deterministic {signal_type.lower()} adjustment."
+
+    elif signal_type == "MACRO_REGIME":
+        regime = str(metadata.get("regime") or text).casefold()
+        score = (
+            15
+            if any(
+                term in regime
+                for term in ("recession", "stagflation", "inflation shock")
+            )
+            else 3
+        )
+        basis = "High-risk macro regime." if score == 15 else (
+            "Standard macro regime."
+        )
+
+    elif signal_type in {
+        "HIGH_RELEVANCE_STORY",
+        "PORTFOLIO_NEWS",
+        "MACRO_NEWS",
+        "WORLD_EVENT"
+    }:
+        score = {
+            "HIGH_RELEVANCE_STORY": 5,
+            "PORTFOLIO_NEWS": 6,
+            "MACRO_NEWS": 5,
+            "WORLD_EVENT": 7
+        }[signal_type]
+        basis = f"Deterministic {signal_type.lower()} adjustment."
+
+    return value, unit, score, basis
+
+
+def apply_signal_magnitude(signal):
+
+    normalized = normalize_signal(
+        signal.get("source_agent"),
+        signal.get("signal_type"),
+        signal.get("severity"),
+        signal.get("title"),
+        signal.get("description"),
+        signal.get("confidence"),
+        signal.get("category"),
+        signal.get("metadata")
+    )
+
+    if normalized is None:
+        return None
+
+    value, unit, magnitude_score, basis = _signal_magnitude(normalized)
+    normalized["magnitude_value"] = value
+    normalized["magnitude_unit"] = unit
+    normalized["magnitude_score"] = magnitude_score
+    normalized["magnitude_basis"] = basis
+    normalized["weighted_score"] = get_signal_weight(normalized)
+    normalized["magnitude_adjusted_score"] = (
+        normalized["weighted_score"] + magnitude_score
+    )
+
+    return normalized
+
+
 def deduplicate_signals(signals):
 
     unique_signals = {}
@@ -904,7 +1176,11 @@ def deduplicate_signals(signals):
             signal.get("description"),
             signal.get("confidence"),
             signal.get("category"),
-            signal.get("metadata")
+            signal.get("metadata"),
+            signal.get("magnitude_value"),
+            signal.get("magnitude_unit", "none"),
+            signal.get("magnitude_score", 0),
+            signal.get("magnitude_basis", "No magnitude adjustment.")
         )
 
         if normalized is None:
@@ -937,13 +1213,19 @@ def rank_signals(signals):
 
 def build_agent_signals(portfolio, research, macro, news, registry):
 
-    return rank_signals(
+    signals = (
         build_portfolio_signals(portfolio)
         + build_research_signals(research)
         + build_macro_signals(macro)
         + build_news_signals(news)
         + build_registry_signals(registry)
     )
+    _attach_signal_allocations(
+        signals,
+        _extract_portfolio_allocations(portfolio)
+    )
+
+    return rank_weighted_signals(signals)
 
 
 def build_agent_signal_bus_report(signals):
@@ -1017,15 +1299,18 @@ def rank_weighted_signals(signals):
     weighted_signals = []
 
     for signal in rank_signals(signals):
-        weighted_signal = dict(signal)
-        weighted_signal["weighted_score"] = get_signal_weight(signal)
-        weighted_signals.append(weighted_signal)
+        weighted_signal = apply_signal_magnitude(signal)
+
+        if weighted_signal is not None:
+            weighted_signals.append(weighted_signal)
 
     return sorted(
         weighted_signals,
         key=lambda signal: (
-            -signal["weighted_score"],
+            -signal["magnitude_adjusted_score"],
+            -signal["score"],
             PRIORITY_AGENT_RANKS.get(signal["source_agent"], 99),
+            -signal["magnitude_score"],
             signal["title"].casefold()
         )
     )
@@ -1128,11 +1413,86 @@ def build_signal_weighting_report(signals):
     }
 
 
+def build_signal_magnitude_report(signals):
+
+    ranked_signals = rank_weighted_signals(signals)
+    signals_with_magnitude = [
+        signal for signal in ranked_signals
+        if signal["magnitude_score"] > 0
+    ]
+    highest_magnitude = (
+        sorted(
+            signals_with_magnitude,
+            key=lambda signal: (
+                -signal["magnitude_score"],
+                -signal["magnitude_adjusted_score"],
+                PRIORITY_AGENT_RANKS.get(signal["source_agent"], 99),
+                signal["title"].casefold()
+            )
+        )[0]
+        if signals_with_magnitude
+        else None
+    )
+    highest_adjusted = ranked_signals[0] if ranked_signals else None
+    summary = [
+        "Magnitude Scoring Status: ACTIVE",
+        f"Signals With Magnitude Scores: {len(signals_with_magnitude)}",
+        (
+            f"Highest Magnitude Signal: {highest_magnitude['title']}"
+            if highest_magnitude
+            else "Highest Magnitude Signal: None"
+        ),
+        (
+            f"Highest Magnitude Score: {highest_magnitude['magnitude_score']}"
+            if highest_magnitude
+            else "Highest Magnitude Score: 0"
+        ),
+        (
+            "Highest Magnitude Adjusted Signal: "
+            f"{highest_adjusted['title']}"
+            if highest_adjusted
+            else "Highest Magnitude Adjusted Signal: None"
+        ),
+        (
+            "Highest Magnitude Adjusted Score: "
+            f"{highest_adjusted['magnitude_adjusted_score']}"
+            if highest_adjusted
+            else "Highest Magnitude Adjusted Score: 0"
+        ),
+        "",
+        (
+            "Signal magnitude scoring adjusts priorities based on risk or "
+            "opportunity size."
+        )
+    ]
+    details = [
+        (
+            f"{number}. {signal['title']} | "
+            f"Source {signal['source_agent']} | "
+            f"Type {signal['signal_type']} | "
+            f"Base Weighted Score {signal['weighted_score']} | "
+            f"Magnitude Score {signal['magnitude_score']} | "
+            f"Adjusted Score {signal['magnitude_adjusted_score']} | "
+            f"Basis {signal['magnitude_basis']}"
+        )
+        for number, signal in enumerate(ranked_signals[:10], start=1)
+    ]
+
+    if not details:
+        details.append("No signal magnitude data available.")
+
+    return {
+        "summary": summary,
+        "details": details,
+        "signals": ranked_signals
+    }
+
+
 def build_priority_candidates(signals):
 
     candidates = []
 
-    for signal in rank_signals(signals):
+    for signal in rank_weighted_signals(signals):
         if signal["severity"] == "INFO":
             continue
 
@@ -1143,7 +1503,12 @@ def build_priority_candidates(signals):
             "description": signal["description"],
             "severity": signal["severity"],
             "score": signal["score"],
-            "signal_type": signal["signal_type"]
+            "signal_type": signal["signal_type"],
+            "magnitude_score": signal["magnitude_score"],
+            "weighted_score": signal["weighted_score"],
+            "magnitude_adjusted_score": (
+                signal["magnitude_adjusted_score"]
+            )
         })
 
     return candidates
@@ -1170,12 +1535,16 @@ def rank_priorities(candidates):
             continue
 
         candidate_key = (
+            -candidate.get("magnitude_adjusted_score", 0),
             -candidate.get("score", 0),
-            PRIORITY_AGENT_RANKS.get(candidate.get("source_agent"), 99)
+            PRIORITY_AGENT_RANKS.get(candidate.get("source_agent"), 99),
+            -candidate.get("magnitude_score", 0)
         )
         current_key = (
+            -current.get("magnitude_adjusted_score", 0),
             -current.get("score", 0),
-            PRIORITY_AGENT_RANKS.get(current.get("source_agent"), 99)
+            PRIORITY_AGENT_RANKS.get(current.get("source_agent"), 99),
+            -current.get("magnitude_score", 0)
         )
 
         if candidate_key < current_key:
@@ -1184,11 +1553,13 @@ def rank_priorities(candidates):
     return sorted(
         unique_priorities.values(),
         key=lambda priority: (
+            -priority.get("magnitude_adjusted_score", 0),
             -priority.get("score", 0),
             PRIORITY_AGENT_RANKS.get(
                 priority.get("source_agent"),
                 99
             ),
+            -priority.get("magnitude_score", 0),
             priority.get("title", "").casefold()
         )
     )
@@ -1491,7 +1862,11 @@ def _select_macro_environment_signal(signals):
     )
 
     if environment and risk:
-        if risk["weighted_score"] - environment["weighted_score"] <= 10:
+        if (
+            risk["magnitude_adjusted_score"]
+            - environment["magnitude_adjusted_score"]
+            <= 10
+        ):
             return environment
 
         return risk
@@ -2254,6 +2629,8 @@ def _assemble_report_bundle(
         ("AGENT SIGNAL BUS DETAILS", "signal_bus_details"),
         ("SIGNAL WEIGHTING SUMMARY", "signal_weighting_summary"),
         ("SIGNAL WEIGHTING DETAILS", "signal_weighting_details"),
+        ("SIGNAL MAGNITUDE SUMMARY", "signal_magnitude_summary"),
+        ("SIGNAL MAGNITUDE DETAILS", "signal_magnitude_details"),
         ("AGENT REGISTRY SUMMARY", "registry_summary"),
         ("AGENT REGISTRY DETAILS", "registry_details"),
         ("AGENT QUERY INTERFACE SUMMARY", "query_summary"),
@@ -2393,6 +2770,7 @@ def build_morning_brief(
     )
     signal_bus_report = build_agent_signal_bus_report(signals)
     signal_weighting_report = build_signal_weighting_report(signals)
+    signal_magnitude_report = build_signal_magnitude_report(signals)
     priority_report = build_cross_agent_priority_report(signals)
     executive_summary = build_signal_driven_executive_summary(
         registry,
@@ -2412,6 +2790,8 @@ def build_morning_brief(
         "signal_bus_details": signal_bus_report["details"],
         "signal_weighting_summary": signal_weighting_report["summary"],
         "signal_weighting_details": signal_weighting_report["details"],
+        "signal_magnitude_summary": signal_magnitude_report["summary"],
+        "signal_magnitude_details": signal_magnitude_report["details"],
         "registry_summary": registry_report["summary"],
         "registry_details": registry_report["details"],
         "query_summary": query_interface_report["summary"],
