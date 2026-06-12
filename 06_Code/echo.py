@@ -3,11 +3,16 @@ from agents.macro_agent import get_macro_report
 from agents.portfolio_manager import get_portfolio_report
 from agents.research_agent import get_research_agent_report
 from agents.policy_agent import get_policy
+from datetime import datetime
 from pathlib import Path
+import shutil
 from time import perf_counter
 
 
 REPORTS_DIR = Path(__file__).resolve().parent.parent / "04_Reports"
+REPORT_ARCHIVE_ENABLED = True
+REPORT_ARCHIVE_KEEP_COUNT = 10
+REPORT_ARCHIVE_DIR = REPORTS_DIR / "archive"
 
 AGENT_REGISTRY = (
     {
@@ -2114,12 +2119,123 @@ def build_report_outputs_section(failures=None):
     return outputs
 
 
-def _assemble_report_bundle(sections, report_output_failures=None):
+def get_report_archive_timestamp():
+
+    return datetime.now().strftime("%Y%m%d_%H%M%S")
+
+
+def _default_retention_status():
+
+    return {
+        "archive_enabled": REPORT_ARCHIVE_ENABLED,
+        "archive_folder": "N/A",
+        "keep_count": REPORT_ARCHIVE_KEEP_COUNT,
+        "runs_retained": 0,
+        "cleanup_deleted": 0,
+        "status": "OK",
+        "notes": (
+            "Archive retention is configured. Archive output is generated "
+            "when reports are written."
+            if REPORT_ARCHIVE_ENABLED
+            else "Report archiving is disabled."
+        )
+    }
+
+
+def build_report_retention_summary(retention_status=None):
+
+    retention_status = retention_status or _default_retention_status()
+
+    return [
+        (
+            "Archive Enabled: "
+            f"{'Yes' if retention_status['archive_enabled'] else 'No'}"
+        ),
+        f"Archive Folder: {retention_status['archive_folder']}",
+        f"Archive Keep Count: {retention_status['keep_count']}",
+        f"Archive Runs Retained: {retention_status['runs_retained']}",
+        f"Archive Cleanup Deleted: {retention_status['cleanup_deleted']}",
+        f"Retention Status: {retention_status['status']}",
+        f"Notes: {retention_status['notes']}"
+    ]
+
+
+def _is_timestamped_archive_folder(path):
+
+    try:
+        datetime.strptime(path.name, "%Y%m%d_%H%M%S")
+    except ValueError:
+        return False
+
+    return path.is_dir()
+
+
+def cleanup_old_report_archives(archive_dir, keep_count):
+
+    archive_dir = Path(archive_dir)
+    deleted = 0
+    failures = []
+
+    try:
+        archive_root = archive_dir.resolve()
+        archive_root.mkdir(parents=True, exist_ok=True)
+        archive_folders = sorted(
+            (
+                path for path in archive_root.iterdir()
+                if _is_timestamped_archive_folder(path)
+            ),
+            key=lambda path: path.name,
+            reverse=True
+        )
+    except (OSError, ValueError) as error:
+        return {
+            "deleted": 0,
+            "retained": 0,
+            "failures": [" ".join(str(error).split())[:180]]
+        }
+
+    for folder in archive_folders[max(int(keep_count or 0), 0):]:
+        try:
+            resolved_folder = folder.resolve()
+
+            if resolved_folder.parent != archive_root:
+                raise ValueError(
+                    f"Unsafe archive cleanup path: {resolved_folder}"
+                )
+
+            shutil.rmtree(resolved_folder)
+            deleted += 1
+        except (OSError, ValueError) as error:
+            failures.append(
+                f"{folder}: {' '.join(str(error).split())[:180]}"
+            )
+
+    retained = sum(
+        _is_timestamped_archive_folder(path)
+        for path in archive_root.iterdir()
+    )
+
+    return {
+        "deleted": deleted,
+        "retained": retained,
+        "failures": failures
+    }
+
+
+def _assemble_report_bundle(
+    sections,
+    report_output_failures=None,
+    retention_status=None
+):
 
     title = _briefing_title()
     report_outputs = add_section(
         "REPORT OUTPUTS",
         build_report_outputs_section(report_output_failures)
+    )
+    retention_summary = add_section(
+        "REPORT RETENTION SUMMARY",
+        build_report_retention_summary(retention_status)
     )
     executive_brief_report = (
         title
@@ -2145,7 +2261,11 @@ def _assemble_report_bundle(sections, report_output_failures=None):
     ):
         full_echo_report += add_section(title_key, sections[content_key])
 
-    daily_brief = executive_brief_report + report_outputs
+    daily_brief = (
+        executive_brief_report
+        + report_outputs
+        + retention_summary
+    )
     daily_brief += full_echo_report[len(executive_brief_report):]
     daily_brief += add_section(
         "NEWS AGENT EXECUTIVE BRIEF",
@@ -2218,7 +2338,11 @@ def _assemble_report_bundle(sections, report_output_failures=None):
     }
 
 
-def build_morning_brief(return_bundle=False, report_output_failures=None):
+def build_morning_brief(
+    return_bundle=False,
+    report_output_failures=None,
+    retention_status=None
+):
 
     registry = create_agent_registry()
     news = run_report_agent(
@@ -2299,7 +2423,8 @@ def build_morning_brief(return_bundle=False, report_output_failures=None):
     }
     bundle = _assemble_report_bundle(
         sections,
-        report_output_failures
+        report_output_failures,
+        retention_status
     )
 
     return bundle if return_bundle else bundle["daily_brief"]
@@ -2326,24 +2451,104 @@ def write_report_file(path, content):
     }
 
 
-def write_separated_reports(bundle):
+def _report_file_map(root_dir):
 
-    report_paths = {
-        "echo_executive_brief": REPORTS_DIR / "echo_executive_brief.txt",
-        "echo_full_brief": REPORTS_DIR / "echo_full_brief.txt",
-        "news_full_report": REPORTS_DIR / "agents" / "news_full_report.txt",
-        "macro_full_report": REPORTS_DIR / "agents" / "macro_full_report.txt",
+    root_dir = Path(root_dir)
+
+    return {
+        "daily_brief": root_dir / "daily_brief.txt",
+        "echo_executive_brief": root_dir / "echo_executive_brief.txt",
+        "echo_full_brief": root_dir / "echo_full_brief.txt",
+        "news_full_report": root_dir / "agents" / "news_full_report.txt",
+        "macro_full_report": root_dir / "agents" / "macro_full_report.txt",
         "research_full_report": (
-            REPORTS_DIR / "agents" / "research_full_report.txt"
+            root_dir / "agents" / "research_full_report.txt"
         ),
         "portfolio_full_report": (
-            REPORTS_DIR / "agents" / "portfolio_full_report.txt"
+            root_dir / "agents" / "portfolio_full_report.txt"
         )
     }
+
+
+def write_latest_reports(bundle):
+
+    report_paths = _report_file_map(REPORTS_DIR)
 
     return {
         name: write_report_file(path, bundle[name])
         for name, path in report_paths.items()
+    }
+
+
+def write_separated_reports(bundle):
+
+    return {
+        name: result
+        for name, result in write_latest_reports(bundle).items()
+        if name != "daily_brief"
+    }
+
+
+def write_archive_reports(bundle, timestamp):
+
+    archive_folder = REPORT_ARCHIVE_DIR / timestamp
+    report_paths = _report_file_map(archive_folder)
+
+    return {
+        name: write_report_file(path, bundle[name])
+        for name, path in report_paths.items()
+    }
+
+
+def _write_failures(results):
+
+    return [
+        f"{result['path']}: {result['error']}"
+        for result in results.values()
+        if not result["success"]
+    ]
+
+
+def apply_report_retention(report_bundle, timestamp=None):
+
+    timestamp = timestamp or get_report_archive_timestamp()
+    retention_status = _default_retention_status()
+    retention_notes = []
+    archive_results = {}
+
+    if REPORT_ARCHIVE_ENABLED:
+        archive_folder = REPORT_ARCHIVE_DIR / timestamp
+        retention_status["archive_folder"] = (
+            f"04_Reports/archive/{timestamp}"
+        )
+        archive_results = write_archive_reports(report_bundle, timestamp)
+        archive_failures = _write_failures(archive_results)
+
+        if archive_failures:
+            retention_notes.extend(archive_failures)
+
+        cleanup = cleanup_old_report_archives(
+            REPORT_ARCHIVE_DIR,
+            REPORT_ARCHIVE_KEEP_COUNT
+        )
+        retention_status["cleanup_deleted"] = cleanup["deleted"]
+        retention_status["runs_retained"] = cleanup["retained"]
+        retention_notes.extend(cleanup["failures"])
+    else:
+        retention_status["notes"] = "Report archiving is disabled."
+
+    if retention_notes:
+        retention_status["status"] = "DEGRADED"
+        retention_status["notes"] = "; ".join(retention_notes)
+    elif REPORT_ARCHIVE_ENABLED:
+        retention_status["notes"] = (
+            "Archive write and cleanup completed. Archive directory may "
+            "need a future git ignore policy."
+        )
+
+    return {
+        "status": retention_status,
+        "archive_results": archive_results
     }
 
 
@@ -2355,18 +2560,26 @@ def save_report(brief):
 
 if __name__ == "__main__":
     report_bundle = build_morning_brief(return_bundle=True)
-    separated_results = write_separated_reports(report_bundle)
-    separated_failures = [
-        f"{result['path']}: {result['error']}"
-        for result in separated_results.values()
-        if not result["success"]
-    ]
+    retention = apply_report_retention(report_bundle)
+    report_bundle = _assemble_report_bundle(
+        report_bundle["sections"],
+        retention_status=retention["status"]
+    )
+    latest_results = write_latest_reports(report_bundle)
+    latest_failures = _write_failures(latest_results)
 
-    if separated_failures:
+    if latest_failures:
         report_bundle = _assemble_report_bundle(
             report_bundle["sections"],
-            separated_failures
+            latest_failures,
+            retention["status"]
         )
+        write_latest_reports(report_bundle)
+
+    if REPORT_ARCHIVE_ENABLED:
+        timestamp = Path(
+            retention["status"]["archive_folder"]
+        ).name
+        write_archive_reports(report_bundle, timestamp)
 
     print(report_bundle["daily_brief"])
-    save_report(report_bundle["daily_brief"])
