@@ -4,6 +4,7 @@ from agents.portfolio_manager import get_portfolio_report
 from agents.research_agent import get_research_agent_report
 from agents.policy_agent import get_policy
 from datetime import datetime
+import json
 import os
 from pathlib import Path
 import re
@@ -5441,6 +5442,14 @@ class BaseLLMProvider:
 
     provider_name = "base"
 
+    def model_name(self):
+
+        return ""
+
+    def live_calls_enabled(self):
+
+        return False
+
     def is_configured(self):
 
         return False
@@ -5454,29 +5463,110 @@ class OpenAIProvider(BaseLLMProvider):
 
     provider_name = "openai"
 
+    def model_name(self):
+
+        return os.getenv("ECHO_OPENAI_MODEL") or "gpt-4o-mini"
+
+    def live_calls_enabled(self):
+
+        return (
+            _env_flag_enabled("ECHO_LLM_LIVE")
+            and self.is_configured()
+        )
+
     def is_configured(self):
 
         return bool(os.getenv("OPENAI_API_KEY"))
 
     def generate_response(self, messages, tools=None, context=None):
 
-        return {
-            "status": "STUB",
-            "provider": self.provider_name,
-            "configured": self.is_configured(),
-            "live_calls_enabled": False,
-            "message_count": len(messages or []),
-            "tool_count": len(tools or []),
-            "response": (
-                "OpenAI provider stub is active. Live calls are disabled "
-                "for this phase."
-            ),
-            "notes": (
-                "No OpenAI API call was made. Future phases may enable live "
-                "calls explicitly."
-            )
-        }
+        model = self.model_name()
+        tool_context = _build_llm_tool_context(tools)
 
+        if not self.is_configured():
+            return {
+                "status": "NOT_CONFIGURED",
+                "provider": self.provider_name,
+                "model": model,
+                "answer": "",
+                "tool_context_used": bool(tool_context),
+                "confidence": "LOW",
+                "notes": (
+                    "OPENAI_API_KEY is not configured. No OpenAI API call "
+                    "was made."
+                )
+            }
+
+        if not self.live_calls_enabled():
+            return {
+                "status": "STUB",
+                "provider": self.provider_name,
+                "model": model,
+                "answer": "",
+                "tool_context_used": bool(tool_context),
+                "confidence": "LOW",
+                "notes": (
+                    "OpenAI provider is configured but ECHO_LLM_LIVE is not "
+                    "enabled. No OpenAI API call was made."
+                )
+            }
+
+        try:
+            from openai import OpenAI
+        except ImportError:
+            return {
+                "status": "DEPENDENCY_MISSING",
+                "provider": self.provider_name,
+                "model": model,
+                "answer": "",
+                "tool_context_used": bool(tool_context),
+                "confidence": "LOW",
+                "notes": "OpenAI package not installed. Run: pip install openai"
+            }
+
+        prompt_messages = _build_openai_prompt_messages(messages, tool_context)
+
+        try:
+            client = OpenAI()
+
+            if hasattr(client, "responses"):
+                response = client.responses.create(
+                    model=model,
+                    input=prompt_messages
+                )
+                answer = getattr(response, "output_text", "")
+            else:
+                response = client.chat.completions.create(
+                    model=model,
+                    messages=prompt_messages
+                )
+                answer = response.choices[0].message.content
+
+            return {
+                "status": "ANSWERED",
+                "provider": self.provider_name,
+                "model": model,
+                "answer": " ".join(str(answer or "").split()),
+                "tool_context_used": bool(tool_context),
+                "confidence": "HIGH" if tool_context else "MEDIUM",
+                "notes": (
+                    "OpenAI live response generated from Echo deterministic "
+                    "tool context. No function-calling was used."
+                )
+            }
+        except Exception as error:
+            return {
+                "status": "ERROR",
+                "provider": self.provider_name,
+                "model": model,
+                "answer": "",
+                "tool_context_used": bool(tool_context),
+                "confidence": "LOW",
+                "notes": (
+                    "OpenAI provider call failed without exposing secrets: "
+                    f"{_concise(error, limit=180)}"
+                )
+            }
 
 class AnthropicProvider(BaseLLMProvider):
 
@@ -5524,6 +5614,86 @@ class UnknownLLMProvider(BaseLLMProvider):
         }
 
 
+def _env_flag_enabled(name):
+
+    return str(os.getenv(name) or "").strip().casefold() in {
+        "1",
+        "true",
+        "yes",
+        "on"
+    }
+
+
+def _build_llm_tool_context(tools):
+
+    if not isinstance(tools, dict):
+        return {}
+
+    tool_context = {}
+
+    for tool_name, result in tools.items():
+        if not isinstance(result, dict):
+            continue
+
+        tool_context[tool_name] = {
+            "status": result.get("status"),
+            "summary": result.get("summary"),
+            "confidence": result.get("confidence"),
+            "data": result.get("data", {})
+        }
+
+    return tool_context
+
+
+def _message_content(messages):
+
+    if isinstance(messages, str):
+        return messages
+
+    if isinstance(messages, (list, tuple)):
+        parts = []
+
+        for message in messages:
+            if isinstance(message, dict):
+                content = message.get("content")
+            else:
+                content = message
+
+            if content:
+                parts.append(str(content))
+
+        return "\n".join(parts)
+
+    return str(messages or "")
+
+
+def _build_openai_prompt_messages(messages, tool_context):
+
+    system_message = (
+        "You are Echo, a deterministic personal intelligence system. "
+        "Use only the provided Echo tool context as evidence. Do not invent "
+        "holdings, market facts, recommendations, or external data. Keep the "
+        "answer concise, note uncertainty when context is limited, and avoid "
+        "trade recommendations unless explicitly quoting Echo context."
+    )
+    tool_context_text = json.dumps(
+        tool_context,
+        ensure_ascii=True,
+        sort_keys=True,
+        default=str
+    )
+    user_message = (
+        f"User question:\n{_message_content(messages)}\n\n"
+        f"Echo tool context:\n{tool_context_text}\n\n"
+        "Synthesize a final answer from this context."
+    )
+
+    return [
+        {"role": "system", "content": system_message},
+        {"role": "user", "content": user_message}
+    ]
+
+
 def _normalize_llm_provider_name(provider_name=None):
 
     configured_provider = os.getenv("ECHO_LLM_PROVIDER")
@@ -5547,16 +5717,18 @@ def get_llm_provider(provider_name=None):
 def get_llm_provider_status(provider_name=None):
 
     provider = get_llm_provider(provider_name)
+    live_enabled = provider.live_calls_enabled()
 
     return {
         "status": "OK",
         "active_provider": provider.provider_name,
         "configured": provider.is_configured(),
-        "live_calls_enabled": False,
+        "live_calls_enabled": live_enabled,
+        "model": provider.model_name(),
         "available_providers": ["openai", "anthropic"],
         "notes": (
-            "LLM provider layer is active. Live calls are disabled; no API "
-            "key is required for this phase."
+            "LLM provider layer is active. Live calls require provider "
+            "configuration plus ECHO_LLM_LIVE=1/true/yes."
         )
     }
 
@@ -5754,6 +5926,55 @@ def echo_orchestrate_user_message(message, context=None):
     }
 
 
+def echo_generate_llm_answer(message, context=None):
+
+    normalized_message = " ".join(str(message or "").split())
+    query_context = _echo_tool_context(context)
+    orchestrator_result = echo_orchestrate_user_message(
+        normalized_message,
+        query_context
+    )
+    provider = get_llm_provider()
+    provider_result = provider.generate_response(
+        [{"role": "user", "content": normalized_message}],
+        tools=orchestrator_result.get("tool_results", {}),
+        context=query_context
+    )
+    selected_tools = orchestrator_result.get("selected_tools", [])
+    tool_results = orchestrator_result.get("tool_results", {})
+
+    if provider_result.get("status") == "ANSWERED":
+        return {
+            "status": "ANSWERED",
+            "mode": "LLM_PROVIDER",
+            "provider": provider_result.get("provider", provider.provider_name),
+            "model": provider_result.get("model", provider.model_name()),
+            "message": normalized_message,
+            "answer": provider_result.get("answer", ""),
+            "selected_tools": selected_tools,
+            "tool_results": tool_results,
+            "confidence": provider_result.get("confidence", "MEDIUM"),
+            "notes": provider_result.get("notes", "")
+        }
+
+    return {
+        "status": orchestrator_result.get("status", "ANSWERED"),
+        "mode": "DETERMINISTIC_FALLBACK",
+        "provider": provider.provider_name,
+        "model": provider_result.get("model", provider.model_name()),
+        "message": normalized_message,
+        "answer": orchestrator_result.get("answer", ""),
+        "selected_tools": selected_tools,
+        "tool_results": tool_results,
+        "confidence": orchestrator_result.get("confidence", "MEDIUM"),
+        "notes": (
+            "Deterministic fallback used because provider status was "
+            f"{provider_result.get('status', 'UNKNOWN')}. "
+            f"{provider_result.get('notes', '')}"
+        )
+    }
+
+
 def get_echo_orchestrator_status():
 
     provider_status = get_llm_provider_status()
@@ -5761,11 +5982,13 @@ def get_echo_orchestrator_status():
     return {
         "status": "ACTIVE",
         "mode": "DETERMINISTIC_STUB",
-        "llm_enabled": False,
+        "llm_enabled": provider_status["live_calls_enabled"],
         "llm_provider_status": provider_status,
         "active_provider": provider_status["active_provider"],
         "llm_configured": provider_status["configured"],
-        "live_calls_enabled": False,
+        "live_calls_enabled": provider_status["live_calls_enabled"],
+        "model": provider_status["model"],
+        "fallback_mode_available": True,
         "available_tools": sorted(ECHO_TOOL_REGISTRY)
     }
 
@@ -5905,7 +6128,8 @@ def get_query_interface_report(registry):
         (
             "LLM Provider Layer: ACTIVE | Provider: "
             f"{get_llm_provider_status()['active_provider']} | "
-            "Live Calls: Disabled"
+            "Live Calls: "
+            f"{'Enabled' if get_llm_provider_status()['live_calls_enabled'] else 'Disabled'}"
         ),
         "Deterministic Only: YES",
         "AI Integration: NONE",
