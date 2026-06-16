@@ -5436,6 +5436,209 @@ def get_echo_tool_registry():
     }
 
 
+def _echo_orchestrator_select_tools(message, context):
+
+    sections = _echo_tool_context(context)["sections"]
+    text = " ".join(str(message or "").split()).casefold()
+    tickers = _detect_query_tickers(message, sections)
+    selected_tools = []
+
+    def add_tools(*tool_names):
+        for tool_name in tool_names:
+            if tool_name not in selected_tools:
+                selected_tools.append(tool_name)
+
+    if tickers:
+        add_tools(
+            "echo_ask",
+            "echo_get_portfolio_snapshot",
+            "echo_get_research_snapshot",
+            "echo_get_themes",
+            "echo_get_conflicts"
+        )
+
+    if any(
+        term in text
+        for term in (
+            "risk",
+            "exposure",
+            "allocation",
+            "concentration",
+            "overweight",
+            "underweight"
+        )
+    ):
+        add_tools(
+            "echo_get_portfolio_snapshot",
+            "echo_get_conflicts",
+            "echo_get_theme_impacts"
+        )
+
+    if any(
+        term in text
+        for term in (
+            "macro",
+            "inflation",
+            "rates",
+            "rate",
+            "yield",
+            "energy",
+            "fed"
+        )
+    ):
+        add_tools(
+            "echo_get_macro_snapshot",
+            "echo_get_themes",
+            "echo_get_theme_impacts"
+        )
+
+    if any(
+        term in text
+        for term in ("news", "market", "world", "iran", "china")
+    ):
+        add_tools("echo_get_news_snapshot", "echo_get_themes")
+
+    if any(
+        term in text
+        for term in ("research", "conviction", "thesis", "weak holding")
+    ):
+        add_tools("echo_get_research_snapshot", "echo_get_conflicts")
+
+    if not selected_tools:
+        add_tools(
+            "echo_get_top_priority",
+            "echo_get_themes",
+            "echo_get_theme_impacts",
+            "echo_get_conflicts",
+            "echo_get_news_snapshot",
+            "echo_get_macro_snapshot"
+        )
+
+    return selected_tools
+
+
+def _run_echo_orchestrator_tool(tool_name, message, context):
+
+    if tool_name == "echo_ask":
+        return echo_ask(message, context)
+
+    tool_functions = {
+        "echo_get_daily_brief": echo_get_daily_brief,
+        "echo_get_top_priority": echo_get_top_priority,
+        "echo_get_themes": echo_get_themes,
+        "echo_get_theme_impacts": echo_get_theme_impacts,
+        "echo_get_conflicts": echo_get_conflicts,
+        "echo_get_portfolio_snapshot": echo_get_portfolio_snapshot,
+        "echo_get_macro_snapshot": echo_get_macro_snapshot,
+        "echo_get_news_snapshot": echo_get_news_snapshot,
+        "echo_get_research_snapshot": echo_get_research_snapshot
+    }
+    tool_function = tool_functions.get(tool_name)
+
+    if tool_function is None:
+        return {
+            "tool": tool_name,
+            "status": "UNKNOWN_TOOL",
+            "data": {},
+            "summary": "Tool not found.",
+            "confidence": "LOW",
+            "notes": "No registered deterministic tool matched."
+        }
+
+    return tool_function(context)
+
+
+def _echo_orchestrator_answer(tool_results):
+
+    summaries = []
+
+    for tool_name, result in tool_results.items():
+        summary = " ".join(str(result.get("summary") or "").split())
+
+        if summary:
+            summaries.append(f"{tool_name}: {summary}")
+
+    if not summaries:
+        return "No deterministic tool summaries were available."
+
+    return _concise(" ".join(summaries), limit=1200)
+
+
+def _echo_orchestrator_confidence(tool_results):
+
+    confidences = {
+        str(result.get("confidence") or "MEDIUM").upper()
+        for result in tool_results.values()
+    }
+
+    if not tool_results or "LOW" in confidences:
+        return "LOW"
+
+    if "MEDIUM" in confidences:
+        return "MEDIUM"
+
+    return "HIGH"
+
+
+def echo_orchestrate_user_message(message, context=None):
+
+    normalized_message = " ".join(str(message or "").split())
+    query_context = _echo_tool_context(context)
+
+    if not normalized_message:
+        return {
+            "status": "EMPTY_MESSAGE",
+            "mode": "DETERMINISTIC_ORCHESTRATOR_STUB",
+            "message": "",
+            "selected_tools": [],
+            "tool_results": {},
+            "answer": "Message cannot be empty.",
+            "confidence": "LOW",
+            "notes": (
+                "Echo LLM orchestrator stub did not run because no message "
+                "was provided."
+            )
+        }
+
+    selected_tools = _echo_orchestrator_select_tools(
+        normalized_message,
+        query_context
+    )
+    tool_results = {
+        tool_name: _run_echo_orchestrator_tool(
+            tool_name,
+            normalized_message,
+            query_context
+        )
+        for tool_name in selected_tools
+    }
+
+    return {
+        "status": "ANSWERED",
+        "mode": "DETERMINISTIC_ORCHESTRATOR_STUB",
+        "message": normalized_message,
+        "selected_tools": selected_tools,
+        "tool_results": tool_results,
+        "answer": _echo_orchestrator_answer(tool_results),
+        "confidence": _echo_orchestrator_confidence(tool_results),
+        "notes": (
+            "LLM orchestrator stub used deterministic tool selection and "
+            "tool-summary fallback synthesis. LLM Enabled: No. No external "
+            "API call was made."
+        )
+    }
+
+
+def get_echo_orchestrator_status():
+
+    return {
+        "status": "ACTIVE",
+        "mode": "DETERMINISTIC_STUB",
+        "llm_enabled": False,
+        "available_tools": sorted(ECHO_TOOL_REGISTRY)
+    }
+
+
 def run_report_agent(registry, agent_name, report_function, fallback):
 
     agent = get_registry_agent(registry, agent_name)
@@ -5567,6 +5770,7 @@ def get_query_interface_report(registry):
         "Empty Query Handling: ENABLED",
         "Echo Multi-Agent Response Engine: ACTIVE",
         "Echo Multi-Agent Routing: DETERMINISTIC",
+        "LLM Orchestrator Stub: ACTIVE | LLM Enabled: No",
         "Deterministic Only: YES",
         "AI Integration: NONE",
         "",
