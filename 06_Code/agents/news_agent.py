@@ -243,6 +243,313 @@ TAG_ORDER = (
     "UNKNOWN"
 )
 
+IMPACT_TIER_RANK = {
+    "CRITICAL": 5,
+    "HIGH": 4,
+    "ELEVATED": 3,
+    "MODERATE": 2,
+    "LOW": 1
+}
+
+MEGA_CAP_TERMS = (
+    "Apple",
+    "Microsoft",
+    "Nvidia",
+    "Amazon",
+    "Alphabet",
+    "Google",
+    "Meta",
+    "Tesla",
+    "Broadcom",
+    "Berkshire",
+    "Eli Lilly",
+    "JPMorgan",
+    "Exxon",
+    "Netflix",
+    "AMD",
+    "Oracle"
+)
+
+HIGH_IMPACT_MODIFIERS = (
+    "shock",
+    "surprise",
+    "unexpected",
+    "hotter",
+    "cooler",
+    "accelerates",
+    "slows",
+    "plunges",
+    "surges",
+    "cuts",
+    "hikes",
+    "warns",
+    "warning",
+    "crisis",
+    "stress",
+    "default",
+    "liquidity",
+    "emergency",
+    "escalates",
+    "attack",
+    "war"
+)
+
+ROUTINE_RELEASE_TERMS = (
+    "latest numbers",
+    "latest estimates",
+    "monthly report",
+    "weekly report",
+    "routine",
+    "schedule",
+    "release",
+    "releases",
+    "statistics",
+    "data update"
+)
+
+VAGUE_MARKET_COMMENTARY_TERMS = (
+    "stocks are mixed",
+    "markets mixed",
+    "market commentary",
+    "what to watch",
+    "investors weigh",
+    "wall street opens",
+    "futures edge",
+    "stocks drift",
+    "market update"
+)
+
+REGIONAL_LOW_IMPACT_TERMS = (
+    "county",
+    "municipal",
+    "local",
+    "regional",
+    "statewide"
+)
+
+MARKET_IMPACT_RULES = (
+    {
+        "category": "Fed Policy",
+        "tier": "CRITICAL",
+        "weight": 95,
+        "required_any": ("Fed", "Federal Reserve", "FOMC", "Powell"),
+        "context_any": (
+            "rate cut",
+            "rate cuts",
+            "rate hike",
+            "rate hikes",
+            "interest rates",
+            "policy rate",
+            "dot plot",
+            "press conference",
+            "rates",
+            "cuts rates",
+            "hikes rates"
+        ),
+        "reason": "Federal Reserve policy directly reprices rates, equities, and risk assets."
+    },
+    {
+        "category": "Inflation Shock",
+        "tier": "CRITICAL",
+        "weight": 92,
+        "required_any": ("CPI", "PCE", "inflation"),
+        "context_any": HIGH_IMPACT_MODIFIERS + (
+            "core",
+            "prices",
+            "hot",
+            "cool",
+            "above forecast",
+            "below forecast"
+        ),
+        "reason": "Inflation surprises change expected Fed policy and discount rates."
+    },
+    {
+        "category": "Labor Market Shock",
+        "tier": "HIGH",
+        "weight": 88,
+        "required_any": (
+            "jobs report",
+            "payrolls",
+            "unemployment",
+            "wage growth",
+            "nonfarm payrolls"
+        ),
+        "context_any": HIGH_IMPACT_MODIFIERS + (
+            "misses",
+            "beats",
+            "claims",
+            "labor market",
+            "jobs report",
+            "payrolls",
+            "unemployment",
+            "wage growth",
+            "nonfarm payrolls"
+        ),
+        "reason": "Labor-market shocks affect recession risk and rate expectations."
+    },
+    {
+        "category": "Treasury and Liquidity Stress",
+        "tier": "HIGH",
+        "weight": 86,
+        "required_any": (
+            "Treasury yields",
+            "bond market",
+            "yield curve",
+            "credit spreads",
+            "liquidity"
+        ),
+        "context_any": HIGH_IMPACT_MODIFIERS + (
+            "stress",
+            "auction",
+            "selloff",
+            "spike",
+            "inversion"
+        ),
+        "reason": "Bond-market and liquidity stress can drive cross-asset repricing."
+    },
+    {
+        "category": "Recession Signal",
+        "tier": "HIGH",
+        "weight": 84,
+        "required_any": ("recession", "GDP contraction", "contracts", "contraction"),
+        "context_any": (
+            "GDP",
+            "economy",
+            "warning",
+            "signal",
+            "slump",
+            "downturn",
+            "negative growth"
+        ),
+        "reason": "Recession signals change earnings expectations and risk appetite."
+    },
+    {
+        "category": "Energy Supply Shock",
+        "tier": "HIGH",
+        "weight": 82,
+        "required_any": ("oil", "crude", "energy", "Strait of Hormuz", "Iran"),
+        "context_any": (
+            "disruption",
+            "supply",
+            "attack",
+            "conflict",
+            "war",
+            "sanctions",
+            "Hormuz",
+            "Iran",
+            "Middle East",
+            "shipping"
+        ),
+        "reason": "Energy supply disruptions can quickly affect inflation and margins."
+    },
+    {
+        "category": "China Taiwan Escalation",
+        "tier": "HIGH",
+        "weight": 80,
+        "required_any": ("China", "Taiwan"),
+        "context_any": (
+            "escalation",
+            "military",
+            "sanctions",
+            "blockade",
+            "invasion",
+            "conflict",
+            "tariffs",
+            "export controls",
+            "warning",
+            "warns"
+        ),
+        "reason": "China/Taiwan escalation threatens global trade and semiconductor supply chains."
+    },
+    {
+        "category": "Mega-Cap Earnings",
+        "tier": "ELEVATED",
+        "weight": 76,
+        "required_any": EARNINGS_TERMS,
+        "context_any": MEGA_CAP_TERMS + PORTFOLIO_TERMS,
+        "reason": "Mega-cap or portfolio earnings can move indexes and portfolio holdings."
+    },
+    {
+        "category": "Major Regulatory Action",
+        "tier": "ELEVATED",
+        "weight": 74,
+        "required_any": ("SEC", "DOJ", "FTC", "antitrust", "regulatory"),
+        "context_any": (
+            "lawsuit",
+            "investigation",
+            "enforcement",
+            "charges",
+            "settlement",
+            "rule",
+            "probe",
+            "sues"
+        ),
+        "reason": "Major regulatory action can alter sector economics or company risk."
+    },
+    {
+        "category": "Portfolio Company Event",
+        "tier": "ELEVATED",
+        "weight": 68,
+        "required_any": PORTFOLIO_TERMS,
+        "context_any": HIGH_IMPACT_MODIFIERS + EARNINGS_TERMS + (
+            "investigation",
+            "lawsuit",
+            "guidance",
+            "acquisition",
+            "merger"
+        ),
+        "reason": "Portfolio-linked company news has direct portfolio relevance."
+    },
+    {
+        "category": "AI and Semiconductor Cycle",
+        "tier": "MODERATE",
+        "weight": 52,
+        "required_any": AI_SEMICONDUCTOR_TERMS,
+        "context_any": (
+            "earnings",
+            "guidance",
+            "export controls",
+            "demand",
+            "supply",
+            "data center",
+            "chip"
+        ),
+        "reason": "AI and semiconductor developments can affect growth leadership."
+    },
+    {
+        "category": "Generic Economic Data",
+        "tier": "LOW",
+        "weight": 22,
+        "required_any": ("economic indicators", "GDP", "income", "spending", "statistics"),
+        "context_any": ROUTINE_RELEASE_TERMS + ("latest", "numbers", "estimate"),
+        "reason": "Routine economic data is monitored but lacks a clear market shock."
+    },
+    {
+        "category": "Routine Government Release",
+        "tier": "LOW",
+        "weight": 12,
+        "required_any": ROUTINE_RELEASE_TERMS,
+        "context_any": ("government", "agency", "bureau", "department", "BEA", "BLS"),
+        "reason": "Routine releases are lower priority without a market-moving surprise."
+    },
+    {
+        "category": "Vague Market Commentary",
+        "tier": "LOW",
+        "weight": 10,
+        "required_any": VAGUE_MARKET_COMMENTARY_TERMS,
+        "context_any": ("stocks", "market", "investors", "wall street"),
+        "reason": "General market commentary lacks a specific market-moving catalyst."
+    },
+    {
+        "category": "Low-Impact Regional News",
+        "tier": "LOW",
+        "weight": 8,
+        "required_any": REGIONAL_LOW_IMPACT_TERMS,
+        "context_any": ("economy", "business", "jobs", "statistics", "market"),
+        "reason": "Regional news is lower priority unless tied to broader market stress."
+    }
+)
+
 
 def _local_name(tag):
 
@@ -405,6 +712,76 @@ def _find_matches(text, terms):
     return matches
 
 
+def _rule_matches(text, rule):
+
+    required_matches = _find_matches(text, rule["required_any"])
+    context_matches = _find_matches(text, rule["context_any"])
+
+    return required_matches, context_matches
+
+
+def _score_impact_categories(searchable_text):
+
+    matches = []
+
+    for rule in MARKET_IMPACT_RULES:
+        required_matches, context_matches = _rule_matches(
+            searchable_text,
+            rule
+        )
+
+        if not required_matches or not context_matches:
+            continue
+
+        matches.append({
+            "category": rule["category"],
+            "impact_tier": rule["tier"],
+            "weight": rule["weight"],
+            "required_matches": required_matches,
+            "context_matches": context_matches,
+            "reason": rule["reason"]
+        })
+
+    if not matches:
+        return [{
+            "category": "No Clear Market Catalyst",
+            "impact_tier": "LOW",
+            "weight": 0,
+            "required_matches": [],
+            "context_matches": [],
+            "reason": (
+                "No high-impact market catalyst matched the headline "
+                "or summary."
+            )
+        }]
+
+    return sorted(
+        matches,
+        key=lambda match: (
+            -match["weight"],
+            -IMPACT_TIER_RANK[match["impact_tier"]],
+            match["category"]
+        )
+    )
+
+
+def _is_routine_low_impact_headline(title):
+
+    title_text = str(title or "")
+
+    if re.search(
+        r"\bmajor economic indicators latest numbers\b",
+        title_text,
+        flags=re.IGNORECASE
+    ):
+        return True
+
+    routine_matches = _find_matches(title_text, ROUTINE_RELEASE_TERMS)
+    high_impact_matches = _find_matches(title_text, HIGH_IMPACT_MODIFIERS)
+
+    return bool(routine_matches) and not high_impact_matches
+
+
 def _score_article(article, current_date=None):
 
     current_date = current_date or datetime.now(timezone.utc).date()
@@ -426,12 +803,44 @@ def _score_article(article, current_date=None):
         searchable_text,
         ("Fed", "Federal Reserve", "FOMC", "Powell")
     )
-    portfolio_score = len(portfolio_matches) * 6
-    watchlist_score = len(watchlist_matches) * 5
-    macro_score = len(macro_matches) * 4
-    market_score = len(market_matches) * 2
-    world_event_score = len(world_matches) * 4
-    urgency_score = len(urgency_matches) * 4
+    impact_matches = _score_impact_categories(searchable_text)
+    top_impact = impact_matches[0]
+    routine_low_impact_headline = _is_routine_low_impact_headline(
+        article["title"]
+    )
+
+    if routine_low_impact_headline:
+        top_impact = {
+            "category": "Generic Economic Data",
+            "impact_tier": "LOW",
+            "weight": 22,
+            "required_matches": _find_matches(
+                searchable_text,
+                ("economic indicators", "GDP", "income", "spending")
+            ),
+            "context_matches": _find_matches(
+                searchable_text,
+                ROUTINE_RELEASE_TERMS + ("latest", "numbers")
+            ),
+            "reason": (
+                "Routine indicator headline is capped below "
+                "market-moving catalysts."
+            )
+        }
+        impact_matches = [top_impact] + [
+            match for match in impact_matches
+            if match["category"] != top_impact["category"]
+        ]
+    portfolio_score = top_impact["weight"] if portfolio_matches else 0
+    watchlist_score = min(top_impact["weight"], 55) if watchlist_matches else 0
+    macro_score = top_impact["weight"] if macro_matches else 0
+    market_score = (
+        top_impact["weight"]
+        if market_matches or top_impact["weight"] >= 50
+        else 0
+    )
+    world_event_score = top_impact["weight"] if world_matches else 0
+    urgency_score = min(8, len(urgency_matches) * 2)
     official_bonus = 3 if article["official_source"] else 0
     today_bonus = (
         2
@@ -439,16 +848,21 @@ def _score_article(article, current_date=None):
         and article["published"].date() == current_date
         else 0
     )
-    total_score = (
-        portfolio_score
-        + watchlist_score
-        + macro_score
-        + market_score
-        + world_event_score
-        + urgency_score
-        + official_bonus
-        + today_bonus
-    )
+    relevance_bonus = 0
+
+    if portfolio_matches or watchlist_matches:
+        relevance_bonus += 5
+
+    if urgency_matches and top_impact["weight"] >= 50:
+        relevance_bonus += urgency_score
+
+    if article["official_source"] and top_impact["weight"] >= 70:
+        relevance_bonus += official_bonus
+
+    if today_bonus and top_impact["weight"] >= 22:
+        relevance_bonus += today_bonus
+
+    total_score = min(100, top_impact["weight"] + relevance_bonus)
     tags = []
 
     for tag, matches in (
@@ -472,9 +886,9 @@ def _score_article(article, current_date=None):
     if not tags:
         tags = ["UNKNOWN"]
 
-    if total_score >= 12:
+    if total_score >= 70:
         relevance = "HIGH"
-    elif total_score >= 6:
+    elif total_score >= 35:
         relevance = "MEDIUM"
     else:
         relevance = "LOW"
@@ -508,6 +922,10 @@ def _score_article(article, current_date=None):
         "market_matches": market_matches,
         "world_event_matches": world_matches,
         "urgency_matches": urgency_matches,
+        "impact_matches": impact_matches,
+        "impact_category": top_impact["category"],
+        "impact_tier": top_impact["impact_tier"],
+        "ranking_reason": top_impact["reason"],
         "category_tags": sorted(
             tags,
             key=lambda tag: TAG_ORDER.index(tag)
@@ -521,6 +939,7 @@ def _score_article(article, current_date=None):
         "official_source_bonus": official_bonus,
         "today_bonus": today_bonus,
         "total_score": total_score,
+        "relevance_score": total_score,
         "relevance": relevance
     })
 
@@ -538,6 +957,7 @@ def _article_sort_key(article):
 
     return (
         -article["total_score"],
+        -IMPACT_TIER_RANK[article["impact_tier"]],
         -published_timestamp,
         article["title"].casefold(),
         article["source"].casefold()
@@ -663,6 +1083,11 @@ def _top_story(articles, score_field):
     return matching_articles[0]["title"] if matching_articles else "None"
 
 
+def _top_ranked_story(articles):
+
+    return articles[0]["title"] if articles else "None"
+
+
 def _format_story_list(articles, match_field):
 
     lines = []
@@ -672,6 +1097,10 @@ def _format_story_list(articles, match_field):
         link = article["link"] or "N/A"
         lines.append(
             f"{article['title']} | Source {article['source']} | "
+            f"Score {article['total_score']} | "
+            f"Impact Category {article['impact_category']} | "
+            f"Impact Tier {article['impact_tier']} | "
+            f"Reason {article['ranking_reason']} | "
             f"Matched Terms {matched_terms} | Link {link}"
         )
 
@@ -700,7 +1129,7 @@ def build_news_report(news_data):
         f"News Agent Status: {news_data['status']}",
         (
             f"Top Market Story: "
-            f"{_top_story(market_articles, 'market_score')}"
+            f"{_top_ranked_story(articles)}"
         ),
         (
             f"Top Portfolio Story: "
@@ -763,8 +1192,11 @@ def build_news_report(news_data):
         tags = ", ".join(article["category_tags"])
         full_report.append(
             f"{rank}. {article['title']} | Source {article['source']} | "
+            f"Relevance Score {article['total_score']} | "
+            f"Impact Category {article['impact_category']} | "
+            f"Impact Tier {article['impact_tier']} | "
             f"Relevance {article['relevance']} | "
-            f"Score {article['total_score']} | Tags {tags}"
+            f"Reason {article['ranking_reason']} | Tags {tags}"
         )
 
     for heading, story_articles, match_field in (
