@@ -337,6 +337,33 @@ THEME_SEVERITY_WEIGHTS = {
     "INFO": 1
 }
 
+THEME_RISK_CHANNELS = {
+    "Inflation/Energy Risk": (
+        "oil prices, inflation pressure, rates expectations"
+    ),
+    "Fed/Rates Risk": (
+        "discount rates, liquidity, valuation multiples"
+    ),
+    "Recession/Growth Slowdown Risk": (
+        "earnings expectations, risk appetite, drawdown risk"
+    ),
+    "Portfolio Concentration Risk": (
+        "single-name drawdown concentration"
+    ),
+    "Research Quality Risk": (
+        "position size unsupported by thesis quality"
+    ),
+    "Tax/Capital Deployment Theme": (
+        "tax drag, opportunity cost, capital allocation"
+    ),
+    "Market/Regulatory Event Theme": (
+        "headline risk, regulatory pressure, market repricing"
+    ),
+    "Agent Health/System Theme": (
+        "report reliability, monitoring coverage, execution confidence"
+    )
+}
+
 
 def add_section(title, items):
 
@@ -1797,6 +1824,518 @@ def build_cross_agent_theme_report(signals):
     }
 
 
+def _unique_preserve_order(items):
+
+    unique_items = []
+    seen = set()
+
+    for item in items:
+        value = str(item or "").strip()
+
+        if not value:
+            continue
+
+        key = value.casefold()
+
+        if key not in seen:
+            unique_items.append(value)
+            seen.add(key)
+
+    return unique_items
+
+
+def _extract_portfolio_context(portfolio):
+
+    lines = _report_lines(portfolio)
+    allocations = _extract_portfolio_allocations(portfolio)
+    classifications = {}
+    allocation_details = {}
+    concentration = []
+    exposure_details = []
+    factor_details = []
+    low_conviction = []
+    taxable_positions = []
+
+    for line in _report_section(lines, "SECURITY CLASSIFICATION"):
+        match = re.search(
+            (
+                r"^([A-Z0-9.]+)\s+\|\s+Asset Class\s+([^|]+?)\s+\|\s+"
+                r"Security Type\s+([^|]+?)\s+\|\s+Risk Bucket\s+([^|]+)"
+            ),
+            line,
+            flags=re.IGNORECASE
+        )
+
+        if match:
+            ticker = match.group(1).upper()
+            classifications[ticker] = {
+                "asset_class": match.group(2).strip().casefold(),
+                "security_type": match.group(3).strip().casefold(),
+                "risk_bucket": match.group(4).strip().casefold()
+            }
+
+    for line in lines:
+        match = re.search(
+            (
+                r"^([A-Z0-9.]+)\s+\|\s+Allocation\s+"
+                r"(-?\d+(?:\.\d+)?)%\s+\|\s+Asset Class\s+"
+                r"([^|]+?)\s+\|\s+Factor\s+([^|]+?)\s+\|"
+            ),
+            line,
+            flags=re.IGNORECASE
+        )
+
+        if match:
+            ticker = match.group(1).upper()
+            allocation_details[ticker] = {
+                "allocation": float(match.group(2)),
+                "asset_class": match.group(3).strip().casefold(),
+                "factors": [
+                    factor.strip().casefold()
+                    for factor in match.group(4).split(",")
+                    if factor.strip()
+                ]
+            }
+
+    for line in _report_section(lines, "CONCENTRATION RISK DETAILS"):
+        parts = [part.strip() for part in line.split("|")]
+
+        if len(parts) >= 3 and parts[0] in {"HIGH", "MEDIUM", "LOW"}:
+            concentration.append({
+                "severity": parts[0],
+                "ticker": parts[1].upper(),
+                "detail": parts[2]
+            })
+
+    for line in _report_section(lines, "EXPOSURE DETAILS"):
+        match = re.search(r"^([^:]+):\s+(-?\d+(?:\.\d+)?)%", line)
+
+        if match:
+            exposure_details.append({
+                "name": match.group(1).strip(),
+                "allocation": float(match.group(2))
+            })
+
+    for line in _report_section(lines, "FACTOR EXPOSURE DETAILS"):
+        match = re.search(r"^([^:]+):\s+(-?\d+(?:\.\d+)?)%", line)
+
+        if match:
+            factor_details.append({
+                "name": match.group(1).strip(),
+                "allocation": float(match.group(2))
+            })
+
+    for line in _report_section(lines, "RESEARCH HEALTH DETAILS"):
+        parts = [part.strip() for part in line.split("|")]
+
+        if len(parts) >= 3 and "low conviction" in line.casefold():
+            low_conviction.append(parts[1].upper())
+
+    for line in _report_section(lines, "TAX OPTIMIZATION DETAILS"):
+        parts = [part.strip() for part in line.split("|")]
+
+        if len(parts) >= 2:
+            ticker = parts[0].upper()
+            account_type = parts[1].casefold()
+
+            if ticker in allocations and account_type == "taxable":
+                taxable_positions.append(ticker)
+
+    return {
+        "allocations": allocations,
+        "classifications": classifications,
+        "allocation_details": allocation_details,
+        "concentration": concentration,
+        "exposure_details": exposure_details,
+        "factor_details": factor_details,
+        "low_conviction": _unique_preserve_order(low_conviction),
+        "taxable_positions": _unique_preserve_order(taxable_positions)
+    }
+
+
+def _holding_allocation(context, ticker):
+
+    ticker = str(ticker or "").upper()
+    detail = context["allocation_details"].get(ticker, {})
+    allocation = detail.get("allocation")
+
+    if isinstance(allocation, (int, float)):
+        return float(allocation)
+
+    return float(context["allocations"].get(ticker, 0))
+
+
+def _holdings_by_context(context, asset_classes=(), factors=(),
+                         risk_buckets=()):
+
+    asset_classes = {value.casefold() for value in asset_classes}
+    factors = {value.casefold() for value in factors}
+    risk_buckets = {value.casefold() for value in risk_buckets}
+    tickers = []
+
+    for ticker in sorted(context["allocations"]):
+        classification = context["classifications"].get(ticker, {})
+        detail = context["allocation_details"].get(ticker, {})
+        asset_class = (
+            detail.get("asset_class")
+            or classification.get("asset_class")
+            or ""
+        )
+        holding_factors = set(detail.get("factors") or [])
+        risk_bucket = classification.get("risk_bucket") or ""
+        matches_asset = asset_class in asset_classes if asset_classes else False
+        matches_factor = bool(holding_factors & factors) if factors else False
+        matches_risk = risk_bucket in risk_buckets if risk_buckets else False
+
+        if matches_asset or matches_factor or matches_risk:
+            tickers.append(ticker)
+
+    return sorted(
+        tickers,
+        key=lambda ticker: (-_holding_allocation(context, ticker), ticker)
+    )
+
+
+def _matching_exposures(context, names):
+
+    wanted = tuple(name.casefold() for name in names)
+    matches = []
+
+    for exposure in context["exposure_details"]:
+        exposure_name = exposure["name"]
+
+        if any(name in exposure_name.casefold() for name in wanted):
+            matches.append(
+                f"{exposure_name} {exposure['allocation']:g}%"
+            )
+
+    return matches
+
+
+def _matching_factors(context, names):
+
+    wanted = tuple(name.casefold() for name in names)
+    matches = []
+
+    for factor in context["factor_details"]:
+        factor_name = factor["name"]
+
+        if any(name in factor_name.casefold() for name in wanted):
+            matches.append(f"{factor_name} {factor['allocation']:g}%")
+
+    return matches
+
+
+def _signal_tickers(signals):
+
+    tickers = []
+
+    for signal in signals or []:
+        metadata = signal.get("metadata") or {}
+        ticker = str(metadata.get("ticker") or "").strip().upper()
+
+        if ticker:
+            tickers.append(ticker)
+
+        text = f"{signal.get('title', '')} {signal.get('description', '')}"
+        tickers.extend(re.findall(r"\b[A-Z][A-Z0-9.]{1,5}\b", text))
+
+    return _unique_preserve_order(tickers)
+
+
+def _theme_impact_tier(theme, impacted_holdings, impacted_exposures,
+                       impacted_factors):
+
+    score = theme.get("theme_score", 0)
+    breadth = (
+        len(impacted_holdings)
+        + len(impacted_exposures)
+        + len(impacted_factors)
+    )
+
+    if score >= 95 and breadth >= 2:
+        return "CRITICAL"
+
+    if score >= 80 and breadth >= 1:
+        return "HIGH"
+
+    if score >= 60:
+        return "MEDIUM"
+
+    return "LOW"
+
+
+def _theme_impact_reason(theme_title, impacted_holdings, impacted_exposures,
+                         impacted_factors):
+
+    holding_text = (
+        "/".join(impacted_holdings[:4])
+        if impacted_holdings
+        else "no specific holdings"
+    )
+    exposure_text = (
+        ", ".join(impacted_exposures[:3])
+        if impacted_exposures
+        else "no direct exposure bucket"
+    )
+    factor_text = (
+        ", ".join(impacted_factors[:3])
+        if impacted_factors
+        else "no direct factor bucket"
+    )
+
+    return (
+        f"{theme_title} maps to {holding_text}; exposure link: "
+        f"{exposure_text}; factor link: {factor_text}."
+    )
+
+
+def _map_theme_to_portfolio_impact(theme, signals, context):
+
+    theme_title = theme["theme_title"]
+    supporting_signals = theme.get("supporting_signals", [])
+    impacted_holdings = []
+    impacted_exposures = []
+    impacted_factors = []
+
+    if theme_title == "Inflation/Energy Risk":
+        impacted_holdings.extend(
+            _holdings_by_context(
+                context,
+                asset_classes=("commodity",),
+                factors=("commodity",)
+            )
+        )
+        impacted_holdings.extend(
+            ticker
+            for ticker in ("VNOM", "ECO")
+            if ticker in context["allocations"]
+        )
+        impacted_exposures.extend(
+            _matching_exposures(context, ("commodity", "energy"))
+        )
+        impacted_exposures.append("Energy-linked exposure")
+        impacted_factors.extend(_matching_factors(context, ("commodity",)))
+        impacted_factors.extend(_matching_factors(context, ("growth",)))
+
+    elif theme_title == "Fed/Rates Risk":
+        impacted_holdings.extend(
+            _holdings_by_context(
+                context,
+                asset_classes=("bitcoin",),
+                factors=("growth", "bitcoin")
+            )
+        )
+        impacted_holdings.extend(
+            ticker
+            for ticker in ("SMCI", "IBIT", "SCHG", "UNH")
+            if ticker in context["allocations"]
+        )
+        impacted_exposures.extend(
+            _matching_exposures(context, ("equity", "bitcoin"))
+        )
+        impacted_exposures.append("Long-duration equity")
+        impacted_factors.extend(
+            _matching_factors(context, ("growth", "bitcoin"))
+        )
+
+    elif theme_title == "Recession/Growth Slowdown Risk":
+        impacted_holdings.extend(
+            _holdings_by_context(
+                context,
+                asset_classes=("equity", "bitcoin"),
+                risk_buckets=("high", "speculative")
+            )
+        )
+        impacted_exposures.extend(
+            _matching_exposures(context, ("equity", "bitcoin"))
+        )
+        impacted_factors.extend(
+            _matching_factors(context, ("growth", "small", "bitcoin"))
+        )
+
+    elif theme_title == "Portfolio Concentration Risk":
+        impacted_holdings.extend(
+            item["ticker"]
+            for item in context["concentration"]
+            if item["severity"] in {"HIGH", "MEDIUM"}
+        )
+        impacted_exposures.extend(
+            _matching_exposures(context, ("equity",))
+        )
+        impacted_exposures.append("Top 3 concentration")
+        impacted_factors.extend(_matching_factors(context, ("growth",)))
+
+    elif theme_title == "Research Quality Risk":
+        impacted_holdings.extend(context["low_conviction"])
+        impacted_holdings.extend(
+            ticker
+            for ticker in _signal_tickers(supporting_signals)
+            if ticker in context["allocations"]
+        )
+        impacted_exposures.append("Low-conviction holdings")
+        impacted_factors.extend(
+            _matching_factors(context, ("growth", "commodity", "bitcoin"))
+        )
+
+    elif theme_title == "Tax/Capital Deployment Theme":
+        impacted_holdings.extend(context["taxable_positions"])
+        impacted_holdings.extend(
+            ticker
+            for ticker in _signal_tickers(supporting_signals)
+            if ticker in context["allocations"]
+        )
+        impacted_exposures.extend(("Taxable account", "Available cash"))
+
+    elif theme_title == "Market/Regulatory Event Theme":
+        impacted_holdings.extend(
+            ticker
+            for ticker in _signal_tickers(supporting_signals)
+            if ticker in context["allocations"]
+        )
+        impacted_exposures.extend(
+            _matching_exposures(context, ("equity", "bitcoin", "commodity"))
+        )
+
+    elif theme_title == "Agent Health/System Theme":
+        impacted_exposures.extend(("Report reliability", "Monitoring coverage"))
+
+    impacted_holdings = _unique_preserve_order(impacted_holdings)
+    impacted_exposures = _unique_preserve_order(impacted_exposures)
+    impacted_factors = _unique_preserve_order(impacted_factors)
+    impact_tier = _theme_impact_tier(
+        theme,
+        impacted_holdings,
+        impacted_exposures,
+        impacted_factors
+    )
+
+    return {
+        "theme_title": theme_title,
+        "theme_score": theme.get("theme_score", 0),
+        "impacted_holdings": impacted_holdings,
+        "impacted_exposures": impacted_exposures,
+        "impacted_factors": impacted_factors,
+        "risk_channel": THEME_RISK_CHANNELS.get(
+            theme_title,
+            "portfolio sensitivity, risk appetite, valuation"
+        ),
+        "impact_reason": _theme_impact_reason(
+            theme_title,
+            impacted_holdings,
+            impacted_exposures,
+            impacted_factors
+        ),
+        "impact_tier": impact_tier
+    }
+
+
+def build_theme_impact_map(themes, signals, portfolio):
+
+    context = _extract_portfolio_context(portfolio)
+    impacts = [
+        _map_theme_to_portfolio_impact(theme, signals, context)
+        for theme in themes or []
+    ]
+
+    return sorted(
+        impacts,
+        key=lambda impact: (
+            -impact["theme_score"],
+            THEME_TITLE_ORDER.index(impact["theme_title"]),
+            impact["theme_title"].casefold()
+        )
+    )
+
+
+def _theme_impact_summary(impact):
+
+    if not impact:
+        return "No theme-to-portfolio impact mapping available."
+
+    theme_title = impact["theme_title"]
+    holdings = impact["impacted_holdings"]
+    exposures = impact["impacted_exposures"]
+    factors = impact["impacted_factors"]
+
+    if holdings and factors:
+        return (
+            f"{theme_title} touches {'/'.join(holdings[:3])} directly "
+            f"and {', '.join(factors[:2])} indirectly."
+        )
+
+    if holdings:
+        return (
+            f"{theme_title} touches {'/'.join(holdings[:4])} through "
+            f"{impact['risk_channel']}."
+        )
+
+    if exposures:
+        return (
+            f"{theme_title} maps mainly to {', '.join(exposures[:3])}."
+        )
+
+    return f"{theme_title} has no direct mapped portfolio exposure."
+
+
+def build_theme_impact_report(themes, signals, portfolio):
+
+    impacts = build_theme_impact_map(themes, signals, portfolio)
+    dominant = impacts[0] if impacts else None
+    summary = [
+        "Theme Impact Mapping Status: ACTIVE",
+        f"Mapped Themes: {len(impacts)}",
+        (
+            f"Dominant Theme Impact: {_theme_impact_summary(dominant)}"
+            if dominant
+            else "Dominant Theme Impact: None"
+        ),
+        (
+            f"Dominant Impact Tier: {dominant['impact_tier']}"
+            if dominant
+            else "Dominant Impact Tier: LOW"
+        ),
+        "",
+        (
+            "Theme impact mapping connects deterministic cross-agent "
+            "themes to existing portfolio holdings, exposures, factors, "
+            "and concentration details."
+        )
+    ]
+    details = []
+
+    for number, impact in enumerate(impacts[:8], start=1):
+        details.extend([
+            f"{number}. {impact['theme_title']}",
+            f"   Theme Score: {impact['theme_score']}",
+            f"   Impact Tier: {impact['impact_tier']}",
+            (
+                "   Impacted Holdings: "
+                f"{', '.join(impact['impacted_holdings']) or 'None'}"
+            ),
+            (
+                "   Impacted Exposures: "
+                f"{', '.join(impact['impacted_exposures']) or 'None'}"
+            ),
+            (
+                "   Impacted Factors: "
+                f"{', '.join(impact['impacted_factors']) or 'None'}"
+            ),
+            f"   Risk Channel: {impact['risk_channel']}",
+            f"   Impact Reason: {impact['impact_reason']}",
+            ""
+        ])
+
+    if not details:
+        details.append("No theme impact mappings detected.")
+
+    return {
+        "summary": summary,
+        "details": details,
+        "impacts": impacts
+    }
+
+
 def build_signal_magnitude_report(signals):
 
     ranked_signals = rank_weighted_signals(signals)
@@ -2396,12 +2935,24 @@ def _dominant_theme(theme_report):
     return themes[0] if themes else None
 
 
+def _dominant_theme_impact(theme_impact_report):
+
+    if isinstance(theme_impact_report, dict):
+        impacts = theme_impact_report.get("impacts", [])
+    else:
+        impacts = theme_impact_report or []
+
+    return impacts[0] if impacts else None
+
+
 def build_signal_driven_executive_summary(registry, signals,
-                                          theme_report=None):
+                                          theme_report=None,
+                                          theme_impact_report=None):
 
     weighted_signals = rank_weighted_signals(signals)
     top_priority = weighted_signals[0] if weighted_signals else None
     dominant_theme = _dominant_theme(theme_report)
+    dominant_impact = _dominant_theme_impact(theme_impact_report)
     macro_environment = _select_macro_environment_signal(weighted_signals)
     portfolio_risk = _select_portfolio_risk_signal(weighted_signals)
     portfolio_opportunity = select_signal_by_category(
@@ -2432,6 +2983,11 @@ def build_signal_driven_executive_summary(registry, signals,
             f"Theme Reason: {dominant_theme['theme_reason']}"
             if dominant_theme
             else "Theme Reason: No cross-agent themes detected."
+        ),
+        (
+            f"Theme Impact: {_theme_impact_summary(dominant_impact)}"
+            if dominant_impact
+            else "Theme Impact: No mapped portfolio impact."
         ),
         "",
         (
@@ -2526,7 +3082,8 @@ def determine_full_report_trigger(system_health, signals, portfolio_risk):
     return "No immediate full-report review required."
 
 
-def build_echo_executive_brief(registry, signals, theme_report=None):
+def build_echo_executive_brief(registry, signals, theme_report=None,
+                               theme_impact_report=None):
 
     weighted_signals = rank_weighted_signals(signals)
     system_health = determine_signal_driven_system_health(
@@ -2535,6 +3092,7 @@ def build_echo_executive_brief(registry, signals, theme_report=None):
     )
     top_priority = weighted_signals[0] if weighted_signals else None
     dominant_theme = _dominant_theme(theme_report)
+    dominant_impact = _dominant_theme_impact(theme_impact_report)
     portfolio_risk = _select_portfolio_risk_signal(weighted_signals)
     macro_backdrop = _select_macro_environment_signal(weighted_signals)
     market_watch = _select_market_event_signal(weighted_signals)
@@ -2552,6 +3110,11 @@ def build_echo_executive_brief(registry, signals, theme_report=None):
             f"Dominant Theme: {_concise(dominant_theme['theme_title'], limit=140)}"
             if dominant_theme
             else "Dominant Theme: None"
+        ),
+        (
+            f"Theme Impact: {_concise(_theme_impact_summary(dominant_impact), limit=140)}"
+            if dominant_impact
+            else "Theme Impact: No mapped portfolio impact."
         ),
         (
             f"Portfolio Risk: {_concise(portfolio_risk['title'], limit=140)}"
@@ -3055,6 +3618,8 @@ def _assemble_report_bundle(
         ("ECHO EXECUTIVE SUMMARY", "executive_summary"),
         ("CROSS-AGENT THEME SUMMARY", "theme_summary"),
         ("CROSS-AGENT THEME DETAILS", "theme_details"),
+        ("THEME IMPACT SUMMARY", "theme_impact_summary"),
+        ("THEME IMPACT DETAILS", "theme_impact_details"),
         ("CROSS-AGENT PRIORITY SUMMARY", "priority_summary"),
         ("CROSS-AGENT PRIORITY DETAILS", "priority_details"),
         ("AGENT SIGNAL BUS SUMMARY", "signal_bus_summary"),
@@ -3205,15 +3770,22 @@ def build_morning_brief(
     signal_magnitude_report = build_signal_magnitude_report(signals)
     priority_report = build_cross_agent_priority_report(signals)
     theme_report = build_cross_agent_theme_report(signals)
+    theme_impact_report = build_theme_impact_report(
+        theme_report["themes"],
+        signals,
+        portfolio
+    )
     executive_summary = build_signal_driven_executive_summary(
         registry,
         signals,
-        theme_report
+        theme_report,
+        theme_impact_report
     )
     executive_brief = build_echo_executive_brief(
         registry,
         signals,
-        theme_report
+        theme_report,
+        theme_impact_report
     )
 
     sections = {
@@ -3221,6 +3793,8 @@ def build_morning_brief(
         "executive_summary": executive_summary,
         "theme_summary": theme_report["summary"],
         "theme_details": theme_report["details"],
+        "theme_impact_summary": theme_impact_report["summary"],
+        "theme_impact_details": theme_impact_report["details"],
         "priority_summary": priority_report["summary"],
         "priority_details": priority_report["details"],
         "signal_bus_summary": signal_bus_report["summary"],
