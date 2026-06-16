@@ -422,6 +422,14 @@ def _full_report_lines(report):
     return [str(line).strip() for line in lines]
 
 
+def _combined_report_lines(report):
+
+    if isinstance(report, dict):
+        return _report_lines(report) + _full_report_lines(report)
+
+    return _report_lines(report)
+
+
 def _field_value(lines, label):
 
     prefix = f"{label}:"
@@ -1039,7 +1047,7 @@ def _extract_portfolio_allocations(portfolio):
 
     allocations = {}
     allocation_lines = _report_section(
-        _report_lines(portfolio),
+        _combined_report_lines(portfolio),
         "TICKER ALLOCATION"
     )
 
@@ -1853,7 +1861,7 @@ def _unique_preserve_order(items):
 
 def _extract_portfolio_context(portfolio):
 
-    lines = _report_lines(portfolio)
+    lines = _combined_report_lines(portfolio)
     allocations = _extract_portfolio_allocations(portfolio)
     classifications = {}
     allocation_details = {}
@@ -3033,7 +3041,7 @@ def determine_top_macro_environment(macro):
 
 def determine_top_portfolio_risk(portfolio):
 
-    lines = _report_lines(portfolio)
+    lines = _combined_report_lines(portfolio)
     concentration_details = _report_section(
         lines,
         "CONCENTRATION RISK DETAILS"
@@ -3846,6 +3854,159 @@ def _numbered_after(lines, heading, limit=3):
     return items
 
 
+def _detect_query_tickers(query, sections):
+
+    portfolio_context = _extract_portfolio_context(sections.get("portfolio"))
+    known_tickers = sorted(
+        portfolio_context["allocations"],
+        key=lambda ticker: (-len(ticker), ticker)
+    )
+    text = " ".join(str(query or "").split())
+    detected = []
+
+    for ticker in known_tickers:
+        if re.search(rf"\b{re.escape(ticker)}\b", text, flags=re.IGNORECASE):
+            detected.append(ticker)
+
+    uppercase_tokens = re.findall(r"\b[A-Z][A-Z0-9.]{1,5}\b", text)
+
+    for token in uppercase_tokens:
+        token = token.upper()
+
+        if token in portfolio_context["allocations"]:
+            detected.append(token)
+
+    return _unique_preserve_order(detected)
+
+
+def classify_echo_multi_agent_intent(query, sections=None):
+
+    text = " ".join(str(query or "").split()).casefold()
+
+    if not text:
+        return "empty"
+
+    if sections and _detect_query_tickers(query, sections):
+        if any(
+            term in text
+            for term in (
+                "risk",
+                "risks",
+                "affected",
+                "impact",
+                "conviction",
+                "thesis",
+                "catalyst",
+                "monitor",
+                "exposed",
+                "exposure"
+            )
+        ):
+            return "position risk"
+
+    if any(term in text for term in ("conflict", "mismatch", "tension")):
+        return "theme/conflict review"
+
+    if any(
+        term in text
+        for term in ("allocation", "concentration", "overweight",
+                     "underweight", "too large", "exposed am i")
+    ):
+        return "allocation/concentration review"
+
+    if any(
+        term in text
+        for term in ("inflation", "energy", "rates", "rate risk", "fed",
+                     "macro", "regime", "yield")
+    ):
+        return "macro impact"
+
+    if any(
+        term in text
+        for term in ("news", "narrative", "market", "headline",
+                     "catalyst", "today")
+    ):
+        return "market/news impact"
+
+    if any(
+        term in text
+        for term in ("research", "conviction", "thesis", "weak holding",
+                     "weak holdings", "quality")
+    ):
+        return "research quality"
+
+    if any(
+        term in text
+        for term in ("portfolio risk", "biggest risk", "top risk",
+                     "stress", "drawdown", "crisis")
+    ):
+        return "portfolio risk"
+
+    if any(
+        term in text
+        for term in ("top priority", "highest priority", "monitor",
+                     "review", "what matters", "watch")
+    ):
+        return "general top-priority review"
+
+    return "general top-priority review"
+
+
+def _echo_multi_agent_supported_intent(intent):
+
+    return intent in {
+        "position risk",
+        "portfolio risk",
+        "macro impact",
+        "market/news impact",
+        "research quality",
+        "theme/conflict review",
+        "allocation/concentration review",
+        "general top-priority review"
+    }
+
+
+def _should_route_echo_multi_agent(query, context=None):
+
+    sections = _query_sections(context)
+    intent = classify_echo_multi_agent_intent(query, sections)
+
+    if not _echo_multi_agent_supported_intent(intent):
+        return False
+
+    simple_intent = classify_query_intent(query)
+    text = " ".join(str(query or "").split()).casefold()
+
+    if simple_intent in {
+        "top priority",
+        "themes",
+        "impacts",
+        "conflicts",
+        "action queue",
+        "market watch",
+        "macro backdrop",
+        "portfolio risk"
+    } and not any(
+        term in text
+        for term in (
+            "why",
+            "how",
+            "biggest",
+            "main",
+            "monitor",
+            "today",
+            "affect",
+            "impact",
+            "exposed",
+            "risks to",
+            "risk to"
+        )
+    ):
+        return False
+
+    return True
+
+
 def _answer_from_lines(agent_name, query, answer, confidence="HIGH",
                        requires_full_report=False, notes=""):
 
@@ -4043,6 +4204,13 @@ def answer_research_query(query, context):
             line for line in health
             if "low conviction" in line.casefold()
         ]
+
+        if not weak:
+            weak = [
+                line for line in research_lines + portfolio_lines
+                if "low conviction" in line.casefold()
+            ]
+
         return _answer_from_lines(
             "Research Agent",
             query,
@@ -4149,6 +4317,526 @@ def answer_echo_query(query, context):
     )
 
 
+def _multi_agent_route_plan(intent, tickers):
+
+    if intent == "position risk":
+        return [
+            ("Portfolio Manager", "what is my concentration risk?"),
+            ("Research Agent", "which holdings have weak conviction?"),
+            ("Macro Agent", "what is the current regime?"),
+            ("News Agent", "what is the top market narrative?")
+        ]
+
+    if intent == "portfolio risk":
+        return [
+            ("Portfolio Manager", "what is the top portfolio risk?"),
+            ("Macro Agent", "what is the current regime?"),
+            ("News Agent", "what is the top market narrative?"),
+            ("Research Agent", "which holdings have weak conviction?")
+        ]
+
+    if intent == "macro impact":
+        return [
+            ("Macro Agent", "what is the current regime?"),
+            ("Portfolio Manager", "what is my concentration risk?"),
+            ("News Agent", "what is the top market narrative?"),
+            ("Research Agent", "which holdings have weak conviction?")
+        ]
+
+    if intent == "market/news impact":
+        return [
+            ("News Agent", "what is the top market narrative?"),
+            ("Macro Agent", "what is the current regime?"),
+            ("Portfolio Manager", "what is the top portfolio risk?"),
+            ("Research Agent", "which holdings have weak conviction?")
+        ]
+
+    if intent == "research quality":
+        return [
+            ("Research Agent", "which holdings have weak conviction?"),
+            ("Portfolio Manager", "what is my concentration risk?"),
+            ("Macro Agent", "what is the current regime?")
+        ]
+
+    if intent == "theme/conflict review":
+        return [
+            ("Portfolio Manager", "what is my concentration risk?"),
+            ("Macro Agent", "what is the current regime?"),
+            ("News Agent", "what is the top market narrative?"),
+            ("Research Agent", "which holdings have weak conviction?")
+        ]
+
+    if intent == "allocation/concentration review":
+        return [
+            ("Portfolio Manager", "what is my concentration risk?"),
+            ("Research Agent", "which holdings have weak conviction?"),
+            ("Macro Agent", "what is the current regime?")
+        ]
+
+    return [
+        ("Portfolio Manager", "what is the top portfolio risk?"),
+        ("Macro Agent", "what is the current regime?"),
+        ("News Agent", "what is the top market narrative?"),
+        ("Research Agent", "which holdings have weak conviction?")
+    ]
+
+
+def _source_answer_map(route_plan, context):
+
+    source_answers = {}
+
+    for agent_name, agent_query in route_plan:
+        result = answer_agent_query(agent_name, agent_query, context)
+
+        if result.get("status") == "ANSWERED":
+            source_answers[result["agent_name"]] = result.get("answer", "")
+        else:
+            source_answers[result.get("agent_name", agent_name)] = (
+                result.get("answer", "No answer returned.")
+            )
+
+    return source_answers
+
+
+def _ticker_allocation_summary(ticker, portfolio_context):
+
+    target = portfolio_context["allocation_targets"].get(ticker, {})
+    allocation = target.get("allocation")
+    target_weight = target.get("target")
+    difference = target.get("difference")
+    concentration = next(
+        (
+            item for item in portfolio_context["concentration"]
+            if item["ticker"] == ticker
+        ),
+        None
+    )
+    parts = []
+
+    if isinstance(allocation, (int, float)):
+        if isinstance(target_weight, (int, float)) and isinstance(
+            difference,
+            (int, float)
+        ):
+            parts.append(
+                f"{ticker} is {allocation:g}% of the portfolio versus "
+                f"a {target_weight:g}% target ({difference:+g}%)."
+            )
+        else:
+            parts.append(f"{ticker} is {allocation:g}% of the portfolio.")
+
+    if concentration:
+        parts.append(
+            f"Portfolio Manager flags {ticker} as "
+            f"{concentration['severity'].lower()} concentration: "
+            f"{concentration['detail']}."
+        )
+
+    if ticker in portfolio_context["overweight_holdings"]:
+        parts.append(f"{ticker} is also marked overweight.")
+
+    return " ".join(parts)
+
+
+def _ticker_research_summary(ticker, research_lines, portfolio_context):
+
+    ticker_lines = [
+        line for line in research_lines
+        if re.search(rf"\b{re.escape(ticker)}\b", line)
+    ]
+    low_conviction = ticker in portfolio_context["low_conviction"] or any(
+        "conviction low" in line.casefold()
+        or "low conviction" in line.casefold()
+        for line in ticker_lines
+    )
+
+    if low_conviction:
+        return (
+            f"Research Agent classifies {ticker} as weak or low conviction."
+        )
+
+    if ticker_lines:
+        return f"Research Agent has coverage for {ticker}: {ticker_lines[0]}."
+
+    return f"Research Agent has no direct {ticker} issue in the current report."
+
+
+def _ticker_theme_summary(ticker, echo_lines):
+
+    related = []
+
+    for index, line in enumerate(echo_lines):
+        if not re.search(rf"\b{re.escape(ticker)}\b", line):
+            continue
+
+        cleaned = re.sub(r"^\d+\.\s+", "", line).strip()
+
+        if "conflict" in cleaned.casefold():
+            reason = next(
+                (
+                    candidate.strip().split(":", 1)[1].strip()
+                    for candidate in echo_lines[index + 1:index + 6]
+                    if candidate.strip().casefold().startswith(
+                        "conflict reason:"
+                    )
+                    and ":" in candidate
+                ),
+                ""
+            )
+
+            if reason:
+                related.append(f"{cleaned}: {reason}")
+            else:
+                related.append(cleaned)
+        else:
+            related.append(cleaned)
+
+    conflict = next(
+        (line for line in related if "conflict" in line.casefold()),
+        ""
+    )
+    impact = next(
+        (line for line in related if "impact reason" in line.casefold()),
+        ""
+    )
+
+    if conflict:
+        return conflict
+
+    if impact:
+        return impact
+
+    if related:
+        return related[0]
+
+    return ""
+
+
+def _macro_pressure_summary(ticker, portfolio_context, macro_lines):
+
+    target = portfolio_context["allocation_details"].get(ticker, {})
+    factors = set(target.get("factors") or [])
+    inflation = _first_field(macro_lines, ("Inflation Trend",))
+    rates = _first_field(macro_lines, ("Policy Rate",))
+    regime = _first_field(macro_lines, ("Current Macro Regime",))
+
+    if "growth" in factors and (
+        "ris" in inflation.casefold()
+        or "stress" in regime.casefold()
+        or "restrict" in rates.casefold()
+    ):
+        return (
+            "Macro conditions add secondary pressure because inflation/rates "
+            "themes can pressure growth assets."
+        )
+
+    if "commodity" in factors and "ris" in _first_field(
+        macro_lines,
+        ("Energy",)
+    ).casefold():
+        return (
+            "Macro conditions are relevant because energy is rising and the "
+            "holding maps to commodity exposure."
+        )
+
+    return ""
+
+
+def _news_direct_catalyst_summary(ticker, news_lines):
+
+    direct = [
+        line for line in news_lines
+        if re.search(rf"\b{re.escape(ticker)}\b", line)
+    ]
+
+    if direct:
+        return f"News Agent shows a direct {ticker} mention: {direct[0]}."
+
+    return (
+        f"News Agent does not show a direct {ticker}-specific catalyst in "
+        "the current report."
+    )
+
+
+def _position_risk_answer(tickers, sections):
+
+    portfolio_context = _extract_portfolio_context(sections.get("portfolio"))
+    research_lines = _lines_from_section(sections, "research", True)
+    macro_lines = _lines_from_section(sections, "macro", True)
+    news_lines = _lines_from_section(sections, "news", True)
+    echo_lines = (
+        sections.get("theme_impact_details", [])
+        + sections.get("theme_conflict_details", [])
+        + sections.get("theme_details", [])
+    )
+    sentences = []
+
+    for ticker in tickers:
+        reasons = []
+        concentration = any(
+            item["ticker"] == ticker
+            for item in portfolio_context["concentration"]
+        )
+        low_conviction = ticker in portfolio_context["low_conviction"]
+        macro_pressure = _macro_pressure_summary(
+            ticker,
+            portfolio_context,
+            macro_lines
+        )
+
+        if concentration:
+            reasons.append("position size")
+
+        if low_conviction:
+            reasons.append("weak conviction")
+
+        if macro_pressure:
+            reasons.append("macro sensitivity")
+
+        if not reasons:
+            reasons.append("portfolio exposure")
+
+        sentences.append(
+            f"{ticker} risk is mainly " + " plus ".join(reasons) + "."
+        )
+        sentences.append(_ticker_allocation_summary(ticker, portfolio_context))
+        sentences.append(
+            _ticker_research_summary(ticker, research_lines, portfolio_context)
+        )
+
+        theme_summary = _ticker_theme_summary(ticker, echo_lines)
+
+        if theme_summary:
+            sentences.append(theme_summary)
+
+        if macro_pressure:
+            sentences.append(macro_pressure)
+
+        sentences.append(_news_direct_catalyst_summary(ticker, news_lines))
+
+    return " ".join(sentence for sentence in sentences if sentence)
+
+
+def _rates_exposure_summary(sections):
+
+    portfolio_context = _extract_portfolio_context(sections.get("portfolio"))
+    growth = next(
+        (
+            factor for factor in portfolio_context["factor_details"]
+            if factor["name"].casefold() == "growth"
+        ),
+        None
+    )
+    equity = next(
+        (
+            exposure for exposure in portfolio_context["exposure_details"]
+            if exposure["name"].casefold() == "equity"
+        ),
+        None
+    )
+    details = []
+
+    if growth:
+        details.append(f"Growth factor exposure is {growth['allocation']:g}%.")
+
+    if equity:
+        details.append(f"Equity exposure is {equity['allocation']:g}%.")
+
+    return " ".join(details)
+
+
+def _echo_multi_agent_conclusion(intent, tickers, sections, source_answers):
+
+    executive_summary = sections.get("executive_summary", [])
+    executive_brief = sections.get("executive_brief", [])
+    macro_lines = _lines_from_section(sections, "macro", True)
+    news_lines = _lines_from_section(sections, "news", True)
+    portfolio_lines = _lines_from_section(sections, "portfolio", True)
+    answer_parts = []
+
+    if intent == "position risk" and tickers:
+        answer_parts.append(_position_risk_answer(tickers, sections))
+
+    elif intent == "macro impact":
+        impact = _first_field(executive_summary, ("Theme Impact",))
+        macro = source_answers.get("Macro Agent", "")
+        answer_parts.append(
+            f"Macro impact is led by {macro} {impact or ''}".strip()
+        )
+        rates_summary = _rates_exposure_summary(sections)
+
+        if rates_summary:
+            answer_parts.append(rates_summary)
+
+    elif intent == "market/news impact":
+        market = _first_field(executive_brief, ("Market Watch",))
+        reason = _first_field(news_lines, ("Top Narrative Reason",))
+        impact = _first_field(executive_summary, ("Theme Impact",))
+        answer_parts.append(
+            f"Market/news impact is led by {market or 'the top market narrative'}."
+        )
+
+        if reason:
+            answer_parts.append(reason)
+
+        if impact:
+            answer_parts.append(impact)
+
+    elif intent == "research quality":
+        weakest = _first_field(
+            _report_section(
+                _lines_from_section(sections, "research", True),
+                "RESEARCH AGENT EXECUTIVE BRIEF"
+            ),
+            ("Lowest Conviction Holding",)
+        ) or _field_value(
+            _lines_from_section(sections, "research", True),
+            "Lowest Conviction Holding"
+        )
+        answer_parts.append(source_answers.get("Research Agent", ""))
+
+        if weakest:
+            answer_parts.append(f"Lowest conviction holding: {weakest}.")
+
+    elif intent == "theme/conflict review":
+        conflict = _first_field(executive_summary, ("Key Conflict",))
+        reason = _first_field(executive_summary, ("Conflict Reason",))
+        conflict_summary = _compact_lines(
+            sections.get("theme_conflict_summary", [])
+            + sections.get("theme_conflict_details", []),
+            limit=8
+        )
+        answer_parts.append(
+            f"Biggest conflict: {conflict or 'None identified.'}"
+        )
+
+        if reason:
+            answer_parts.append(reason)
+
+        answer_parts.append(conflict_summary)
+
+    elif intent == "allocation/concentration review":
+        answer_parts.append(source_answers.get("Portfolio Manager", ""))
+        conflict = _first_field(executive_summary, ("Key Conflict",))
+
+        if conflict:
+            answer_parts.append(f"Related conflict: {conflict}.")
+
+        answer_parts.append(_rates_exposure_summary(sections))
+
+    elif intent == "portfolio risk":
+        answer_parts.append(source_answers.get("Portfolio Manager", ""))
+        answer_parts.append(source_answers.get("Macro Agent", ""))
+        answer_parts.append(source_answers.get("Research Agent", ""))
+
+    else:
+        top_priority = _first_field(executive_summary, ("Top Priority",))
+        market = _first_field(executive_brief, ("Market Watch",))
+        macro = _first_field(executive_brief, ("Macro Backdrop",))
+        risk = _first_field(executive_brief, ("Portfolio Risk",))
+        answer_parts.append(
+            f"Top priority is {top_priority or 'none identified'}."
+        )
+
+        if risk:
+            answer_parts.append(f"Portfolio risk: {risk}.")
+
+        if macro:
+            answer_parts.append(f"Macro backdrop: {macro}.")
+
+        if market:
+            answer_parts.append(f"Market watch: {market}.")
+
+    if intent in {"macro impact", "allocation/concentration review"}:
+        text = " ".join(
+            " ".join(str(part or "").split())
+            for part in answer_parts
+        )
+        lowered = text.casefold()
+
+        if "rate" in lowered or "fed" in lowered or "inflation" in lowered:
+            answer_parts.append(
+                "Conclusion: monitor rates, inflation, and growth-sensitive "
+                "portfolio exposure."
+            )
+
+    if not answer_parts:
+        answer_parts.append(
+            "Echo found no supported deterministic multi-agent conclusion."
+        )
+
+    return _concise(" ".join(part for part in answer_parts if part), limit=1200)
+
+
+def answer_echo_multi_agent_query(query, context=None):
+
+    query_context = _query_context(context)
+    sections = query_context["sections"]
+    normalized_query = " ".join(str(query or "").split())
+    intent = classify_echo_multi_agent_intent(normalized_query, sections)
+    tickers = _detect_query_tickers(normalized_query, sections)
+
+    if not normalized_query:
+        return {
+            "agent_name": "Echo",
+            "query": "",
+            "status": "EMPTY_QUERY",
+            "routed_agents": [],
+            "answer": "Query cannot be empty.",
+            "confidence": "LOW",
+            "source_answers": {},
+            "requires_full_report": False,
+            "notes": "Provide a non-empty query for Echo."
+        }
+
+    if not _echo_multi_agent_supported_intent(intent):
+        return {
+            "agent_name": "Echo",
+            "query": normalized_query,
+            "status": "UNSUPPORTED_QUERY",
+            "routed_agents": [],
+            "answer": (
+                "Echo multi-agent response engine supports position risk, "
+                "portfolio risk, macro impact, market/news impact, research "
+                "quality, theme/conflict review, allocation/concentration "
+                "review, and general top-priority review."
+            ),
+            "confidence": "LOW",
+            "source_answers": {},
+            "requires_full_report": False,
+            "notes": "No deterministic multi-agent query intent matched."
+        }
+
+    route_plan = _multi_agent_route_plan(intent, tickers)
+    source_answers = _source_answer_map(route_plan, query_context)
+    answer = _echo_multi_agent_conclusion(
+        intent,
+        tickers,
+        sections,
+        source_answers
+    )
+    routed_agents = [agent_name for agent_name, _ in route_plan]
+    confidence = "HIGH" if source_answers else "LOW"
+
+    if intent == "position risk" and not tickers:
+        confidence = "MEDIUM"
+
+    return {
+        "agent_name": "Echo",
+        "query": normalized_query,
+        "status": "ANSWERED",
+        "routed_agents": routed_agents,
+        "answer": answer,
+        "confidence": confidence,
+        "source_answers": source_answers,
+        "requires_full_report": True,
+        "notes": (
+            "Echo multi-agent response engine used deterministic routing; "
+            "no AI/LLM commentary or external APIs were used."
+        )
+    }
+
+
 def answer_agent_query(agent_name, query, context=None):
 
     normalized_query = " ".join(str(query or "").split())
@@ -4165,6 +4853,9 @@ def answer_agent_query(agent_name, query, context=None):
                 False,
                 "Provide a non-empty query for Echo."
             )
+
+        if _should_route_echo_multi_agent(normalized_query, context):
+            return answer_echo_multi_agent_query(normalized_query, context)
 
         return answer_echo_query(normalized_query, context)
 
@@ -4365,20 +5056,30 @@ def get_query_interface_report(registry):
         ),
         "Unknown Agent Handling: ENABLED",
         "Empty Query Handling: ENABLED",
+        "Echo Multi-Agent Response Engine: ACTIVE",
+        "Echo Multi-Agent Routing: DETERMINISTIC",
         "Deterministic Only: YES",
         "AI Integration: NONE",
         "",
         (
             "Query answers use existing generated reports, signals, themes, "
             "theme impacts, and conflicts."
+        ),
+        (
+            "Echo can route one user question across active report agents "
+            "and synthesize a deterministic response."
         )
     ]
     details = [
         (
             "Echo | Query Mode SUPPORTED | Supported Types top priority, "
             "themes, impacts, conflicts, action queue, market watch, "
-            "macro backdrop, portfolio risk | Example What is the top "
-            "priority?"
+            "macro backdrop, portfolio risk, multi-agent position risk, "
+            "multi-agent macro impact, multi-agent market/news impact, "
+            "multi-agent research quality, multi-agent allocation/"
+            "concentration review, multi-agent top-priority review | "
+            "Routing deterministic | AI/LLM commentary NONE | Example "
+            "What are the biggest risks to SMCI?"
         )
     ]
 
