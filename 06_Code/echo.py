@@ -307,6 +307,36 @@ SIGNAL_CATEGORY_WEIGHTS = {
     "System Infrastructure": 3
 }
 
+THEME_CATEGORY_IMPORTANCE = {
+    "Inflation/Energy Risk": 18,
+    "Fed/Rates Risk": 16,
+    "Recession/Growth Slowdown Risk": 16,
+    "Portfolio Concentration Risk": 15,
+    "Research Quality Risk": 14,
+    "Tax/Capital Deployment Theme": 10,
+    "Market/Regulatory Event Theme": 10,
+    "Agent Health/System Theme": 18
+}
+
+THEME_TITLE_ORDER = (
+    "Inflation/Energy Risk",
+    "Fed/Rates Risk",
+    "Recession/Growth Slowdown Risk",
+    "Portfolio Concentration Risk",
+    "Research Quality Risk",
+    "Tax/Capital Deployment Theme",
+    "Market/Regulatory Event Theme",
+    "Agent Health/System Theme"
+)
+
+THEME_SEVERITY_WEIGHTS = {
+    "CRITICAL": 20,
+    "HIGH": 14,
+    "MEDIUM": 8,
+    "LOW": 3,
+    "INFO": 1
+}
+
 
 def add_section(title, items):
 
@@ -1464,6 +1494,309 @@ def build_signal_weighting_report(signals):
     }
 
 
+def _signal_theme_titles(signal):
+
+    title = str(signal.get("title") or "")
+    description = str(signal.get("description") or "")
+    signal_type = str(signal.get("signal_type") or "")
+    category = str(signal.get("category") or "")
+    metadata = signal.get("metadata") or {}
+    metadata_text = " ".join(
+        str(value)
+        for value in metadata.values()
+        if value is not None
+    )
+    text = " ".join(
+        (title, description, signal_type, category, metadata_text)
+    ).casefold()
+    themes = []
+
+    inflation_energy_terms = any(
+        term in text
+        for term in (
+            "inflation",
+            "energy",
+            "oil",
+            "crude",
+            "iran",
+            "hormuz",
+            "middle east",
+            "vnom",
+            "eco"
+        )
+    )
+    inflation_energy_context = (
+        category == "Macro Risk"
+        or (
+            category == "Market Event"
+            and signal_type in {"NEWS_NARRATIVE", "WORLD_EVENT"}
+        )
+        or (
+            category in {"Portfolio Risk", "Portfolio Opportunity"}
+            and any(term in text for term in ("energy", "commodity", "vnom", "eco"))
+        )
+    )
+
+    if inflation_energy_terms and inflation_energy_context:
+        themes.append("Inflation/Energy Risk")
+
+    rates_terms = any(
+        term in text
+        for term in (
+            "fed",
+            "federal reserve",
+            "fomc",
+            "powell",
+            "warsh",
+            "rate",
+            "rates",
+            "yield",
+            "treasury"
+        )
+    )
+    rates_context = category in {
+        "Macro Risk",
+        "Macro Environment",
+        "Market Event",
+        "Portfolio Risk"
+    }
+
+    if rates_terms and rates_context:
+        themes.append("Fed/Rates Risk")
+
+    recession_terms = any(
+        term in text
+        for term in (
+            "recession",
+            "growth slowdown",
+            "slowdown",
+            "labor",
+            "unemployment",
+            "yield curve",
+            "stress-test"
+        )
+    )
+    recession_context = (
+        category in {"Macro Risk", "Portfolio Risk"}
+        or signal_type in {"STRESS_TEST_RISK", "LABOR_WEAK"}
+    )
+
+    if recession_terms and recession_context:
+        themes.append("Recession/Growth Slowdown Risk")
+
+    if (
+        category == "Portfolio Risk"
+        and any(
+            term in text
+            for term in ("concentration", "overweight", "stress-test")
+        )
+    ):
+        themes.append("Portfolio Concentration Risk")
+
+    if category == "Research Gap" or any(
+        term in text
+        for term in ("low conviction", "missing thesis", "research")
+    ):
+        themes.append("Research Quality Risk")
+
+    if any(
+        term in text
+        for term in (
+            "tax",
+            "capital deployment",
+            "deployment",
+            "replacement",
+            "buy",
+            "sell"
+        )
+    ):
+        themes.append("Tax/Capital Deployment Theme")
+
+    if category == "Market Event" or any(
+        term in text
+        for term in ("sec", "doj", "regulatory", "antitrust", "lawsuit")
+    ):
+        themes.append("Market/Regulatory Event Theme")
+
+    if (
+        category in {"Agent Health", "System Infrastructure"}
+        or signal_type in {"AGENT_FAILURE", "AGENT_OFFLINE"}
+        or any(term in text for term in ("offline", "failed", "system"))
+    ):
+        themes.append("Agent Health/System Theme")
+
+    ordered_unique = []
+
+    for theme in THEME_TITLE_ORDER:
+        if theme in themes:
+            ordered_unique.append(theme)
+
+    return ordered_unique
+
+
+def _theme_strength(score):
+
+    if score >= 100:
+        return "CRITICAL"
+
+    if score >= 85:
+        return "HIGH"
+
+    if score >= 65:
+        return "MEDIUM"
+
+    return "LOW"
+
+
+def _theme_reason(theme):
+
+    agents = ", ".join(theme["supporting_agents"]) or "none"
+    return (
+        f"{theme['theme_title']} links "
+        f"{theme['supporting_signal_count']} signals across "
+        f"{len(theme['supporting_agents'])} agent(s): {agents}."
+    )
+
+
+def _theme_sort_key(theme):
+
+    return (
+        -theme["theme_score"],
+        THEME_TITLE_ORDER.index(theme["theme_title"]),
+        theme["theme_title"].casefold()
+    )
+
+
+def build_cross_agent_theme_clusters(signals):
+
+    weighted_signals = rank_weighted_signals(signals)
+    grouped_signals = {
+        theme_title: []
+        for theme_title in THEME_TITLE_ORDER
+    }
+
+    for signal in weighted_signals:
+        for theme_title in _signal_theme_titles(signal):
+            grouped_signals[theme_title].append(signal)
+
+    themes = []
+
+    for theme_title in THEME_TITLE_ORDER:
+        supporting_signals = grouped_signals[theme_title]
+
+        if not supporting_signals:
+            continue
+
+        supporting_agents = sorted({
+            signal["source_agent"]
+            for signal in supporting_signals
+        })
+        highest_score = max(
+            signal["magnitude_adjusted_score"]
+            for signal in supporting_signals
+        )
+        highest_severity = max(
+            THEME_SEVERITY_WEIGHTS.get(signal["severity"], 0)
+            for signal in supporting_signals
+        )
+        agent_bonus = min(18, max(0, len(supporting_agents) - 1) * 9)
+        signal_bonus = min(15, max(0, len(supporting_signals) - 1) * 3)
+        category_bonus = THEME_CATEGORY_IMPORTANCE[theme_title]
+        theme_score = min(
+            100,
+            highest_score
+            + agent_bonus
+            + signal_bonus
+            + highest_severity
+            + category_bonus
+        )
+        theme = {
+            "theme_title": theme_title,
+            "theme_strength": _theme_strength(theme_score),
+            "theme_score": theme_score,
+            "supporting_agents": supporting_agents,
+            "supporting_signal_count": len(supporting_signals),
+            "supporting_signals": supporting_signals,
+            "theme_reason": ""
+        }
+        theme["theme_reason"] = _theme_reason(theme)
+        themes.append(theme)
+
+    return sorted(themes, key=_theme_sort_key)
+
+
+def build_cross_agent_theme_report(signals):
+
+    themes = build_cross_agent_theme_clusters(signals)
+    dominant = themes[0] if themes else None
+    summary = [
+        "Theme Synthesis Status: ACTIVE",
+        f"Theme Count: {len(themes)}",
+        (
+            f"Dominant Theme: {dominant['theme_title']}"
+            if dominant
+            else "Dominant Theme: None"
+        ),
+        (
+            f"Dominant Theme Score: {dominant['theme_score']}"
+            if dominant
+            else "Dominant Theme Score: 0"
+        ),
+        (
+            f"Dominant Theme Strength: {dominant['theme_strength']}"
+            if dominant
+            else "Dominant Theme Strength: LOW"
+        ),
+        (
+            f"Dominant Theme Reason: {dominant['theme_reason']}"
+            if dominant
+            else "Dominant Theme Reason: No cross-agent themes detected."
+        ),
+        "",
+        (
+            "Theme synthesis groups existing normalized signals and does "
+            "not replace priority ranking."
+        )
+    ]
+    details = []
+
+    for number, theme in enumerate(themes[:8], start=1):
+        details.extend([
+            f"{number}. {theme['theme_title']}",
+            f"   Theme Strength: {theme['theme_strength']}",
+            f"   Theme Score: {theme['theme_score']}",
+            (
+                "   Supporting Agents: "
+                f"{', '.join(theme['supporting_agents']) or 'None'}"
+            ),
+            (
+                "   Supporting Signal Count: "
+                f"{theme['supporting_signal_count']}"
+            ),
+            f"   Theme Reason: {theme['theme_reason']}",
+            "   Supporting Signals:"
+        ])
+
+        for signal in theme["supporting_signals"][:8]:
+            details.append(
+                f"   - {signal['source_agent']} | "
+                f"{signal['signal_type']} | "
+                f"{signal['severity']} | "
+                f"{signal['title']}"
+            )
+
+        details.append("")
+
+    if not details:
+        details.append("No cross-agent themes detected.")
+
+    return {
+        "summary": summary,
+        "details": details,
+        "themes": themes
+    }
+
+
 def build_signal_magnitude_report(signals):
 
     ranked_signals = rank_weighted_signals(signals)
@@ -2053,10 +2386,22 @@ def _build_signal_executive_notes(signals):
     return f"{first_sentence} {second_sentence}"
 
 
-def build_signal_driven_executive_summary(registry, signals):
+def _dominant_theme(theme_report):
+
+    if isinstance(theme_report, dict):
+        themes = theme_report.get("themes", [])
+    else:
+        themes = theme_report or []
+
+    return themes[0] if themes else None
+
+
+def build_signal_driven_executive_summary(registry, signals,
+                                          theme_report=None):
 
     weighted_signals = rank_weighted_signals(signals)
     top_priority = weighted_signals[0] if weighted_signals else None
+    dominant_theme = _dominant_theme(theme_report)
     macro_environment = _select_macro_environment_signal(weighted_signals)
     portfolio_risk = _select_portfolio_risk_signal(weighted_signals)
     portfolio_opportunity = select_signal_by_category(
@@ -2076,6 +2421,17 @@ def build_signal_driven_executive_summary(registry, signals):
             f"Top Priority: {top_priority['title']}"
             if top_priority
             else "Top Priority: None identified."
+        ),
+        "",
+        (
+            f"Dominant Cross-Agent Theme: {dominant_theme['theme_title']}"
+            if dominant_theme
+            else "Dominant Cross-Agent Theme: None"
+        ),
+        (
+            f"Theme Reason: {dominant_theme['theme_reason']}"
+            if dominant_theme
+            else "Theme Reason: No cross-agent themes detected."
         ),
         "",
         (
@@ -2170,7 +2526,7 @@ def determine_full_report_trigger(system_health, signals, portfolio_risk):
     return "No immediate full-report review required."
 
 
-def build_echo_executive_brief(registry, signals):
+def build_echo_executive_brief(registry, signals, theme_report=None):
 
     weighted_signals = rank_weighted_signals(signals)
     system_health = determine_signal_driven_system_health(
@@ -2178,6 +2534,7 @@ def build_echo_executive_brief(registry, signals):
         weighted_signals
     )
     top_priority = weighted_signals[0] if weighted_signals else None
+    dominant_theme = _dominant_theme(theme_report)
     portfolio_risk = _select_portfolio_risk_signal(weighted_signals)
     macro_backdrop = _select_macro_environment_signal(weighted_signals)
     market_watch = _select_market_event_signal(weighted_signals)
@@ -2190,6 +2547,11 @@ def build_echo_executive_brief(registry, signals):
             f"Top Priority: {_concise(top_priority['title'], limit=140)}"
             if top_priority
             else "Top Priority: None identified."
+        ),
+        (
+            f"Dominant Theme: {_concise(dominant_theme['theme_title'], limit=140)}"
+            if dominant_theme
+            else "Dominant Theme: None"
         ),
         (
             f"Portfolio Risk: {_concise(portfolio_risk['title'], limit=140)}"
@@ -2691,6 +3053,8 @@ def _assemble_report_bundle(
 
     for title_key, content_key in (
         ("ECHO EXECUTIVE SUMMARY", "executive_summary"),
+        ("CROSS-AGENT THEME SUMMARY", "theme_summary"),
+        ("CROSS-AGENT THEME DETAILS", "theme_details"),
         ("CROSS-AGENT PRIORITY SUMMARY", "priority_summary"),
         ("CROSS-AGENT PRIORITY DETAILS", "priority_details"),
         ("AGENT SIGNAL BUS SUMMARY", "signal_bus_summary"),
@@ -2840,18 +3204,23 @@ def build_morning_brief(
     signal_weighting_report = build_signal_weighting_report(signals)
     signal_magnitude_report = build_signal_magnitude_report(signals)
     priority_report = build_cross_agent_priority_report(signals)
+    theme_report = build_cross_agent_theme_report(signals)
     executive_summary = build_signal_driven_executive_summary(
         registry,
-        signals
+        signals,
+        theme_report
     )
     executive_brief = build_echo_executive_brief(
         registry,
-        signals
+        signals,
+        theme_report
     )
 
     sections = {
         "executive_brief": executive_brief,
         "executive_summary": executive_summary,
+        "theme_summary": theme_report["summary"],
+        "theme_details": theme_report["details"],
         "priority_summary": priority_report["summary"],
         "priority_details": priority_report["details"],
         "signal_bus_summary": signal_bus_report["summary"],
