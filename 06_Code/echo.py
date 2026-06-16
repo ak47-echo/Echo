@@ -1850,11 +1850,38 @@ def _extract_portfolio_context(portfolio):
     allocations = _extract_portfolio_allocations(portfolio)
     classifications = {}
     allocation_details = {}
+    allocation_targets = {}
     concentration = []
     exposure_details = []
     factor_details = []
     low_conviction = []
+    overweight_holdings = []
     taxable_positions = []
+    portfolio_health = _field_value(lines, "Portfolio Health") or "UNKNOWN"
+    regime_summary = _report_section(lines, "MACRO REGIME SUMMARY")
+    alignment_summary = _report_section(lines, "REGIME ALIGNMENT SUMMARY")
+    portfolio_regime = ""
+    regime_alignment = ""
+
+    for source_lines in (regime_summary, alignment_summary):
+        for line in source_lines:
+            regime_match = re.search(
+                r"Current Regime:\s*([^|]+)",
+                line,
+                flags=re.IGNORECASE
+            )
+
+            if regime_match and not portfolio_regime:
+                portfolio_regime = regime_match.group(1).strip()
+
+            alignment_match = re.search(
+                r"(?:Alignment Level|Portfolio Alignment):\s*([^|]+)",
+                line,
+                flags=re.IGNORECASE
+            )
+
+            if alignment_match and not regime_alignment:
+                regime_alignment = alignment_match.group(1).strip()
 
     for line in _report_section(lines, "SECURITY CLASSIFICATION"):
         match = re.search(
@@ -1873,6 +1900,36 @@ def _extract_portfolio_context(portfolio):
                 "security_type": match.group(3).strip().casefold(),
                 "risk_bucket": match.group(4).strip().casefold()
             }
+
+    for line in _report_section(lines, "TICKER ALLOCATION"):
+        match = re.search(
+            (
+                r"^([A-Z0-9.]+):.*?\bAllocation\s+"
+                r"(-?\d+(?:\.\d+)?)%\s+\|\s+Target\s+"
+                r"(-?\d+(?:\.\d+)?)%\s+\|\s+Difference\s+"
+                r"(-?\d+(?:\.\d+)?)%"
+            ),
+            line,
+            flags=re.IGNORECASE
+        )
+
+        if match:
+            ticker = match.group(1).upper()
+            allocation_targets[ticker] = {
+                "allocation": float(match.group(2)),
+                "target": float(match.group(3)),
+                "difference": float(match.group(4))
+            }
+
+    for line in _report_section(lines, "REBALANCE ALERTS"):
+        match = re.search(
+            r"^([A-Z0-9.]+):\s+OVERWEIGHT\b",
+            line,
+            flags=re.IGNORECASE
+        )
+
+        if match:
+            overweight_holdings.append(match.group(1).upper())
 
     for line in lines:
         match = re.search(
@@ -1925,7 +1982,12 @@ def _extract_portfolio_context(portfolio):
                 "allocation": float(match.group(2))
             })
 
-    for line in _report_section(lines, "RESEARCH HEALTH DETAILS"):
+    research_health_lines = (
+        _report_section(lines, "RESEARCH HEALTH DETAILS")
+        + _report_section(lines, "RESEARCH HEALTH")
+    )
+
+    for line in research_health_lines:
         parts = [part.strip() for part in line.split("|")]
 
         if len(parts) >= 3 and "low conviction" in line.casefold():
@@ -1945,11 +2007,16 @@ def _extract_portfolio_context(portfolio):
         "allocations": allocations,
         "classifications": classifications,
         "allocation_details": allocation_details,
+        "allocation_targets": allocation_targets,
         "concentration": concentration,
         "exposure_details": exposure_details,
         "factor_details": factor_details,
         "low_conviction": _unique_preserve_order(low_conviction),
-        "taxable_positions": _unique_preserve_order(taxable_positions)
+        "overweight_holdings": _unique_preserve_order(overweight_holdings),
+        "taxable_positions": _unique_preserve_order(taxable_positions),
+        "portfolio_health": portfolio_health,
+        "portfolio_regime": portfolio_regime,
+        "regime_alignment": regime_alignment
     }
 
 
@@ -2333,6 +2400,371 @@ def build_theme_impact_report(themes, signals, portfolio):
         "summary": summary,
         "details": details,
         "impacts": impacts
+    }
+
+
+def _theme_titles(themes):
+
+    return {
+        str(theme.get("theme_title") or "")
+        for theme in themes or []
+    }
+
+
+def _dominant_factor(context):
+
+    if not context["factor_details"]:
+        return None
+
+    return sorted(
+        context["factor_details"],
+        key=lambda factor: (-factor["allocation"], factor["name"].casefold())
+    )[0]
+
+
+def _macro_conflict_regimes(macro, signals):
+
+    lines = _report_lines(macro)
+    text = "\n".join(lines).casefold()
+    regimes = []
+
+    for label, terms in (
+        ("Inflation Stress", ("inflation stress", "inflation shock")),
+        ("Recession Risk", ("recession risk", "recession")),
+        ("Rate Shock", ("rate shock", "policy restrictive")),
+        ("Growth Slowdown", ("growth slowdown", "labor weak")),
+        ("Energy Shock", ("energy shock", "energy rising"))
+    ):
+        if any(term in text for term in terms):
+            regimes.append(label)
+
+    for signal in signals or []:
+        if signal.get("source_agent") != "Macro Agent":
+            continue
+
+        signal_type = signal.get("signal_type")
+        metadata = signal.get("metadata") or {}
+        regime_text = " ".join(
+            str(value)
+            for value in (
+                signal.get("title"),
+                signal.get("description"),
+                metadata.get("regime")
+            )
+            if value
+        ).casefold()
+
+        if "inflation stress" in regime_text or signal_type == "INFLATION_RISING":
+            regimes.append("Inflation Stress")
+        if "recession" in regime_text:
+            regimes.append("Recession Risk")
+        if "rate shock" in regime_text or signal_type == "POLICY_RESTRICTIVE":
+            regimes.append("Rate Shock")
+        if "growth slowdown" in regime_text or signal_type == "LABOR_WEAK":
+            regimes.append("Growth Slowdown")
+        if "energy shock" in regime_text or signal_type == "ENERGY_RISING":
+            regimes.append("Energy Shock")
+
+    return _unique_preserve_order(regimes)
+
+
+def _news_energy_easing(news):
+
+    text = "\n".join(_report_lines(news)).casefold()
+    easing_terms = (
+        "oil dips",
+        "oil falling",
+        "oil falls",
+        "brent oil dips",
+        "hormuz crisis eases",
+        "crisis eases",
+        "gas prices will come down",
+        "gas prices may drop",
+        "deal to end",
+        "peace agreement"
+    )
+
+    return any(term in text for term in easing_terms)
+
+
+def _has_energy_rising(signals, macro):
+
+    if any(
+        signal.get("source_agent") == "Macro Agent"
+        and signal.get("signal_type") == "ENERGY_RISING"
+        for signal in signals or []
+    ):
+        return True
+
+    return "energy rising" in "\n".join(_report_lines(macro)).casefold()
+
+
+def _conflict_sort_key(conflict):
+
+    severity_rank = {"HIGH": 0, "MEDIUM": 1, "LOW": 2}
+
+    return (
+        severity_rank.get(conflict["conflict_severity"], 9),
+        conflict["conflict_title"].casefold()
+    )
+
+
+def _append_conflict(conflicts, title, conflict_type, severity,
+                     affected_holdings, evidence, reason, review_area):
+
+    conflicts.append({
+        "conflict_title": title,
+        "conflict_type": conflict_type,
+        "conflict_severity": severity,
+        "affected_holdings": _unique_preserve_order(affected_holdings),
+        "evidence": _unique_preserve_order(evidence),
+        "conflict_reason": reason,
+        "suggested_review_area": review_area
+    })
+
+
+def build_theme_conflict_report(themes, theme_impacts, signals, portfolio,
+                                macro, news):
+
+    context = _extract_portfolio_context(portfolio)
+    theme_titles = _theme_titles(themes)
+    theme_titles.update(
+        str(impact.get("theme_title") or "")
+        for impact in theme_impacts or []
+    )
+    conflicts = []
+    macro_risk_regimes = _macro_conflict_regimes(macro, signals)
+    portfolio_regime = context.get("portfolio_regime", "")
+    dominant_factor = _dominant_factor(context)
+    growth_factor = next(
+        (
+            factor for factor in context["factor_details"]
+            if factor["name"].casefold() == "growth"
+        ),
+        None
+    )
+
+    if (
+        macro_risk_regimes
+        and portfolio_regime.casefold() in {"expansion", "disinflation"}
+    ):
+        severity = (
+            "HIGH"
+            if any(
+                regime in macro_risk_regimes
+                for regime in ("Inflation Stress", "Recession Risk",
+                               "Rate Shock", "Energy Shock")
+            )
+            else "MEDIUM"
+        )
+        _append_conflict(
+            conflicts,
+            "Macro regime risk conflicts with portfolio regime posture",
+            "Macro/Portfolio Regime Conflict",
+            severity,
+            [],
+            [
+                f"Macro risk regimes: {', '.join(macro_risk_regimes)}",
+                f"Portfolio regime: {portfolio_regime}"
+            ],
+            (
+                "Macro signals point to a risk regime while portfolio "
+                "classification remains aligned with expansion or "
+                "disinflation."
+            ),
+            "Review macro regime assumptions against portfolio positioning."
+        )
+
+    if (
+        growth_factor
+        and growth_factor["allocation"] >= 50
+        and theme_titles & {"Inflation/Energy Risk", "Fed/Rates Risk"}
+    ):
+        affected_holdings = _holdings_by_context(
+            context,
+            factors=("growth",),
+            asset_classes=("bitcoin",)
+        )
+        severity = (
+            "HIGH"
+            if dominant_factor
+            and dominant_factor["name"].casefold() == "growth"
+            else "MEDIUM"
+        )
+        _append_conflict(
+            conflicts,
+            "Growth exposure conflicts with inflation/rates theme",
+            "Growth Exposure vs Inflation/Rates Conflict",
+            severity,
+            affected_holdings,
+            [
+                f"Growth factor exposure {growth_factor['allocation']:g}%",
+                (
+                    "Active themes: "
+                    f"{', '.join(sorted(theme_titles & {'Inflation/Energy Risk', 'Fed/Rates Risk'}))}"
+                )
+            ],
+            (
+                "High growth exposure is sensitive to discount-rate "
+                "pressure when inflation, energy, or rates themes are active."
+            ),
+            "Review growth and rates-sensitive exposure."
+        )
+
+    if _has_energy_rising(signals, macro) and _news_energy_easing(news):
+        _append_conflict(
+            conflicts,
+            "Energy macro direction conflicts with easing news narrative",
+            "Energy News vs Energy Macro Direction Conflict",
+            "LOW",
+            _holdings_by_context(
+                context,
+                asset_classes=("commodity",),
+                factors=("commodity",)
+            ),
+            [
+                "Macro indicates energy rising.",
+                "News narrative includes oil, gas, Hormuz, or Iran easing."
+            ],
+            (
+                "Macro energy direction and news narrative point in "
+                "different directions, which is directional tension rather "
+                "than an agent error."
+            ),
+            "Monitor energy data against the latest news narrative."
+        )
+
+    for ticker in context["low_conviction"]:
+        allocation = _holding_allocation(context, ticker)
+        is_overweight = ticker in context["overweight_holdings"]
+
+        if allocation > 5 or is_overweight:
+            severity = "HIGH" if (
+                is_overweight
+                or any(item["ticker"] == ticker for item in context["concentration"])
+            ) else "MEDIUM"
+            evidence = [f"{ticker} low conviction"]
+
+            if allocation:
+                evidence.append(f"{ticker} allocation {allocation:g}%")
+
+            if is_overweight:
+                evidence.append(f"{ticker} overweight flag present")
+
+            _append_conflict(
+                conflicts,
+                f"{ticker} position size conflicts with research conviction",
+                "Research Conviction vs Position Size Conflict",
+                severity,
+                [ticker],
+                evidence,
+                (
+                    f"{ticker} has weak research conviction while the "
+                    "position size or overweight status is material."
+                ),
+                f"Review {ticker} thesis quality against position size."
+            )
+
+    portfolio_health = str(context.get("portfolio_health") or "").casefold()
+    cash_target = context["allocation_targets"].get("CASH0", {})
+    cash_gap = float(cash_target.get("difference", 0))
+    cash_allocation = _holding_allocation(context, "CASH0")
+    bond_exposure = next(
+        (
+            exposure["allocation"]
+            for exposure in context["exposure_details"]
+            if exposure["name"].casefold() == "bond"
+        ),
+        0
+    )
+
+    if (
+        any(term in portfolio_health for term in ("elevated", "high"))
+        and (cash_gap <= -3 or bond_exposure < 2)
+    ):
+        severity = "HIGH" if cash_gap <= -5 and bond_exposure < 2 else "MEDIUM"
+        _append_conflict(
+            conflicts,
+            "Portfolio risk conflicts with defensive allocation gap",
+            "Defensive Need vs Cash/Bond Gap Conflict",
+            severity,
+            ["CASH0"] if "CASH0" in context["allocations"] else [],
+            [
+                f"Portfolio health: {context.get('portfolio_health')}",
+                f"Cash allocation {cash_allocation:g}%",
+                f"Cash target gap {cash_gap:g}%",
+                f"Bond exposure {bond_exposure:g}%"
+            ],
+            (
+                "Portfolio risk is elevated while cash or bond exposure is "
+                "below defensive allocation targets."
+            ),
+            "Evaluate liquidity buffer and defensive allocation gap."
+        )
+
+    conflicts = sorted(conflicts, key=_conflict_sort_key)
+    highest = conflicts[0] if conflicts else None
+    severity_counts = {
+        severity: sum(
+            conflict["conflict_severity"] == severity
+            for conflict in conflicts
+        )
+        for severity in ("HIGH", "MEDIUM", "LOW")
+    }
+    summary = [
+        "Theme Conflict Detection Status: ACTIVE",
+        f"Detected Conflicts: {len(conflicts)}",
+        f"High Conflicts: {severity_counts['HIGH']}",
+        f"Medium Conflicts: {severity_counts['MEDIUM']}",
+        f"Low Conflicts: {severity_counts['LOW']}",
+        (
+            f"Key Conflict: {highest['conflict_title']}"
+            if highest
+            else "Key Conflict: None"
+        ),
+        (
+            f"Key Conflict Reason: {highest['conflict_reason']}"
+            if highest
+            else "Key Conflict Reason: No deterministic conflicts detected."
+        ),
+        "",
+        (
+            "Theme conflict detection flags deterministic tensions between "
+            "agent signals, themes, news narratives, macro conditions, and "
+            "portfolio positioning."
+        )
+    ]
+    details = []
+
+    for number, conflict in enumerate(conflicts, start=1):
+        details.extend([
+            f"{number}. {conflict['conflict_title']}",
+            f"   Conflict Type: {conflict['conflict_type']}",
+            f"   Conflict Severity: {conflict['conflict_severity']}",
+            (
+                "   Affected Holdings: "
+                f"{', '.join(conflict['affected_holdings']) or 'None'}"
+            ),
+            f"   Conflict Reason: {conflict['conflict_reason']}",
+            (
+                "   Suggested Review Area: "
+                f"{conflict['suggested_review_area']}"
+            ),
+            "   Evidence:"
+        ])
+        details.extend(
+            f"   - {item}"
+            for item in conflict["evidence"]
+        )
+        details.append("")
+
+    if not details:
+        details.append("No deterministic theme conflicts detected.")
+
+    return {
+        "summary": summary,
+        "details": details,
+        "conflicts": conflicts
     }
 
 
@@ -2945,14 +3377,26 @@ def _dominant_theme_impact(theme_impact_report):
     return impacts[0] if impacts else None
 
 
+def _key_theme_conflict(theme_conflict_report):
+
+    if isinstance(theme_conflict_report, dict):
+        conflicts = theme_conflict_report.get("conflicts", [])
+    else:
+        conflicts = theme_conflict_report or []
+
+    return conflicts[0] if conflicts else None
+
+
 def build_signal_driven_executive_summary(registry, signals,
                                           theme_report=None,
-                                          theme_impact_report=None):
+                                          theme_impact_report=None,
+                                          theme_conflict_report=None):
 
     weighted_signals = rank_weighted_signals(signals)
     top_priority = weighted_signals[0] if weighted_signals else None
     dominant_theme = _dominant_theme(theme_report)
     dominant_impact = _dominant_theme_impact(theme_impact_report)
+    key_conflict = _key_theme_conflict(theme_conflict_report)
     macro_environment = _select_macro_environment_signal(weighted_signals)
     portfolio_risk = _select_portfolio_risk_signal(weighted_signals)
     portfolio_opportunity = select_signal_by_category(
@@ -2988,6 +3432,16 @@ def build_signal_driven_executive_summary(registry, signals,
             f"Theme Impact: {_theme_impact_summary(dominant_impact)}"
             if dominant_impact
             else "Theme Impact: No mapped portfolio impact."
+        ),
+        (
+            f"Key Conflict: {key_conflict['conflict_title']}"
+            if key_conflict
+            else "Key Conflict: None"
+        ),
+        (
+            f"Conflict Reason: {key_conflict['conflict_reason']}"
+            if key_conflict
+            else "Conflict Reason: No deterministic conflicts detected."
         ),
         "",
         (
@@ -3083,7 +3537,8 @@ def determine_full_report_trigger(system_health, signals, portfolio_risk):
 
 
 def build_echo_executive_brief(registry, signals, theme_report=None,
-                               theme_impact_report=None):
+                               theme_impact_report=None,
+                               theme_conflict_report=None):
 
     weighted_signals = rank_weighted_signals(signals)
     system_health = determine_signal_driven_system_health(
@@ -3093,6 +3548,7 @@ def build_echo_executive_brief(registry, signals, theme_report=None,
     top_priority = weighted_signals[0] if weighted_signals else None
     dominant_theme = _dominant_theme(theme_report)
     dominant_impact = _dominant_theme_impact(theme_impact_report)
+    key_conflict = _key_theme_conflict(theme_conflict_report)
     portfolio_risk = _select_portfolio_risk_signal(weighted_signals)
     macro_backdrop = _select_macro_environment_signal(weighted_signals)
     market_watch = _select_market_event_signal(weighted_signals)
@@ -3115,6 +3571,11 @@ def build_echo_executive_brief(registry, signals, theme_report=None,
             f"Theme Impact: {_concise(_theme_impact_summary(dominant_impact), limit=140)}"
             if dominant_impact
             else "Theme Impact: No mapped portfolio impact."
+        ),
+        (
+            f"Key Conflict: {_concise(key_conflict['conflict_title'], limit=140)}"
+            if key_conflict
+            else "Key Conflict: None"
         ),
         (
             f"Portfolio Risk: {_concise(portfolio_risk['title'], limit=140)}"
@@ -3620,6 +4081,8 @@ def _assemble_report_bundle(
         ("CROSS-AGENT THEME DETAILS", "theme_details"),
         ("THEME IMPACT SUMMARY", "theme_impact_summary"),
         ("THEME IMPACT DETAILS", "theme_impact_details"),
+        ("THEME CONFLICT SUMMARY", "theme_conflict_summary"),
+        ("THEME CONFLICT DETAILS", "theme_conflict_details"),
         ("CROSS-AGENT PRIORITY SUMMARY", "priority_summary"),
         ("CROSS-AGENT PRIORITY DETAILS", "priority_details"),
         ("AGENT SIGNAL BUS SUMMARY", "signal_bus_summary"),
@@ -3775,17 +4238,27 @@ def build_morning_brief(
         signals,
         portfolio
     )
+    theme_conflict_report = build_theme_conflict_report(
+        theme_report["themes"],
+        theme_impact_report["impacts"],
+        signals,
+        portfolio,
+        macro,
+        news
+    )
     executive_summary = build_signal_driven_executive_summary(
         registry,
         signals,
         theme_report,
-        theme_impact_report
+        theme_impact_report,
+        theme_conflict_report
     )
     executive_brief = build_echo_executive_brief(
         registry,
         signals,
         theme_report,
-        theme_impact_report
+        theme_impact_report,
+        theme_conflict_report
     )
 
     sections = {
@@ -3795,6 +4268,8 @@ def build_morning_brief(
         "theme_details": theme_report["details"],
         "theme_impact_summary": theme_impact_report["summary"],
         "theme_impact_details": theme_impact_report["details"],
+        "theme_conflict_summary": theme_conflict_report["summary"],
+        "theme_conflict_details": theme_conflict_report["details"],
         "priority_summary": priority_report["summary"],
         "priority_details": priority_report["details"],
         "signal_bus_summary": signal_bus_report["summary"],
