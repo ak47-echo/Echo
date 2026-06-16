@@ -22,7 +22,7 @@ AGENT_REGISTRY = (
         "status": "ACTIVE",
         "health": "UNKNOWN",
         "report_mode": "SUPPORTED",
-        "query_mode": "PLANNED",
+        "query_mode": "SUPPORTED",
         "last_run_status": "NOT_RUN",
         "execution_time_seconds": None,
         "output_section_name": "NEWS AGENT EXECUTIVE BRIEF",
@@ -35,7 +35,7 @@ AGENT_REGISTRY = (
         "status": "ACTIVE",
         "health": "UNKNOWN",
         "report_mode": "SUPPORTED",
-        "query_mode": "PLANNED",
+        "query_mode": "SUPPORTED",
         "last_run_status": "NOT_RUN",
         "execution_time_seconds": None,
         "output_section_name": "MACRO AGENT EXECUTIVE BRIEF",
@@ -48,7 +48,7 @@ AGENT_REGISTRY = (
         "status": "ACTIVE",
         "health": "UNKNOWN",
         "report_mode": "SUPPORTED",
-        "query_mode": "PLANNED",
+        "query_mode": "SUPPORTED",
         "last_run_status": "NOT_RUN",
         "execution_time_seconds": None,
         "output_section_name": "PORTFOLIO MANAGER EXECUTIVE BRIEF",
@@ -61,7 +61,7 @@ AGENT_REGISTRY = (
         "status": "ACTIVE",
         "health": "UNKNOWN",
         "report_mode": "SUPPORTED",
-        "query_mode": "PLANNED",
+        "query_mode": "SUPPORTED",
         "last_run_status": "NOT_RUN",
         "execution_time_seconds": None,
         "output_section_name": "RESEARCH AGENT EXECUTIVE BRIEF",
@@ -163,61 +163,65 @@ AGENT_REGISTRY = (
 
 AGENT_QUERY_CAPABILITIES = {
     "Portfolio Manager": {
-        "supported_query_types": (),
-        "planned_query_types": (
-            "portfolio impact",
-            "position review",
-            "allocation question",
-            "rebalancing question",
-            "candidate comparison"
+        "supported_query_types": (
+            "risk",
+            "concentration",
+            "allocation",
+            "opportunity",
+            "tax",
+            "stress test"
         ),
+        "planned_query_types": (),
         "example_queries": (
-            "What happens if I sell SMCI?",
-            "How does buying AVUV affect concentration?",
-            "Is UNH too large?"
+            "What is my concentration risk?",
+            "What is the top portfolio risk?",
+            "What is the tax situation?"
         )
     },
     "News Agent": {
-        "supported_query_types": (),
-        "planned_query_types": (
-            "ticker news lookup",
-            "portfolio news relevance",
-            "world event lookup",
-            "market headline review"
+        "supported_query_types": (
+            "market narrative",
+            "macro news",
+            "world event",
+            "portfolio news",
+            "watchlist news"
         ),
+        "planned_query_types": (),
         "example_queries": (
-            "What happened with UNH today?",
-            "Any news affecting semiconductors?",
-            "What world events matter for markets?"
+            "What is the top market narrative?",
+            "What is the top macro news?",
+            "What world event matters most?"
         )
     },
     "Macro Agent": {
-        "supported_query_types": (),
-        "planned_query_types": (
-            "macro regime question",
-            "inflation question",
-            "rates question",
-            "labor market question",
-            "yield curve question"
+        "supported_query_types": (
+            "regime",
+            "inflation",
+            "rates",
+            "labor",
+            "yield curve",
+            "energy"
         ),
+        "planned_query_types": (),
         "example_queries": (
-            "What is the current macro regime?",
-            "Are rates restrictive?",
-            "Is inflation rising or falling?"
+            "What is the current regime?",
+            "What is happening with inflation?",
+            "What is the energy signal?"
         )
     },
     "Research Agent": {
-        "supported_query_types": (),
-        "planned_query_types": (
-            "thesis review",
-            "evidence check",
-            "watchlist analysis",
-            "conviction review"
+        "supported_query_types": (
+            "thesis",
+            "conviction",
+            "research gaps",
+            "weak holdings",
+            "watchlist"
         ),
+        "planned_query_types": (),
         "example_queries": (
-            "What research is missing for ECO?",
-            "What is the thesis for SMCI?",
-            "Which holdings have weak conviction?"
+            "Which holdings have weak conviction?",
+            "What are the research gaps?",
+            "What is on the watchlist?"
         )
     }
 }
@@ -229,6 +233,9 @@ FUTURE_AGENT_QUERY_CAPABILITY = {
 }
 
 AGENT_NAME_ALIASES = {
+    "echo": "Echo",
+    "chief of staff": "Echo",
+    "system": "Echo",
     "news": "News Agent",
     "macro": "Macro Agent",
     "portfolio": "Portfolio Manager",
@@ -3703,14 +3710,469 @@ def get_agent_query_capability(agent_name):
     }
 
 
+def classify_query_intent(query):
+
+    text = " ".join(str(query or "").split()).casefold()
+
+    if not text:
+        return "empty"
+
+    intent_terms = (
+        ("conflicts", ("conflict", "mismatch", "tension")),
+        ("impacts", ("impact", "exposure map", "affected")),
+        ("themes", ("theme", "narrative cluster")),
+        ("action queue", ("action", "queue", "review list")),
+        ("top priority", ("top priority", "highest priority", "priority")),
+        ("market watch", ("market watch", "market development")),
+        ("macro backdrop", ("macro backdrop", "backdrop")),
+        ("portfolio risk", ("portfolio risk",)),
+        ("concentration", ("concentration", "too large", "overweight")),
+        ("allocation", ("allocation", "target", "underweight")),
+        ("opportunity", ("opportunity", "capital deployment", "candidate")),
+        ("tax", ("tax", "taxable", "gain", "loss harvest")),
+        ("stress test", ("stress", "drawdown", "crisis")),
+        ("regime", ("regime",)),
+        ("inflation", ("inflation", "cpi", "pce")),
+        ("yield curve", ("yield curve", "curve")),
+        ("rates", ("rate", "fed", "fomc", "yield")),
+        ("labor", ("labor", "jobs", "unemployment", "payroll")),
+        ("energy", ("energy", "oil", "crude", "hormuz", "iran")),
+        ("market narrative", ("market narrative", "top narrative")),
+        ("macro news", ("macro news", "fed news")),
+        ("world event", ("world event", "geopolitical")),
+        ("portfolio news", ("portfolio news",)),
+        ("watchlist news", ("watchlist news",)),
+        ("thesis", ("thesis",)),
+        ("conviction", ("conviction", "weak holding", "weak holdings")),
+        ("research gaps", ("research gap", "research gaps", "coverage")),
+        ("watchlist", ("watchlist",))
+    )
+
+    for intent, terms in intent_terms:
+        if any(term in text for term in terms):
+            return intent
+
+    return "general"
+
+
+def _query_result(agent_name, query, status, answer, confidence="MEDIUM",
+                  requires_full_report=False, notes=""):
+
+    return {
+        "agent_name": agent_name,
+        "query": " ".join(str(query or "").split()),
+        "status": status,
+        "answer": answer,
+        "confidence": confidence,
+        "requires_full_report": requires_full_report,
+        "notes": notes
+    }
+
+
+def _query_context(context):
+
+    if isinstance(context, dict) and "sections" in context:
+        return context
+
+    if isinstance(context, dict) and any(
+        key in context
+        for key in ("portfolio", "macro", "news", "research")
+    ):
+        return {"sections": context}
+
+    return build_morning_brief(return_bundle=True)
+
+
+def _query_sections(context):
+
+    return _query_context(context)["sections"]
+
+
+def _lines_from_section(sections, key, full_report=False):
+
+    value = sections.get(key, [])
+
+    if full_report and isinstance(value, dict):
+        return _report_lines(value) + _full_report_lines(value)
+
+    if full_report:
+        return _full_report_lines(value)
+
+    return _report_lines(value)
+
+
+def _first_field(lines, labels):
+
+    for label in labels:
+        value = _field_value(lines, label)
+
+        if value:
+            return value
+
+    return ""
+
+
+def _compact_lines(lines, limit=4):
+
+    useful_lines = [
+        line for line in lines
+        if line and not set(line) <= {"-"}
+    ]
+
+    return " | ".join(useful_lines[:limit]) if useful_lines else "None found."
+
+
+def _numbered_after(lines, heading, limit=3):
+
+    try:
+        start = lines.index(heading) + 1
+    except ValueError:
+        return []
+
+    items = []
+
+    for line in lines[start:]:
+        if not line:
+            if items:
+                break
+            continue
+
+        if re.match(r"^\d+\.\s+", line):
+            items.append(line)
+
+        if len(items) == limit:
+            break
+
+    return items
+
+
+def _answer_from_lines(agent_name, query, answer, confidence="HIGH",
+                       requires_full_report=False, notes=""):
+
+    return _query_result(
+        agent_name,
+        query,
+        "ANSWERED",
+        _concise(answer, limit=700),
+        confidence,
+        requires_full_report,
+        notes or "Answered deterministically from existing Echo reports."
+    )
+
+
+def answer_portfolio_query(query, context):
+
+    sections = _query_sections(context)
+    portfolio_lines = _lines_from_section(sections, "portfolio", True)
+    executive_lines = sections.get("executive_summary", [])
+    intent = classify_query_intent(query)
+
+    if intent in {"risk", "portfolio risk", "general"}:
+        risk = _first_field(executive_lines, ("Top Portfolio Risk",))
+        return _answer_from_lines(
+            "Portfolio Manager",
+            query,
+            f"Top portfolio risk: {risk or determine_top_portfolio_risk(sections.get('portfolio'))}",
+            requires_full_report=True
+        )
+
+    if intent == "concentration":
+        summary = _report_section(portfolio_lines, "CONCENTRATION RISK SUMMARY")
+        details = _report_section(portfolio_lines, "CONCENTRATION RISK DETAILS")
+        return _answer_from_lines(
+            "Portfolio Manager",
+            query,
+            "Concentration risk: "
+            f"{_compact_lines(summary + details, limit=5)}",
+            requires_full_report=True
+        )
+
+    if intent == "allocation":
+        allocation = _report_section(portfolio_lines, "TICKER ALLOCATION")
+        alerts = _report_section(portfolio_lines, "REBALANCE ALERTS")
+        return _answer_from_lines(
+            "Portfolio Manager",
+            query,
+            f"Allocation snapshot: {_compact_lines(allocation + alerts, limit=6)}",
+            requires_full_report=True
+        )
+
+    if intent == "opportunity":
+        opportunity = _first_field(
+            executive_lines,
+            ("Top Portfolio Opportunity",)
+        )
+        deployment = _report_section(portfolio_lines, "CAPITAL DEPLOYMENT")
+        return _answer_from_lines(
+            "Portfolio Manager",
+            query,
+            f"Portfolio opportunity: {opportunity or _compact_lines(deployment)}",
+            requires_full_report=True
+        )
+
+    if intent == "tax":
+        tax_summary = _report_section(portfolio_lines, "TAX OPTIMIZATION SUMMARY")
+        tax_details = _report_section(portfolio_lines, "TAX OPTIMIZATION DETAILS")
+        return _answer_from_lines(
+            "Portfolio Manager",
+            query,
+            f"Tax summary: {_compact_lines(tax_summary + tax_details, limit=6)}",
+            requires_full_report=True
+        )
+
+    if intent == "stress test":
+        stress = _report_section(portfolio_lines, "STRESS TEST SUMMARY")
+        return _answer_from_lines(
+            "Portfolio Manager",
+            query,
+            f"Stress test summary: {_compact_lines(stress, limit=5)}",
+            requires_full_report=True
+        )
+
+    return _query_result(
+        "Portfolio Manager",
+        query,
+        "UNSUPPORTED_QUERY",
+        "Portfolio Manager supports risk, concentration, allocation, opportunity, tax, and stress test queries.",
+        "LOW",
+        False,
+        "No deterministic portfolio query intent matched."
+    )
+
+
+def answer_macro_query(query, context):
+
+    sections = _query_sections(context)
+    macro_lines = _lines_from_section(sections, "macro", True)
+    intent = classify_query_intent(query)
+
+    if intent in {"regime", "general"}:
+        regime = _first_field(macro_lines, ("Current Macro Regime",))
+        priority = _first_field(macro_lines, ("Top Macro Priority",))
+        reason = _first_field(macro_lines, ("Top Macro Reason",))
+        return _answer_from_lines(
+            "Macro Agent",
+            query,
+            f"Current macro regime: {regime or 'Unknown'}. Top macro priority: {priority or 'Unknown'}. Reason: {reason or 'Not available.'}",
+            requires_full_report=True
+        )
+
+    field_map = {
+        "inflation": "Inflation Trend",
+        "rates": "Policy Rate",
+        "labor": "Labor Market",
+        "yield curve": "Yield Curve",
+        "energy": "Energy"
+    }
+
+    if intent in field_map:
+        label = field_map[intent]
+        value = _first_field(macro_lines, (label,))
+        ranked = [
+            line for line in _report_section(macro_lines, "Ranked Macro Priority Signals:")
+            if label.casefold() in line.casefold()
+        ]
+        return _answer_from_lines(
+            "Macro Agent",
+            query,
+            f"{label}: {value or 'Unknown'}. Detail: {_compact_lines(ranked, limit=3)}",
+            requires_full_report=True
+        )
+
+    return _query_result(
+        "Macro Agent",
+        query,
+        "UNSUPPORTED_QUERY",
+        "Macro Agent supports regime, inflation, rates, labor, yield curve, and energy queries.",
+        "LOW",
+        False,
+        "No deterministic macro query intent matched."
+    )
+
+
+def answer_news_query(query, context):
+
+    sections = _query_sections(context)
+    news_lines = _lines_from_section(sections, "news", True)
+    intent = classify_query_intent(query)
+    label_map = {
+        "market narrative": "Top Market Narrative",
+        "general": "Top Market Narrative",
+        "macro news": "Top Macro Story",
+        "world event": "Top World Event Story",
+        "portfolio news": "Top Portfolio Story",
+        "watchlist news": "Top Watchlist Story"
+    }
+
+    if intent in label_map:
+        label = label_map[intent]
+        value = _first_field(news_lines, (label,))
+        reason = _first_field(news_lines, ("Top Narrative Reason",))
+        score = _first_field(news_lines, ("Top Narrative Score",))
+        return _answer_from_lines(
+            "News Agent",
+            query,
+            f"{label}: {value or 'None'}. Narrative score: {score or 'N/A'}. Reason: {reason or 'Not available.'}",
+            requires_full_report=True
+        )
+
+    return _query_result(
+        "News Agent",
+        query,
+        "UNSUPPORTED_QUERY",
+        "News Agent supports market narrative, macro news, world event, portfolio news, and watchlist news queries.",
+        "LOW",
+        False,
+        "No deterministic news query intent matched."
+    )
+
+
+def answer_research_query(query, context):
+
+    sections = _query_sections(context)
+    research_lines = _lines_from_section(sections, "research", True)
+    portfolio_lines = _lines_from_section(sections, "portfolio", True)
+    intent = classify_query_intent(query)
+
+    if intent in {"conviction", "weak holdings", "general"}:
+        health = (
+            _report_section(research_lines, "RESEARCH HEALTH")
+            + _report_section(portfolio_lines, "RESEARCH HEALTH")
+        )
+        weak = [
+            line for line in health
+            if "low conviction" in line.casefold()
+        ]
+        return _answer_from_lines(
+            "Research Agent",
+            query,
+            f"Weak conviction holdings: {_compact_lines(weak, limit=6)}",
+            requires_full_report=True
+        )
+
+    if intent in {"research gaps", "thesis"}:
+        gaps = (
+            _report_section(research_lines, "RESEARCH GAPS")
+            + _report_section(portfolio_lines, "RESEARCH GAPS")
+        )
+        health = _report_section(portfolio_lines, "RESEARCH HEALTH")
+        return _answer_from_lines(
+            "Research Agent",
+            query,
+            f"Research review: {_compact_lines(gaps + health, limit=6)}",
+            requires_full_report=True
+        )
+
+    if intent == "watchlist":
+        watchlist = (
+            _report_section(research_lines, "WATCHLIST")
+            + _report_section(portfolio_lines, "WATCHLIST")
+        )
+        return _answer_from_lines(
+            "Research Agent",
+            query,
+            f"Watchlist: {_compact_lines(watchlist, limit=6)}",
+            requires_full_report=True
+        )
+
+    return _query_result(
+        "Research Agent",
+        query,
+        "UNSUPPORTED_QUERY",
+        "Research Agent supports thesis, conviction, research gaps, weak holdings, and watchlist queries.",
+        "LOW",
+        False,
+        "No deterministic research query intent matched."
+    )
+
+
+def answer_echo_query(query, context):
+
+    sections = _query_sections(context)
+    executive_brief = sections.get("executive_brief", [])
+    executive_summary = sections.get("executive_summary", [])
+    intent = classify_query_intent(query)
+
+    if intent == "top priority":
+        value = _first_field(executive_summary, ("Top Priority",))
+        return _answer_from_lines("Echo", query, f"Top priority: {value or 'None identified.'}")
+
+    if intent == "themes":
+        return _answer_from_lines(
+            "Echo",
+            query,
+            _compact_lines(sections.get("theme_summary", []) + sections.get("theme_details", []), limit=8),
+            requires_full_report=True
+        )
+
+    if intent == "impacts":
+        return _answer_from_lines(
+            "Echo",
+            query,
+            _compact_lines(sections.get("theme_impact_summary", []) + sections.get("theme_impact_details", []), limit=8),
+            requires_full_report=True
+        )
+
+    if intent == "conflicts":
+        return _answer_from_lines(
+            "Echo",
+            query,
+            _compact_lines(sections.get("theme_conflict_summary", []) + sections.get("theme_conflict_details", []), limit=10),
+            requires_full_report=True
+        )
+
+    if intent == "action queue":
+        actions = _numbered_after(executive_summary, "Priority Action Queue:")
+        return _answer_from_lines("Echo", query, f"Action queue: {_compact_lines(actions)}")
+
+    if intent == "market watch":
+        value = _first_field(executive_brief, ("Market Watch",))
+        return _answer_from_lines("Echo", query, f"Market watch: {value or 'No major market development identified.'}")
+
+    if intent == "macro backdrop":
+        value = _first_field(executive_brief, ("Macro Backdrop",))
+        return _answer_from_lines("Echo", query, f"Macro backdrop: {value or 'Unknown.'}")
+
+    if intent == "portfolio risk":
+        value = _first_field(executive_brief, ("Portfolio Risk",))
+        return _answer_from_lines("Echo", query, f"Portfolio risk: {value or 'No major portfolio risk identified.'}")
+
+    return _answer_from_lines(
+        "Echo",
+        query,
+        (
+            f"Top priority: {_first_field(executive_summary, ('Top Priority',)) or 'None identified.'} "
+            f"Key conflict: {_first_field(executive_summary, ('Key Conflict',)) or 'None.'} "
+            f"Market watch: {_first_field(executive_brief, ('Market Watch',)) or 'None.'}"
+        ),
+        "MEDIUM"
+    )
+
+
 def answer_agent_query(agent_name, query, context=None):
 
     normalized_query = " ".join(str(query or "").split())
+    normalized_agent_name = normalize_agent_name(agent_name)
+
+    if normalized_agent_name == "Echo":
+        if not normalized_query:
+            return _query_result(
+                "Echo",
+                "",
+                "EMPTY_QUERY",
+                "Query cannot be empty.",
+                "LOW",
+                False,
+                "Provide a non-empty query for Echo."
+            )
+
+        return answer_echo_query(normalized_query, context)
+
     agent = get_agent_by_name(agent_name)
 
     if agent is None:
         return {
-            "agent_name": normalize_agent_name(agent_name),
+            "agent_name": normalized_agent_name,
             "query": normalized_query,
             "status": "UNKNOWN_AGENT",
             "answer": "Agent not found.",
@@ -3731,29 +4193,47 @@ def answer_agent_query(agent_name, query, context=None):
         }
 
     if agent["query_mode"] == "PLANNED":
-        status = "QUERY_MODE_PLANNED"
-        answer = (
-            "Query mode is planned for this agent but not yet implemented."
+        return _query_result(
+            agent["agent_name"],
+            normalized_query,
+            "QUERY_MODE_PLANNED",
+            "Query mode is planned for this agent but not yet implemented.",
+            "LOW",
+            False,
+            "Placeholder agents remain planned in Phase 85."
         )
-    elif agent["query_mode"] == "NOT_SUPPORTED":
-        status = "QUERY_MODE_NOT_SUPPORTED"
-        answer = "Query mode is not supported for this agent."
-    else:
-        status = "ERROR"
-        answer = "Query execution is not active in this phase."
 
-    return {
-        "agent_name": agent["agent_name"],
-        "query": normalized_query,
-        "status": status,
-        "answer": answer,
-        "confidence": "LOW",
-        "requires_full_report": False,
-        "notes": (
-            "Phase 69 provides the deterministic query contract only; "
-            "no agent reasoning was executed."
+    if agent["query_mode"] == "NOT_SUPPORTED":
+        return _query_result(
+            agent["agent_name"],
+            normalized_query,
+            "QUERY_MODE_NOT_SUPPORTED",
+            "Query mode is not supported for this agent.",
+            "LOW",
+            False,
+            "This agent has no deterministic query interface."
         )
+
+    answerers = {
+        "Portfolio Manager": answer_portfolio_query,
+        "Macro Agent": answer_macro_query,
+        "News Agent": answer_news_query,
+        "Research Agent": answer_research_query
     }
+    answerer = answerers.get(agent["agent_name"])
+
+    if answerer is None:
+        return _query_result(
+            agent["agent_name"],
+            normalized_query,
+            "QUERY_MODE_NOT_SUPPORTED",
+            "No deterministic query handler is available for this agent.",
+            "LOW",
+            False,
+            "Supported handlers exist for active report agents only."
+        )
+
+    return answerer(normalized_query, context)
 
 
 def run_report_agent(registry, agent_name, report_function, fallback):
@@ -3828,8 +4308,8 @@ def get_registry_report(registry):
         ),
         "",
         (
-            "Echo currently operates in report mode. "
-            "Conversational query mode is planned."
+            "Echo operates in report mode and supports deterministic "
+            "backend queries for active report agents."
         )
     ]
     details = []
@@ -3864,13 +4344,13 @@ def get_registry_report(registry):
 def get_query_interface_report(registry):
 
     summary = [
-        "Query Interface Status: PLANNED",
+        "Query Interface Status: ACTIVE",
         (
             "Query Mode Supported Agents: "
             f"{sum(
                 agent['query_mode'] == 'SUPPORTED'
                 for agent in registry
-            )}"
+            ) + 1}"
         ),
         (
             "Query Mode Planned Agents: "
@@ -3885,10 +4365,22 @@ def get_query_interface_report(registry):
         ),
         "Unknown Agent Handling: ENABLED",
         "Empty Query Handling: ENABLED",
+        "Deterministic Only: YES",
+        "AI Integration: NONE",
         "",
-        "Echo conversational query mode is planned but not active yet."
+        (
+            "Query answers use existing generated reports, signals, themes, "
+            "theme impacts, and conflicts."
+        )
     ]
-    details = []
+    details = [
+        (
+            "Echo | Query Mode SUPPORTED | Supported Types top priority, "
+            "themes, impacts, conflicts, action queue, market watch, "
+            "macro backdrop, portfolio risk | Example What is the top "
+            "priority?"
+        )
+    ]
 
     agents_by_name = {
         agent["agent_name"]: agent
@@ -3897,6 +4389,7 @@ def get_query_interface_report(registry):
 
     for agent_name in QUERY_INTERFACE_AGENT_ORDER:
         agent = agents_by_name[agent_name]
+        supported_types = ", ".join(agent["supported_query_types"]) or "None"
         planned_types = ", ".join(agent["planned_query_types"]) or "None"
         example = (
             agent["example_queries"][0]
@@ -3905,6 +4398,7 @@ def get_query_interface_report(registry):
         )
         details.append(
             f"{agent['agent_name']} | Query Mode {agent['query_mode']} | "
+            f"Supported Types {supported_types} | "
             f"Planned Types {planned_types} | Example {example}"
         )
 
