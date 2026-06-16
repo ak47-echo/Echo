@@ -603,8 +603,12 @@ def build_portfolio_signals(portfolio):
             "Portfolio Manager identified this as the worst stress-test "
             "exposure.",
             "HIGH",
-            "Portfolio Risk",
-            {"worst_scenario": worst_scenario}
+            "Scenario Risk",
+            {
+                "worst_scenario": worst_scenario,
+                "current_relevance": "LOW",
+                "risk_timeframe": "scenario"
+            }
         )
 
     monte_carlo = _report_section(lines, "MONTE CARLO V2 SUMMARY")
@@ -2880,6 +2884,14 @@ def build_priority_candidates(signals):
             "weighted_score": signal["weighted_score"],
             "magnitude_adjusted_score": (
                 signal["magnitude_adjusted_score"]
+            ),
+            "current_relevance": signal.get("metadata", {}).get(
+                "current_relevance",
+                "NORMAL"
+            ),
+            "risk_timeframe": signal.get("metadata", {}).get(
+                "risk_timeframe",
+                "current"
             )
         })
 
@@ -2939,6 +2951,14 @@ def rank_priorities(candidates):
 
 def determine_top_priority(priorities):
 
+    current_priorities = [
+        priority for priority in priorities
+        if not _is_scenario_risk(priority)
+    ]
+
+    if current_priorities:
+        return current_priorities[0]
+
     return priorities[0] if priorities else None
 
 
@@ -2978,6 +2998,10 @@ def build_cross_agent_priority_report(signals):
         (
             "Cross-Agent Priority Engine ranks issues across all active "
             "agents."
+        ),
+        (
+            "Stress-test scenarios are separated from current live "
+            "priorities."
         )
     ]
     details = []
@@ -2988,6 +3012,7 @@ def build_cross_agent_priority_report(signals):
             f"   Source: {priority['source_agent']}",
             f"   Severity: {priority['severity']}",
             f"   Category: {priority['category']}",
+            f"   Risk Timeframe: {priority.get('risk_timeframe', 'current')}",
             f"   Reason: {priority['description']}",
             ""
         ])
@@ -3269,9 +3294,64 @@ def _select_market_event_signal(signals):
     return select_signal_by_category(weighted_signals, ("Market Event",))
 
 
+def _is_scenario_risk(signal):
+
+    if not isinstance(signal, dict):
+        return False
+
+    metadata = signal.get("metadata", {})
+
+    return (
+        signal.get("signal_type") == "STRESS_TEST_RISK"
+        or signal.get("category") == "Scenario Risk"
+        or metadata.get("risk_timeframe") == "scenario"
+    )
+
+
+def _current_weighted_signals(signals):
+
+    weighted_signals = rank_weighted_signals(signals)
+    current_signals = [
+        signal for signal in weighted_signals
+        if not _is_scenario_risk(signal)
+    ]
+
+    return current_signals or weighted_signals
+
+
+def _select_current_priority_signal(signals):
+
+    current_signals = _current_weighted_signals(signals)
+    return current_signals[0] if current_signals else None
+
+
+def _select_worst_stress_scenario(signals):
+
+    for signal in rank_weighted_signals(signals):
+        if signal.get("signal_type") == "STRESS_TEST_RISK":
+            return signal
+
+    return None
+
+
+def _stress_scenario_summary(signal):
+
+    if not signal:
+        return "None identified."
+
+    title = str(signal.get("title") or "").strip()
+    prefix = "Stress-test exposure:"
+
+    if title.startswith(prefix):
+        return title[len(prefix):].strip()
+
+    return title or "None identified."
+
+
 def _select_portfolio_risk_signal(signals):
 
     eligible_signals = []
+    scenario_signals = []
     holding_research_types = {
         "MISSING_THESIS",
         "LOW_CONVICTION",
@@ -3279,6 +3359,10 @@ def _select_portfolio_risk_signal(signals):
     }
 
     for signal in rank_weighted_signals(signals):
+        if _is_scenario_risk(signal):
+            scenario_signals.append(signal)
+            continue
+
         if signal.get("category") == "Portfolio Risk":
             eligible_signals.append(signal)
         elif (
@@ -3287,7 +3371,10 @@ def _select_portfolio_risk_signal(signals):
         ):
             eligible_signals.append(signal)
 
-    return eligible_signals[0] if eligible_signals else None
+    if eligible_signals:
+        return eligible_signals[0]
+
+    return scenario_signals[0] if scenario_signals else None
 
 
 def _signal_action_verb(signal):
@@ -3410,19 +3497,21 @@ def build_signal_driven_executive_summary(registry, signals,
                                           theme_conflict_report=None):
 
     weighted_signals = rank_weighted_signals(signals)
-    top_priority = weighted_signals[0] if weighted_signals else None
+    current_signals = _current_weighted_signals(weighted_signals)
+    top_priority = _select_current_priority_signal(weighted_signals)
     dominant_theme = _dominant_theme(theme_report)
     dominant_impact = _dominant_theme_impact(theme_impact_report)
     key_conflict = _key_theme_conflict(theme_conflict_report)
-    macro_environment = _select_macro_environment_signal(weighted_signals)
-    portfolio_risk = _select_portfolio_risk_signal(weighted_signals)
+    macro_environment = _select_macro_environment_signal(current_signals)
+    portfolio_risk = _select_portfolio_risk_signal(current_signals)
+    worst_stress = _select_worst_stress_scenario(weighted_signals)
     portfolio_opportunity = select_signal_by_category(
-        weighted_signals,
+        current_signals,
         ("Portfolio Opportunity",)
     )
-    market_development = _select_market_event_signal(weighted_signals)
-    actions = build_signal_driven_action_queue(weighted_signals)
-    notes = _build_signal_executive_notes(weighted_signals)
+    market_development = _select_market_event_signal(current_signals)
+    actions = build_signal_driven_action_queue(current_signals)
+    notes = _build_signal_executive_notes(current_signals)
     summary = [
         (
             "System Health: "
@@ -3473,6 +3562,8 @@ def build_signal_driven_executive_summary(registry, signals,
             else "Top Portfolio Risk: No major portfolio risk identified."
         ),
         "",
+        f"Worst Stress Scenario: {_stress_scenario_summary(worst_stress)}",
+        "",
         (
             f"Top Portfolio Opportunity: {portfolio_opportunity['title']}"
             if portfolio_opportunity
@@ -3506,6 +3597,8 @@ def build_signal_driven_executive_summary(registry, signals,
         "",
         f"Executive Notes: {notes}",
         "",
+        "Stress-test scenarios are separated from current live priorities.",
+        "",
         (
             "Echo Executive Summary is generated deterministically from "
             "agent signals and does not constitute investment advice."
@@ -3538,8 +3631,7 @@ def determine_full_report_trigger(system_health, signals, portfolio_risk):
     if system_health in {"DEGRADED", "CRITICAL"}:
         return "Agent failure detected."
 
-    weighted_signals = rank_weighted_signals(signals)
-    top_priority = weighted_signals[0] if weighted_signals else None
+    top_priority = _select_current_priority_signal(signals)
 
     if (
         top_priority
@@ -3558,19 +3650,21 @@ def build_echo_executive_brief(registry, signals, theme_report=None,
                                theme_conflict_report=None):
 
     weighted_signals = rank_weighted_signals(signals)
+    current_signals = _current_weighted_signals(weighted_signals)
     system_health = determine_signal_driven_system_health(
         registry,
         weighted_signals
     )
-    top_priority = weighted_signals[0] if weighted_signals else None
+    top_priority = _select_current_priority_signal(weighted_signals)
     dominant_theme = _dominant_theme(theme_report)
     dominant_impact = _dominant_theme_impact(theme_impact_report)
     key_conflict = _key_theme_conflict(theme_conflict_report)
-    portfolio_risk = _select_portfolio_risk_signal(weighted_signals)
-    macro_backdrop = _select_macro_environment_signal(weighted_signals)
-    market_watch = _select_market_event_signal(weighted_signals)
+    portfolio_risk = _select_portfolio_risk_signal(current_signals)
+    worst_stress = _select_worst_stress_scenario(weighted_signals)
+    macro_backdrop = _select_macro_environment_signal(current_signals)
+    market_watch = _select_market_event_signal(current_signals)
     actions = compress_action_queue(
-        build_signal_driven_action_queue(weighted_signals)
+        build_signal_driven_action_queue(current_signals)
     )
     brief = [
         f"System: {system_health}",
@@ -3598,6 +3692,10 @@ def build_echo_executive_brief(registry, signals, theme_report=None,
             f"Portfolio Risk: {_concise(portfolio_risk['title'], limit=140)}"
             if portfolio_risk
             else "Portfolio Risk: No major portfolio risk identified."
+        ),
+        (
+            "Worst Stress Scenario: "
+            f"{_concise(_stress_scenario_summary(worst_stress), limit=140)}"
         ),
         (
             f"Macro Backdrop: {_concise(macro_backdrop['title'], limit=140)}"
@@ -3634,7 +3732,8 @@ def build_echo_executive_brief(registry, signals, theme_report=None,
         "",
         (
             "Echo Executive Brief is a compressed command brief. "
-            "Full agent reports remain below."
+            "Stress-test scenarios are separated from current live "
+            "priorities. Full agent reports remain below."
         )
     ])
 
@@ -4973,10 +5072,15 @@ def echo_get_daily_brief(context=None):
     market_watch = _echo_tool_field(executive_brief, "Market Watch")
     macro_backdrop = _echo_tool_field(executive_brief, "Macro Backdrop")
     portfolio_risk = _echo_tool_field(executive_brief, "Portfolio Risk")
+    worst_stress = (
+        _echo_tool_field(executive_brief, "Worst Stress Scenario")
+        or _echo_tool_field(executive_summary, "Worst Stress Scenario")
+    )
     data = {
         "top_priority": top_priority,
         "dominant_theme": dominant_theme,
         "portfolio_risk": portfolio_risk,
+        "worst_stress_scenario": worst_stress,
         "macro_backdrop": macro_backdrop,
         "market_watch": market_watch,
         "action_queue": action_queue,
@@ -4986,6 +5090,7 @@ def echo_get_daily_brief(context=None):
     summary = (
         f"Top priority: {top_priority or 'None identified.'} "
         f"Dominant theme: {dominant_theme or 'None identified.'} "
+        f"Worst stress scenario: {worst_stress or 'None identified.'} "
         f"Market watch: {market_watch or 'None identified.'}"
     )
     return _echo_tool_response(
@@ -5154,12 +5259,17 @@ def echo_get_portfolio_snapshot(context=None):
         _echo_tool_field(executive_summary, "Top Portfolio Risk")
         or determine_top_portfolio_risk(portfolio)
     )
+    worst_stress = _echo_tool_field(
+        executive_summary,
+        "Worst Stress Scenario"
+    )
     opportunity = _echo_tool_field(
         executive_summary,
         "Top Portfolio Opportunity"
     )
     data = {
         "portfolio_risk": top_risk,
+        "worst_stress_scenario": worst_stress,
         "allocation": _report_section(portfolio_lines, "TICKER ALLOCATION"),
         "rebalance_alerts": _report_section(portfolio_lines,
                                             "REBALANCE ALERTS"),
