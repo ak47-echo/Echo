@@ -50,6 +50,56 @@ REGIME_ORDER = (
     "RISK_OFF"
 )
 
+MACRO_PRIORITY_REGIME_ORDER = (
+    "Inflation Stress",
+    "Disinflation / Soft Landing",
+    "Growth Slowdown",
+    "Recession Risk",
+    "Liquidity Stress",
+    "Rate Shock",
+    "Credit Stress",
+    "Energy Shock",
+    "Geopolitical Macro Shock",
+    "Neutral / Mixed"
+)
+
+MACRO_REGIME_BASE_WEIGHTS = {
+    "Inflation Stress": 72,
+    "Disinflation / Soft Landing": 45,
+    "Growth Slowdown": 58,
+    "Recession Risk": 82,
+    "Liquidity Stress": 86,
+    "Rate Shock": 80,
+    "Credit Stress": 84,
+    "Energy Shock": 78,
+    "Geopolitical Macro Shock": 76,
+    "Neutral / Mixed": 20
+}
+
+SEVERITY_MODIFIERS = {
+    "HIGH": 12,
+    "MEDIUM": 6,
+    "LOW": 0
+}
+
+MARKET_IMPACT_MODIFIERS = {
+    "HIGH": 10,
+    "MEDIUM": 5,
+    "LOW": 1
+}
+
+PORTFOLIO_RELEVANCE_MODIFIERS = {
+    "HIGH": 8,
+    "MEDIUM": 4,
+    "LOW": 1
+}
+
+DIRECTIONAL_CLARITY_MODIFIERS = {
+    "HIGH": 5,
+    "MEDIUM": 3,
+    "LOW": 0
+}
+
 
 def _network_timeout(timeout):
 
@@ -574,6 +624,346 @@ def score_macro_regimes(indicators):
     return regime, confidence, scores
 
 
+def _point_change(series, days=90):
+
+    if not series or series["status"] != "OK":
+        return None
+
+    latest_date = series["latest_date"]
+
+    if latest_date is None:
+        return None
+
+    prior = _observation_at_or_before(
+        series["observations"],
+        latest_date - timedelta(days=days)
+    )
+
+    if prior is None:
+        return None
+
+    return series["latest_value"] - prior["value"]
+
+
+def _priority_tier(score):
+
+    if score >= 85:
+        return "HIGH"
+
+    if score >= 60:
+        return "MEDIUM"
+
+    return "LOW"
+
+
+def _macro_priority_signal(label, status, detail, regime, severity,
+                           market_impact, portfolio_relevance,
+                           directional_clarity, reason):
+
+    score = min(
+        100,
+        MACRO_REGIME_BASE_WEIGHTS[regime]
+        + SEVERITY_MODIFIERS[severity]
+        + MARKET_IMPACT_MODIFIERS[market_impact]
+        + PORTFOLIO_RELEVANCE_MODIFIERS[portfolio_relevance]
+        + DIRECTIONAL_CLARITY_MODIFIERS[directional_clarity]
+    )
+
+    return {
+        "label": label,
+        "status": status,
+        "detail": detail,
+        "macro_regime": regime,
+        "regime_score": score,
+        "priority_tier": _priority_tier(score),
+        "severity": severity,
+        "market_impact": market_impact,
+        "portfolio_relevance": portfolio_relevance,
+        "directional_clarity": directional_clarity,
+        "ranking_reason": reason
+    }
+
+
+def build_macro_priority_signals(indicators, series_by_id):
+
+    inflation = indicators["inflation"]
+    labor = indicators["labor"]
+    policy = indicators["policy_rate"]
+    yield_curve = indicators["yield_curve"]
+    growth = indicators["growth"]
+    energy = indicators["energy"]
+    fed_funds_change = _point_change(series_by_id.get("FEDFUNDS"))
+    ten_year_change = _point_change(series_by_id.get("DGS10"))
+    two_year_change = _point_change(series_by_id.get("DGS2"))
+    signals = []
+
+    if inflation["status"] == "RISING":
+        signals.append(_macro_priority_signal(
+            "Inflation Trend",
+            inflation["status"],
+            inflation["detail"],
+            "Inflation Stress",
+            "HIGH",
+            "HIGH",
+            "HIGH",
+            "HIGH",
+            (
+                "Rising inflation can reprice Fed expectations, broad "
+                "equities, long-duration growth assets, and drawdown risk."
+            )
+        ))
+    elif inflation["status"] == "FALLING":
+        signals.append(_macro_priority_signal(
+            "Inflation Trend",
+            inflation["status"],
+            inflation["detail"],
+            "Disinflation / Soft Landing",
+            "MEDIUM",
+            "MEDIUM",
+            "MEDIUM",
+            "HIGH",
+            (
+                "Falling inflation supports a soft-landing backdrop and "
+                "reduces pressure on rates-sensitive assets."
+            )
+        ))
+    else:
+        signals.append(_macro_priority_signal(
+            "Inflation Trend",
+            inflation["status"],
+            inflation["detail"],
+            "Neutral / Mixed",
+            "LOW",
+            "MEDIUM",
+            "MEDIUM",
+            "MEDIUM",
+            "Inflation does not show a clear market-moving directional shock."
+        ))
+
+    if labor["status"] == "WEAK":
+        signals.append(_macro_priority_signal(
+            "Labor Market",
+            labor["status"],
+            labor["detail"],
+            "Recession Risk",
+            "HIGH",
+            "HIGH",
+            "HIGH",
+            "HIGH",
+            (
+                "Labor weakness raises recession risk and broad portfolio "
+                "drawdown risk."
+            )
+        ))
+    elif labor["status"] == "STRONG":
+        signals.append(_macro_priority_signal(
+            "Labor Market",
+            labor["status"],
+            labor["detail"],
+            "Disinflation / Soft Landing",
+            "LOW",
+            "MEDIUM",
+            "MEDIUM",
+            "HIGH",
+            (
+                "A strong labor market supports growth unless it conflicts "
+                "with inflation or rate stress."
+            )
+        ))
+    else:
+        signals.append(_macro_priority_signal(
+            "Labor Market",
+            labor["status"],
+            labor["detail"],
+            "Neutral / Mixed",
+            "LOW",
+            "LOW",
+            "LOW",
+            "MEDIUM",
+            "Labor data is not signaling a major market regime shift."
+        ))
+
+    policy_rate_shock = (
+        fed_funds_change is not None
+        and abs(fed_funds_change) >= 0.25
+    )
+    policy_severity = "HIGH" if policy_rate_shock else "MEDIUM"
+    policy_reason = (
+        "Policy-rate movement can directly affect broad equities, "
+        "long-duration growth assets, Bitcoin proxies, and rates-sensitive "
+        "holdings."
+    )
+
+    if policy["status"] == "RESTRICTIVE" or policy_rate_shock:
+        signals.append(_macro_priority_signal(
+            "Policy Rate",
+            policy["status"],
+            policy["detail"],
+            "Rate Shock",
+            policy_severity,
+            "HIGH",
+            "HIGH",
+            "HIGH" if policy_rate_shock else "MEDIUM",
+            policy_reason
+        ))
+    elif policy["status"] == "ACCOMMODATIVE":
+        signals.append(_macro_priority_signal(
+            "Policy Rate",
+            policy["status"],
+            policy["detail"],
+            "Disinflation / Soft Landing",
+            "LOW",
+            "MEDIUM",
+            "MEDIUM",
+            "MEDIUM",
+            "Accommodative policy can support risk assets and liquidity."
+        ))
+    else:
+        signals.append(_macro_priority_signal(
+            "Policy Rate",
+            policy["status"],
+            policy["detail"],
+            "Neutral / Mixed",
+            "LOW",
+            "MEDIUM",
+            "MEDIUM",
+            "LOW",
+            "Policy rate is not showing a clear shock signal."
+        ))
+
+    rate_move_shock = any(
+        change is not None and abs(change) >= 0.50
+        for change in (ten_year_change, two_year_change)
+    )
+
+    if rate_move_shock:
+        yield_regime = "Rate Shock"
+        yield_severity = "HIGH"
+        yield_reason = (
+            "Large Treasury-yield moves reprice discount rates, "
+            "growth assets, Bitcoin proxies, and rates-sensitive holdings."
+        )
+    elif yield_curve["status"] == "INVERTED":
+        yield_regime = "Recession Risk"
+        yield_severity = "HIGH"
+        yield_reason = (
+            "An inverted yield curve is a higher-priority recession and "
+            "drawdown-risk signal than routine macro data."
+        )
+    elif yield_curve["status"] == "FLAT":
+        yield_regime = "Growth Slowdown"
+        yield_severity = "MEDIUM"
+        yield_reason = (
+            "A flat curve can indicate slower growth expectations and "
+            "less favorable risk appetite."
+        )
+    else:
+        yield_regime = "Neutral / Mixed"
+        yield_severity = "LOW"
+        yield_reason = "Yield curve does not show acute stress."
+
+    signals.append(_macro_priority_signal(
+        "Yield Curve",
+        yield_curve["status"],
+        yield_curve["detail"],
+        yield_regime,
+        yield_severity,
+        "HIGH" if yield_regime in {"Rate Shock", "Recession Risk"} else "MEDIUM",
+        "HIGH" if yield_regime in {"Rate Shock", "Recession Risk"} else "MEDIUM",
+        "HIGH" if yield_regime in {"Rate Shock", "Recession Risk"} else "MEDIUM",
+        yield_reason
+    ))
+
+    if growth["status"] == "SLOWING":
+        signals.append(_macro_priority_signal(
+            "Growth",
+            growth["status"],
+            growth["detail"],
+            "Growth Slowdown",
+            "MEDIUM",
+            "MEDIUM",
+            "HIGH",
+            "HIGH",
+            (
+                "Slowing growth affects earnings expectations and broad "
+                "portfolio drawdown risk."
+            )
+        ))
+    elif growth["status"] == "EXPANDING":
+        signals.append(_macro_priority_signal(
+            "Growth",
+            growth["status"],
+            growth["detail"],
+            "Disinflation / Soft Landing",
+            "LOW",
+            "MEDIUM",
+            "MEDIUM",
+            "HIGH",
+            "Expanding growth supports a constructive macro backdrop."
+        ))
+    else:
+        signals.append(_macro_priority_signal(
+            "Growth",
+            growth["status"],
+            growth["detail"],
+            "Neutral / Mixed",
+            "LOW",
+            "LOW",
+            "LOW",
+            "MEDIUM",
+            "Growth data is not showing a high-priority macro risk."
+        ))
+
+    if energy["status"] == "RISING":
+        signals.append(_macro_priority_signal(
+            "Energy",
+            energy["status"],
+            energy["detail"],
+            "Energy Shock",
+            "HIGH",
+            "HIGH",
+            "HIGH",
+            "HIGH",
+            (
+                "Rising energy can pressure inflation, margins, energy "
+                "holdings, and broad market risk appetite."
+            )
+        ))
+    elif energy["status"] == "FALLING":
+        signals.append(_macro_priority_signal(
+            "Energy",
+            energy["status"],
+            energy["detail"],
+            "Disinflation / Soft Landing",
+            "LOW",
+            "MEDIUM",
+            "MEDIUM",
+            "HIGH",
+            "Falling energy prices can reduce inflation pressure."
+        ))
+    else:
+        signals.append(_macro_priority_signal(
+            "Energy",
+            energy["status"],
+            energy["detail"],
+            "Neutral / Mixed",
+            "LOW",
+            "LOW",
+            "MEDIUM",
+            "MEDIUM",
+            "Energy data does not show a disruption or shock."
+        ))
+
+    return sorted(
+        signals,
+        key=lambda signal: (
+            -signal["regime_score"],
+            MACRO_PRIORITY_REGIME_ORDER.index(signal["macro_regime"]),
+            signal["label"]
+        )
+    )
+
+
 def analyze_macro_data(series_results):
 
     by_id = {
@@ -596,7 +986,24 @@ def analyze_macro_data(series_results):
         name: {"status": value[0], "detail": value[1]}
         for name, value in indicator_values.items()
     }
-    regime, confidence, regime_scores = score_macro_regimes(indicators)
+    legacy_regime, legacy_confidence, regime_scores = score_macro_regimes(
+        indicators
+    )
+    macro_priority_signals = build_macro_priority_signals(indicators, by_id)
+    top_priority = (
+        macro_priority_signals[0]
+        if macro_priority_signals
+        else {
+            "label": "Macro Regime",
+            "status": "UNKNOWN",
+            "detail": "No macro priority signals available.",
+            "macro_regime": "Neutral / Mixed",
+            "regime_score": 0,
+            "priority_tier": "LOW",
+            "ranking_reason": "No classified macro signals were available."
+        }
+    )
+    confidence = top_priority["priority_tier"]
     required = [
         series for series in series_results
         if series["required"]
@@ -615,8 +1022,12 @@ def analyze_macro_data(series_results):
 
     return {
         "status": agent_status,
-        "regime": regime,
+        "regime": top_priority["macro_regime"],
         "confidence": confidence,
+        "top_priority": top_priority,
+        "macro_priority_signals": macro_priority_signals,
+        "legacy_regime": legacy_regime,
+        "legacy_confidence": legacy_confidence,
         "indicators": indicators,
         "regime_scores": regime_scores,
         "failed_series_count": sum(
@@ -639,9 +1050,17 @@ def _format_value(value):
 def build_macro_report(macro_data):
 
     indicators = macro_data["indicators"]
+    top_priority = macro_data["top_priority"]
     executive_brief = [
         f"Macro Agent Status: {macro_data['status']}",
         f"Current Macro Regime: {macro_data['regime']}",
+        (
+            f"Top Macro Priority: {top_priority['label']} | "
+            f"Macro Regime {top_priority['macro_regime']} | "
+            f"Regime Score {top_priority['regime_score']} | "
+            f"Priority Tier {top_priority['priority_tier']}"
+        ),
+        f"Top Macro Reason: {top_priority['ranking_reason']}",
         f"Confidence: {macro_data['confidence']}",
         f"Inflation Trend: {indicators['inflation']['status']}",
         f"Labor Market: {indicators['labor']['status']}",
@@ -674,6 +1093,25 @@ def build_macro_report(macro_data):
     else:
         full_report.append("No macro data sources connected.")
 
+    full_report.extend(["", "Ranked Macro Priority Signals:"])
+
+    for rank, signal in enumerate(macro_data["macro_priority_signals"], start=1):
+        full_report.extend([
+            f"{rank}. {signal['label']}: {signal['status']}",
+            f"   Macro Regime: {signal['macro_regime']}",
+            f"   Regime Score: {signal['regime_score']}",
+            f"   Priority Tier: {signal['priority_tier']}",
+            f"   Reason: {signal['ranking_reason']}",
+            f"   Detail: {signal['detail']}",
+            (
+                "   Components: "
+                f"Severity {signal['severity']} | "
+                f"Market Impact {signal['market_impact']} | "
+                f"Portfolio Relevance {signal['portfolio_relevance']} | "
+                f"Directional Clarity {signal['directional_clarity']}"
+            )
+        ])
+
     full_report.extend(["", "Macro Indicators:"])
 
     for label, key in (
@@ -698,6 +1136,15 @@ def build_macro_report(macro_data):
 
     for regime, score in sorted_scores:
         full_report.append(f"{regime} | Score {score}")
+
+    full_report.extend([
+        "",
+        "Legacy Aggregate Regime:",
+        (
+            f"{macro_data['legacy_regime']} | "
+            f"Confidence {macro_data['legacy_confidence']}"
+        )
+    ])
 
     full_report.extend([
         "",

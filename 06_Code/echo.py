@@ -721,27 +721,47 @@ def build_macro_signals(macro):
     lines = _report_lines(macro)
     signals = []
     regime = _field_value(lines, "Current Macro Regime")
+    top_priority = _field_value(lines, "Top Macro Priority")
+    top_reason = _field_value(lines, "Top Macro Reason")
     regime_key = regime.casefold().replace("_", " ").replace("-", " ")
 
     if regime:
         high_risk_regime = any(
             risk in regime_key
             for risk in ("recession", "stagflation", "inflation shock")
+        ) or regime in {
+            "Inflation Stress",
+            "Growth Slowdown",
+            "Recession Risk",
+            "Liquidity Stress",
+            "Rate Shock",
+            "Credit Stress",
+            "Energy Shock",
+            "Geopolitical Macro Shock"
+        }
+        priority_tier = _field_value(lines, "Priority Tier")
+        high_priority = (
+            "Priority Tier HIGH" in top_priority
+            or priority_tier == "HIGH"
         )
         _append_signal(
             signals,
             "Macro Agent",
             "MACRO_REGIME",
-            "HIGH" if high_risk_regime else "INFO",
-            f"Macro regime: {regime}",
+            "HIGH" if high_risk_regime and high_priority else (
+                "MEDIUM" if high_risk_regime else "INFO"
+            ),
+            top_priority or f"Macro regime: {regime}",
             (
-                "Macro Agent identified a high-risk macro regime."
+                top_reason
+                if top_reason
+                else "Macro Agent identified a high-risk macro regime."
                 if high_risk_regime
                 else "Macro Agent reported the current macro regime."
             ),
             "MEDIUM",
             "Macro Risk" if high_risk_regime else "Macro Environment",
-            {"regime": regime}
+            {"regime": regime, "top_priority": top_priority}
         )
 
     yield_curve = _field_value(lines, "Yield Curve")
@@ -1650,6 +1670,11 @@ def determine_system_health(registry):
 def determine_top_macro_environment(macro):
 
     lines = _report_lines(macro)
+    top_priority = _field_value(lines, "Top Macro Priority")
+
+    if top_priority:
+        return top_priority
+
     values = [
         _field_value(lines, label)
         for label in (
