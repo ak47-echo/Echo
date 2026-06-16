@@ -550,6 +550,88 @@ MARKET_IMPACT_RULES = (
     }
 )
 
+NARRATIVE_CATEGORY_IMPORTANCE = {
+    "Fed Policy": 8,
+    "Inflation Shock": 8,
+    "Labor Market Shock": 7,
+    "Treasury and Liquidity Stress": 7,
+    "Recession Signal": 7,
+    "Energy Supply Shock": 6,
+    "China Taiwan Escalation": 6,
+    "Mega-Cap Earnings": 5,
+    "Major Regulatory Action": 5,
+    "Portfolio Company Event": 5,
+    "AI and Semiconductor Cycle": 3,
+    "Generic Economic Data": 1,
+    "Routine Government Release": 0,
+    "Vague Market Commentary": 0,
+    "Low-Impact Regional News": 0,
+    "No Clear Market Catalyst": 0
+}
+
+NARRATIVE_TITLE_BY_CATEGORY = {
+    "Fed Policy": "Federal Reserve Policy Outlook",
+    "Inflation Shock": "Inflation",
+    "Labor Market Shock": "Labor Market",
+    "Treasury and Liquidity Stress": "Treasury Market",
+    "Recession Signal": "Recession Risk",
+    "Energy Supply Shock": "Energy Market",
+    "China Taiwan Escalation": "China/Taiwan",
+    "Mega-Cap Earnings": "Mega-Cap Earnings",
+    "Major Regulatory Action": "Regulatory Action",
+    "Portfolio Company Event": "Portfolio-Relevant Events",
+    "AI and Semiconductor Cycle": "AI and Semiconductor Cycle",
+    "Generic Economic Data": "General Economic Data",
+    "Routine Government Release": "Routine Government Releases",
+    "Vague Market Commentary": "General Market Developments",
+    "Low-Impact Regional News": "Regional Developments",
+    "No Clear Market Catalyst": "General Market Developments"
+}
+
+NARRATIVE_STOPWORDS = {
+    "about",
+    "after",
+    "ahead",
+    "amid",
+    "and",
+    "are",
+    "as",
+    "at",
+    "be",
+    "but",
+    "by",
+    "could",
+    "for",
+    "from",
+    "has",
+    "have",
+    "his",
+    "how",
+    "in",
+    "into",
+    "is",
+    "it",
+    "its",
+    "may",
+    "more",
+    "new",
+    "not",
+    "of",
+    "on",
+    "or",
+    "over",
+    "says",
+    "that",
+    "the",
+    "their",
+    "to",
+    "up",
+    "what",
+    "while",
+    "with",
+    "your"
+}
+
 
 def _local_name(tag):
 
@@ -984,6 +1066,234 @@ def _deduplicate_articles(articles):
     return sorted(unique_articles.values(), key=_article_sort_key)
 
 
+def _narrative_topic_tokens(article):
+
+    text = f"{article['title']} {article['summary']}"
+    tokens = []
+
+    for token in re.findall(r"[A-Za-z][A-Za-z0-9']+", text.casefold()):
+        token = token.strip("'")
+
+        if len(token) < 4 or token in NARRATIVE_STOPWORDS:
+            continue
+
+        if token.endswith("'s"):
+            token = token[:-2]
+
+        if token not in tokens:
+            tokens.append(token)
+
+    return tokens
+
+
+def _narrative_entities(article):
+
+    entities = []
+
+    for term in (
+        article["matched_terms"]
+        + article["portfolio_matches"]
+        + article["watchlist_matches"]
+    ):
+        normalized = str(term).strip()
+
+        if normalized and normalized not in entities:
+            entities.append(normalized)
+
+    return entities
+
+
+def _narrative_topic_bucket(article):
+
+    text = f"{article['title']} {article['summary']}"
+
+    for bucket, terms in (
+        ("federal-reserve", ("Fed", "Federal Reserve", "FOMC", "Powell", "Warsh")),
+        ("inflation", ("CPI", "PCE", "inflation", "prices")),
+        ("labor-market", ("jobs", "payrolls", "unemployment", "wage growth")),
+        ("treasury-market", ("Treasury", "yield", "bond market", "liquidity")),
+        ("middle-east-energy", ("Iran", "Hormuz", "Middle East", "oil", "crude")),
+        ("china-taiwan", ("China", "Taiwan")),
+        ("regulatory", ("SEC", "DOJ", "FTC", "antitrust", "lawsuit")),
+        ("mega-cap-earnings", MEGA_CAP_TERMS + EARNINGS_TERMS),
+        ("portfolio", PORTFOLIO_TERMS)
+    ):
+        if _find_matches(text, terms):
+            return bucket
+
+    tokens = _narrative_topic_tokens(article)
+
+    return "-".join(tokens[:2]) if tokens else "general"
+
+
+def _narrative_title(category, topic_bucket):
+
+    if topic_bucket == "middle-east-energy":
+        return "Middle East Energy Risk"
+
+    if topic_bucket == "federal-reserve":
+        return "Federal Reserve Policy Outlook"
+
+    if topic_bucket == "china-taiwan":
+        return "China/Taiwan Escalation"
+
+    return NARRATIVE_TITLE_BY_CATEGORY.get(
+        category,
+        category or "General Market Developments"
+    )
+
+
+def _narrative_key(article):
+
+    category = article["impact_category"]
+    topic_bucket = _narrative_topic_bucket(article)
+
+    if category == "Energy Supply Shock":
+        return category, "middle-east-energy"
+
+    high_level_categories = {
+        "Fed Policy",
+        "Inflation Shock",
+        "Labor Market Shock",
+        "Treasury and Liquidity Stress",
+        "Recession Signal",
+        "Energy Supply Shock",
+        "China Taiwan Escalation",
+        "Major Regulatory Action",
+        "Mega-Cap Earnings",
+        "Portfolio Company Event"
+    }
+
+    if category in high_level_categories:
+        return category, topic_bucket
+
+    tags = "-".join(article["category_tags"][:2])
+    tokens = _narrative_topic_tokens(article)
+
+    return category, tags, "-".join(tokens[:2])
+
+
+def _narrative_reason(narrative):
+
+    count = narrative["supporting_article_count"]
+    category = narrative["impact_category"]
+    representative = narrative["representative_article"]
+
+    if category == "Fed Policy":
+        return (
+            f"{count} related Fed-policy stories point to rates as the "
+            "dominant market narrative."
+        )
+
+    if narrative["topic_bucket"] == "middle-east-energy":
+        return (
+            f"{count} related Iran, Hormuz, or oil headlines indicate an "
+            "energy-linked geopolitical market narrative."
+        )
+
+    if count > 1:
+        return (
+            f"{count} related stories share impact category {category} "
+            f"and common market tags."
+        )
+
+    return representative["ranking_reason"]
+
+
+def _narrative_importance_tier(score):
+
+    if score >= 95:
+        return "CRITICAL"
+
+    if score >= 80:
+        return "HIGH"
+
+    if score >= 60:
+        return "ELEVATED"
+
+    if score >= 35:
+        return "MODERATE"
+
+    return "LOW"
+
+
+def _narrative_sort_key(narrative):
+
+    return (
+        -narrative["narrative_score"],
+        -IMPACT_TIER_RANK.get(narrative["narrative_importance_tier"], 0),
+        -narrative["supporting_article_count"],
+        narrative["narrative_title"].casefold()
+    )
+
+
+def build_news_narratives(articles):
+
+    grouped_articles = {}
+
+    for article in articles:
+        grouped_articles.setdefault(_narrative_key(article), []).append(article)
+
+    narratives = []
+
+    for key, grouped in grouped_articles.items():
+        grouped = sorted(grouped, key=_article_sort_key)
+        representative = grouped[0]
+        category = representative["impact_category"]
+        topic_bucket = (
+            key[1]
+            if len(key) > 1
+            else _narrative_topic_bucket(representative)
+        )
+        article_count = len(grouped)
+        count_bonus = min(10, max(0, article_count - 1) * 3)
+        category_bonus = NARRATIVE_CATEGORY_IMPORTANCE.get(category, 0)
+        narrative_score = min(
+            100,
+            representative["total_score"] + count_bonus + category_bonus
+        )
+        narrative = {
+            "narrative_title": _narrative_title(category, topic_bucket),
+            "narrative_score": narrative_score,
+            "narrative_importance_tier": (
+                _narrative_importance_tier(narrative_score)
+            ),
+            "supporting_article_count": article_count,
+            "representative_headline": representative["title"],
+            "representative_article": representative,
+            "impact_category": category,
+            "topic_bucket": topic_bucket,
+            "category_tags": sorted(
+                {
+                    tag
+                    for article in grouped
+                    for tag in article["category_tags"]
+                },
+                key=lambda tag: TAG_ORDER.index(tag)
+            ),
+            "supporting_articles": grouped,
+            "topic_tokens": sorted(
+                {
+                    token
+                    for article in grouped
+                    for token in _narrative_topic_tokens(article)
+                }
+            ),
+            "entities": sorted(
+                {
+                    entity
+                    for article in grouped
+                    for entity in _narrative_entities(article)
+                },
+                key=str.casefold
+            )
+        }
+        narrative["narrative_reason"] = _narrative_reason(narrative)
+        narratives.append(narrative)
+
+    return sorted(narratives, key=_narrative_sort_key)
+
+
 def collect_news(sources=None, fetcher=None, current_date=None):
 
     sources = tuple(
@@ -998,6 +1308,7 @@ def collect_news(sources=None, fetcher=None, current_date=None):
             "status": "OFFLINE",
             "source_health": [],
             "articles": [],
+            "narratives": [],
             "failed_source_count": 0,
             "successful_source_count": 0
         }
@@ -1039,6 +1350,7 @@ def collect_news(sources=None, fetcher=None, current_date=None):
             articles.append(_score_article(article, current_date=current_date))
 
     articles = _deduplicate_articles(articles)
+    narratives = build_news_narratives(articles)
     successful_source_count = sum(
         result["status"] == "OK"
         for result in source_results
@@ -1067,6 +1379,7 @@ def collect_news(sources=None, fetcher=None, current_date=None):
             for result in source_results
         ],
         "articles": articles,
+        "narratives": narratives,
         "failed_source_count": failed_source_count,
         "successful_source_count": successful_source_count
     }
@@ -1086,6 +1399,11 @@ def _top_story(articles, score_field):
 def _top_ranked_story(articles):
 
     return articles[0]["title"] if articles else "None"
+
+
+def _top_ranked_narrative(narratives):
+
+    return narratives[0]["narrative_title"] if narratives else "None"
 
 
 def _format_story_list(articles, match_field):
@@ -1110,6 +1428,8 @@ def _format_story_list(articles, match_field):
 def build_news_report(news_data):
 
     articles = news_data["articles"]
+    narratives = news_data.get("narratives") or []
+    top_narrative = narratives[0] if narratives else None
     portfolio_articles = [
         article for article in articles if article["portfolio_score"] > 0
     ]
@@ -1128,8 +1448,24 @@ def build_news_report(news_data):
     executive_brief = [
         f"News Agent Status: {news_data['status']}",
         (
-            f"Top Market Story: "
-            f"{_top_ranked_story(articles)}"
+            f"Top Market Narrative: "
+            f"{_top_ranked_narrative(narratives)}"
+        ),
+        (
+            f"Supporting Articles: "
+            f"{top_narrative['supporting_article_count'] if top_narrative else 0}"
+        ),
+        (
+            f"Top Narrative Score: "
+            f"{top_narrative['narrative_score'] if top_narrative else 0}"
+        ),
+        (
+            f"Representative Headline: "
+            f"{top_narrative['representative_headline'] if top_narrative else 'None'}"
+        ),
+        (
+            f"Top Narrative Reason: "
+            f"{top_narrative['narrative_reason'] if top_narrative else 'None'}"
         ),
         (
             f"Top Portfolio Story: "
@@ -1185,6 +1521,25 @@ def build_news_report(news_data):
             "full_report": full_report,
             "data": news_data
         }
+
+    full_report.extend(["", "Top Ranked Narratives:"])
+
+    for rank, narrative in enumerate(narratives[:10], start=1):
+        full_report.extend([
+            f"{rank}. {narrative['narrative_title']}",
+            f"   Narrative Score: {narrative['narrative_score']}",
+            f"   Tier: {narrative['narrative_importance_tier']}",
+            (
+                "   Supporting Articles: "
+                f"{narrative['supporting_article_count']}"
+            ),
+            f"   Representative Headline: {narrative['representative_headline']}",
+            f"   Narrative Reason: {narrative['narrative_reason']}",
+            "   Supporting Headlines:"
+        ])
+
+        for article in narrative["supporting_articles"][:8]:
+            full_report.append(f"   - {article['title']}")
 
     full_report.extend(["", "Top Ranked Stories:"])
 

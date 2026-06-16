@@ -846,6 +846,11 @@ def build_news_signals(news):
 
     lines = _report_lines(news)
     signals = []
+    top_narrative = _field_value(lines, "Top Market Narrative")
+    supporting_articles = _field_value(lines, "Supporting Articles")
+    narrative_score = _field_value(lines, "Top Narrative Score")
+    representative_headline = _field_value(lines, "Representative Headline")
+    narrative_reason = _field_value(lines, "Top Narrative Reason")
     high_relevance = _field_value(lines, "High Relevance Stories")
 
     try:
@@ -853,7 +858,33 @@ def build_news_signals(news):
     except ValueError:
         high_relevance_count = 0
 
-    if high_relevance_count > 0:
+    try:
+        supporting_article_count = int(supporting_articles)
+    except ValueError:
+        supporting_article_count = 0
+
+    if top_narrative:
+        _append_signal(
+            signals,
+            "News Agent",
+            "NEWS_NARRATIVE",
+            "MEDIUM",
+            top_narrative,
+            narrative_reason or (
+                f"News Agent grouped {supporting_article_count} "
+                "supporting articles into the top market narrative."
+            ),
+            "MEDIUM",
+            "Market Event",
+            {
+                "narrative_title": top_narrative,
+                "narrative_score": narrative_score,
+                "supporting_article_count": supporting_article_count,
+                "representative_headline": representative_headline,
+                "high_relevance_story_count": high_relevance_count
+            }
+        )
+    elif high_relevance_count > 0:
         top_story = _field_value(lines, "Top Market Story")
         _append_signal(
             signals,
@@ -1775,6 +1806,7 @@ def determine_top_market_development(news):
     lines = _report_lines(news)
 
     for label in (
+        "Top Market Narrative",
         "Top Market Story",
         "Top Macro Story",
         "Top Portfolio Story",
@@ -1899,6 +1931,23 @@ def _select_macro_environment_signal(signals):
     return environment or risk
 
 
+def _select_market_event_signal(signals):
+
+    weighted_signals = rank_weighted_signals(signals)
+    narrative = next(
+        (
+            signal for signal in weighted_signals
+            if signal.get("signal_type") == "NEWS_NARRATIVE"
+        ),
+        None
+    )
+
+    if narrative:
+        return narrative
+
+    return select_signal_by_category(weighted_signals, ("Market Event",))
+
+
 def _select_portfolio_risk_signal(signals):
 
     eligible_signals = []
@@ -2014,10 +2063,7 @@ def build_signal_driven_executive_summary(registry, signals):
         weighted_signals,
         ("Portfolio Opportunity",)
     )
-    market_development = select_signal_by_category(
-        weighted_signals,
-        ("Market Event",)
-    )
+    market_development = _select_market_event_signal(weighted_signals)
     actions = build_signal_driven_action_queue(weighted_signals)
     notes = _build_signal_executive_notes(weighted_signals)
     summary = [
@@ -2134,10 +2180,7 @@ def build_echo_executive_brief(registry, signals):
     top_priority = weighted_signals[0] if weighted_signals else None
     portfolio_risk = _select_portfolio_risk_signal(weighted_signals)
     macro_backdrop = _select_macro_environment_signal(weighted_signals)
-    market_watch = select_signal_by_category(
-        weighted_signals,
-        ("Market Event",)
-    )
+    market_watch = _select_market_event_signal(weighted_signals)
     actions = compress_action_queue(
         build_signal_driven_action_queue(weighted_signals)
     )
