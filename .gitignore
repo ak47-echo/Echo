@@ -40,3 +40,10 @@ htmlcov/
 .vscode/
 .DS_Store
 Thumbs.db
+
+# Echo generated artifacts
+04_Reports/agents/
+04_Reports/archive/
+04_Reports/echo_executive_brief.txt
+04_Reports/echo_full_brief.txt
+06_Code/data/
