@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Echo</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <main class="shell" aria-label="Echo chat">
+      <header class="topbar">
+        <div>
+          <h1>Echo</h1>
+        </div>
+        <div class="status" id="apiStatus" aria-live="polite">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span id="apiStatusText">Checking API</span>
+        </div>
+      </header>
+
+      <section class="chat-panel" aria-label="Chat history">
+        <div class="messages" id="messages" aria-live="polite"></div>
+      </section>
+
+      <form class="composer" id="chatForm">
+        <label class="sr-only" for="messageInput">Message</label>
+        <textarea
+          id="messageInput"
+          name="message"
+          rows="2"
+          placeholder="Ask Echo..."
+          autocomplete="off"
+        ></textarea>
+        <button id="sendButton" type="submit">Send</button>
+      </form>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
