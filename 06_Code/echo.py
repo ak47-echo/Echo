@@ -4,6 +4,7 @@ from agents.portfolio_manager import get_portfolio_report
 from agents.research_agent import get_research_agent_report
 from agents.policy_agent import get_policy
 from datetime import datetime
+import os
 from pathlib import Path
 import re
 import shutil
@@ -5436,6 +5437,130 @@ def get_echo_tool_registry():
     }
 
 
+class BaseLLMProvider:
+
+    provider_name = "base"
+
+    def is_configured(self):
+
+        return False
+
+    def generate_response(self, messages, tools=None, context=None):
+
+        raise NotImplementedError
+
+
+class OpenAIProvider(BaseLLMProvider):
+
+    provider_name = "openai"
+
+    def is_configured(self):
+
+        return bool(os.getenv("OPENAI_API_KEY"))
+
+    def generate_response(self, messages, tools=None, context=None):
+
+        return {
+            "status": "STUB",
+            "provider": self.provider_name,
+            "configured": self.is_configured(),
+            "live_calls_enabled": False,
+            "message_count": len(messages or []),
+            "tool_count": len(tools or []),
+            "response": (
+                "OpenAI provider stub is active. Live calls are disabled "
+                "for this phase."
+            ),
+            "notes": (
+                "No OpenAI API call was made. Future phases may enable live "
+                "calls explicitly."
+            )
+        }
+
+
+class AnthropicProvider(BaseLLMProvider):
+
+    provider_name = "anthropic"
+
+    def is_configured(self):
+
+        return bool(os.getenv("ANTHROPIC_API_KEY"))
+
+    def generate_response(self, messages, tools=None, context=None):
+
+        return {
+            "status": "NOT_IMPLEMENTED_PROVIDER",
+            "provider": self.provider_name,
+            "configured": self.is_configured(),
+            "live_calls_enabled": False,
+            "message_count": len(messages or []),
+            "tool_count": len(tools or []),
+            "response": "Anthropic provider placeholder is not implemented.",
+            "notes": "No Anthropic API call was made."
+        }
+
+
+class UnknownLLMProvider(BaseLLMProvider):
+
+    def __init__(self, provider_name):
+
+        self.provider_name = provider_name or "unknown"
+
+    def is_configured(self):
+
+        return False
+
+    def generate_response(self, messages, tools=None, context=None):
+
+        return {
+            "status": "UNKNOWN_PROVIDER",
+            "provider": self.provider_name,
+            "configured": False,
+            "live_calls_enabled": False,
+            "message_count": len(messages or []),
+            "tool_count": len(tools or []),
+            "response": "Unsupported LLM provider.",
+            "notes": "No external API call was made."
+        }
+
+
+def _normalize_llm_provider_name(provider_name=None):
+
+    configured_provider = os.getenv("ECHO_LLM_PROVIDER")
+    provider = provider_name or configured_provider or "openai"
+    return " ".join(str(provider or "").split()).casefold() or "openai"
+
+
+def get_llm_provider(provider_name=None):
+
+    provider = _normalize_llm_provider_name(provider_name)
+
+    if provider == "openai":
+        return OpenAIProvider()
+
+    if provider == "anthropic":
+        return AnthropicProvider()
+
+    return UnknownLLMProvider(provider)
+
+
+def get_llm_provider_status(provider_name=None):
+
+    provider = get_llm_provider(provider_name)
+
+    return {
+        "status": "OK",
+        "active_provider": provider.provider_name,
+        "configured": provider.is_configured(),
+        "live_calls_enabled": False,
+        "available_providers": ["openai", "anthropic"],
+        "notes": (
+            "LLM provider layer is active. Live calls are disabled; no API "
+            "key is required for this phase."
+        )
+    }
+
+
 def _echo_orchestrator_select_tools(message, context):
 
     sections = _echo_tool_context(context)["sections"]
@@ -5631,10 +5756,16 @@ def echo_orchestrate_user_message(message, context=None):
 
 def get_echo_orchestrator_status():
 
+    provider_status = get_llm_provider_status()
+
     return {
         "status": "ACTIVE",
         "mode": "DETERMINISTIC_STUB",
         "llm_enabled": False,
+        "llm_provider_status": provider_status,
+        "active_provider": provider_status["active_provider"],
+        "llm_configured": provider_status["configured"],
+        "live_calls_enabled": False,
         "available_tools": sorted(ECHO_TOOL_REGISTRY)
     }
 
@@ -5771,6 +5902,11 @@ def get_query_interface_report(registry):
         "Echo Multi-Agent Response Engine: ACTIVE",
         "Echo Multi-Agent Routing: DETERMINISTIC",
         "LLM Orchestrator Stub: ACTIVE | LLM Enabled: No",
+        (
+            "LLM Provider Layer: ACTIVE | Provider: "
+            f"{get_llm_provider_status()['active_provider']} | "
+            "Live Calls: Disabled"
+        ),
         "Deterministic Only: YES",
         "AI Integration: NONE",
         "",
