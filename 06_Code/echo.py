@@ -5481,7 +5481,7 @@ class OpenAIProvider(BaseLLMProvider):
     def generate_response(self, messages, tools=None, context=None):
 
         model = self.model_name()
-        tool_context = _build_llm_tool_context(tools)
+        tool_context = format_tool_context_for_llm(tools)
 
         if not self.is_configured():
             return {
@@ -5490,6 +5490,8 @@ class OpenAIProvider(BaseLLMProvider):
                 "model": model,
                 "answer": "",
                 "tool_context_used": bool(tool_context),
+                "tool_context_char_count": len(tool_context),
+                "live_call_attempted": False,
                 "confidence": "LOW",
                 "notes": (
                     "OPENAI_API_KEY is not configured. No OpenAI API call "
@@ -5504,6 +5506,8 @@ class OpenAIProvider(BaseLLMProvider):
                 "model": model,
                 "answer": "",
                 "tool_context_used": bool(tool_context),
+                "tool_context_char_count": len(tool_context),
+                "live_call_attempted": False,
                 "confidence": "LOW",
                 "notes": (
                     "OpenAI provider is configured but ECHO_LLM_LIVE is not "
@@ -5520,6 +5524,8 @@ class OpenAIProvider(BaseLLMProvider):
                 "model": model,
                 "answer": "",
                 "tool_context_used": bool(tool_context),
+                "tool_context_char_count": len(tool_context),
+                "live_call_attempted": False,
                 "confidence": "LOW",
                 "notes": "OpenAI package not installed. Run: pip install openai"
             }
@@ -5548,6 +5554,8 @@ class OpenAIProvider(BaseLLMProvider):
                 "model": model,
                 "answer": " ".join(str(answer or "").split()),
                 "tool_context_used": bool(tool_context),
+                "tool_context_char_count": len(tool_context),
+                "live_call_attempted": True,
                 "confidence": "HIGH" if tool_context else "MEDIUM",
                 "notes": (
                     "OpenAI live response generated from Echo deterministic "
@@ -5561,6 +5569,8 @@ class OpenAIProvider(BaseLLMProvider):
                 "model": model,
                 "answer": "",
                 "tool_context_used": bool(tool_context),
+                "tool_context_char_count": len(tool_context),
+                "live_call_attempted": True,
                 "confidence": "LOW",
                 "notes": (
                     "OpenAI provider call failed without exposing secrets: "
@@ -5645,6 +5655,242 @@ def _build_llm_tool_context(tools):
     return tool_context
 
 
+def build_echo_llm_system_prompt():
+
+    return "\n".join([
+        "You are Echo, a personal chief-of-staff interface over deterministic tools.",
+        "Ground every answer in the provided Echo tool context.",
+        "Clearly separate known tool facts from inference or judgment.",
+        "Do not invent portfolio holdings, news, macro data, prices, or research conclusions.",
+        "If the tool context is insufficient, say what is missing.",
+        "Do not provide personalized financial advice as a directive.",
+        "You may frame risks, tradeoffs, exposures, and review areas.",
+        "Avoid unsupported buy/sell instructions.",
+        "Be concise, direct, and decision-useful."
+    ])
+
+
+_SECRET_KEY_TERMS = ("api", "key", "secret", "token", "password")
+
+
+def _looks_like_secret_key_name(key_name):
+
+    normalized = re.sub(r"[^a-z0-9]+", "_", str(key_name or "").casefold())
+    parts = {part for part in normalized.split("_") if part}
+    return bool(parts & set(_SECRET_KEY_TERMS)) or normalized.endswith("_key")
+
+
+def _redact_secret_text(text):
+
+    redacted = str(text or "")
+    redacted = re.sub(r"sk-[A-Za-z0-9_\-]{12,}", "[REDACTED]", redacted)
+    redacted = re.sub(
+        r"(?i)(OPENAI_API_KEY|ANTHROPIC_API_KEY|API_KEY)\s*=\s*\S+",
+        r"\1=[REDACTED]",
+        redacted
+    )
+    return redacted
+
+
+def _redact_secret_values(value, key_name=""):
+
+    if _looks_like_secret_key_name(key_name):
+        return "[REDACTED]"
+
+    if isinstance(value, dict):
+        return {
+            key: _redact_secret_values(item, key)
+            for key, item in value.items()
+        }
+
+    if isinstance(value, list):
+        return [_redact_secret_values(item, key_name) for item in value]
+
+    if isinstance(value, tuple):
+        return tuple(_redact_secret_values(item, key_name) for item in value)
+
+    if isinstance(value, str):
+        return _redact_secret_text(value)
+
+    return value
+
+
+def _compact_llm_context_value(value, depth=0):
+
+    if depth >= 4:
+        return _concise(value, limit=240)
+
+    if isinstance(value, dict):
+        compact = {}
+
+        for key, item in value.items():
+            key_text = str(key or "").casefold()
+
+            if any(
+                term in key_text
+                for term in ("raw", "full_report", "report_text", "transcript")
+            ):
+                continue
+
+            compact[key] = _compact_llm_context_value(item, depth + 1)
+
+        return compact
+
+    if isinstance(value, list):
+        compact_items = [
+            _compact_llm_context_value(item, depth + 1)
+            for item in value[:12]
+        ]
+
+        if len(value) > 12:
+            compact_items.append(f"... truncated {len(value) - 12} items")
+
+        return compact_items
+
+    if isinstance(value, tuple):
+        return _compact_llm_context_value(list(value), depth)
+
+    if isinstance(value, str):
+        return _concise(_redact_secret_text(value), limit=700)
+
+    return value
+
+
+def format_tool_context_for_llm(orchestrator_result, max_chars=12000):
+
+    if not isinstance(orchestrator_result, dict):
+        return ""
+
+    if "tool_results" in orchestrator_result:
+        selected_tools = orchestrator_result.get("selected_tools", [])
+        tool_results = orchestrator_result.get("tool_results", {})
+    else:
+        selected_tools = list(orchestrator_result)
+        tool_results = orchestrator_result
+
+    formatted = {
+        "selected_tools": selected_tools,
+        "tool_summaries": {},
+        "tool_data": {}
+    }
+
+    if isinstance(tool_results, dict):
+        for tool_name, result in tool_results.items():
+            if not isinstance(result, dict):
+                continue
+
+            formatted["tool_summaries"][tool_name] = {
+                "status": result.get("status"),
+                "summary": _concise(result.get("summary", ""), limit=700),
+                "confidence": result.get("confidence"),
+                "notes": _concise(result.get("notes", ""), limit=350)
+            }
+            formatted["tool_data"][tool_name] = _compact_llm_context_value(
+                result.get("data", {})
+            )
+
+    formatted = _redact_secret_values(formatted)
+    text = json.dumps(formatted, ensure_ascii=True, sort_keys=True, default=str)
+    text = _redact_secret_text(text)
+
+    if len(text) > max_chars:
+        suffix = "\n... Echo tool context truncated to fit LLM budget."
+        return text[:max_chars - len(suffix)] + suffix
+
+    return text
+
+
+_UNSUPPORTED_LLM_PHRASES = (
+    "guaranteed",
+    "risk-free",
+    "you should buy",
+    "you should sell",
+    "definitely"
+)
+
+
+_NON_TICKER_TOKENS = {
+    "AI",
+    "API",
+    "CPI",
+    "ETF",
+    "ECHO",
+    "FED",
+    "FRED",
+    "GDP",
+    "HIGH",
+    "LLM",
+    "LOW",
+    "MEDIUM",
+    "N/A",
+    "OK",
+    "PM",
+    "US",
+    "USA",
+    "WTI"
+}
+
+
+def _ticker_tokens(text):
+
+    tokens = re.findall(r"\b[A-Z][A-Z0-9.]{1,5}\b", str(text or ""))
+    return {
+        token
+        for token in tokens
+        if token not in _NON_TICKER_TOKENS
+        and not token.isdigit()
+    }
+
+
+def validate_llm_response(answer, tool_context):
+
+    warnings = []
+    normalized_answer = " ".join(str(answer or "").split())
+    lower_answer = normalized_answer.casefold()
+
+    if not normalized_answer:
+        warnings.append("LLM answer is empty.")
+
+    for phrase in _UNSUPPORTED_LLM_PHRASES:
+        if phrase in lower_answer:
+            warnings.append(
+                f"LLM answer contains unsupported phrase: {phrase}."
+            )
+
+    if len(normalized_answer) > 4000:
+        warnings.append("LLM answer exceeds the response length budget.")
+
+    context_tickers = _ticker_tokens(tool_context)
+    answer_tickers = _ticker_tokens(normalized_answer)
+    unknown_tickers = sorted(answer_tickers - context_tickers)
+    outside_context_terms = (
+        "outside context",
+        "outside the context",
+        "not in the tool context",
+        "not found in the tool context",
+        "unknown",
+        "insufficient context",
+        "not enough context",
+        "do not own",
+        "not shown"
+    )
+
+    if unknown_tickers and not any(term in lower_answer for term in outside_context_terms):
+        warnings.append(
+            "LLM answer mentions tickers not present in Echo tool context: "
+            + ", ".join(unknown_tickers)
+            + "."
+        )
+
+    fallback_required = bool(warnings)
+
+    return {
+        "valid": not fallback_required,
+        "warnings": warnings,
+        "fallback_required": fallback_required
+    }
+
+
 def _message_content(messages):
 
     if isinstance(messages, str):
@@ -5669,23 +5915,14 @@ def _message_content(messages):
 
 def _build_openai_prompt_messages(messages, tool_context):
 
-    system_message = (
-        "You are Echo, a deterministic personal intelligence system. "
-        "Use only the provided Echo tool context as evidence. Do not invent "
-        "holdings, market facts, recommendations, or external data. Keep the "
-        "answer concise, note uncertainty when context is limited, and avoid "
-        "trade recommendations unless explicitly quoting Echo context."
-    )
-    tool_context_text = json.dumps(
-        tool_context,
-        ensure_ascii=True,
-        sort_keys=True,
-        default=str
-    )
+    system_message = build_echo_llm_system_prompt()
+    tool_context_text = str(tool_context or "")
     user_message = (
         f"User question:\n{_message_content(messages)}\n\n"
         f"Echo tool context:\n{tool_context_text}\n\n"
-        "Synthesize a final answer from this context."
+        "Synthesize a final answer from this context. Use risk, exposure, "
+        "monitor, review, and tradeoff framing. Do not issue unsupported "
+        "buy or sell directives."
     )
 
     return [
@@ -5935,41 +6172,103 @@ def echo_generate_llm_answer(message, context=None):
         query_context
     )
     provider = get_llm_provider()
+    tool_context = format_tool_context_for_llm(orchestrator_result)
     provider_result = provider.generate_response(
         [{"role": "user", "content": normalized_message}],
-        tools=orchestrator_result.get("tool_results", {}),
+        tools=orchestrator_result,
         context=query_context
     )
     selected_tools = orchestrator_result.get("selected_tools", [])
     tool_results = orchestrator_result.get("tool_results", {})
+    fallback_answer = orchestrator_result.get("answer", "")
+    fallback_validation = validate_llm_response(
+        fallback_answer,
+        tool_context
+    )
+    provider_status = provider_result.get("status", "UNKNOWN")
+    provider_model = provider_result.get("model", provider.model_name())
+    live_call_attempted = bool(provider_result.get("live_call_attempted"))
+    tool_context_char_count = provider_result.get(
+        "tool_context_char_count",
+        len(tool_context)
+    )
 
-    if provider_result.get("status") == "ANSWERED":
+    if provider_status == "ANSWERED":
+        validation = validate_llm_response(
+            provider_result.get("answer", ""),
+            tool_context
+        )
+
+        if validation["fallback_required"]:
+            return {
+                "status": "DETERMINISTIC_FALLBACK",
+                "mode": "DETERMINISTIC_FALLBACK",
+                "provider": provider_result.get(
+                    "provider",
+                    provider.provider_name
+                ),
+                "model": provider_model,
+                "message": normalized_message,
+                "answer": fallback_answer,
+                "selected_tools": selected_tools,
+                "tool_results": tool_results,
+                "confidence": orchestrator_result.get(
+                    "confidence",
+                    "MEDIUM"
+                ),
+                "validation": validation,
+                "tool_context_char_count": tool_context_char_count,
+                "live_call_attempted": live_call_attempted,
+                "fallback_used": True,
+                "notes": (
+                    "Deterministic fallback used because LLM response "
+                    "validation failed: "
+                    f"{'; '.join(validation['warnings'])}"
+                )
+            }
+
         return {
             "status": "ANSWERED",
             "mode": "LLM_PROVIDER",
             "provider": provider_result.get("provider", provider.provider_name),
-            "model": provider_result.get("model", provider.model_name()),
+            "model": provider_model,
             "message": normalized_message,
             "answer": provider_result.get("answer", ""),
             "selected_tools": selected_tools,
             "tool_results": tool_results,
             "confidence": provider_result.get("confidence", "MEDIUM"),
+            "validation": validation,
+            "tool_context_char_count": tool_context_char_count,
+            "live_call_attempted": live_call_attempted,
+            "fallback_used": False,
             "notes": provider_result.get("notes", "")
         }
 
+    if provider_status == "NOT_CONFIGURED":
+        fallback_reason = "LLM provider is not configured."
+    elif provider_status == "STUB":
+        fallback_reason = "LLM live mode is disabled."
+    elif provider_status == "DEPENDENCY_MISSING":
+        fallback_reason = "LLM provider dependency is missing."
+    else:
+        fallback_reason = f"Provider status was {provider_status}."
+
     return {
-        "status": orchestrator_result.get("status", "ANSWERED"),
+        "status": "DETERMINISTIC_FALLBACK",
         "mode": "DETERMINISTIC_FALLBACK",
         "provider": provider.provider_name,
-        "model": provider_result.get("model", provider.model_name()),
+        "model": provider_model,
         "message": normalized_message,
-        "answer": orchestrator_result.get("answer", ""),
+        "answer": fallback_answer,
         "selected_tools": selected_tools,
         "tool_results": tool_results,
         "confidence": orchestrator_result.get("confidence", "MEDIUM"),
+        "validation": fallback_validation,
+        "tool_context_char_count": tool_context_char_count,
+        "live_call_attempted": live_call_attempted,
+        "fallback_used": True,
         "notes": (
-            "Deterministic fallback used because provider status was "
-            f"{provider_result.get('status', 'UNKNOWN')}. "
+            f"Deterministic fallback used. {fallback_reason} "
             f"{provider_result.get('notes', '')}"
         )
     }
@@ -6131,6 +6430,7 @@ def get_query_interface_report(registry):
             "Live Calls: "
             f"{'Enabled' if get_llm_provider_status()['live_calls_enabled'] else 'Disabled'}"
         ),
+        "LLM Response Safety Contract: ACTIVE",
         "Deterministic Only: YES",
         "AI Integration: NONE",
         "",
