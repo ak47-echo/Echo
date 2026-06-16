@@ -4927,6 +4927,515 @@ def answer_agent_query(agent_name, query, context=None):
     return answerer(normalized_query, context)
 
 
+def _echo_tool_context(context=None):
+
+    return _query_context(context)
+
+
+def _echo_tool_response(tool, data, summary, confidence="HIGH", notes=""):
+
+    return {
+        "tool": tool,
+        "status": "OK",
+        "data": data,
+        "summary": _concise(summary, limit=900),
+        "confidence": confidence,
+        "notes": notes or (
+            "Returned from Echo deterministic reports and query functions."
+        )
+    }
+
+
+def _echo_tool_lines(context, key, full_report=False):
+
+    return _lines_from_section(_echo_tool_context(context)["sections"], key,
+                               full_report)
+
+
+def _echo_tool_field(lines, *labels):
+
+    return _first_field(lines, labels)
+
+
+def echo_get_daily_brief(context=None):
+
+    sections = _echo_tool_context(context)["sections"]
+    executive_brief = sections.get("executive_brief", [])
+    executive_summary = sections.get("executive_summary", [])
+    action_queue = _numbered_after(executive_summary, "Priority Action Queue:")
+    top_priority = _echo_tool_field(executive_summary, "Top Priority")
+    dominant_theme = _echo_tool_field(
+        executive_summary,
+        "Dominant Cross-Agent Theme"
+    )
+    market_watch = _echo_tool_field(executive_brief, "Market Watch")
+    macro_backdrop = _echo_tool_field(executive_brief, "Macro Backdrop")
+    portfolio_risk = _echo_tool_field(executive_brief, "Portfolio Risk")
+    data = {
+        "top_priority": top_priority,
+        "dominant_theme": dominant_theme,
+        "portfolio_risk": portfolio_risk,
+        "macro_backdrop": macro_backdrop,
+        "market_watch": market_watch,
+        "action_queue": action_queue,
+        "executive_brief": executive_brief,
+        "executive_summary": executive_summary
+    }
+    summary = (
+        f"Top priority: {top_priority or 'None identified.'} "
+        f"Dominant theme: {dominant_theme or 'None identified.'} "
+        f"Market watch: {market_watch or 'None identified.'}"
+    )
+    return _echo_tool_response(
+        "echo_get_daily_brief",
+        data,
+        summary,
+        "HIGH",
+        "Latest/generated Echo briefing summary."
+    )
+
+
+def echo_ask(question, context=None):
+
+    result = answer_echo_multi_agent_query(question, _echo_tool_context(context))
+    status = "OK" if result.get("status") == "ANSWERED" else result.get(
+        "status",
+        "ERROR"
+    )
+
+    return {
+        "tool": "echo_ask",
+        "status": status,
+        "data": {
+            "question": " ".join(str(question or "").split()),
+            "response": result,
+            "routed_agents": result.get("routed_agents", []),
+            "source_answers": result.get("source_answers", {})
+        },
+        "summary": _concise(result.get("answer", ""), limit=900),
+        "confidence": result.get("confidence", "MEDIUM"),
+        "notes": (
+            "Called answer_echo_multi_agent_query using deterministic "
+            "Echo routing."
+        )
+    }
+
+
+def echo_ask_agent(agent, question, context=None):
+
+    result = answer_agent_query(agent, question, _echo_tool_context(context))
+    status = "OK" if result.get("status") == "ANSWERED" else result.get(
+        "status",
+        "ERROR"
+    )
+
+    return {
+        "tool": "echo_ask_agent",
+        "status": status,
+        "data": {
+            "agent": normalize_agent_name(agent),
+            "question": " ".join(str(question or "").split()),
+            "response": result
+        },
+        "summary": _concise(result.get("answer", ""), limit=900),
+        "confidence": result.get("confidence", "MEDIUM"),
+        "notes": "Called answer_agent_query for the requested agent."
+    }
+
+
+def echo_get_top_priority(context=None):
+
+    sections = _echo_tool_context(context)["sections"]
+    executive_summary = sections.get("executive_summary", [])
+    top_priority = _echo_tool_field(executive_summary, "Top Priority")
+    priority_source = _echo_tool_field(
+        sections.get("priority_summary", []),
+        "Priority Source"
+    )
+    action_queue = _numbered_after(executive_summary, "Priority Action Queue:")
+    data = {
+        "top_priority": top_priority,
+        "priority_source": priority_source,
+        "action_queue": action_queue,
+        "priority_summary": sections.get("priority_summary", []),
+        "priority_details": sections.get("priority_details", [])
+    }
+    summary = f"Top priority: {top_priority or 'None identified.'}"
+    return _echo_tool_response(
+        "echo_get_top_priority",
+        data,
+        summary,
+        "HIGH"
+    )
+
+
+def echo_get_themes(context=None):
+
+    sections = _echo_tool_context(context)["sections"]
+    theme_summary = sections.get("theme_summary", [])
+    theme_details = sections.get("theme_details", [])
+    dominant_theme = _echo_tool_field(theme_summary, "Dominant Theme")
+    dominant_score = _echo_tool_field(theme_summary, "Dominant Theme Score")
+    theme_count = _echo_tool_field(theme_summary, "Theme Count")
+    data = {
+        "dominant_theme": dominant_theme,
+        "dominant_theme_score": dominant_score,
+        "theme_count": theme_count,
+        "theme_summary": theme_summary,
+        "theme_details": theme_details
+    }
+    summary = (
+        f"Dominant theme: {dominant_theme or 'None identified.'} "
+        f"Theme count: {theme_count or '0'}."
+    )
+    return _echo_tool_response("echo_get_themes", data, summary, "HIGH")
+
+
+def echo_get_theme_impacts(context=None):
+
+    sections = _echo_tool_context(context)["sections"]
+    impact_summary = sections.get("theme_impact_summary", [])
+    impact_details = sections.get("theme_impact_details", [])
+    dominant_impact = _echo_tool_field(
+        impact_summary,
+        "Dominant Theme Impact"
+    )
+    dominant_tier = _echo_tool_field(impact_summary, "Dominant Impact Tier")
+    mapped_themes = _echo_tool_field(impact_summary, "Mapped Themes")
+    data = {
+        "dominant_theme_impact": dominant_impact,
+        "dominant_impact_tier": dominant_tier,
+        "mapped_themes": mapped_themes,
+        "theme_impact_summary": impact_summary,
+        "theme_impact_details": impact_details
+    }
+    summary = dominant_impact or "No theme impact mappings detected."
+    return _echo_tool_response(
+        "echo_get_theme_impacts",
+        data,
+        summary,
+        "HIGH"
+    )
+
+
+def echo_get_conflicts(context=None):
+
+    sections = _echo_tool_context(context)["sections"]
+    conflict_summary = sections.get("theme_conflict_summary", [])
+    conflict_details = sections.get("theme_conflict_details", [])
+    key_conflict = _echo_tool_field(conflict_summary, "Key Conflict")
+    key_reason = _echo_tool_field(conflict_summary, "Key Conflict Reason")
+    detected = _echo_tool_field(conflict_summary, "Detected Conflicts")
+    high_conflicts = _echo_tool_field(conflict_summary, "High Conflicts")
+    data = {
+        "key_conflict": key_conflict,
+        "key_conflict_reason": key_reason,
+        "detected_conflicts": detected,
+        "high_conflicts": high_conflicts,
+        "theme_conflict_summary": conflict_summary,
+        "theme_conflict_details": conflict_details
+    }
+    summary = (
+        f"Key conflict: {key_conflict or 'None identified.'} "
+        f"Detected conflicts: {detected or '0'}."
+    )
+    return _echo_tool_response("echo_get_conflicts", data, summary, "HIGH")
+
+
+def echo_get_portfolio_snapshot(context=None):
+
+    sections = _echo_tool_context(context)["sections"]
+    portfolio = sections.get("portfolio")
+    portfolio_lines = _lines_from_section(sections, "portfolio", True)
+    executive_summary = sections.get("executive_summary", [])
+    top_risk = (
+        _echo_tool_field(executive_summary, "Top Portfolio Risk")
+        or determine_top_portfolio_risk(portfolio)
+    )
+    opportunity = _echo_tool_field(
+        executive_summary,
+        "Top Portfolio Opportunity"
+    )
+    data = {
+        "portfolio_risk": top_risk,
+        "allocation": _report_section(portfolio_lines, "TICKER ALLOCATION"),
+        "rebalance_alerts": _report_section(portfolio_lines,
+                                            "REBALANCE ALERTS"),
+        "concentration_summary": _report_section(
+            portfolio_lines,
+            "CONCENTRATION RISK SUMMARY"
+        ),
+        "concentration_details": _report_section(
+            portfolio_lines,
+            "CONCENTRATION RISK DETAILS"
+        ),
+        "stress_test_summary": _report_section(
+            portfolio_lines,
+            "STRESS TEST SUMMARY"
+        ),
+        "opportunity": opportunity,
+        "capital_deployment": _report_section(
+            portfolio_lines,
+            "CAPITAL DEPLOYMENT"
+        )
+    }
+    summary = (
+        f"Portfolio risk: {top_risk or 'None identified.'} "
+        f"Opportunity: {opportunity or 'None identified.'}"
+    )
+    return _echo_tool_response(
+        "echo_get_portfolio_snapshot",
+        data,
+        summary,
+        "HIGH",
+        "Snapshot uses Portfolio Manager report sections."
+    )
+
+
+def echo_get_macro_snapshot(context=None):
+
+    macro_lines = _echo_tool_lines(context, "macro", True)
+    data = {
+        "current_macro_regime": _echo_tool_field(
+            macro_lines,
+            "Current Macro Regime"
+        ),
+        "top_macro_priority": _echo_tool_field(
+            macro_lines,
+            "Top Macro Priority"
+        ),
+        "top_macro_reason": _echo_tool_field(macro_lines,
+                                             "Top Macro Reason"),
+        "inflation_trend": _echo_tool_field(macro_lines, "Inflation Trend"),
+        "policy_rate": _echo_tool_field(macro_lines, "Policy Rate"),
+        "labor_market": _echo_tool_field(macro_lines, "Labor Market"),
+        "yield_curve": _echo_tool_field(macro_lines, "Yield Curve"),
+        "energy": _echo_tool_field(macro_lines, "Energy"),
+        "ranked_macro_priority_signals": _report_section(
+            macro_lines,
+            "Ranked Macro Priority Signals:"
+        ),
+        "macro_indicators": _report_section(macro_lines, "Macro Indicators")
+    }
+    summary = (
+        f"Macro regime: {data['current_macro_regime'] or 'Unknown'}. "
+        f"Inflation: {data['inflation_trend'] or 'Unknown'}. "
+        f"Rates: {data['policy_rate'] or 'Unknown'}."
+    )
+    return _echo_tool_response(
+        "echo_get_macro_snapshot",
+        data,
+        summary,
+        "HIGH"
+    )
+
+
+def echo_get_news_snapshot(context=None):
+
+    news_lines = _echo_tool_lines(context, "news", True)
+    data = {
+        "top_market_narrative": _echo_tool_field(
+            news_lines,
+            "Top Market Narrative"
+        ),
+        "supporting_articles": _echo_tool_field(news_lines,
+                                                "Supporting Articles"),
+        "top_narrative_score": _echo_tool_field(news_lines,
+                                                "Top Narrative Score"),
+        "representative_headline": _echo_tool_field(
+            news_lines,
+            "Representative Headline"
+        ),
+        "top_narrative_reason": _echo_tool_field(
+            news_lines,
+            "Top Narrative Reason"
+        ),
+        "top_macro_story": _echo_tool_field(news_lines, "Top Macro Story"),
+        "top_world_event_story": _echo_tool_field(
+            news_lines,
+            "Top World Event Story"
+        ),
+        "top_portfolio_story": _echo_tool_field(news_lines,
+                                                "Top Portfolio Story"),
+        "top_watchlist_story": _echo_tool_field(news_lines,
+                                                "Top Watchlist Story")
+    }
+    summary = (
+        f"Top market narrative: "
+        f"{data['top_market_narrative'] or 'None identified.'}"
+    )
+    return _echo_tool_response(
+        "echo_get_news_snapshot",
+        data,
+        summary,
+        "HIGH"
+    )
+
+
+def echo_get_research_snapshot(context=None):
+
+    research_lines = _echo_tool_lines(context, "research", True)
+    portfolio_lines = _echo_tool_lines(context, "portfolio", True)
+    research_health = (
+        _report_section(research_lines, "RESEARCH HEALTH")
+        + _report_section(portfolio_lines, "RESEARCH HEALTH")
+    )
+    weak_holdings = [
+        line for line in research_health
+        if "low conviction" in line.casefold()
+    ]
+
+    if not weak_holdings:
+        weak_holdings = [
+            line for line in research_lines + portfolio_lines
+            if "low conviction" in line.casefold()
+        ]
+
+    data = {
+        "weak_holdings": weak_holdings,
+        "lowest_conviction_holding": _echo_tool_field(
+            research_lines,
+            "Lowest Conviction Holding"
+        ),
+        "top_research_priority": _echo_tool_field(
+            research_lines,
+            "Top Research Priority"
+        ),
+        "research_health": research_health,
+        "research_gaps": (
+            _report_section(research_lines, "RESEARCH GAPS")
+            + _report_section(portfolio_lines, "RESEARCH GAPS")
+        ),
+        "watchlist_issues": [
+            line for line in research_health
+            if "watch" in line.casefold()
+        ],
+        "watchlist": (
+            _report_section(research_lines, "WATCHLIST")
+            + _report_section(portfolio_lines, "WATCHLIST")
+        )
+    }
+    summary = (
+        "Weak holdings: "
+        f"{_compact_lines(weak_holdings, limit=4)}"
+    )
+    return _echo_tool_response(
+        "echo_get_research_snapshot",
+        data,
+        summary,
+        "HIGH"
+    )
+
+
+ECHO_TOOL_REGISTRY = {
+    "echo_get_daily_brief": {
+        "function_name": "echo_get_daily_brief",
+        "description": "Return the latest/generated Echo briefing summary.",
+        "expected_input_fields": {},
+        "output_description": (
+            "Dictionary with top priority, dominant theme, market watch, "
+            "macro backdrop, portfolio risk, and action queue."
+        )
+    },
+    "echo_ask": {
+        "function_name": "echo_ask",
+        "description": "Ask Echo one multi-agent deterministic question.",
+        "expected_input_fields": {"question": "string"},
+        "output_description": (
+            "Dictionary containing the synthesized Echo answer, routed "
+            "agents, and source answers."
+        )
+    },
+    "echo_ask_agent": {
+        "function_name": "echo_ask_agent",
+        "description": "Ask one existing deterministic Echo agent.",
+        "expected_input_fields": {
+            "agent": "string",
+            "question": "string"
+        },
+        "output_description": (
+            "Dictionary containing the selected agent answer and metadata."
+        )
+    },
+    "echo_get_top_priority": {
+        "function_name": "echo_get_top_priority",
+        "description": "Return Echo's current top priority.",
+        "expected_input_fields": {},
+        "output_description": (
+            "Dictionary with top priority, priority source, and action queue."
+        )
+    },
+    "echo_get_themes": {
+        "function_name": "echo_get_themes",
+        "description": "Return dominant cross-agent themes.",
+        "expected_input_fields": {},
+        "output_description": (
+            "Dictionary with theme summary and theme detail report lines."
+        )
+    },
+    "echo_get_theme_impacts": {
+        "function_name": "echo_get_theme_impacts",
+        "description": "Return theme-to-portfolio impact mappings.",
+        "expected_input_fields": {},
+        "output_description": (
+            "Dictionary with dominant theme impact, tier, and impact details."
+        )
+    },
+    "echo_get_conflicts": {
+        "function_name": "echo_get_conflicts",
+        "description": "Return detected deterministic cross-agent conflicts.",
+        "expected_input_fields": {},
+        "output_description": (
+            "Dictionary with key conflict, conflict counts, and details."
+        )
+    },
+    "echo_get_portfolio_snapshot": {
+        "function_name": "echo_get_portfolio_snapshot",
+        "description": "Return portfolio risk and allocation snapshot.",
+        "expected_input_fields": {},
+        "output_description": (
+            "Dictionary with risk, allocation, concentration, stress test, "
+            "and opportunity data."
+        )
+    },
+    "echo_get_macro_snapshot": {
+        "function_name": "echo_get_macro_snapshot",
+        "description": "Return macro regime and indicator snapshot.",
+        "expected_input_fields": {},
+        "output_description": (
+            "Dictionary with macro regime, inflation, rates, labor, yield "
+            "curve, and energy."
+        )
+    },
+    "echo_get_news_snapshot": {
+        "function_name": "echo_get_news_snapshot",
+        "description": "Return market narrative and news story snapshot.",
+        "expected_input_fields": {},
+        "output_description": (
+            "Dictionary with top narrative, supporting articles, and top "
+            "macro/world/portfolio stories."
+        )
+    },
+    "echo_get_research_snapshot": {
+        "function_name": "echo_get_research_snapshot",
+        "description": "Return research quality and watchlist snapshot.",
+        "expected_input_fields": {},
+        "output_description": (
+            "Dictionary with weak holdings, conviction issues, research "
+            "gaps, and watchlist issues."
+        )
+    }
+}
+
+
+def get_echo_tool_registry():
+
+    return {
+        name: dict(metadata)
+        for name, metadata in ECHO_TOOL_REGISTRY.items()
+    }
+
+
 def run_report_agent(registry, agent_name, report_function, fallback):
 
     agent = get_registry_agent(registry, agent_name)
