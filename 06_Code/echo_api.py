@@ -38,6 +38,7 @@ from echo_state import read_echo_state
 from echo_state_delta import read_state_delta
 from echo_state_history import read_state_history
 from echo_change_detection import read_change_detection
+from echo_knowledge_graph import read_knowledge_graph
 
 
 LOCALHOST_ORIGINS = [
@@ -186,6 +187,10 @@ def create_app():
     @app.get("/state/change-detection")
     async def state_change_detection():
         return read_change_detection()
+
+    @app.get("/knowledge-graph")
+    async def knowledge_graph():
+        return read_knowledge_graph()
 
     @app.get("/status")
     async def status():

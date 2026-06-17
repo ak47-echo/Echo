@@ -26,6 +26,12 @@ from echo_change_detection import (
     write_change_detection_json,
     write_change_detection_text
 )
+from echo_knowledge_graph import (
+    build_echo_knowledge_graph,
+    read_knowledge_graph,
+    write_knowledge_graph_json,
+    write_knowledge_graph_text
+)
 import json
 import os
 from pathlib import Path
@@ -5209,6 +5215,28 @@ def echo_get_change_detection(context=None):
     )
 
 
+def echo_get_knowledge_graph(context=None):
+
+    graph = read_knowledge_graph()
+    summary_data = graph.get("summary") or {}
+    top_nodes = summary_data.get("top_connected_nodes") or []
+    top_node = top_nodes[0] if top_nodes else {}
+    summary = (
+        f"Nodes: {summary_data.get('node_count') or 0}. "
+        f"Edges: {summary_data.get('edge_count') or 0}. "
+        "Most connected: "
+        f"{top_node.get('label') or 'None'}."
+    )
+
+    return _echo_tool_response(
+        "echo_get_knowledge_graph",
+        {"knowledge_graph": graph},
+        summary,
+        "HIGH",
+        "Latest deterministic Echo relationship memory graph."
+    )
+
+
 def echo_ask(question, context=None):
 
     result = answer_echo_multi_agent_query(question, _echo_tool_context(context))
@@ -5592,6 +5620,15 @@ ECHO_TOOL_REGISTRY = {
         "output_description": (
             "JSON-serializable dictionary with prioritized state-change "
             "signals, escalations, deescalations, and recommended attention."
+        )
+    },
+    "echo_get_knowledge_graph": {
+        "function_name": "echo_get_knowledge_graph",
+        "description": "Return Echo deterministic knowledge graph.",
+        "expected_input_fields": {},
+        "output_description": (
+            "JSON-serializable dictionary with relationship nodes, edges, "
+            "clusters, entity index, and relationship index."
         )
     },
     "echo_ask": {
@@ -6249,6 +6286,31 @@ def _echo_orchestrator_select_tools(message, context):
     if any(
         term in text
         for term in (
+            "connect",
+            "connected",
+            "connection",
+            "connections",
+            "graph",
+            "knowledge graph",
+            "relationship",
+            "relationships",
+            "linked",
+            "links",
+            "relates",
+            "related",
+            "cluster",
+            "clusters"
+        )
+    ):
+        add_tools(
+            "echo_get_knowledge_graph",
+            "echo_get_change_detection",
+            "echo_get_themes"
+        )
+
+    if any(
+        term in text
+        for term in (
             "risk",
             "exposure",
             "allocation",
@@ -6317,6 +6379,7 @@ def _run_echo_orchestrator_tool(tool_name, message, context):
         "echo_get_state_delta": echo_get_state_delta,
         "echo_get_state_history": echo_get_state_history,
         "echo_get_change_detection": echo_get_change_detection,
+        "echo_get_knowledge_graph": echo_get_knowledge_graph,
         "echo_get_top_priority": echo_get_top_priority,
         "echo_get_themes": echo_get_themes,
         "echo_get_theme_impacts": echo_get_theme_impacts,
@@ -7302,6 +7365,14 @@ if __name__ == "__main__":
     change_detection_text_result = write_change_detection_text(
         change_detection
     )
+    knowledge_graph = build_echo_knowledge_graph(
+        state,
+        state_delta,
+        state_history,
+        change_detection
+    )
+    knowledge_graph_json_result = write_knowledge_graph_json(knowledge_graph)
+    knowledge_graph_text_result = write_knowledge_graph_text(knowledge_graph)
 
     if not state_result["success"]:
         print(f"Echo state write failed: {state_result['error']}")
@@ -7334,6 +7405,18 @@ if __name__ == "__main__":
         print(
             "Echo change detection text write failed: "
             f"{change_detection_text_result['error']}"
+        )
+
+    if not knowledge_graph_json_result["success"]:
+        print(
+            "Echo knowledge graph JSON write failed: "
+            f"{knowledge_graph_json_result['error']}"
+        )
+
+    if not knowledge_graph_text_result["success"]:
+        print(
+            "Echo knowledge graph text write failed: "
+            f"{knowledge_graph_text_result['error']}"
         )
 
     print(report_bundle["daily_brief"])
