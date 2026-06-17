@@ -43,6 +43,7 @@ from echo_memory_context import read_memory_context
 from echo_context_budget import read_context_budget
 from echo_agent_router import read_agent_routing
 from echo_context_assembler import read_context_assembly
+from echo_response_composer import read_response_composer
 
 
 LOCALHOST_ORIGINS = [
@@ -211,6 +212,10 @@ def create_app():
     @app.get("/context-assembly")
     async def context_assembly():
         return read_context_assembly()
+
+    @app.get("/response-composer")
+    async def response_composer():
+        return read_response_composer()
 
     @app.get("/status")
     async def status():

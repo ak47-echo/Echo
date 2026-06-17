@@ -56,6 +56,12 @@ from echo_context_assembler import (
     write_context_assembly_json,
     write_context_assembly_text
 )
+from echo_response_composer import (
+    compose_echo_response,
+    read_response_composer,
+    write_response_composer_json,
+    write_response_composer_text
+)
 import json
 import os
 from pathlib import Path
@@ -5437,6 +5443,32 @@ def echo_get_context_assembly(context=None):
     )
 
 
+def echo_get_response_composer(context=None):
+
+    response_composer = (
+        context.get("response_composer")
+        if isinstance(context, dict)
+        else None
+    )
+
+    if not isinstance(response_composer, dict):
+        response_composer = read_response_composer()
+
+    summary = (
+        f"Response mode: {response_composer.get('response_mode') or 'fallback'}. "
+        f"Used sources: {len(response_composer.get('used_sources') or [])}. "
+        "Clean user-facing answer is available."
+    )
+
+    return _echo_tool_response(
+        "echo_get_response_composer",
+        {"response_composer": response_composer},
+        summary,
+        "HIGH",
+        "Deterministic user-facing answer composed from assembled context."
+    )
+
+
 def echo_ask(question, context=None):
 
     result = answer_echo_multi_agent_query(question, _echo_tool_context(context))
@@ -5865,6 +5897,15 @@ ECHO_TOOL_REGISTRY = {
         "output_description": (
             "Dictionary with assembly mode, included/excluded sources, "
             "context blocks, context summary, and assembly reason."
+        )
+    },
+    "echo_get_response_composer": {
+        "function_name": "echo_get_response_composer",
+        "description": "Return deterministic clean user-facing response.",
+        "expected_input_fields": {},
+        "output_description": (
+            "Dictionary with response mode, answer, supporting points, "
+            "caveats, used sources, and compact debug summary."
         )
     },
     "echo_ask": {
@@ -6301,6 +6342,7 @@ def format_tool_context_for_llm(orchestrator_result, max_chars=12000):
         "context_budget": orchestrator_result.get("context_budget", {}),
         "agent_routing": orchestrator_result.get("agent_routing", {}),
         "context_assembly": orchestrator_result.get("context_assembly", {}),
+        "response_composer": orchestrator_result.get("response_composer", {}),
         "tool_summaries": {},
         "tool_data": {}
     }
@@ -6573,7 +6615,8 @@ def _echo_orchestrator_select_tools(message, context, context_budget=None,
         "echo_get_context_budget",
         "echo_get_agent_routing",
         "echo_get_memory_context",
-        "echo_get_context_assembly"
+        "echo_get_context_assembly",
+        "echo_get_response_composer"
     )
 
     if query_class == "simple":
@@ -6675,7 +6718,8 @@ def _echo_orchestrator_select_tools(message, context, context_budget=None,
         "echo_get_context_budget",
         "echo_get_agent_routing",
         "echo_get_memory_context",
-        "echo_get_context_assembly"
+        "echo_get_context_assembly",
+        "echo_get_response_composer"
     ]:
         add_tools(
             "echo_get_top_priority",
@@ -6689,7 +6733,8 @@ def _echo_orchestrator_select_tools(message, context, context_budget=None,
                 "echo_get_context_budget",
                 "echo_get_agent_routing",
                 "echo_get_memory_context",
-                "echo_get_context_assembly"
+                "echo_get_context_assembly",
+                "echo_get_response_composer"
             }
         ]
     elif budget_level == "standard":
@@ -6719,6 +6764,7 @@ def _run_echo_orchestrator_tool(tool_name, message, context):
         "echo_get_context_budget": echo_get_context_budget,
         "echo_get_agent_routing": echo_get_agent_routing,
         "echo_get_context_assembly": echo_get_context_assembly,
+        "echo_get_response_composer": echo_get_response_composer,
         "echo_get_top_priority": echo_get_top_priority,
         "echo_get_themes": echo_get_themes,
         "echo_get_theme_impacts": echo_get_theme_impacts,
@@ -6814,16 +6860,26 @@ def echo_orchestrate_user_message(message, context=None):
         agent_routing,
         _context_assembly_reports(query_context)
     )
+    response_composer = compose_echo_response(
+        normalized_message,
+        context_budget,
+        agent_routing,
+        context_assembly,
+        memory_context
+    )
     write_context_budget_json(context_budget)
     write_context_budget_text(context_budget)
     write_agent_routing_json(agent_routing)
     write_agent_routing_text(agent_routing)
     write_context_assembly_json(context_assembly)
     write_context_assembly_text(context_assembly)
+    write_response_composer_json(response_composer)
+    write_response_composer_text(response_composer)
     query_context = dict(query_context)
     query_context["context_budget"] = context_budget
     query_context["agent_routing"] = agent_routing
     query_context["context_assembly"] = context_assembly
+    query_context["response_composer"] = response_composer
 
     selected_tools = _echo_orchestrator_select_tools(
         normalized_message,
@@ -6848,8 +6904,11 @@ def echo_orchestrate_user_message(message, context=None):
         "context_budget": context_budget,
         "agent_routing": agent_routing,
         "context_assembly": context_assembly,
+        "response_composer": response_composer,
         "tool_results": tool_results,
-        "answer": _echo_orchestrator_answer(tool_results),
+        "answer": response_composer.get("answer") or _echo_orchestrator_answer(
+            tool_results
+        ),
         "confidence": _echo_orchestrator_confidence(tool_results),
         "notes": (
             "LLM orchestrator stub used deterministic tool selection and "
@@ -6878,6 +6937,7 @@ def echo_generate_llm_answer(message, context=None):
     context_budget = orchestrator_result.get("context_budget", {})
     agent_routing = orchestrator_result.get("agent_routing", {})
     context_assembly = orchestrator_result.get("context_assembly", {})
+    response_composer = orchestrator_result.get("response_composer", {})
     tool_results = orchestrator_result.get("tool_results", {})
     fallback_answer = orchestrator_result.get("answer", "")
     fallback_validation = validate_llm_response(
@@ -6913,6 +6973,7 @@ def echo_generate_llm_answer(message, context=None):
                 "context_budget": context_budget,
                 "agent_routing": agent_routing,
                 "context_assembly": context_assembly,
+                "response_composer": response_composer,
                 "tool_results": tool_results,
                 "confidence": orchestrator_result.get(
                     "confidence",
@@ -6940,6 +7001,7 @@ def echo_generate_llm_answer(message, context=None):
             "context_budget": context_budget,
             "agent_routing": agent_routing,
             "context_assembly": context_assembly,
+            "response_composer": response_composer,
             "tool_results": tool_results,
             "confidence": provider_result.get("confidence", "MEDIUM"),
             "validation": validation,
@@ -6969,6 +7031,7 @@ def echo_generate_llm_answer(message, context=None):
         "context_budget": context_budget,
         "agent_routing": agent_routing,
         "context_assembly": context_assembly,
+        "response_composer": response_composer,
         "tool_results": tool_results,
         "confidence": orchestrator_result.get("confidence", "MEDIUM"),
         "validation": fallback_validation,
@@ -7768,15 +7831,16 @@ if __name__ == "__main__":
     )
     memory_context_json_result = write_memory_context_json(memory_context)
     memory_context_text_result = write_memory_context_text(memory_context)
+    daily_orchestration_query = "Echo daily run overall executive summary"
     context_budget = build_context_budget(
-        "Echo daily run",
+        daily_orchestration_query,
         memory_context,
         sorted(ECHO_TOOL_REGISTRY)
     )
     context_budget_json_result = write_context_budget_json(context_budget)
     context_budget_text_result = write_context_budget_text(context_budget)
     agent_routing = route_query_to_agents(
-        "Echo daily run",
+        daily_orchestration_query,
         context_budget,
         memory_context,
         list(AGENT_ROUTING_TOOL_MAP)
@@ -7784,7 +7848,7 @@ if __name__ == "__main__":
     agent_routing_json_result = write_agent_routing_json(agent_routing)
     agent_routing_text_result = write_agent_routing_text(agent_routing)
     context_assembly = assemble_echo_context(
-        "Echo daily run",
+        daily_orchestration_query,
         memory_context,
         context_budget,
         agent_routing,
@@ -7795,6 +7859,19 @@ if __name__ == "__main__":
     )
     context_assembly_text_result = write_context_assembly_text(
         context_assembly
+    )
+    response_composer = compose_echo_response(
+        daily_orchestration_query,
+        context_budget,
+        agent_routing,
+        context_assembly,
+        memory_context
+    )
+    response_composer_json_result = write_response_composer_json(
+        response_composer
+    )
+    response_composer_text_result = write_response_composer_text(
+        response_composer
     )
 
     if not state_result["success"]:
@@ -7888,6 +7965,18 @@ if __name__ == "__main__":
         print(
             "Echo context assembly text write failed: "
             f"{context_assembly_text_result['error']}"
+        )
+
+    if not response_composer_json_result["success"]:
+        print(
+            "Echo response composer JSON write failed: "
+            f"{response_composer_json_result['error']}"
+        )
+
+    if not response_composer_text_result["success"]:
+        print(
+            "Echo response composer text write failed: "
+            f"{response_composer_text_result['error']}"
         )
 
     print(report_bundle["daily_brief"])
