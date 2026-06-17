@@ -5,6 +5,14 @@ from agents.research_agent import get_research_agent_report
 from agents.policy_agent import get_policy
 from datetime import datetime
 from echo_state import build_echo_state, write_echo_state
+from echo_state_delta import (
+    build_echo_state_delta,
+    load_previous_state,
+    read_state_delta,
+    save_state_snapshot,
+    write_state_delta_json,
+    write_state_delta_text
+)
 import json
 import os
 from pathlib import Path
@@ -5125,6 +5133,27 @@ def echo_get_state(context=None):
     )
 
 
+def echo_get_state_delta(context=None):
+
+    delta = read_state_delta()
+    summary_data = delta.get("summary") or {}
+    material_count = summary_data.get("material_change_count") or 0
+    top_change = summary_data.get("top_change") or {}
+    summary = (
+        f"Material changes: {material_count}. "
+        "Top change: "
+        f"{top_change.get('field') or 'None'}."
+    )
+
+    return _echo_tool_response(
+        "echo_get_state_delta",
+        {"delta": delta},
+        summary,
+        "HIGH",
+        "Latest compressed Echo state delta from generated state files."
+    )
+
+
 def echo_ask(question, context=None):
 
     result = answer_echo_multi_agent_query(question, _echo_tool_context(context))
@@ -5480,6 +5509,15 @@ ECHO_TOOL_REGISTRY = {
             "JSON-serializable dictionary with top priority, dominant theme, "
             "portfolio, research, news, macro, conflicts, action queue, and "
             "risk register."
+        )
+    },
+    "echo_get_state_delta": {
+        "function_name": "echo_get_state_delta",
+        "description": "Return latest compressed Echo state delta.",
+        "expected_input_fields": {},
+        "output_description": (
+            "JSON-serializable dictionary with material changes, new risks, "
+            "resolved risks, and major state field changes."
         )
     },
     "echo_ask": {
@@ -6202,6 +6240,7 @@ def _run_echo_orchestrator_tool(tool_name, message, context):
     tool_functions = {
         "echo_get_daily_brief": echo_get_daily_brief,
         "echo_get_state": echo_get_state,
+        "echo_get_state_delta": echo_get_state_delta,
         "echo_get_top_priority": echo_get_top_priority,
         "echo_get_themes": echo_get_themes,
         "echo_get_theme_impacts": echo_get_theme_impacts,
@@ -7160,10 +7199,27 @@ if __name__ == "__main__":
         ).name
         write_archive_reports(report_bundle, timestamp)
 
+    previous_state = load_previous_state()
     state = build_echo_state(report_bundle)
+    state_delta = build_echo_state_delta(previous_state, state)
+
+    if previous_state is not None:
+        snapshot_result = save_state_snapshot(previous_state)
+
+        if not snapshot_result["success"]:
+            print(f"Echo state snapshot failed: {snapshot_result['error']}")
+
     state_result = write_echo_state(state)
+    delta_json_result = write_state_delta_json(state_delta)
+    delta_text_result = write_state_delta_text(state_delta)
 
     if not state_result["success"]:
         print(f"Echo state write failed: {state_result['error']}")
+
+    if not delta_json_result["success"]:
+        print(f"Echo state delta JSON write failed: {delta_json_result['error']}")
+
+    if not delta_text_result["success"]:
+        print(f"Echo state delta text write failed: {delta_text_result['error']}")
 
     print(report_bundle["daily_brief"])

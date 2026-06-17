@@ -35,6 +35,7 @@ from echo import (
     get_llm_provider_status
 )
 from echo_state import read_echo_state
+from echo_state_delta import read_state_delta
 
 
 LOCALHOST_ORIGINS = [
@@ -171,6 +172,10 @@ def create_app():
     @app.get("/state")
     async def state():
         return read_echo_state()
+
+    @app.get("/state/delta")
+    async def state_delta():
+        return read_state_delta()
 
     @app.get("/status")
     async def status():

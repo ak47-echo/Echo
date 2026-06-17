@@ -1,0 +1,20 @@
+{
+  "changes": [],
+  "generated_at": "2026-06-17T10:08:01",
+  "has_previous_state": true,
+  "macro_regime_change": null,
+  "material_changes": [],
+  "new_risks": [],
+  "news_narrative_change": null,
+  "portfolio_risk_change": null,
+  "priority_change": null,
+  "resolved_risks": [],
+  "schema_version": "1.0",
+  "stress_scenario_change": null,
+  "summary": {
+    "change_count": 0,
+    "material_change_count": 0,
+    "top_change": null
+  },
+  "theme_change": null
+}
