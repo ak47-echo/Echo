@@ -41,6 +41,7 @@ from echo_change_detection import read_change_detection
 from echo_knowledge_graph import read_knowledge_graph
 from echo_memory_context import read_memory_context
 from echo_context_budget import read_context_budget
+from echo_agent_router import read_agent_routing
 
 
 LOCALHOST_ORIGINS = [
@@ -201,6 +202,10 @@ def create_app():
     @app.get("/context-budget")
     async def context_budget():
         return read_context_budget()
+
+    @app.get("/agent-routing")
+    async def agent_routing():
+        return read_agent_routing()
 
     @app.get("/status")
     async def status():

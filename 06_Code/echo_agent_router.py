@@ -1,0 +1,406 @@
+from datetime import datetime
+import json
+from pathlib import Path
+import re
+
+
+REPORTS_DIR = Path(__file__).resolve().parent.parent / "04_Reports"
+AGENT_ROUTING_JSON_PATH = REPORTS_DIR / "echo_agent_routing.json"
+AGENT_ROUTING_TEXT_PATH = REPORTS_DIR / "echo_agent_routing.txt"
+ACTIVE_AGENTS = ("portfolio", "research", "news", "macro")
+
+AGENT_KEYWORDS = {
+    "portfolio": {
+        "portfolio",
+        "holding",
+        "holdings",
+        "allocation",
+        "exposure",
+        "risk",
+        "concentration",
+        "monte carlo",
+        "stress test",
+        "account",
+        "roth",
+        "brokerage",
+        "position",
+        "positions"
+    },
+    "research": {
+        "thesis",
+        "conviction",
+        "watchlist",
+        "company",
+        "ticker",
+        "stock",
+        "valuation",
+        "coverage",
+        "weak holding",
+        "buy",
+        "sell",
+        "research"
+    },
+    "news": {
+        "news",
+        "headline",
+        "headlines",
+        "narrative",
+        "market event",
+        "article",
+        "current event",
+        "breaking",
+        "story",
+        "stories"
+    },
+    "macro": {
+        "macro",
+        "fed",
+        "rates",
+        "rate",
+        "inflation",
+        "recession",
+        "unemployment",
+        "gdp",
+        "treasury",
+        "yield",
+        "regime",
+        "economy"
+    }
+}
+
+MEMORY_TERMS = (
+    "what changed",
+    "what matters",
+    "top priority",
+    "current priority",
+    "what should i focus on",
+    "focus on",
+    "what is persistent",
+    "persistent",
+    "persisted"
+)
+
+SYNTHESIS_TERMS = (
+    "synthesis",
+    "overall picture",
+    "executive summary",
+    "cross-agent",
+    "cross agent",
+    "broad diagnosis",
+    "diagnosis",
+    "big picture",
+    "all agents",
+    "across agents"
+)
+
+
+def _now():
+
+    return datetime.now().isoformat(timespec="seconds")
+
+
+def _safe_text(value):
+
+    return " ".join(str(value or "").split())
+
+
+def _tokens(text):
+
+    return set(re.findall(r"[a-z0-9]+", _safe_text(text).casefold()))
+
+
+def _has_phrase(text, phrases):
+
+    lowered = _safe_text(text).casefold()
+    return any(phrase in lowered for phrase in phrases)
+
+
+def _available_agents(available_agents):
+
+    if isinstance(available_agents, (list, tuple, set)):
+        agents = [
+            str(agent).strip().casefold()
+            for agent in available_agents
+            if str(agent).strip().casefold() in ACTIVE_AGENTS
+        ]
+        return agents or list(ACTIVE_AGENTS)
+
+    return list(ACTIVE_AGENTS)
+
+
+def _matched_agents(query, available_agents):
+
+    lowered = _safe_text(query).casefold()
+    tokens = _tokens(query)
+    matched = []
+
+    for agent in available_agents:
+        keywords = AGENT_KEYWORDS.get(agent, set())
+
+        if any(" " in keyword and keyword in lowered for keyword in keywords):
+            matched.append(agent)
+            continue
+
+        if tokens & {keyword for keyword in keywords if " " not in keyword}:
+            matched.append(agent)
+
+    return matched
+
+
+def _include_full_report(agent, role, budget_level):
+
+    if budget_level == "minimal":
+        return False
+
+    if budget_level == "standard":
+        return role == "primary"
+
+    if budget_level == "expanded":
+        return role in {"primary", "secondary"}
+
+    if budget_level == "full":
+        return True
+
+    return False
+
+
+def _context_sources(agent, role, include_full_report):
+
+    sources = ["memory_context", f"{agent}_snapshot"]
+
+    if include_full_report:
+        sources.append(f"{agent}_full_report")
+
+    if role == "secondary":
+        sources.append("memory_context_summary")
+
+    return sources
+
+
+def _plan(primary_agents, secondary_agents, budget_level):
+
+    plan = []
+
+    for role, agents in (
+        ("primary", primary_agents),
+        ("secondary", secondary_agents)
+    ):
+        for agent in agents:
+            include_full_report = _include_full_report(
+                agent,
+                role,
+                budget_level
+            )
+            plan.append({
+                "agent": agent,
+                "role": role,
+                "context_sources": _context_sources(
+                    agent,
+                    role,
+                    include_full_report
+                ),
+                "include_full_report": include_full_report,
+                "reason": (
+                    f"{agent} matched as {role} context under "
+                    f"{budget_level} budget."
+                )
+            })
+
+    return plan
+
+
+def route_query_to_agents(user_query, context_budget=None, memory_context=None,
+                          available_agents=None):
+
+    query = _safe_text(user_query)
+    context_budget = context_budget if isinstance(context_budget, dict) else {}
+    budget_level = context_budget.get("budget_level") or "standard"
+    query_class = context_budget.get("query_class") or "unknown"
+    agents = _available_agents(available_agents)
+
+    if _has_phrase(query, MEMORY_TERMS) or query_class == "memory":
+        return {
+            "schema_version": "1.0",
+            "generated_at": _now(),
+            "query": query,
+            "primary_agents": [],
+            "secondary_agents": [],
+            "excluded_agents": agents,
+            "routing_mode": "none",
+            "confidence": "high",
+            "agent_context_plan": [],
+            "reason": "Memory/meta query should be answered from Echo memory first."
+        }
+
+    if _has_phrase(query, SYNTHESIS_TERMS) or query_class == "multi_agent":
+        plan = _plan(agents, [], budget_level)
+        return {
+            "schema_version": "1.0",
+            "generated_at": _now(),
+            "query": query,
+            "primary_agents": agents,
+            "secondary_agents": [],
+            "excluded_agents": [],
+            "routing_mode": "all_agents",
+            "confidence": "high",
+            "agent_context_plan": plan,
+            "reason": "Broad synthesis query needs all active agent contexts."
+        }
+
+    matched = _matched_agents(query, agents)
+
+    if not matched:
+        return {
+            "schema_version": "1.0",
+            "generated_at": _now(),
+            "query": query,
+            "primary_agents": [],
+            "secondary_agents": [],
+            "excluded_agents": agents,
+            "routing_mode": "none",
+            "confidence": "low",
+            "agent_context_plan": [],
+            "reason": "No active agent keyword matched; use Echo memory first."
+        }
+
+    primary_agents = matched[:1]
+    secondary_agents = matched[1:]
+
+    if query_class in {"deep_dive", "multi_agent"} and len(matched) == 1:
+        secondary_agents = [
+            agent for agent in agents
+            if agent not in primary_agents
+        ]
+
+    excluded_agents = [
+        agent for agent in agents
+        if agent not in primary_agents and agent not in secondary_agents
+    ]
+    routing_mode = "single_agent" if len(primary_agents) == 1 and not secondary_agents else "multi_agent"
+    confidence = "high" if primary_agents else "medium"
+
+    return {
+        "schema_version": "1.0",
+        "generated_at": _now(),
+        "query": query,
+        "primary_agents": primary_agents,
+        "secondary_agents": secondary_agents,
+        "excluded_agents": excluded_agents,
+        "routing_mode": routing_mode,
+        "confidence": confidence,
+        "agent_context_plan": _plan(
+            primary_agents,
+            secondary_agents,
+            budget_level
+        ),
+        "reason": (
+            "Matched active agent keywords and applied context budget "
+            f"{budget_level}."
+        )
+    }
+
+
+def render_agent_routing_text(agent_routing):
+
+    routing = agent_routing if isinstance(agent_routing, dict) else {}
+    lines = [
+        "ECHO AGENT ROUTING",
+        "==================",
+        "",
+        f"Schema Version: {routing.get('schema_version') or 'unknown'}",
+        f"Generated At: {routing.get('generated_at') or 'unknown'}",
+        f"Query: {routing.get('query') or ''}",
+        f"Routing Mode: {routing.get('routing_mode') or 'none'}",
+        f"Confidence: {routing.get('confidence') or 'low'}",
+        "",
+        "Primary Agents:"
+    ]
+    primary = routing.get("primary_agents") or []
+    lines.extend([f"- {agent}" for agent in primary] or ["None"])
+    lines.extend(["", "Secondary Agents:"])
+    secondary = routing.get("secondary_agents") or []
+    lines.extend([f"- {agent}" for agent in secondary] or ["None"])
+    lines.extend(["", "Excluded Agents:"])
+    excluded = routing.get("excluded_agents") or []
+    lines.extend([f"- {agent}" for agent in excluded] or ["None"])
+    lines.extend(["", "Agent Context Plan:"])
+
+    plan = routing.get("agent_context_plan") or []
+    if plan:
+        for item in plan:
+            sources = ", ".join(item.get("context_sources") or [])
+            lines.append(
+                f"- {item.get('agent')} | {item.get('role')} | "
+                f"Full Report: {item.get('include_full_report')} | "
+                f"Sources: {sources}"
+            )
+    else:
+        lines.append("None")
+
+    lines.extend(["", f"Reason: {routing.get('reason') or 'None'}"])
+
+    return "\n".join(lines) + "\n"
+
+
+def write_agent_routing_json(agent_routing, path=None):
+
+    path = Path(path) if path else AGENT_ROUTING_JSON_PATH
+
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(
+            json.dumps(agent_routing, indent=2, sort_keys=True),
+            encoding="utf-8"
+        )
+    except (OSError, TypeError, ValueError) as error:
+        return {
+            "success": False,
+            "path": str(path),
+            "error": _safe_text(error)[:180]
+        }
+
+    return {
+        "success": True,
+        "path": str(path),
+        "error": ""
+    }
+
+
+def write_agent_routing_text(agent_routing, path=None):
+
+    path = Path(path) if path else AGENT_ROUTING_TEXT_PATH
+
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(
+            render_agent_routing_text(agent_routing),
+            encoding="utf-8"
+        )
+    except (OSError, TypeError, ValueError) as error:
+        return {
+            "success": False,
+            "path": str(path),
+            "error": _safe_text(error)[:180]
+        }
+
+    return {
+        "success": True,
+        "path": str(path),
+        "error": ""
+    }
+
+
+def read_agent_routing(path=None):
+
+    path = Path(path) if path else AGENT_ROUTING_JSON_PATH
+
+    try:
+        agent_routing = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError, TypeError, ValueError):
+        return route_query_to_agents("")
+
+    return (
+        agent_routing
+        if isinstance(agent_routing, dict)
+        else route_query_to_agents("")
+    )

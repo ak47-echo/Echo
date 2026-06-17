@@ -44,6 +44,12 @@ from echo_context_budget import (
     write_context_budget_json,
     write_context_budget_text
 )
+from echo_agent_router import (
+    read_agent_routing,
+    route_query_to_agents,
+    write_agent_routing_json,
+    write_agent_routing_text
+)
 import json
 import os
 from pathlib import Path
@@ -5370,6 +5376,33 @@ def echo_get_context_budget(context=None):
     )
 
 
+def echo_get_agent_routing(context=None):
+
+    agent_routing = (
+        context.get("agent_routing")
+        if isinstance(context, dict)
+        else None
+    )
+
+    if not isinstance(agent_routing, dict):
+        agent_routing = read_agent_routing()
+
+    primary_agents = agent_routing.get("primary_agents") or []
+    summary = (
+        f"Routing mode: {agent_routing.get('routing_mode') or 'none'}. "
+        f"Primary agents: {', '.join(primary_agents) or 'None'}. "
+        f"Confidence: {agent_routing.get('confidence') or 'low'}."
+    )
+
+    return _echo_tool_response(
+        "echo_get_agent_routing",
+        {"agent_routing": agent_routing},
+        summary,
+        "HIGH",
+        "Deterministic active-agent routing for this query."
+    )
+
+
 def echo_ask(question, context=None):
 
     result = answer_echo_multi_agent_query(question, _echo_tool_context(context))
@@ -5780,6 +5813,15 @@ ECHO_TOOL_REGISTRY = {
         "output_description": (
             "Dictionary with query class, budget level, max context items, "
             "preferred context sources, excluded sources, and tool hints."
+        )
+    },
+    "echo_get_agent_routing": {
+        "function_name": "echo_get_agent_routing",
+        "description": "Return deterministic active-agent routing for a query.",
+        "expected_input_fields": {},
+        "output_description": (
+            "Dictionary with primary agents, secondary agents, excluded "
+            "agents, routing mode, confidence, and agent context plan."
         )
     },
     "echo_ask": {
@@ -6214,6 +6256,7 @@ def format_tool_context_for_llm(orchestrator_result, max_chars=12000):
     formatted = {
         "selected_tools": selected_tools,
         "context_budget": orchestrator_result.get("context_budget", {}),
+        "agent_routing": orchestrator_result.get("agent_routing", {}),
         "tool_summaries": {},
         "tool_data": {}
     }
@@ -6414,7 +6457,37 @@ def get_llm_provider_status(provider_name=None):
     }
 
 
-def _echo_orchestrator_select_tools(message, context, context_budget=None):
+AGENT_ROUTING_TOOL_MAP = {
+    "portfolio": "echo_get_portfolio_snapshot",
+    "research": "echo_get_research_snapshot",
+    "news": "echo_get_news_snapshot",
+    "macro": "echo_get_macro_snapshot"
+}
+
+
+def _agent_routing_tools(agent_routing, include_secondary=True):
+
+    if not isinstance(agent_routing, dict):
+        return []
+
+    agents = list(agent_routing.get("primary_agents") or [])
+
+    if include_secondary:
+        agents.extend(agent_routing.get("secondary_agents") or [])
+
+    tools = []
+
+    for agent in agents:
+        tool_name = AGENT_ROUTING_TOOL_MAP.get(agent)
+
+        if tool_name and tool_name not in tools:
+            tools.append(tool_name)
+
+    return tools
+
+
+def _echo_orchestrator_select_tools(message, context, context_budget=None,
+                                    agent_routing=None):
 
     sections = _echo_tool_context(context)["sections"]
     text = " ".join(str(message or "").split()).casefold()
@@ -6436,7 +6509,11 @@ def _echo_orchestrator_select_tools(message, context, context_budget=None):
             if tool_name not in selected_tools:
                 selected_tools.append(tool_name)
 
-    add_tools("echo_get_context_budget", "echo_get_memory_context")
+    add_tools(
+        "echo_get_context_budget",
+        "echo_get_agent_routing",
+        "echo_get_memory_context"
+    )
 
     if query_class == "simple":
         return selected_tools
@@ -6445,11 +6522,19 @@ def _echo_orchestrator_select_tools(message, context, context_budget=None):
         for tool_name in context_budget.get("tool_hints") or []:
             add_tools(tool_name)
 
+    if isinstance(agent_routing, dict):
+        include_secondary = budget_level in {"expanded", "full"}
+        add_tools(*_agent_routing_tools(agent_routing, include_secondary))
+
+        if agent_routing.get("routing_mode") in {"multi_agent", "all_agents"}:
+            add_tools("echo_get_themes", "echo_get_conflicts")
+
+        if query_class in {"multi_agent", "deep_dive"}:
+            add_tools("echo_get_change_detection", "echo_get_knowledge_graph")
+
     if tickers:
         add_tools(
             "echo_ask",
-            "echo_get_portfolio_snapshot",
-            "echo_get_research_snapshot",
             "echo_get_themes",
             "echo_get_conflicts"
         )
@@ -6475,11 +6560,10 @@ def _echo_orchestrator_select_tools(message, context, context_budget=None):
     ):
         add_tools(
             "echo_get_knowledge_graph",
-            "echo_get_change_detection",
-            "echo_get_themes"
+            "echo_get_change_detection"
         )
 
-    if any(
+    if not isinstance(agent_routing, dict) and any(
         term in text
         for term in (
             "risk",
@@ -6496,7 +6580,7 @@ def _echo_orchestrator_select_tools(message, context, context_budget=None):
             "echo_get_theme_impacts"
         )
 
-    if any(
+    if not isinstance(agent_routing, dict) and any(
         term in text
         for term in (
             "macro",
@@ -6514,26 +6598,26 @@ def _echo_orchestrator_select_tools(message, context, context_budget=None):
             "echo_get_theme_impacts"
         )
 
-    if any(
+    if not isinstance(agent_routing, dict) and any(
         term in text
         for term in ("news", "market", "world", "iran", "china")
     ):
         add_tools("echo_get_news_snapshot", "echo_get_themes")
 
-    if any(
+    if not isinstance(agent_routing, dict) and any(
         term in text
         for term in ("research", "conviction", "thesis", "weak holding")
     ):
         add_tools("echo_get_research_snapshot", "echo_get_conflicts")
 
-    if selected_tools == ["echo_get_context_budget", "echo_get_memory_context"]:
+    if selected_tools == [
+        "echo_get_context_budget",
+        "echo_get_agent_routing",
+        "echo_get_memory_context"
+    ]:
         add_tools(
             "echo_get_top_priority",
-            "echo_get_themes",
-            "echo_get_theme_impacts",
-            "echo_get_conflicts",
-            "echo_get_news_snapshot",
-            "echo_get_macro_snapshot"
+            "echo_get_themes"
         )
 
     if budget_level == "minimal":
@@ -6541,6 +6625,7 @@ def _echo_orchestrator_select_tools(message, context, context_budget=None):
             tool_name for tool_name in selected_tools
             if tool_name in {
                 "echo_get_context_budget",
+                "echo_get_agent_routing",
                 "echo_get_memory_context"
             }
         ]
@@ -6569,6 +6654,7 @@ def _run_echo_orchestrator_tool(tool_name, message, context):
         "echo_get_knowledge_graph": echo_get_knowledge_graph,
         "echo_get_memory_context": echo_get_memory_context,
         "echo_get_context_budget": echo_get_context_budget,
+        "echo_get_agent_routing": echo_get_agent_routing,
         "echo_get_top_priority": echo_get_top_priority,
         "echo_get_themes": echo_get_themes,
         "echo_get_theme_impacts": echo_get_theme_impacts,
@@ -6651,15 +6737,25 @@ def echo_orchestrate_user_message(message, context=None):
         memory_context,
         sorted(ECHO_TOOL_REGISTRY)
     )
+    agent_routing = route_query_to_agents(
+        normalized_message,
+        context_budget,
+        memory_context,
+        list(AGENT_ROUTING_TOOL_MAP)
+    )
     write_context_budget_json(context_budget)
     write_context_budget_text(context_budget)
+    write_agent_routing_json(agent_routing)
+    write_agent_routing_text(agent_routing)
     query_context = dict(query_context)
     query_context["context_budget"] = context_budget
+    query_context["agent_routing"] = agent_routing
 
     selected_tools = _echo_orchestrator_select_tools(
         normalized_message,
         query_context,
-        context_budget
+        context_budget,
+        agent_routing
     )
     tool_results = {
         tool_name: _run_echo_orchestrator_tool(
@@ -6676,6 +6772,7 @@ def echo_orchestrate_user_message(message, context=None):
         "message": normalized_message,
         "selected_tools": selected_tools,
         "context_budget": context_budget,
+        "agent_routing": agent_routing,
         "tool_results": tool_results,
         "answer": _echo_orchestrator_answer(tool_results),
         "confidence": _echo_orchestrator_confidence(tool_results),
@@ -6704,6 +6801,7 @@ def echo_generate_llm_answer(message, context=None):
     )
     selected_tools = orchestrator_result.get("selected_tools", [])
     context_budget = orchestrator_result.get("context_budget", {})
+    agent_routing = orchestrator_result.get("agent_routing", {})
     tool_results = orchestrator_result.get("tool_results", {})
     fallback_answer = orchestrator_result.get("answer", "")
     fallback_validation = validate_llm_response(
@@ -6737,6 +6835,7 @@ def echo_generate_llm_answer(message, context=None):
                 "answer": fallback_answer,
                 "selected_tools": selected_tools,
                 "context_budget": context_budget,
+                "agent_routing": agent_routing,
                 "tool_results": tool_results,
                 "confidence": orchestrator_result.get(
                     "confidence",
@@ -6762,6 +6861,7 @@ def echo_generate_llm_answer(message, context=None):
             "answer": provider_result.get("answer", ""),
             "selected_tools": selected_tools,
             "context_budget": context_budget,
+            "agent_routing": agent_routing,
             "tool_results": tool_results,
             "confidence": provider_result.get("confidence", "MEDIUM"),
             "validation": validation,
@@ -6789,6 +6889,7 @@ def echo_generate_llm_answer(message, context=None):
         "answer": fallback_answer,
         "selected_tools": selected_tools,
         "context_budget": context_budget,
+        "agent_routing": agent_routing,
         "tool_results": tool_results,
         "confidence": orchestrator_result.get("confidence", "MEDIUM"),
         "validation": fallback_validation,
@@ -7595,6 +7696,14 @@ if __name__ == "__main__":
     )
     context_budget_json_result = write_context_budget_json(context_budget)
     context_budget_text_result = write_context_budget_text(context_budget)
+    agent_routing = route_query_to_agents(
+        "Echo daily run",
+        context_budget,
+        memory_context,
+        list(AGENT_ROUTING_TOOL_MAP)
+    )
+    agent_routing_json_result = write_agent_routing_json(agent_routing)
+    agent_routing_text_result = write_agent_routing_text(agent_routing)
 
     if not state_result["success"]:
         print(f"Echo state write failed: {state_result['error']}")
@@ -7663,6 +7772,18 @@ if __name__ == "__main__":
         print(
             "Echo context budget text write failed: "
             f"{context_budget_text_result['error']}"
+        )
+
+    if not agent_routing_json_result["success"]:
+        print(
+            "Echo agent routing JSON write failed: "
+            f"{agent_routing_json_result['error']}"
+        )
+
+    if not agent_routing_text_result["success"]:
+        print(
+            "Echo agent routing text write failed: "
+            f"{agent_routing_text_result['error']}"
         )
 
     print(report_bundle["daily_brief"])
