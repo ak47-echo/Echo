@@ -1,0 +1,218 @@
+{
+  "context_budget": {
+    "excluded_items": 0,
+    "included_items": 18,
+    "max_items": 20
+  },
+  "context_mode": "memory_first",
+  "generated_at": "2026-06-17T14:59:31",
+  "operating_context": {
+    "connected_entities": [
+      {
+        "label": "cluster:1",
+        "layer": "knowledge_graph",
+        "metadata": {
+          "dominant_cluster": "cluster:1",
+          "edge_count": 126,
+          "node_count": 48
+        },
+        "type": "summary"
+      },
+      {
+        "label": "Portfolio Agent",
+        "layer": "knowledge_graph",
+        "metadata": {
+          "degree": 36,
+          "id": "agent:portfolio_agent",
+          "label": "Portfolio Agent",
+          "type": "agent",
+          "weight": 5
+        },
+        "score": 36,
+        "type": "connected_entity"
+      },
+      {
+        "label": "UNH position concentration 45.3%",
+        "layer": "knowledge_graph",
+        "metadata": {
+          "id": "cluster:1",
+          "label": "UNH position concentration 45.3%",
+          "primary_node": "priority:unh_position_concentration_453",
+          "total_weight": 1425
+        },
+        "score": 1425,
+        "type": "dominant_cluster"
+      }
+    ],
+    "current_state": {
+      "dominant_theme": {
+        "theme_reason": "Inflation/Energy Risk links 5 signals across 2 agent(s): Macro Agent, News Agent.",
+        "theme_score": 100,
+        "theme_strength": "CRITICAL",
+        "theme_title": "Inflation/Energy Risk"
+      },
+      "macro_regime": {
+        "confidence": "HIGH",
+        "name": "Inflation Stress",
+        "reason": "Rising inflation can reprice Fed expectations, broad equities, long-duration growth assets, and drawdown risk.",
+        "top_priority": "Inflation Trend | Macro Regime Inflation Stress | Regime Score 100 | Priority Tier HIGH"
+      },
+      "news_top_narrative": {
+        "reason": "4 related Iran, Hormuz, or oil headlines indicate an energy-linked geopolitical market narrative.",
+        "representative_headline": "BMW stock slumps to 5-year low as Iran war and China slowdown spark profit warning",
+        "score": 100,
+        "supporting_articles": 4,
+        "title": "Middle East Energy Risk"
+      },
+      "portfolio_current_risk": {
+        "source": "Echo executive summary",
+        "title": "UNH position concentration 45.1%"
+      },
+      "portfolio_worst_stress_scenario": {
+        "title": "2008_STYLE_CRISIS | Impact -50.12%"
+      },
+      "top_priority": {
+        "category": "Portfolio Risk",
+        "reason": "HIGH | UNH | Position concentration 45.1%",
+        "risk_timeframe": "current",
+        "severity": "HIGH",
+        "source_agent": "Portfolio Manager",
+        "title": "UNH position concentration 45.1%"
+      }
+    },
+    "important_changes": [],
+    "persistent_patterns": [
+      {
+        "label": "Energy: RISING",
+        "layer": "history",
+        "metadata": {
+          "count": 2,
+          "reason": "Rising energy can pressure inflation, margins, energy holdings, and broad market risk appetite.",
+          "severity": "HIGH",
+          "source": "macro",
+          "title": "Energy: RISING"
+        },
+        "type": "persistent_risk"
+      },
+      {
+        "label": "Growth exposure conflicts with inflation/rates theme",
+        "layer": "history",
+        "metadata": {
+          "count": 2,
+          "reason": "High growth exposure is sensitive to discount-rate pressure when inflation, energy, or rates themes are active.",
+          "severity": "HIGH",
+          "source": "conflict",
+          "title": "Growth exposure conflicts with inflation/rates theme"
+        },
+        "type": "persistent_risk"
+      },
+      {
+        "label": "Reevaluate SMCI: Low conviction holding",
+        "layer": "history",
+        "metadata": {
+          "action": "Reevaluate SMCI: Low conviction holding",
+          "count": 2
+        },
+        "type": "persistent_action"
+      }
+    ],
+    "recommended_attention": [
+      {
+        "label": "Energy: RISING",
+        "layer": "change_detection",
+        "metadata": {
+          "category": "risk",
+          "description": "Risk appears in 2 state samples.",
+          "name": "Energy: RISING",
+          "score": 35
+        },
+        "score": 35,
+        "type": "recommended_attention"
+      },
+      {
+        "label": "Growth exposure conflicts with inflation/rates theme",
+        "layer": "change_detection",
+        "metadata": {
+          "category": "risk",
+          "description": "Risk appears in 2 state samples.",
+          "name": "Growth exposure conflicts with inflation/rates theme",
+          "score": 35
+        },
+        "score": 35,
+        "type": "recommended_attention"
+      },
+      {
+        "label": "Inflation Trend: RISING",
+        "layer": "change_detection",
+        "metadata": {
+          "category": "risk",
+          "description": "Risk appears in 2 state samples.",
+          "name": "Inflation Trend: RISING",
+          "score": 35
+        },
+        "score": 35,
+        "type": "recommended_attention"
+      }
+    ],
+    "top_signals": [
+      {
+        "label": "Energy: RISING",
+        "layer": "change_detection",
+        "metadata": {
+          "change_level": "moderate",
+          "material_change_count": 0,
+          "novel_change_count": 0,
+          "persistent_issue_count": 17
+        },
+        "type": "summary"
+      },
+      {
+        "label": "Energy: RISING",
+        "layer": "change_detection",
+        "metadata": {
+          "category": "risk",
+          "description": "Risk appears in 2 state samples.",
+          "is_material": true,
+          "name": "Energy: RISING",
+          "score": 35,
+          "source": "history",
+          "type": "persistent_risk"
+        },
+        "score": 35,
+        "type": "persistent_risk"
+      },
+      {
+        "label": "Growth exposure conflicts with inflation/rates theme",
+        "layer": "change_detection",
+        "metadata": {
+          "category": "risk",
+          "description": "Risk appears in 2 state samples.",
+          "is_material": true,
+          "name": "Growth exposure conflicts with inflation/rates theme",
+          "score": 35,
+          "source": "history",
+          "type": "persistent_risk"
+        },
+        "score": 35,
+        "type": "persistent_risk"
+      }
+    ]
+  },
+  "schema_version": "1.0",
+  "source_artifacts": {
+    "change_detection": true,
+    "delta": true,
+    "history": true,
+    "knowledge_graph": true,
+    "state": true
+  },
+  "summary": {
+    "change_level": "moderate",
+    "dominant_cluster": "cluster:1",
+    "dominant_theme": "Inflation/Energy Risk",
+    "material_change_count": 0,
+    "persistent_issue_count": 17,
+    "top_priority": "UNH position concentration 45.1%",
+    "top_signal": "Energy: RISING"
+  }
+}

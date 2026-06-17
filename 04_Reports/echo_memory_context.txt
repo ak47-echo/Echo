@@ -1,0 +1,35 @@
+ECHO MEMORY CONTEXT
+===================
+
+Schema Version: 1.0
+Generated At: 2026-06-17T14:59:31
+Context Mode: memory_first
+
+What Echo Currently Needs To Know:
+- Top Priority: UNH position concentration 45.1%
+- Dominant Theme: Inflation/Energy Risk
+- Portfolio Risk: UNH position concentration 45.1%
+- Macro Regime: Inflation Stress
+
+What Changed That Matters:
+None
+
+What Has Persisted:
+- persistent_risk: Energy: RISING
+- persistent_risk: Growth exposure conflicts with inflation/rates theme
+- persistent_action: Reevaluate SMCI: Low conviction holding
+
+Connected Entities That Matter:
+- cluster:1 (summary, score n/a)
+- Portfolio Agent (connected_entity, score 36)
+- UNH position concentration 45.3% (dominant_cluster, score 1425)
+
+What Echo Should Pay Attention To First:
+- Energy: RISING (score 35)
+- Growth exposure conflicts with inflation/rates theme (score 35)
+- Inflation Trend: RISING (score 35)
+
+Context Budget:
+Max Items: 20
+Included Items: 18
+Excluded Items: 0

@@ -32,6 +32,12 @@ from echo_knowledge_graph import (
     write_knowledge_graph_json,
     write_knowledge_graph_text
 )
+from echo_memory_context import (
+    build_echo_memory_context,
+    read_memory_context,
+    write_memory_context_json,
+    write_memory_context_text
+)
 import json
 import os
 from pathlib import Path
@@ -5237,6 +5243,26 @@ def echo_get_knowledge_graph(context=None):
     )
 
 
+def echo_get_memory_context(context=None):
+
+    memory_context = read_memory_context()
+    summary_data = memory_context.get("summary") or {}
+    summary = (
+        f"Top priority: {summary_data.get('top_priority') or 'None'}. "
+        f"Change level: {summary_data.get('change_level') or 'none'}. "
+        f"Top signal: {summary_data.get('top_signal') or 'None'}. "
+        f"Dominant cluster: {summary_data.get('dominant_cluster') or 'None'}."
+    )
+
+    return _echo_tool_response(
+        "echo_get_memory_context",
+        {"memory_context": memory_context},
+        summary,
+        "HIGH",
+        "Primary compact Echo memory context loaded before full reports."
+    )
+
+
 def echo_ask(question, context=None):
 
     result = answer_echo_multi_agent_query(question, _echo_tool_context(context))
@@ -5629,6 +5655,15 @@ ECHO_TOOL_REGISTRY = {
         "output_description": (
             "JSON-serializable dictionary with relationship nodes, edges, "
             "clusters, entity index, and relationship index."
+        )
+    },
+    "echo_get_memory_context": {
+        "function_name": "echo_get_memory_context",
+        "description": "Return Echo memory-first operating context.",
+        "expected_input_fields": {},
+        "output_description": (
+            "Compact JSON-serializable context built from state, delta, "
+            "history, change detection, and knowledge graph artifacts."
         )
     },
     "echo_ask": {
@@ -6274,6 +6309,8 @@ def _echo_orchestrator_select_tools(message, context):
             if tool_name not in selected_tools:
                 selected_tools.append(tool_name)
 
+    add_tools("echo_get_memory_context")
+
     if tickers:
         add_tools(
             "echo_ask",
@@ -6355,7 +6392,7 @@ def _echo_orchestrator_select_tools(message, context):
     ):
         add_tools("echo_get_research_snapshot", "echo_get_conflicts")
 
-    if not selected_tools:
+    if selected_tools == ["echo_get_memory_context"]:
         add_tools(
             "echo_get_top_priority",
             "echo_get_themes",
@@ -6380,6 +6417,7 @@ def _run_echo_orchestrator_tool(tool_name, message, context):
         "echo_get_state_history": echo_get_state_history,
         "echo_get_change_detection": echo_get_change_detection,
         "echo_get_knowledge_graph": echo_get_knowledge_graph,
+        "echo_get_memory_context": echo_get_memory_context,
         "echo_get_top_priority": echo_get_top_priority,
         "echo_get_themes": echo_get_themes,
         "echo_get_theme_impacts": echo_get_theme_impacts,
@@ -7373,6 +7411,15 @@ if __name__ == "__main__":
     )
     knowledge_graph_json_result = write_knowledge_graph_json(knowledge_graph)
     knowledge_graph_text_result = write_knowledge_graph_text(knowledge_graph)
+    memory_context = build_echo_memory_context(
+        state,
+        state_delta,
+        state_history,
+        change_detection,
+        knowledge_graph
+    )
+    memory_context_json_result = write_memory_context_json(memory_context)
+    memory_context_text_result = write_memory_context_text(memory_context)
 
     if not state_result["success"]:
         print(f"Echo state write failed: {state_result['error']}")
@@ -7417,6 +7464,18 @@ if __name__ == "__main__":
         print(
             "Echo knowledge graph text write failed: "
             f"{knowledge_graph_text_result['error']}"
+        )
+
+    if not memory_context_json_result["success"]:
+        print(
+            "Echo memory context JSON write failed: "
+            f"{memory_context_json_result['error']}"
+        )
+
+    if not memory_context_text_result["success"]:
+        print(
+            "Echo memory context text write failed: "
+            f"{memory_context_text_result['error']}"
         )
 
     print(report_bundle["daily_brief"])

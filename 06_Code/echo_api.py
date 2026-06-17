@@ -39,6 +39,7 @@ from echo_state_delta import read_state_delta
 from echo_state_history import read_state_history
 from echo_change_detection import read_change_detection
 from echo_knowledge_graph import read_knowledge_graph
+from echo_memory_context import read_memory_context
 
 
 LOCALHOST_ORIGINS = [
@@ -191,6 +192,10 @@ def create_app():
     @app.get("/knowledge-graph")
     async def knowledge_graph():
         return read_knowledge_graph()
+
+    @app.get("/memory-context")
+    async def memory_context():
+        return read_memory_context()
 
     @app.get("/status")
     async def status():
