@@ -6034,12 +6034,16 @@ class OpenAIProvider(BaseLLMProvider):
 
     def model_name(self):
 
-        return os.getenv("ECHO_OPENAI_MODEL") or "gpt-4o-mini"
+        return (
+            os.getenv("ECHO_OPENAI_MODEL")
+            or os.getenv("OPENAI_MODEL")
+            or "gpt-4o-mini"
+        )
 
     def live_calls_enabled(self):
 
         return (
-            _env_flag_enabled("ECHO_LLM_LIVE")
+            _env_flag_enabled_any(("ECHO_LLM_LIVE", "LLM_LIVE_MODE"))
             and self.is_configured()
         )
 
@@ -6079,7 +6083,7 @@ class OpenAIProvider(BaseLLMProvider):
                 "live_call_attempted": False,
                 "confidence": "LOW",
                 "notes": (
-                    "OpenAI provider is configured but ECHO_LLM_LIVE is not "
+                    "OpenAI provider is configured but LLM live mode is not "
                     "enabled. No OpenAI API call was made."
                 )
             }
@@ -6151,22 +6155,143 @@ class AnthropicProvider(BaseLLMProvider):
 
     provider_name = "anthropic"
 
+    def model_name(self):
+
+        return os.getenv("ANTHROPIC_MODEL") or "claude-3-5-haiku-latest"
+
+    def live_calls_enabled(self):
+
+        return (
+            _env_flag_enabled_any(("LLM_LIVE_MODE", "ECHO_LLM_LIVE"))
+            and self.is_configured()
+        )
+
     def is_configured(self):
 
         return bool(os.getenv("ANTHROPIC_API_KEY"))
 
     def generate_response(self, messages, tools=None, context=None):
 
-        return {
-            "status": "NOT_IMPLEMENTED_PROVIDER",
-            "provider": self.provider_name,
-            "configured": self.is_configured(),
-            "live_calls_enabled": False,
-            "message_count": len(messages or []),
-            "tool_count": len(tools or []),
-            "response": "Anthropic provider placeholder is not implemented.",
-            "notes": "No Anthropic API call was made."
-        }
+        model = self.model_name()
+        tool_context = format_tool_context_for_llm(tools)
+
+        if not self.is_configured():
+            return {
+                "status": "NOT_CONFIGURED",
+                "provider": self.provider_name,
+                "model": model,
+                "answer": "",
+                "tool_context_used": bool(tool_context),
+                "tool_context_char_count": len(tool_context),
+                "live_call_attempted": False,
+                "confidence": "LOW",
+                "notes": (
+                    "ANTHROPIC_API_KEY is not configured. No Anthropic API "
+                    "call was made."
+                )
+            }
+
+        if not self.live_calls_enabled():
+            return {
+                "status": "STUB",
+                "provider": self.provider_name,
+                "model": model,
+                "answer": "",
+                "tool_context_used": bool(tool_context),
+                "tool_context_char_count": len(tool_context),
+                "live_call_attempted": False,
+                "confidence": "LOW",
+                "notes": (
+                    "Anthropic provider is configured but LLM live mode is "
+                    "not enabled. No Anthropic API call was made."
+                )
+            }
+
+        try:
+            from anthropic import Anthropic, RateLimitError
+        except ImportError:
+            return {
+                "status": "DEPENDENCY_MISSING",
+                "provider": self.provider_name,
+                "model": model,
+                "answer": "",
+                "tool_context_used": bool(tool_context),
+                "tool_context_char_count": len(tool_context),
+                "live_call_attempted": False,
+                "confidence": "LOW",
+                "notes": (
+                    "Anthropic package not installed. Run: pip install "
+                    "anthropic"
+                )
+            }
+
+        prompt_message = _build_anthropic_prompt_message(messages, tool_context)
+
+        try:
+            client = Anthropic()
+            response = client.messages.create(
+                model=model,
+                max_tokens=800,
+                system=build_echo_llm_system_prompt(),
+                messages=[{"role": "user", "content": prompt_message}]
+            )
+            answer_parts = []
+
+            for block in getattr(response, "content", []) or []:
+                text = getattr(block, "text", "")
+
+                if text:
+                    answer_parts.append(text)
+
+            answer = " ".join(" ".join(answer_parts).split())
+
+            return {
+                "status": "ANSWERED",
+                "provider": self.provider_name,
+                "model": model,
+                "answer": answer,
+                "tool_context_used": bool(tool_context),
+                "tool_context_char_count": len(tool_context),
+                "live_call_attempted": True,
+                "confidence": "HIGH" if tool_context else "MEDIUM",
+                "notes": (
+                    "Anthropic live response generated from Echo assembled "
+                    "context and deterministic response composer output. "
+                    "Claude did not bypass Echo orchestration."
+                )
+            }
+        except RateLimitError as error:
+            return {
+                "status": "RATE_LIMITED",
+                "provider": self.provider_name,
+                "model": model,
+                "answer": "",
+                "tool_context_used": bool(tool_context),
+                "tool_context_char_count": len(tool_context),
+                "live_call_attempted": True,
+                "confidence": "LOW",
+                "notes": (
+                    "Anthropic provider rate limited the request without "
+                    "exposing secrets: "
+                    f"{_concise(_redact_secret_text(error), limit=180)}"
+                )
+            }
+        except Exception as error:
+            return {
+                "status": "ERROR",
+                "provider": self.provider_name,
+                "model": model,
+                "answer": "",
+                "tool_context_used": bool(tool_context),
+                "tool_context_char_count": len(tool_context),
+                "live_call_attempted": True,
+                "confidence": "LOW",
+                "notes": (
+                    "Anthropic provider call failed without exposing "
+                    "secrets: "
+                    f"{_concise(_redact_secret_text(error), limit=180)}"
+                )
+            }
 
 
 class UnknownLLMProvider(BaseLLMProvider):
@@ -6201,6 +6326,11 @@ def _env_flag_enabled(name):
         "yes",
         "on"
     }
+
+
+def _env_flag_enabled_any(names):
+
+    return any(_env_flag_enabled(name) for name in names or ())
 
 
 def _build_llm_tool_context(tools):
@@ -6504,9 +6634,25 @@ def _build_openai_prompt_messages(messages, tool_context):
     ]
 
 
+def _build_anthropic_prompt_message(messages, tool_context):
+
+    return (
+        f"User question:\n{_message_content(messages)}\n\n"
+        "Echo assembled context and deterministic response composer output:\n"
+        f"{str(tool_context or '')}\n\n"
+        "Polish or synthesize from the Echo context above. Do not introduce "
+        "facts, holdings, prices, recommendations, or conclusions outside "
+        "the provided Echo context. Preserve caveats where context is "
+        "incomplete."
+    )
+
+
 def _normalize_llm_provider_name(provider_name=None):
 
-    configured_provider = os.getenv("ECHO_LLM_PROVIDER")
+    configured_provider = (
+        os.getenv("LLM_PROVIDER")
+        or os.getenv("ECHO_LLM_PROVIDER")
+    )
     provider = provider_name or configured_provider or "openai"
     return " ".join(str(provider or "").split()).casefold() or "openai"
 
@@ -6538,7 +6684,8 @@ def get_llm_provider_status(provider_name=None):
         "available_providers": ["openai", "anthropic"],
         "notes": (
             "LLM provider layer is active. Live calls require provider "
-            "configuration plus ECHO_LLM_LIVE=1/true/yes."
+            "configuration plus LLM_LIVE_MODE=1/true/yes or "
+            "ECHO_LLM_LIVE=1/true/yes."
         )
     }
 
