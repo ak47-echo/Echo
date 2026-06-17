@@ -4,6 +4,7 @@ from agents.portfolio_manager import get_portfolio_report
 from agents.research_agent import get_research_agent_report
 from agents.policy_agent import get_policy
 from datetime import datetime
+from echo_state import build_echo_state, write_echo_state
 import json
 import os
 from pathlib import Path
@@ -5102,6 +5103,28 @@ def echo_get_daily_brief(context=None):
     )
 
 
+def echo_get_state(context=None):
+
+    state = build_echo_state(_echo_tool_context(context))
+    data = {
+        "state": state
+    }
+    summary = (
+        "Top priority: "
+        f"{(state.get('top_priority') or {}).get('title') or 'None identified.'} "
+        "Dominant theme: "
+        f"{(state.get('dominant_theme') or {}).get('theme_title') or 'None identified.'}"
+    )
+
+    return _echo_tool_response(
+        "echo_get_state",
+        data,
+        summary,
+        "HIGH",
+        "Compressed Echo state generated from deterministic reports."
+    )
+
+
 def echo_ask(question, context=None):
 
     result = answer_echo_multi_agent_query(question, _echo_tool_context(context))
@@ -5447,6 +5470,16 @@ ECHO_TOOL_REGISTRY = {
         "output_description": (
             "Dictionary with top priority, dominant theme, market watch, "
             "macro backdrop, portfolio risk, and action queue."
+        )
+    },
+    "echo_get_state": {
+        "function_name": "echo_get_state",
+        "description": "Return compressed Echo operating state.",
+        "expected_input_fields": {},
+        "output_description": (
+            "JSON-serializable dictionary with top priority, dominant theme, "
+            "portfolio, research, news, macro, conflicts, action queue, and "
+            "risk register."
         )
     },
     "echo_ask": {
@@ -6168,6 +6201,7 @@ def _run_echo_orchestrator_tool(tool_name, message, context):
 
     tool_functions = {
         "echo_get_daily_brief": echo_get_daily_brief,
+        "echo_get_state": echo_get_state,
         "echo_get_top_priority": echo_get_top_priority,
         "echo_get_themes": echo_get_themes,
         "echo_get_theme_impacts": echo_get_theme_impacts,
@@ -7125,5 +7159,11 @@ if __name__ == "__main__":
             retention["status"]["archive_folder"]
         ).name
         write_archive_reports(report_bundle, timestamp)
+
+    state = build_echo_state(report_bundle)
+    state_result = write_echo_state(state)
+
+    if not state_result["success"]:
+        print(f"Echo state write failed: {state_result['error']}")
 
     print(report_bundle["daily_brief"])

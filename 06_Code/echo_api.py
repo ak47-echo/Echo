@@ -34,6 +34,7 @@ from echo import (
     get_echo_tool_registry,
     get_llm_provider_status
 )
+from echo_state import read_echo_state
 
 
 LOCALHOST_ORIGINS = [
@@ -166,6 +167,10 @@ def create_app():
     @app.get("/tools")
     async def tools():
         return get_echo_tool_registry()
+
+    @app.get("/state")
+    async def state():
+        return read_echo_state()
 
     @app.get("/status")
     async def status():
