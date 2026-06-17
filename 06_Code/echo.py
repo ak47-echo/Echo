@@ -38,6 +38,12 @@ from echo_memory_context import (
     write_memory_context_json,
     write_memory_context_text
 )
+from echo_context_budget import (
+    build_context_budget,
+    read_context_budget,
+    write_context_budget_json,
+    write_context_budget_text
+)
 import json
 import os
 from pathlib import Path
@@ -5243,9 +5249,84 @@ def echo_get_knowledge_graph(context=None):
     )
 
 
+def _apply_memory_context_budget(memory_context, context_budget):
+
+    if not isinstance(memory_context, dict):
+        return {}
+
+    if not isinstance(context_budget, dict):
+        return memory_context
+
+    try:
+        max_items = int(context_budget.get("max_context_items") or 0)
+    except (TypeError, ValueError):
+        max_items = 0
+
+    if max_items <= 0:
+        return memory_context
+
+    capped = json.loads(json.dumps(memory_context, default=str))
+    operating = capped.get("operating_context")
+
+    if not isinstance(operating, dict):
+        return capped
+
+    included = 0
+    current_state = operating.get("current_state")
+    if isinstance(current_state, dict):
+        current_items = list(current_state.items())
+        operating["current_state"] = dict(current_items[:max_items])
+        included += len(operating["current_state"])
+
+    for key in (
+        "important_changes",
+        "persistent_patterns",
+        "top_signals",
+        "connected_entities",
+        "recommended_attention"
+    ):
+        values = operating.get(key)
+
+        if not isinstance(values, list):
+            continue
+
+        remaining = max(max_items - included, 0)
+        operating[key] = values[:remaining]
+        included += len(operating[key])
+
+    capped["context_budget"] = {
+        "max_items": max_items,
+        "included_items": min(included, max_items),
+        "excluded_items": max(
+            (
+                (memory_context.get("context_budget") or {}).get(
+                    "included_items",
+                    0
+                )
+                - min(included, max_items)
+            ),
+            0
+        )
+    }
+
+    return capped
+
+
 def echo_get_memory_context(context=None):
 
     memory_context = read_memory_context()
+    context_budget = (
+        context.get("context_budget")
+        if isinstance(context, dict)
+        else None
+    )
+
+    if isinstance(context_budget, dict):
+        memory_context = _apply_memory_context_budget(
+            memory_context,
+            context_budget
+        )
+
     summary_data = memory_context.get("summary") or {}
     summary = (
         f"Top priority: {summary_data.get('top_priority') or 'None'}. "
@@ -5260,6 +5341,32 @@ def echo_get_memory_context(context=None):
         summary,
         "HIGH",
         "Primary compact Echo memory context loaded before full reports."
+    )
+
+
+def echo_get_context_budget(context=None):
+
+    context_budget = (
+        context.get("context_budget")
+        if isinstance(context, dict)
+        else None
+    )
+
+    if not isinstance(context_budget, dict):
+        context_budget = read_context_budget()
+
+    summary = (
+        f"Query class: {context_budget.get('query_class') or 'unknown'}. "
+        f"Budget level: {context_budget.get('budget_level') or 'standard'}. "
+        f"Max context items: {context_budget.get('max_context_items') or 0}."
+    )
+
+    return _echo_tool_response(
+        "echo_get_context_budget",
+        {"context_budget": context_budget},
+        summary,
+        "HIGH",
+        "Deterministic pre-LLM context budget for this query."
     )
 
 
@@ -5664,6 +5771,15 @@ ECHO_TOOL_REGISTRY = {
         "output_description": (
             "Compact JSON-serializable context built from state, delta, "
             "history, change detection, and knowledge graph artifacts."
+        )
+    },
+    "echo_get_context_budget": {
+        "function_name": "echo_get_context_budget",
+        "description": "Return deterministic query context budget.",
+        "expected_input_fields": {},
+        "output_description": (
+            "Dictionary with query class, budget level, max context items, "
+            "preferred context sources, excluded sources, and tool hints."
         )
     },
     "echo_ask": {
@@ -6097,6 +6213,7 @@ def format_tool_context_for_llm(orchestrator_result, max_chars=12000):
 
     formatted = {
         "selected_tools": selected_tools,
+        "context_budget": orchestrator_result.get("context_budget", {}),
         "tool_summaries": {},
         "tool_data": {}
     }
@@ -6297,19 +6414,36 @@ def get_llm_provider_status(provider_name=None):
     }
 
 
-def _echo_orchestrator_select_tools(message, context):
+def _echo_orchestrator_select_tools(message, context, context_budget=None):
 
     sections = _echo_tool_context(context)["sections"]
     text = " ".join(str(message or "").split()).casefold()
     tickers = _detect_query_tickers(message, sections)
     selected_tools = []
+    budget_level = (
+        (context_budget or {}).get("budget_level")
+        if isinstance(context_budget, dict)
+        else None
+    )
+    query_class = (
+        (context_budget or {}).get("query_class")
+        if isinstance(context_budget, dict)
+        else None
+    )
 
     def add_tools(*tool_names):
         for tool_name in tool_names:
             if tool_name not in selected_tools:
                 selected_tools.append(tool_name)
 
-    add_tools("echo_get_memory_context")
+    add_tools("echo_get_context_budget", "echo_get_memory_context")
+
+    if query_class == "simple":
+        return selected_tools
+
+    if isinstance(context_budget, dict):
+        for tool_name in context_budget.get("tool_hints") or []:
+            add_tools(tool_name)
 
     if tickers:
         add_tools(
@@ -6392,7 +6526,7 @@ def _echo_orchestrator_select_tools(message, context):
     ):
         add_tools("echo_get_research_snapshot", "echo_get_conflicts")
 
-    if selected_tools == ["echo_get_memory_context"]:
+    if selected_tools == ["echo_get_context_budget", "echo_get_memory_context"]:
         add_tools(
             "echo_get_top_priority",
             "echo_get_themes",
@@ -6401,6 +6535,22 @@ def _echo_orchestrator_select_tools(message, context):
             "echo_get_news_snapshot",
             "echo_get_macro_snapshot"
         )
+
+    if budget_level == "minimal":
+        selected_tools = [
+            tool_name for tool_name in selected_tools
+            if tool_name in {
+                "echo_get_context_budget",
+                "echo_get_memory_context"
+            }
+        ]
+    elif budget_level == "standard":
+        selected_tools = [
+            tool_name for tool_name in selected_tools
+            if tool_name not in {
+                "echo_get_daily_brief"
+            }
+        ]
 
     return selected_tools
 
@@ -6418,6 +6568,7 @@ def _run_echo_orchestrator_tool(tool_name, message, context):
         "echo_get_change_detection": echo_get_change_detection,
         "echo_get_knowledge_graph": echo_get_knowledge_graph,
         "echo_get_memory_context": echo_get_memory_context,
+        "echo_get_context_budget": echo_get_context_budget,
         "echo_get_top_priority": echo_get_top_priority,
         "echo_get_themes": echo_get_themes,
         "echo_get_theme_impacts": echo_get_theme_impacts,
@@ -6494,9 +6645,21 @@ def echo_orchestrate_user_message(message, context=None):
             )
         }
 
+    memory_context = read_memory_context()
+    context_budget = build_context_budget(
+        normalized_message,
+        memory_context,
+        sorted(ECHO_TOOL_REGISTRY)
+    )
+    write_context_budget_json(context_budget)
+    write_context_budget_text(context_budget)
+    query_context = dict(query_context)
+    query_context["context_budget"] = context_budget
+
     selected_tools = _echo_orchestrator_select_tools(
         normalized_message,
-        query_context
+        query_context,
+        context_budget
     )
     tool_results = {
         tool_name: _run_echo_orchestrator_tool(
@@ -6512,6 +6675,7 @@ def echo_orchestrate_user_message(message, context=None):
         "mode": "DETERMINISTIC_ORCHESTRATOR_STUB",
         "message": normalized_message,
         "selected_tools": selected_tools,
+        "context_budget": context_budget,
         "tool_results": tool_results,
         "answer": _echo_orchestrator_answer(tool_results),
         "confidence": _echo_orchestrator_confidence(tool_results),
@@ -6539,6 +6703,7 @@ def echo_generate_llm_answer(message, context=None):
         context=query_context
     )
     selected_tools = orchestrator_result.get("selected_tools", [])
+    context_budget = orchestrator_result.get("context_budget", {})
     tool_results = orchestrator_result.get("tool_results", {})
     fallback_answer = orchestrator_result.get("answer", "")
     fallback_validation = validate_llm_response(
@@ -6571,6 +6736,7 @@ def echo_generate_llm_answer(message, context=None):
                 "message": normalized_message,
                 "answer": fallback_answer,
                 "selected_tools": selected_tools,
+                "context_budget": context_budget,
                 "tool_results": tool_results,
                 "confidence": orchestrator_result.get(
                     "confidence",
@@ -6595,6 +6761,7 @@ def echo_generate_llm_answer(message, context=None):
             "message": normalized_message,
             "answer": provider_result.get("answer", ""),
             "selected_tools": selected_tools,
+            "context_budget": context_budget,
             "tool_results": tool_results,
             "confidence": provider_result.get("confidence", "MEDIUM"),
             "validation": validation,
@@ -6621,6 +6788,7 @@ def echo_generate_llm_answer(message, context=None):
         "message": normalized_message,
         "answer": fallback_answer,
         "selected_tools": selected_tools,
+        "context_budget": context_budget,
         "tool_results": tool_results,
         "confidence": orchestrator_result.get("confidence", "MEDIUM"),
         "validation": fallback_validation,
@@ -7420,6 +7588,13 @@ if __name__ == "__main__":
     )
     memory_context_json_result = write_memory_context_json(memory_context)
     memory_context_text_result = write_memory_context_text(memory_context)
+    context_budget = build_context_budget(
+        "Echo daily run",
+        memory_context,
+        sorted(ECHO_TOOL_REGISTRY)
+    )
+    context_budget_json_result = write_context_budget_json(context_budget)
+    context_budget_text_result = write_context_budget_text(context_budget)
 
     if not state_result["success"]:
         print(f"Echo state write failed: {state_result['error']}")
@@ -7476,6 +7651,18 @@ if __name__ == "__main__":
         print(
             "Echo memory context text write failed: "
             f"{memory_context_text_result['error']}"
+        )
+
+    if not context_budget_json_result["success"]:
+        print(
+            "Echo context budget JSON write failed: "
+            f"{context_budget_json_result['error']}"
+        )
+
+    if not context_budget_text_result["success"]:
+        print(
+            "Echo context budget text write failed: "
+            f"{context_budget_text_result['error']}"
         )
 
     print(report_bundle["daily_brief"])

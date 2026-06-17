@@ -1,0 +1,18 @@
+{
+  "budget_level": "standard",
+  "excluded_context_sources": [
+    "full_reports_unless_needed"
+  ],
+  "generated_at": "2026-06-17T15:06:06",
+  "max_context_items": 20,
+  "preferred_context_sources": [
+    "memory_context"
+  ],
+  "query": "Echo daily run",
+  "query_class": "unknown",
+  "reason": "No specific routing pattern matched; use standard memory-first context.",
+  "schema_version": "1.0",
+  "tool_hints": [
+    "echo_get_memory_context"
+  ]
+}

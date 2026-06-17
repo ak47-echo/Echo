@@ -40,6 +40,7 @@ from echo_state_history import read_state_history
 from echo_change_detection import read_change_detection
 from echo_knowledge_graph import read_knowledge_graph
 from echo_memory_context import read_memory_context
+from echo_context_budget import read_context_budget
 
 
 LOCALHOST_ORIGINS = [
@@ -196,6 +197,10 @@ def create_app():
     @app.get("/memory-context")
     async def memory_context():
         return read_memory_context()
+
+    @app.get("/context-budget")
+    async def context_budget():
+        return read_context_budget()
 
     @app.get("/status")
     async def status():

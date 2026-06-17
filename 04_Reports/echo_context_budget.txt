@@ -1,0 +1,20 @@
+ECHO CONTEXT BUDGET
+===================
+
+Schema Version: 1.0
+Generated At: 2026-06-17T15:06:06
+Query: Echo daily run
+Query Class: unknown
+Budget Level: standard
+Max Context Items: 20
+
+Preferred Context Sources:
+- memory_context
+
+Excluded Context Sources:
+- full_reports_unless_needed
+
+Tool Hints:
+- echo_get_memory_context
+
+Reason: No specific routing pattern matched; use standard memory-first context.
