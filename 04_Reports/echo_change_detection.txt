@@ -1,0 +1,41 @@
+ECHO CHANGE DETECTION
+=====================
+
+Schema Version: 1.0
+Generated At: 2026-06-17T10:32:48
+Change Level: moderate
+Material Change Count: 0
+Novel Change Count: 0
+Persistent Issue Count: 17
+
+Most Important Signal:
+risk: Energy: RISING (score 35)
+Risk appears in 2 state samples.
+
+What Changed That Matters:
+None
+
+What Persists That Matters:
+- risk: Energy: RISING (score 35)
+- risk: Growth exposure conflicts with inflation/rates theme (score 35)
+- risk: Inflation Trend: RISING (score 35)
+- risk: Macro regime risk conflicts with portfolio regime posture (score 35)
+- risk: Portfolio risk conflicts with defensive allocation gap (score 35)
+- risk: SMCI position size conflicts with research conviction (score 35)
+- risk: UNH (score 35)
+- risk: UNH position concentration 45.1% (score 35)
+- risk: SMCI (score 25)
+- risk: Yield Curve: FLAT (score 25)
+
+Escalations:
+None
+
+Deescalations:
+None
+
+Recommended Attention:
+- risk: Energy: RISING (score 35)
+- risk: Growth exposure conflicts with inflation/rates theme (score 35)
+- risk: Inflation Trend: RISING (score 35)
+- risk: Macro regime risk conflicts with portfolio regime posture (score 35)
+- risk: Portfolio risk conflicts with defensive allocation gap (score 35)

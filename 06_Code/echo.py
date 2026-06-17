@@ -20,6 +20,12 @@ from echo_state_history import (
     write_state_history_json,
     write_state_history_text
 )
+from echo_change_detection import (
+    build_echo_change_detection,
+    read_change_detection,
+    write_change_detection_json,
+    write_change_detection_text
+)
 import json
 import os
 from pathlib import Path
@@ -5183,6 +5189,26 @@ def echo_get_state_history(context=None):
     )
 
 
+def echo_get_change_detection(context=None):
+
+    detection = read_change_detection()
+    summary_data = detection.get("summary") or {}
+    top_signal = summary_data.get("top_signal") or {}
+    summary = (
+        f"Change level: {summary_data.get('change_level') or 'none'}. "
+        "Top signal: "
+        f"{top_signal.get('name') or 'None'}."
+    )
+
+    return _echo_tool_response(
+        "echo_get_change_detection",
+        {"change_detection": detection},
+        summary,
+        "HIGH",
+        "Latest Echo ranked state-change signal from generated state files."
+    )
+
+
 def echo_ask(question, context=None):
 
     result = answer_echo_multi_agent_query(question, _echo_tool_context(context))
@@ -5557,6 +5583,15 @@ ECHO_TOOL_REGISTRY = {
             "JSON-serializable dictionary with priority, theme, macro, "
             "portfolio risk, risk frequency, action frequency, persistence, "
             "and stability history."
+        )
+    },
+    "echo_get_change_detection": {
+        "function_name": "echo_get_change_detection",
+        "description": "Return ranked Echo state-change detection signals.",
+        "expected_input_fields": {},
+        "output_description": (
+            "JSON-serializable dictionary with prioritized state-change "
+            "signals, escalations, deescalations, and recommended attention."
         )
     },
     "echo_ask": {
@@ -6281,6 +6316,7 @@ def _run_echo_orchestrator_tool(tool_name, message, context):
         "echo_get_state": echo_get_state,
         "echo_get_state_delta": echo_get_state_delta,
         "echo_get_state_history": echo_get_state_history,
+        "echo_get_change_detection": echo_get_change_detection,
         "echo_get_top_priority": echo_get_top_priority,
         "echo_get_themes": echo_get_themes,
         "echo_get_theme_impacts": echo_get_theme_impacts,
@@ -7255,6 +7291,17 @@ if __name__ == "__main__":
     state_history = build_echo_state_history(state, STATE_ARCHIVE_DIR)
     history_json_result = write_state_history_json(state_history)
     history_text_result = write_state_history_text(state_history)
+    change_detection = build_echo_change_detection(
+        state,
+        state_delta,
+        state_history
+    )
+    change_detection_json_result = write_change_detection_json(
+        change_detection
+    )
+    change_detection_text_result = write_change_detection_text(
+        change_detection
+    )
 
     if not state_result["success"]:
         print(f"Echo state write failed: {state_result['error']}")
@@ -7275,6 +7322,18 @@ if __name__ == "__main__":
         print(
             "Echo state history text write failed: "
             f"{history_text_result['error']}"
+        )
+
+    if not change_detection_json_result["success"]:
+        print(
+            "Echo change detection JSON write failed: "
+            f"{change_detection_json_result['error']}"
+        )
+
+    if not change_detection_text_result["success"]:
+        print(
+            "Echo change detection text write failed: "
+            f"{change_detection_text_result['error']}"
         )
 
     print(report_bundle["daily_brief"])
