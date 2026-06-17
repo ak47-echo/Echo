@@ -50,6 +50,12 @@ from echo_agent_router import (
     write_agent_routing_json,
     write_agent_routing_text
 )
+from echo_context_assembler import (
+    assemble_echo_context,
+    read_context_assembly,
+    write_context_assembly_json,
+    write_context_assembly_text
+)
 import json
 import os
 from pathlib import Path
@@ -5403,6 +5409,34 @@ def echo_get_agent_routing(context=None):
     )
 
 
+def echo_get_context_assembly(context=None):
+
+    context_assembly = (
+        context.get("context_assembly")
+        if isinstance(context, dict)
+        else None
+    )
+
+    if not isinstance(context_assembly, dict):
+        context_assembly = read_context_assembly()
+
+    summary_data = context_assembly.get("context_summary") or {}
+    summary = (
+        f"Assembly mode: {context_assembly.get('assembly_mode') or 'unknown'}. "
+        f"Blocks: {summary_data.get('block_count') or 0}. "
+        "Full reports included: "
+        f"{bool(summary_data.get('full_reports_included'))}."
+    )
+
+    return _echo_tool_response(
+        "echo_get_context_assembly",
+        {"context_assembly": context_assembly},
+        summary,
+        "HIGH",
+        "Deterministic final answer context assembled from memory, budget, and routing."
+    )
+
+
 def echo_ask(question, context=None):
 
     result = answer_echo_multi_agent_query(question, _echo_tool_context(context))
@@ -5822,6 +5856,15 @@ ECHO_TOOL_REGISTRY = {
         "output_description": (
             "Dictionary with primary agents, secondary agents, excluded "
             "agents, routing mode, confidence, and agent context plan."
+        )
+    },
+    "echo_get_context_assembly": {
+        "function_name": "echo_get_context_assembly",
+        "description": "Return deterministic final answer context assembly.",
+        "expected_input_fields": {},
+        "output_description": (
+            "Dictionary with assembly mode, included/excluded sources, "
+            "context blocks, context summary, and assembly reason."
         )
     },
     "echo_ask": {
@@ -6257,6 +6300,7 @@ def format_tool_context_for_llm(orchestrator_result, max_chars=12000):
         "selected_tools": selected_tools,
         "context_budget": orchestrator_result.get("context_budget", {}),
         "agent_routing": orchestrator_result.get("agent_routing", {}),
+        "context_assembly": orchestrator_result.get("context_assembly", {}),
         "tool_summaries": {},
         "tool_data": {}
     }
@@ -6465,6 +6509,22 @@ AGENT_ROUTING_TOOL_MAP = {
 }
 
 
+def _context_assembly_reports(context):
+
+    sections = _echo_tool_context(context)["sections"]
+
+    return {
+        "portfolio": sections.get("portfolio"),
+        "research": sections.get("research"),
+        "news": sections.get("news"),
+        "macro": sections.get("macro"),
+        "executive": {
+            "executive_brief": sections.get("executive_brief", []),
+            "summary": sections.get("executive_summary", [])
+        }
+    }
+
+
 def _agent_routing_tools(agent_routing, include_secondary=True):
 
     if not isinstance(agent_routing, dict):
@@ -6512,7 +6572,8 @@ def _echo_orchestrator_select_tools(message, context, context_budget=None,
     add_tools(
         "echo_get_context_budget",
         "echo_get_agent_routing",
-        "echo_get_memory_context"
+        "echo_get_memory_context",
+        "echo_get_context_assembly"
     )
 
     if query_class == "simple":
@@ -6613,7 +6674,8 @@ def _echo_orchestrator_select_tools(message, context, context_budget=None,
     if selected_tools == [
         "echo_get_context_budget",
         "echo_get_agent_routing",
-        "echo_get_memory_context"
+        "echo_get_memory_context",
+        "echo_get_context_assembly"
     ]:
         add_tools(
             "echo_get_top_priority",
@@ -6626,7 +6688,8 @@ def _echo_orchestrator_select_tools(message, context, context_budget=None,
             if tool_name in {
                 "echo_get_context_budget",
                 "echo_get_agent_routing",
-                "echo_get_memory_context"
+                "echo_get_memory_context",
+                "echo_get_context_assembly"
             }
         ]
     elif budget_level == "standard":
@@ -6655,6 +6718,7 @@ def _run_echo_orchestrator_tool(tool_name, message, context):
         "echo_get_memory_context": echo_get_memory_context,
         "echo_get_context_budget": echo_get_context_budget,
         "echo_get_agent_routing": echo_get_agent_routing,
+        "echo_get_context_assembly": echo_get_context_assembly,
         "echo_get_top_priority": echo_get_top_priority,
         "echo_get_themes": echo_get_themes,
         "echo_get_theme_impacts": echo_get_theme_impacts,
@@ -6743,13 +6807,23 @@ def echo_orchestrate_user_message(message, context=None):
         memory_context,
         list(AGENT_ROUTING_TOOL_MAP)
     )
+    context_assembly = assemble_echo_context(
+        normalized_message,
+        memory_context,
+        context_budget,
+        agent_routing,
+        _context_assembly_reports(query_context)
+    )
     write_context_budget_json(context_budget)
     write_context_budget_text(context_budget)
     write_agent_routing_json(agent_routing)
     write_agent_routing_text(agent_routing)
+    write_context_assembly_json(context_assembly)
+    write_context_assembly_text(context_assembly)
     query_context = dict(query_context)
     query_context["context_budget"] = context_budget
     query_context["agent_routing"] = agent_routing
+    query_context["context_assembly"] = context_assembly
 
     selected_tools = _echo_orchestrator_select_tools(
         normalized_message,
@@ -6773,6 +6847,7 @@ def echo_orchestrate_user_message(message, context=None):
         "selected_tools": selected_tools,
         "context_budget": context_budget,
         "agent_routing": agent_routing,
+        "context_assembly": context_assembly,
         "tool_results": tool_results,
         "answer": _echo_orchestrator_answer(tool_results),
         "confidence": _echo_orchestrator_confidence(tool_results),
@@ -6802,6 +6877,7 @@ def echo_generate_llm_answer(message, context=None):
     selected_tools = orchestrator_result.get("selected_tools", [])
     context_budget = orchestrator_result.get("context_budget", {})
     agent_routing = orchestrator_result.get("agent_routing", {})
+    context_assembly = orchestrator_result.get("context_assembly", {})
     tool_results = orchestrator_result.get("tool_results", {})
     fallback_answer = orchestrator_result.get("answer", "")
     fallback_validation = validate_llm_response(
@@ -6836,6 +6912,7 @@ def echo_generate_llm_answer(message, context=None):
                 "selected_tools": selected_tools,
                 "context_budget": context_budget,
                 "agent_routing": agent_routing,
+                "context_assembly": context_assembly,
                 "tool_results": tool_results,
                 "confidence": orchestrator_result.get(
                     "confidence",
@@ -6862,6 +6939,7 @@ def echo_generate_llm_answer(message, context=None):
             "selected_tools": selected_tools,
             "context_budget": context_budget,
             "agent_routing": agent_routing,
+            "context_assembly": context_assembly,
             "tool_results": tool_results,
             "confidence": provider_result.get("confidence", "MEDIUM"),
             "validation": validation,
@@ -6890,6 +6968,7 @@ def echo_generate_llm_answer(message, context=None):
         "selected_tools": selected_tools,
         "context_budget": context_budget,
         "agent_routing": agent_routing,
+        "context_assembly": context_assembly,
         "tool_results": tool_results,
         "confidence": orchestrator_result.get("confidence", "MEDIUM"),
         "validation": fallback_validation,
@@ -7704,6 +7783,19 @@ if __name__ == "__main__":
     )
     agent_routing_json_result = write_agent_routing_json(agent_routing)
     agent_routing_text_result = write_agent_routing_text(agent_routing)
+    context_assembly = assemble_echo_context(
+        "Echo daily run",
+        memory_context,
+        context_budget,
+        agent_routing,
+        _context_assembly_reports(report_bundle)
+    )
+    context_assembly_json_result = write_context_assembly_json(
+        context_assembly
+    )
+    context_assembly_text_result = write_context_assembly_text(
+        context_assembly
+    )
 
     if not state_result["success"]:
         print(f"Echo state write failed: {state_result['error']}")
@@ -7784,6 +7876,18 @@ if __name__ == "__main__":
         print(
             "Echo agent routing text write failed: "
             f"{agent_routing_text_result['error']}"
+        )
+
+    if not context_assembly_json_result["success"]:
+        print(
+            "Echo context assembly JSON write failed: "
+            f"{context_assembly_json_result['error']}"
+        )
+
+    if not context_assembly_text_result["success"]:
+        print(
+            "Echo context assembly text write failed: "
+            f"{context_assembly_text_result['error']}"
         )
 
     print(report_bundle["daily_brief"])

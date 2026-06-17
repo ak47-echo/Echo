@@ -1,0 +1,25 @@
+ECHO CONTEXT ASSEMBLY
+=====================
+
+Schema Version: 1.0
+Generated At: 2026-06-17T15:18:19
+Query: Echo daily run
+Assembly Mode: memory_only
+Block Count: 2
+Estimated Size: 3225
+Full Reports Included: No
+
+Included Sources:
+- memory_context
+
+Excluded Sources:
+- macro_report
+- news_report
+- portfolio_report
+- research_report
+
+Context Blocks:
+- memory_context | primary | Memory Summary | priority 100
+- memory_context | primary | Recommended Attention And Persistence | priority 90
+
+Reason: Assembled memory_only context from memory, budget standard, and routed agent plan.
