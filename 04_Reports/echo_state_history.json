@@ -1,0 +1,265 @@
+{
+  "action_frequency": [
+    {
+      "action": "Reevaluate SMCI: Low conviction holding",
+      "count": 2
+    },
+    {
+      "action": "Review SMCI position concentration 18.4%",
+      "count": 2
+    },
+    {
+      "action": "Review UNH position concentration 45.1%",
+      "count": 2
+    }
+  ],
+  "generated_at": "2026-06-17T10:21:08",
+  "lookback": {
+    "available_snapshots": 2,
+    "newest_snapshot": "2026-06-17T10:21:08",
+    "oldest_snapshot": "2026-06-17T10:01:31"
+  },
+  "macro_regime_history": [
+    {
+      "generated_at": "2026-06-17T10:01:31",
+      "macro_regime": "Inflation Stress"
+    },
+    {
+      "generated_at": "2026-06-17T10:21:08",
+      "macro_regime": "Inflation Stress"
+    }
+  ],
+  "news_narrative_history": [
+    {
+      "generated_at": "2026-06-17T10:01:31",
+      "news_narrative": "Middle East Energy Risk"
+    },
+    {
+      "generated_at": "2026-06-17T10:21:08",
+      "news_narrative": "Middle East Energy Risk"
+    }
+  ],
+  "persistent_actions": [
+    {
+      "action": "Reevaluate SMCI: Low conviction holding",
+      "count": 2
+    },
+    {
+      "action": "Review SMCI position concentration 18.4%",
+      "count": 2
+    },
+    {
+      "action": "Review UNH position concentration 45.1%",
+      "count": 2
+    }
+  ],
+  "persistent_risks": [
+    {
+      "count": 2,
+      "reason": "Rising energy can pressure inflation, margins, energy holdings, and broad market risk appetite.",
+      "severity": "HIGH",
+      "source": "macro",
+      "title": "Energy: RISING"
+    },
+    {
+      "count": 2,
+      "reason": "High growth exposure is sensitive to discount-rate pressure when inflation, energy, or rates themes are active.",
+      "severity": "HIGH",
+      "source": "conflict",
+      "title": "Growth exposure conflicts with inflation/rates theme"
+    },
+    {
+      "count": 2,
+      "reason": "Rising inflation can reprice Fed expectations, broad equities, long-duration growth assets, and drawdown risk.",
+      "severity": "HIGH",
+      "source": "macro",
+      "title": "Inflation Trend: RISING"
+    },
+    {
+      "count": 2,
+      "reason": "Macro signals point to a risk regime while portfolio classification remains aligned with expansion or disinflation.",
+      "severity": "HIGH",
+      "source": "conflict",
+      "title": "Macro regime risk conflicts with portfolio regime posture"
+    },
+    {
+      "count": 2,
+      "reason": "Portfolio risk is elevated while cash or bond exposure is below defensive allocation targets.",
+      "severity": "HIGH",
+      "source": "conflict",
+      "title": "Portfolio risk conflicts with defensive allocation gap"
+    },
+    {
+      "count": 2,
+      "reason": "SMCI has weak research conviction while the position size or overweight status is material.",
+      "severity": "HIGH",
+      "source": "conflict",
+      "title": "SMCI position size conflicts with research conviction"
+    },
+    {
+      "count": 2,
+      "reason": "Position concentration 45.1%",
+      "severity": "HIGH",
+      "source": "portfolio_concentration",
+      "title": "UNH"
+    },
+    {
+      "count": 2,
+      "reason": "HIGH | UNH | Position concentration 45.1%",
+      "severity": "HIGH",
+      "source": "top_priority",
+      "title": "UNH position concentration 45.1%"
+    },
+    {
+      "count": 2,
+      "reason": "Position concentration 18.4%",
+      "severity": "MEDIUM",
+      "source": "portfolio_concentration",
+      "title": "SMCI"
+    },
+    {
+      "count": 2,
+      "reason": "A flat curve can indicate slower growth expectations and less favorable risk appetite.",
+      "severity": "MEDIUM",
+      "source": "macro",
+      "title": "Yield Curve: FLAT"
+    }
+  ],
+  "portfolio_risk_history": [
+    {
+      "generated_at": "2026-06-17T10:01:31",
+      "portfolio_risk": "UNH position concentration 45.1%"
+    },
+    {
+      "generated_at": "2026-06-17T10:21:08",
+      "portfolio_risk": "UNH position concentration 45.1%"
+    }
+  ],
+  "priority_history": [
+    {
+      "generated_at": "2026-06-17T10:01:31",
+      "top_priority": "UNH position concentration 45.1%"
+    },
+    {
+      "generated_at": "2026-06-17T10:21:08",
+      "top_priority": "UNH position concentration 45.1%"
+    }
+  ],
+  "risk_frequency": [
+    {
+      "count": 2,
+      "reason": "Rising energy can pressure inflation, margins, energy holdings, and broad market risk appetite.",
+      "severity": "HIGH",
+      "source": "macro",
+      "title": "Energy: RISING"
+    },
+    {
+      "count": 2,
+      "reason": "High growth exposure is sensitive to discount-rate pressure when inflation, energy, or rates themes are active.",
+      "severity": "HIGH",
+      "source": "conflict",
+      "title": "Growth exposure conflicts with inflation/rates theme"
+    },
+    {
+      "count": 2,
+      "reason": "Rising inflation can reprice Fed expectations, broad equities, long-duration growth assets, and drawdown risk.",
+      "severity": "HIGH",
+      "source": "macro",
+      "title": "Inflation Trend: RISING"
+    },
+    {
+      "count": 2,
+      "reason": "Macro signals point to a risk regime while portfolio classification remains aligned with expansion or disinflation.",
+      "severity": "HIGH",
+      "source": "conflict",
+      "title": "Macro regime risk conflicts with portfolio regime posture"
+    },
+    {
+      "count": 2,
+      "reason": "Portfolio risk is elevated while cash or bond exposure is below defensive allocation targets.",
+      "severity": "HIGH",
+      "source": "conflict",
+      "title": "Portfolio risk conflicts with defensive allocation gap"
+    },
+    {
+      "count": 2,
+      "reason": "SMCI has weak research conviction while the position size or overweight status is material.",
+      "severity": "HIGH",
+      "source": "conflict",
+      "title": "SMCI position size conflicts with research conviction"
+    },
+    {
+      "count": 2,
+      "reason": "Position concentration 45.1%",
+      "severity": "HIGH",
+      "source": "portfolio_concentration",
+      "title": "UNH"
+    },
+    {
+      "count": 2,
+      "reason": "HIGH | UNH | Position concentration 45.1%",
+      "severity": "HIGH",
+      "source": "top_priority",
+      "title": "UNH position concentration 45.1%"
+    },
+    {
+      "count": 2,
+      "reason": "Position concentration 18.4%",
+      "severity": "MEDIUM",
+      "source": "portfolio_concentration",
+      "title": "SMCI"
+    },
+    {
+      "count": 2,
+      "reason": "A flat curve can indicate slower growth expectations and less favorable risk appetite.",
+      "severity": "MEDIUM",
+      "source": "macro",
+      "title": "Yield Curve: FLAT"
+    }
+  ],
+  "sample_count": 2,
+  "schema_version": "1.0",
+  "state_stability": {
+    "macro_regime_changed_count": 0,
+    "portfolio_risk_changed_count": 0,
+    "priority_changed_count": 0,
+    "theme_changed_count": 0
+  },
+  "stress_scenario_history": [
+    {
+      "generated_at": "2026-06-17T10:01:31",
+      "stress_scenario": "2008_STYLE_CRISIS | Impact -50.12%"
+    },
+    {
+      "generated_at": "2026-06-17T10:21:08",
+      "stress_scenario": "2008_STYLE_CRISIS | Impact -50.13%"
+    }
+  ],
+  "summary": {
+    "dominant_persistent_action": {
+      "action": "Reevaluate SMCI: Low conviction holding",
+      "count": 2
+    },
+    "dominant_persistent_risk": {
+      "count": 2,
+      "reason": "Rising energy can pressure inflation, margins, energy holdings, and broad market risk appetite.",
+      "severity": "HIGH",
+      "source": "macro",
+      "title": "Energy: RISING"
+    },
+    "most_common_macro_regime": "Inflation Stress",
+    "most_common_portfolio_risk": "UNH position concentration 45.1%",
+    "most_common_priority": "UNH position concentration 45.1%",
+    "most_common_theme": "Inflation/Energy Risk"
+  },
+  "theme_history": [
+    {
+      "dominant_theme": "Inflation/Energy Risk",
+      "generated_at": "2026-06-17T10:01:31"
+    },
+    {
+      "dominant_theme": "Inflation/Energy Risk",
+      "generated_at": "2026-06-17T10:21:08"
+    }
+  ]
+}

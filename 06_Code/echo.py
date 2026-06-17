@@ -13,6 +13,13 @@ from echo_state_delta import (
     write_state_delta_json,
     write_state_delta_text
 )
+from echo_state_history import (
+    STATE_ARCHIVE_DIR,
+    build_echo_state_history,
+    read_state_history,
+    write_state_history_json,
+    write_state_history_text
+)
 import json
 import os
 from pathlib import Path
@@ -5154,6 +5161,28 @@ def echo_get_state_delta(context=None):
     )
 
 
+def echo_get_state_history(context=None):
+
+    history = read_state_history()
+    summary_data = history.get("summary") or {}
+    stability = history.get("state_stability") or {}
+    summary = (
+        f"State samples: {history.get('sample_count') or 0}. "
+        "Most common priority: "
+        f"{summary_data.get('most_common_priority') or 'None'}. "
+        "Priority changes: "
+        f"{stability.get('priority_changed_count') or 0}."
+    )
+
+    return _echo_tool_response(
+        "echo_get_state_history",
+        {"history": history},
+        summary,
+        "HIGH",
+        "Latest Echo historical state summary from generated history files."
+    )
+
+
 def echo_ask(question, context=None):
 
     result = answer_echo_multi_agent_query(question, _echo_tool_context(context))
@@ -5518,6 +5547,16 @@ ECHO_TOOL_REGISTRY = {
         "output_description": (
             "JSON-serializable dictionary with material changes, new risks, "
             "resolved risks, and major state field changes."
+        )
+    },
+    "echo_get_state_history": {
+        "function_name": "echo_get_state_history",
+        "description": "Return historical Echo state movement summary.",
+        "expected_input_fields": {},
+        "output_description": (
+            "JSON-serializable dictionary with priority, theme, macro, "
+            "portfolio risk, risk frequency, action frequency, persistence, "
+            "and stability history."
         )
     },
     "echo_ask": {
@@ -6241,6 +6280,7 @@ def _run_echo_orchestrator_tool(tool_name, message, context):
         "echo_get_daily_brief": echo_get_daily_brief,
         "echo_get_state": echo_get_state,
         "echo_get_state_delta": echo_get_state_delta,
+        "echo_get_state_history": echo_get_state_history,
         "echo_get_top_priority": echo_get_top_priority,
         "echo_get_themes": echo_get_themes,
         "echo_get_theme_impacts": echo_get_theme_impacts,
@@ -7212,6 +7252,9 @@ if __name__ == "__main__":
     state_result = write_echo_state(state)
     delta_json_result = write_state_delta_json(state_delta)
     delta_text_result = write_state_delta_text(state_delta)
+    state_history = build_echo_state_history(state, STATE_ARCHIVE_DIR)
+    history_json_result = write_state_history_json(state_history)
+    history_text_result = write_state_history_text(state_history)
 
     if not state_result["success"]:
         print(f"Echo state write failed: {state_result['error']}")
@@ -7221,5 +7264,17 @@ if __name__ == "__main__":
 
     if not delta_text_result["success"]:
         print(f"Echo state delta text write failed: {delta_text_result['error']}")
+
+    if not history_json_result["success"]:
+        print(
+            "Echo state history JSON write failed: "
+            f"{history_json_result['error']}"
+        )
+
+    if not history_text_result["success"]:
+        print(
+            "Echo state history text write failed: "
+            f"{history_text_result['error']}"
+        )
 
     print(report_bundle["daily_brief"])
