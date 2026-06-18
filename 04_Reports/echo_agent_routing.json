@@ -3,47 +3,60 @@
     {
       "agent": "portfolio",
       "context_sources": [
-        "market_opportunity_scan",
-        "market_coverage",
-        "portfolio_snapshot"
+        "memory_context",
+        "portfolio_snapshot",
+        "portfolio_full_report"
       ],
-      "include_full_report": false,
-      "reason": "Risk query should include held-position risk candidates.",
+      "include_full_report": true,
+      "reason": "portfolio matched as primary context under expanded budget.",
+      "role": "primary"
+    },
+    {
+      "agent": "research",
+      "context_sources": [
+        "memory_context",
+        "research_snapshot",
+        "research_full_report"
+      ],
+      "include_full_report": true,
+      "reason": "research matched as primary context under expanded budget.",
       "role": "primary"
     },
     {
       "agent": "news",
       "context_sources": [
-        "news_snapshot"
+        "memory_context",
+        "news_snapshot",
+        "news_full_report"
       ],
-      "include_full_report": false,
-      "reason": "News narratives provide downside signals.",
-      "role": "secondary"
+      "include_full_report": true,
+      "reason": "news matched as primary context under expanded budget.",
+      "role": "primary"
     },
     {
       "agent": "macro",
       "context_sources": [
-        "macro_snapshot"
+        "memory_context",
+        "macro_snapshot",
+        "macro_full_report"
       ],
-      "include_full_report": false,
-      "reason": "Macro regime provides downside signals.",
-      "role": "secondary"
+      "include_full_report": true,
+      "reason": "macro matched as primary context under expanded budget.",
+      "role": "primary"
     }
   ],
   "confidence": "high",
-  "excluded_agents": [
-    "research"
-  ],
-  "generated_at": "2026-06-18T14:20:31",
+  "excluded_agents": [],
+  "generated_at": "2026-06-18T14:49:39",
   "primary_agents": [
-    "portfolio"
-  ],
-  "query": "what stocks could go down based on recent news",
-  "reason": "Universal investment query routed by investment intent market_risks.",
-  "routing_mode": "investment_query",
-  "schema_version": "1.0",
-  "secondary_agents": [
+    "portfolio",
+    "research",
     "news",
     "macro"
-  ]
+  ],
+  "query": "Echo daily run overall executive summary",
+  "reason": "Broad synthesis query needs all active agent contexts.",
+  "routing_mode": "all_agents",
+  "schema_version": "1.0",
+  "secondary_agents": []
 }

@@ -2,13 +2,13 @@ ECHO INTENT REASONING
 =====================
 
 Schema Version: 1.0
-Generated At: 2026-06-18T14:20:32
-Query: what stocks could go down based on recent news
-Reasoning Intent: unknown
-Reasoning Depth: none
+Generated At: 2026-06-18T14:49:43
+Query: Echo daily run overall executive summary
+Reasoning Intent: retrieval
+Reasoning Depth: light
 Answer Style: brief
 Detected Horizon: None
-Confidence: low
+Confidence: high
 
 Detected Entities:
 None
@@ -16,15 +16,15 @@ None
 Required Context:
 - response_composer
 - context_assembly
-- market_opportunity_scan
+- memory_context
+- portfolio_context
+- research_context
 - news_context
 - macro_context
-- research_context
-- security_master_search
-- portfolio_context
 
 Reasoning Instructions:
-- Answer from available Echo context if possible.
-- Say what context is missing if the query cannot be answered.
+- Answer directly from Echo context.
+- Prioritize current state, latest priority, and relevant facts.
+- Do not over-explain unless the user asks why.
 
-Reason: No deterministic reasoning intent matched.
+Reason: Retrieval/status wording detected.

@@ -105,6 +105,24 @@ class EchoContextBudgetTests(unittest.TestCase):
             ["security_master_search", "market_coverage"],
             budget["preferred_context_sources"]
         )
+        self.assertIn("echo_get_security_intelligence", budget["tool_hints"])
+
+    def test_ticker_question_includes_security_intelligence(self):
+
+        budget = build_context_budget("what do you think about SMCI", _memory_context())
+
+        self.assertEqual("ticker_question", budget["query_class"])
+        self.assertIn("security_intelligence", budget["preferred_context_sources"])
+        self.assertIn("echo_get_security_intelligence", budget["tool_hints"])
+
+    def test_compare_query_includes_security_comparison(self):
+
+        budget = build_context_budget("compare SMCI vs NVDA", _memory_context())
+
+        self.assertEqual("ticker_question", budget["query_class"])
+        self.assertIn("security_intelligence", budget["preferred_context_sources"])
+        self.assertIn("security_comparison", budget["preferred_context_sources"])
+        self.assertIn("echo_compare_securities", budget["tool_hints"])
 
     def test_market_opportunity_scan_uses_broad_research_context(self):
 
@@ -115,6 +133,7 @@ class EchoContextBudgetTests(unittest.TestCase):
 
         self.assertEqual("market_opportunities", budget["query_class"])
         self.assertIn("market_opportunity_scan", budget["preferred_context_sources"])
+        self.assertIn("security_intelligence", budget["preferred_context_sources"])
         self.assertIn("market_coverage", budget["preferred_context_sources"])
         self.assertIn("dynamic_news_coverage", budget["preferred_context_sources"])
         self.assertIn("security_master_search", budget["preferred_context_sources"])

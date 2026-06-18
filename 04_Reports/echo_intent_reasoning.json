@@ -1,26 +1,26 @@
 {
   "answer_style": "brief",
-  "confidence": "low",
+  "confidence": "high",
   "detected_entities": [],
   "detected_horizon": null,
-  "generated_at": "2026-06-18T14:20:32",
-  "query": "what stocks could go down based on recent news",
-  "reason": "No deterministic reasoning intent matched.",
-  "reasoning_depth": "none",
+  "generated_at": "2026-06-18T14:49:43",
+  "query": "Echo daily run overall executive summary",
+  "reason": "Retrieval/status wording detected.",
+  "reasoning_depth": "light",
   "reasoning_instructions": [
-    "Answer from available Echo context if possible.",
-    "Say what context is missing if the query cannot be answered."
+    "Answer directly from Echo context.",
+    "Prioritize current state, latest priority, and relevant facts.",
+    "Do not over-explain unless the user asks why."
   ],
-  "reasoning_intent": "unknown",
+  "reasoning_intent": "retrieval",
   "required_context": [
     "response_composer",
     "context_assembly",
-    "market_opportunity_scan",
-    "news_context",
-    "macro_context",
+    "memory_context",
+    "portfolio_context",
     "research_context",
-    "security_master_search",
-    "portfolio_context"
+    "news_context",
+    "macro_context"
   ],
   "schema_version": "1.0"
 }

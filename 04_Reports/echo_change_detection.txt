@@ -2,11 +2,11 @@ ECHO CHANGE DETECTION
 =====================
 
 Schema Version: 1.0
-Generated At: 2026-06-18T14:19:43
+Generated At: 2026-06-18T14:49:34
 Change Level: moderate
 Material Change Count: 0
 Novel Change Count: 0
-Persistent Issue Count: 18
+Persistent Issue Count: 17
 
 Most Important Signal:
 risk: Growth exposure conflicts with inflation/rates theme (score 35)

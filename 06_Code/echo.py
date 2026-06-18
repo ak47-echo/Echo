@@ -86,6 +86,13 @@ from market_coverage import (
     build_market_coverage,
     read_market_coverage
 )
+from security_intelligence import (
+    build_and_write_security_intelligence_report,
+    build_security_intelligence_report,
+    build_security_profile,
+    compare_security_profiles,
+    read_security_intelligence
+)
 from portfolio_auto_import import (
     read_portfolio_auto_import,
     run_and_write_portfolio_auto_import
@@ -5706,6 +5713,95 @@ def echo_get_dynamic_news_coverage(context=None):
     )
 
 
+def _query_security_tickers(context=None):
+
+    query = ""
+    if isinstance(context, dict):
+        query = context.get("message") or context.get("query") or ""
+        budget = context.get("context_budget")
+        intent = budget.get("investment_intent") if isinstance(budget, dict) else None
+        if isinstance(intent, dict) and intent.get("tickers"):
+            return [
+                str(ticker).strip().upper()
+                for ticker in intent.get("tickers")
+                if str(ticker).strip()
+            ]
+
+    intent = classify_investment_intent(query)
+    tickers = [
+        str(ticker).strip().upper()
+        for ticker in intent.get("tickers") or []
+        if str(ticker).strip()
+    ]
+    if tickers:
+        return tickers
+
+    search = search_security_master(query, max_results=2)
+    return [
+        str(item.get("ticker") or "").strip().upper()
+        for item in search.get("matches") or []
+        if str(item.get("ticker") or "").strip()
+    ]
+
+
+def echo_get_security_intelligence(context=None):
+
+    tickers = _query_security_tickers(context)
+    query = ""
+    if isinstance(context, dict):
+        query = context.get("message") or context.get("query") or ""
+
+    if tickers:
+        report = build_security_intelligence_report(tickers)
+    elif query:
+        report = {
+            "schema_version": "1.0",
+            "generated_at": datetime.now().isoformat(timespec="seconds"),
+            "profile_count": 1,
+            "tickers": [],
+            "profiles": [build_security_profile(query)],
+            "evidence_policy": (
+                "Previous recommendations are not evidence. Research quality "
+                "flags are quality-control signals only."
+            ),
+            "warnings": []
+        }
+    else:
+        report = read_security_intelligence()
+
+    profiles = report.get("profiles") or []
+    top = profiles[0] if profiles else {}
+    summary = (
+        f"Security profiles: {len(profiles)}. "
+        f"Top profile: {top.get('ticker') or 'None'} | "
+        f"confidence {top.get('confidence') or 'UNKNOWN'}."
+    )
+    return _echo_tool_response(
+        "echo_get_security_intelligence",
+        {"security_intelligence": report},
+        summary,
+        "HIGH" if profiles else "LOW",
+        "Normalized security profile layer. Prior recommendations are not evidence."
+    )
+
+
+def echo_compare_securities(context=None):
+
+    tickers = _query_security_tickers(context)
+    comparison = compare_security_profiles(tickers[:6])
+    summary = (
+        "Compared securities: "
+        f"{', '.join(comparison.get('tickers') or []) or 'None'}."
+    )
+    return _echo_tool_response(
+        "echo_compare_securities",
+        {"security_comparison": comparison},
+        summary,
+        "HIGH" if comparison.get("profiles") else "LOW",
+        "Comparison uses normalized security profiles and excludes prior recommendations as evidence."
+    )
+
+
 def echo_get_portfolio_auto_import(context=None):
 
     result = read_portfolio_auto_import()
@@ -6235,6 +6331,27 @@ ECHO_TOOL_REGISTRY = {
             "portfolio, watchlist, query, and security-master news matching."
         )
     },
+    "echo_get_security_intelligence": {
+        "function_name": "echo_get_security_intelligence",
+        "description": "Return normalized security intelligence profiles.",
+        "expected_input_fields": {},
+        "output_description": (
+            "Dictionary with reusable ticker profiles including security "
+            "metadata, holdings/watchlist status, thesis text, bull and bear "
+            "factors, macro/news exposure, cached market data, quality flags, "
+            "known data, missing data, and confidence."
+        )
+    },
+    "echo_compare_securities": {
+        "function_name": "echo_compare_securities",
+        "description": "Compare normalized security intelligence profiles.",
+        "expected_input_fields": {},
+        "output_description": (
+            "Dictionary comparing held status, category, thesis availability, "
+            "bull factors, bear factors, macro exposure, news exposure, and "
+            "missing data for requested tickers."
+        )
+    },
     "echo_get_portfolio_auto_import": {
         "function_name": "echo_get_portfolio_auto_import",
         "description": "Return local Downloads portfolio auto-import status.",
@@ -6703,6 +6820,10 @@ def build_echo_llm_system_prompt():
         "Answer the user's actual question directly; do not merely restate the deterministic draft.",
         "Clearly separate known tool facts from inference or judgment.",
         "Do not invent portfolio holdings, news, macro data, prices, or research conclusions.",
+        "When security_intelligence exists, reason from the security profile first.",
+        "Do not treat prior recommendations, low conviction labels, reevaluate text, buy/sell text, or top-priority text as investment evidence.",
+        "Security Intelligence research_quality_flags are quality-control signals only; separate them from evidence.",
+        "Do not fabricate fundamentals, valuation, or news for securities.",
         "Do not claim current or live facts unless Echo supplied them in the context.",
         "If Echo lacks live/news data for a ticker or event, say that local data is insufficient and identify what data is missing.",
         "If the tool context is insufficient, say what is missing.",
@@ -6879,6 +7000,14 @@ def _llm_provider_payload(orchestrator_result):
             "live_data_discipline": (
                 "Do not claim current/live facts unless Echo supplied them; "
                 "state missing ticker, news, macro, or portfolio data."
+            ),
+            "security_intelligence_policy": (
+                "When security_intelligence is present, use it as the primary "
+                "security profile. Previous recommendations are not evidence. "
+                "Low conviction, reevaluate, buy, sell, and top-priority text "
+                "are quality-control signals only, not investment evidence. "
+                "Identify missing data and do not fabricate fundamentals, "
+                "valuation, or news."
             )
         },
         "tool_results": orchestrator_result.get("tool_results", {})
@@ -7148,6 +7277,9 @@ def _missing_data_notes(context_budget, context_assembly, validation=None):
     for warning in validation.get("warnings") or []:
         notes.append(str(warning))
 
+    if query_class in {"ticker_question", "ticker_news"} and "security_intelligence" not in included:
+        notes.append("Security intelligence profile context was not included.")
+
     if query_class in {"ticker_question", "ticker_news"} and not notes:
         notes.append(
             "Ticker answer is limited to local Echo holdings, research, news, and security master context."
@@ -7269,6 +7401,12 @@ def _context_assembly_reports(context, user_query=None):
             tickers=investment_intent.get("tickers"),
             categories=investment_intent.get("categories")
         ),
+        "security_intelligence": build_security_intelligence_report(
+            investment_intent.get("tickers") or None
+        ),
+        "security_comparison": compare_security_profiles(
+            investment_intent.get("tickers") or []
+        ) if len(investment_intent.get("tickers") or []) >= 2 else {},
         "market_coverage": market_coverage,
         "dynamic_news_coverage": {
             "schema_version": "1.0",
@@ -7369,14 +7507,25 @@ def _echo_orchestrator_select_tools(message, context, context_budget=None,
         )
 
     if query_class in {"ticker_question", "ticker_news", "security_master_search"}:
-        add_tools("echo_search_security_master", "echo_get_market_coverage")
+        add_tools(
+            "echo_get_security_intelligence",
+            "echo_search_security_master",
+            "echo_get_market_coverage"
+        )
         if query_class != "security_master_search":
             add_tools("echo_get_research_snapshot")
         if query_class == "ticker_news":
             add_tools("echo_get_dynamic_news_coverage", "echo_get_news_snapshot")
 
+    if query_class in {"ticker_question", "ticker_news"} and any(
+        term in text
+        for term in ("compare", " vs ", " versus ", "bull case", "bear case", "risks matter", "continue researching")
+    ):
+        add_tools("echo_compare_securities")
+
     if query_class in {"market_opportunities", "market_risks", "watchlist_management"}:
         add_tools(
+            "echo_get_security_intelligence",
             "echo_get_market_coverage",
             "echo_get_dynamic_news_coverage",
             "echo_get_market_opportunity_scan",
@@ -7573,6 +7722,8 @@ def _run_echo_orchestrator_tool(tool_name, message, context):
         "echo_get_market_opportunity_scan": echo_get_market_opportunity_scan,
         "echo_get_market_coverage": echo_get_market_coverage,
         "echo_get_dynamic_news_coverage": echo_get_dynamic_news_coverage,
+        "echo_get_security_intelligence": echo_get_security_intelligence,
+        "echo_compare_securities": echo_compare_securities,
         "echo_get_portfolio_auto_import": echo_get_portfolio_auto_import,
         "echo_get_top_priority": echo_get_top_priority,
         "echo_get_themes": echo_get_themes,
@@ -8674,6 +8825,7 @@ if __name__ == "__main__":
     memory_context_json_result = write_memory_context_json(memory_context)
     memory_context_text_result = write_memory_context_text(memory_context)
     market_scan_result = build_and_write_market_opportunity_scan()
+    security_intelligence_result = build_and_write_security_intelligence_report()
     daily_orchestration_query = "Echo daily run overall executive summary"
     context_budget = build_context_budget(
         daily_orchestration_query,

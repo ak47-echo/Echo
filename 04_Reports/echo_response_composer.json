@@ -1,26 +1,32 @@
 {
-  "answer": "Risk candidates: IBIT | downside | Rates/inflation pressure can pressure long-duration or speculative exposure.; SCHG | downside | Rates/inflation pressure can pressure long-duration or speculative exposure. These are research candidates only; no trades are being placed.",
+  "answer": "Overall picture: start with UNH position concentration 41.5%. Change level is moderate; dominant theme is Inflation/Energy Risk. Portfolio: UNH position concentration 41.5%. Macro: Inflation Stress. News: Middle East Energy Risk. Watch next: Growth exposure conflicts with inflation/rates theme; Inflation Trend: RISING; Macro regime risk conflicts with portfolio regime posture.",
   "caveats": [],
   "debug_summary": {
-    "assembly_mode": "investment_query",
+    "assembly_mode": "multi_agent",
     "budget_level": "expanded",
-    "full_reports_included": false,
-    "query_class": "market_risks",
-    "routing_mode": "investment_query"
+    "full_reports_included": true,
+    "query_class": "multi_agent",
+    "routing_mode": "all_agents"
   },
-  "generated_at": "2026-06-18T14:20:32",
-  "query": "what stocks could go down based on recent news",
-  "response_mode": "memory",
+  "generated_at": "2026-06-18T14:49:43",
+  "query": "Echo daily run overall executive summary",
+  "response_mode": "multi_agent_summary",
   "schema_version": "1.0",
   "supporting_points": [
-    "IBIT | downside | Rates/inflation pressure can pressure long-duration or speculative exposure.",
-    "SCHG | downside | Rates/inflation pressure can pressure long-duration or speculative exposure."
+    "UNH position concentration 41.5%",
+    "Growth exposure conflicts with inflation/rates theme",
+    "Inflation/Energy Risk",
+    "UNH position concentration 41.5%",
+    "Inflation Stress",
+    "Middle East Energy Risk"
   ],
   "used_sources": [
-    "security_master_search",
-    "dynamic_news_coverage",
-    "market_coverage",
-    "market_opportunity_scan",
-    "memory_context"
+    "memory_context",
+    "change_detection",
+    "knowledge_graph",
+    "macro_report",
+    "news_report",
+    "portfolio_report",
+    "research_report"
   ]
 }

@@ -5,7 +5,7 @@
     "max_items": 20
   },
   "context_mode": "memory_first",
-  "generated_at": "2026-06-18T14:19:43",
+  "generated_at": "2026-06-18T14:49:34",
   "operating_context": {
     "connected_entities": [
       {
@@ -13,8 +13,8 @@
         "layer": "knowledge_graph",
         "metadata": {
           "dominant_cluster": "cluster:1",
-          "edge_count": 97,
-          "node_count": 51
+          "edge_count": 96,
+          "node_count": 50
         },
         "type": "summary"
       },
@@ -38,9 +38,9 @@
           "id": "cluster:1",
           "label": "UNH position concentration 41.5%",
           "primary_node": "risk:unh_position_concentration_415",
-          "total_weight": 1410
+          "total_weight": 1380
         },
-        "score": 1410,
+        "score": 1380,
         "type": "dominant_cluster"
       }
     ],
@@ -58,10 +58,10 @@
         "top_priority": "Inflation Trend | Macro Regime Inflation Stress | Regime Score 100 | Priority Tier HIGH"
       },
       "news_top_narrative": {
-        "reason": "7 related Iran, Hormuz, or oil headlines indicate an energy-linked geopolitical market narrative.",
-        "representative_headline": "Vance says U.S. isn\u2019t giving Iran \u2018a cent\u2019 as he defends Trump peace deal",
+        "reason": "8 related Iran, Hormuz, or oil headlines indicate an energy-linked geopolitical market narrative.",
+        "representative_headline": "The Iran oil shock taught traders these key lessons about demand and China",
         "score": 100,
-        "supporting_articles": 7,
+        "supporting_articles": 8,
         "title": "Middle East Energy Risk"
       },
       "portfolio_current_risk": {
@@ -162,7 +162,7 @@
           "change_level": "moderate",
           "material_change_count": 0,
           "novel_change_count": 0,
-          "persistent_issue_count": 18
+          "persistent_issue_count": 17
         },
         "type": "summary"
       },
@@ -211,7 +211,7 @@
     "dominant_cluster": "cluster:1",
     "dominant_theme": "Inflation/Energy Risk",
     "material_change_count": 0,
-    "persistent_issue_count": 18,
+    "persistent_issue_count": 17,
     "top_priority": "UNH position concentration 41.5%",
     "top_signal": "Growth exposure conflicts with inflation/rates theme"
   }

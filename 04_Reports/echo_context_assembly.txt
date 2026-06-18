@@ -2,32 +2,33 @@ ECHO CONTEXT ASSEMBLY
 =====================
 
 Schema Version: 1.0
-Generated At: 2026-06-18T14:20:32
-Query: what stocks could go down based on recent news
-Assembly Mode: investment_query
-Block Count: 6
-Estimated Size: 35974
-Full Reports Included: No
+Generated At: 2026-06-18T14:49:43
+Query: Echo daily run overall executive summary
+Assembly Mode: multi_agent
+Block Count: 8
+Estimated Size: 13971
+Full Reports Included: Yes
 
 Included Sources:
-- security_master_search
-- dynamic_news_coverage
-- market_coverage
-- market_opportunity_scan
 - memory_context
-
-Excluded Sources:
+- change_detection
+- knowledge_graph
 - macro_report
 - news_report
 - portfolio_report
 - research_report
 
+Excluded Sources:
+None
+
 Context Blocks:
-- security_master_search | secondary | Security Master Search | priority 125
-- dynamic_news_coverage | secondary | Dynamic News Coverage | priority 115
-- market_coverage | primary | Market Coverage | priority 115
-- market_opportunity_scan | primary | Market Opportunity Scan | priority 115
 - memory_context | primary | Memory Summary | priority 100
 - memory_context | primary | Recommended Attention And Persistence | priority 90
+- change_detection | secondary | Change And Signal Summary | priority 80
+- knowledge_graph | secondary | Connected Entity Summary | priority 75
+- macro_report | primary | Macro Report | priority 70
+- news_report | primary | News Report | priority 70
+- portfolio_report | primary | Portfolio Report | priority 70
+- research_report | primary | Research Report | priority 70
 
-Reason: Assembled investment_query context from memory, budget expanded, and routed agent plan.
+Reason: Assembled multi_agent context from memory, budget expanded, and routed agent plan.

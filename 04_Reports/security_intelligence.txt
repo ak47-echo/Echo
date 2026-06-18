@@ -1,0 +1,105 @@
+SECURITY INTELLIGENCE
+
+Generated At: 2026-06-18T14:49:39
+Profile Count: 14
+Evidence Policy: Previous recommendations are not evidence. Low conviction, reevaluate, buy, sell, and top-priority text may appear only as research quality-control signals.
+
+Profiles
+- ECO | OKEANIS ECO TANKERS CO F | Marine Shipping | held True | watchlist False | confidence HIGH
+  Bull: Thesis support: Environmental services demand can benefit from infrastructure investment and tighter waste standards; Classified as commodity stock; factors: commodity.
+  Bear: Security classification risk bucket is speculative.
+  Macro: None
+  News: Direct local News Agent mention found for: TANKERS.
+  Quality Flags: Low conviction: quality-control signal only, not investment evidence.
+  Missing Data: None
+- IBIT | ISHARES BITCOIN TRUST ETF | Non-Traditional | held True | watchlist False | confidence HIGH
+  Bull: Thesis on file: Direct bitcoin exposure provides asymmetric return potential within a deliberately limited allocation; Classified as bitcoin ETF; factors: bitcoin.
+  Bear: Security classification risk bucket is speculative.
+  Macro: Crypto/liquidity exposure: sensitive to rates, liquidity, and risk appetite.
+  News: No direct local news found
+  Quality Flags: None
+  Missing Data: No direct local news was found for this ticker.
+- MSTR | STRATEGY INC CLASS A | US Small Blend | held True | watchlist False | confidence HIGH
+  Bull: Thesis support: Bitcoin treasury exposure offers amplified upside but carries substantial leverage and concentration risk; Classified as equity stock; factors: blend, small.
+  Bear: Thesis risk: Bitcoin treasury exposure offers amplified upside but carries substantial leverage and concentration risk; Security classification risk bucket is high.
+  Macro: Small-cap exposure: sensitive to credit conditions, rates, and growth expectations.
+  News: No direct local news found
+  Quality Flags: Low conviction: quality-control signal only, not investment evidence.
+  Missing Data: No direct local news was found for this ticker.
+- SMCI | SUPER MICRO COMPUTER INC | US Small Growth | held True | watchlist False | confidence HIGH
+  Bull: Thesis support: AI infrastructure demand can support server growth but competition and execution risk remain elevated; Classified as equity stock; factors: growth, small.
+  Bear: Thesis risk: AI infrastructure demand can support server growth but competition and execution risk remain elevated; Security classification risk bucket is high.
+  Macro: Growth/rates exposure: sensitive to inflation, rates, and discount-rate changes.; Small-cap exposure: sensitive to credit conditions, rates, and growth expectations.
+  News: No direct local news found
+  Quality Flags: Low conviction: quality-control signal only, not investment evidence.
+  Missing Data: No direct local news was found for this ticker.
+- UNH | UNITEDHEALTH GROUP INC | US Large Growth | held True | watchlist False | confidence HIGH
+  Bull: Thesis on file: Scale and vertical integration support long term health care earnings despite regulatory risk; Classified as equity stock; factors: growth, large.
+  Bear: Thesis risk: Scale and vertical integration support long term health care earnings despite regulatory risk; Security classification risk bucket is high.
+  Macro: Growth/rates exposure: sensitive to inflation, rates, and discount-rate changes.; Healthcare exposure: sensitive to regulation, reimbursement, and policy risk.
+  News: No direct local news found
+  Quality Flags: None
+  Missing Data: No direct local news was found for this ticker.
+- VNOM | VIPER ENERGY INC NEW CLASS CLASS A | MLP | held True | watchlist False | confidence HIGH
+  Bull: Thesis support: Mineral interests provide energy income and commodity upside without direct drilling costs; Classified as commodity stock; factors: commodity.
+  Bear: Security classification risk bucket is speculative.
+  Macro: Energy exposure: sensitive to oil prices, supply shocks, and geopolitics.
+  News: No direct local news found
+  Quality Flags: None
+  Missing Data: No direct local news was found for this ticker.
+- QMOM | ALPHA ARCHITECT U.S. QUANTITATIVE MOMENTUM ETF | US Large Blend | held True | watchlist False | confidence MEDIUM
+  Bull: Thesis on file: Systematic momentum exposure can capture persistent relative strength across US equities; Classified as equity ETF; factors: blend, large, momentum.
+  Bear: None
+  Macro: None
+  News: No direct local news found
+  Quality Flags: None
+  Missing Data: No direct local news was found for this ticker.
+- SCHA | SCHWAB U.S. SMALL-CAP ETF | US Small Blend | held True | watchlist False | confidence HIGH
+  Bull: Thesis support: Small cap US equities offer long term growth and diversification beyond large cap holdings; Diversification thesis: Small cap US equities offer long term growth and diversification beyond large cap holdings; Classified as equity ETF; factors: blend, small.
+  Bear: None
+  Macro: Small-cap exposure: sensitive to credit conditions, rates, and growth expectations.
+  News: No direct local news found
+  Quality Flags: None
+  Missing Data: No direct local news was found for this ticker.
+- SCHF | SCHWAB INTERNATIONAL EQUITY ETF | Intl Large Blend | held True | watchlist False | confidence MEDIUM
+  Bull: Diversification thesis: Low cost exposure to developed international equities improves geographic diversification; Classified as equity ETF; factors: blend, large.
+  Bear: None
+  Macro: None
+  News: No direct local news found
+  Quality Flags: None
+  Missing Data: No direct local news was found for this ticker.
+- SCHG | SCHWAB U.S. LARGE-CAP GROWTH ETF | US Large Growth | held True | watchlist False | confidence HIGH
+  Bull: Thesis support: Large cap growth companies provide durable earnings growth and innovation exposure; Classified as equity ETF; factors: growth, large.
+  Bear: None
+  Macro: Growth/rates exposure: sensitive to inflation, rates, and discount-rate changes.
+  News: No direct local news found
+  Quality Flags: None
+  Missing Data: No direct local news was found for this ticker.
+- SPYM | STATE STREET SPDR PORTFOLIO S&P 500 ETF | US Large Blend | held True | watchlist False | confidence HIGH
+  Bull: Thesis support: Mid cap US equities provide balanced exposure between large cap stability and small cap growth; Classified as equity ETF; factors: blend, large.
+  Bear: None
+  Macro: None
+  News: Direct local News Agent mention found for: STREET, PORTFOLIO.
+  Quality Flags: None
+  Missing Data: None
+- AVUV | Avantis US Small Cap Value ETF | US Small Value | held False | watchlist True | confidence MEDIUM
+  Bull: Diversification thesis: US small cap value exposure may improve factor diversification and complement broad small cap holdings; Classified as equity ETF; factors: value, small.
+  Bear: None
+  Macro: Small-cap exposure: sensitive to credit conditions, rates, and growth expectations.
+  News: No direct local news found
+  Quality Flags: None
+  Missing Data: No direct local news was found for this ticker.; Cached historical market data was not available.
+- AVDV | Avantis® International Small Cap Val ETF | Intl Small Value | held False | watchlist True | confidence MEDIUM
+  Bull: Diversification thesis: International small cap value exposure may broaden geographic and factor diversification; Classified as equity ETF; factors: value, small.
+  Bear: None
+  Macro: Small-cap exposure: sensitive to credit conditions, rates, and growth expectations.
+  News: No direct local news found
+  Quality Flags: None
+  Missing Data: No direct local news was found for this ticker.; Cached historical market data was not available.
+- SGOV | iShares® 0-3 Month Treasury Bond ETF | Short-Term Treasury | held False | watchlist True | confidence HIGH
+  Bull: Thesis on file: Short term Treasury exposure can preserve capital and improve yield on cash not needed immediately; Classified as bond ETF; factors: unknown.
+  Bear: None
+  Macro: Rate/yield exposure: sensitive to Fed policy and Treasury yields.
+  News: Direct local News Agent mention found for: Treasury.
+  Quality Flags: None
+  Missing Data: Cached historical market data was not available.

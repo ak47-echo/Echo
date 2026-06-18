@@ -17,6 +17,8 @@ AGENT_REPORT_SOURCES = {
 SPECIAL_REPORT_SOURCES = {
     "portfolio_change_detection": "Portfolio Change Detection",
     "portfolio_ingestion": "Portfolio Ingestion",
+    "security_intelligence": "Security Intelligence",
+    "security_comparison": "Security Comparison",
     "security_master_search": "Security Master Search",
     "market_coverage": "Market Coverage",
     "dynamic_news_coverage": "Dynamic News Coverage",

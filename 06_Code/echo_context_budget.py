@@ -358,19 +358,25 @@ def _base_budget(query, agents):
         )
 
     if intent in {"ticker_question", "ticker_news"}:
+        ticker_sources = [
+            "security_intelligence",
+            "security_master_search",
+            "market_coverage",
+            "dynamic_news_coverage",
+            "portfolio_snapshot",
+            "research_snapshot",
+            "news_snapshot"
+        ]
+        if len(investment_intent.get("tickers") or []) >= 2:
+            ticker_sources.insert(1, "security_comparison")
         return (
             intent,
             "standard",
-            [
-                "security_master_search",
-                "market_coverage",
-                "dynamic_news_coverage",
-                "portfolio_snapshot",
-                "research_snapshot",
-                "news_snapshot"
-            ],
+            ticker_sources,
             ["generic_state_delta"],
             [
+                "echo_get_security_intelligence",
+                "echo_compare_securities",
                 "echo_search_security_master",
                 "echo_get_market_coverage",
                 "echo_get_dynamic_news_coverage",
@@ -386,6 +392,7 @@ def _base_budget(query, agents):
             "expanded",
             [
                 "market_opportunity_scan",
+                "security_intelligence",
                 "market_coverage",
                 "dynamic_news_coverage",
                 "news_snapshot",
@@ -396,6 +403,7 @@ def _base_budget(query, agents):
             ["generic_state_delta"],
             [
                 "echo_get_market_opportunity_scan",
+                "echo_get_security_intelligence",
                 "echo_get_market_coverage",
                 "echo_get_dynamic_news_coverage",
                 "echo_search_security_master",
@@ -412,7 +420,11 @@ def _base_budget(query, agents):
             "standard",
             ["security_master_search", "market_coverage"],
             ["generic_state_delta", "full_reports"],
-            ["echo_search_security_master", "echo_get_market_coverage"],
+            [
+                "echo_get_security_intelligence",
+                "echo_search_security_master",
+                "echo_get_market_coverage"
+            ],
             "Query asks to search the local security master."
         )
 

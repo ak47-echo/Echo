@@ -61,6 +61,11 @@ from market_coverage import (
     build_and_write_market_coverage,
     read_market_coverage
 )
+from security_intelligence import (
+    build_security_profile,
+    compare_security_profiles,
+    read_security_intelligence
+)
 from portfolio_auto_import import (
     read_portfolio_auto_import,
     run_and_write_portfolio_auto_import
@@ -295,6 +300,24 @@ def create_app():
     @app.post("/market/coverage/run")
     async def market_coverage_run():
         return build_and_write_market_coverage()["coverage"]
+
+    @app.get("/security/intelligence")
+    async def security_intelligence():
+        return read_security_intelligence()
+
+    @app.get("/security/compare")
+    async def security_compare(request: Request):
+        raw = request.query_params.get("tickers") or ""
+        tickers = [
+            item.strip().upper()
+            for item in raw.split(",")
+            if item.strip()
+        ]
+        return compare_security_profiles(tickers)
+
+    @app.get("/security/{ticker}")
+    async def security_profile(ticker: str):
+        return build_security_profile(ticker)
 
     @app.post("/market/opportunities/run")
     async def market_opportunities_run():

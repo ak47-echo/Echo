@@ -300,9 +300,15 @@ def _investment_plan(query_class):
             (
                 "research",
                 "primary",
-                ["security_master_search", "market_coverage", "research_snapshot"],
+                [
+                    "security_intelligence",
+                    "security_comparison",
+                    "security_master_search",
+                    "market_coverage",
+                    "research_snapshot"
+                ],
                 False,
-                "Ticker question needs local security and research context."
+                "Ticker question needs normalized security intelligence before research context."
             )
         ],
         "ticker_news": [
@@ -310,6 +316,8 @@ def _investment_plan(query_class):
                 "news",
                 "primary",
                 [
+                    "security_intelligence",
+                    "security_comparison",
                     "security_master_search",
                     "market_coverage",
                     "dynamic_news_coverage",
@@ -332,6 +340,7 @@ def _investment_plan(query_class):
                 "primary",
                 [
                     "market_opportunity_scan",
+                    "security_intelligence",
                     "market_coverage",
                     "dynamic_news_coverage",
                     "research_snapshot",
@@ -359,7 +368,12 @@ def _investment_plan(query_class):
             (
                 "portfolio",
                 "primary",
-                ["market_opportunity_scan", "market_coverage", "portfolio_snapshot"],
+                [
+                    "market_opportunity_scan",
+                    "security_intelligence",
+                    "market_coverage",
+                    "portfolio_snapshot"
+                ],
                 False,
                 "Risk query should include held-position risk candidates."
             ),

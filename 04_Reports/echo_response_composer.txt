@@ -2,30 +2,36 @@ ECHO RESPONSE COMPOSER
 ======================
 
 Schema Version: 1.0
-Generated At: 2026-06-18T14:20:32
-Query: what stocks could go down based on recent news
-Response Mode: memory
+Generated At: 2026-06-18T14:49:43
+Query: Echo daily run overall executive summary
+Response Mode: multi_agent_summary
 
 Answer:
-Risk candidates: IBIT | downside | Rates/inflation pressure can pressure long-duration or speculative exposure.; SCHG | downside | Rates/inflation pressure can pressure long-duration or speculative exposure. These are research candidates only; no trades are being placed.
+Overall picture: start with UNH position concentration 41.5%. Change level is moderate; dominant theme is Inflation/Energy Risk. Portfolio: UNH position concentration 41.5%. Macro: Inflation Stress. News: Middle East Energy Risk. Watch next: Growth exposure conflicts with inflation/rates theme; Inflation Trend: RISING; Macro regime risk conflicts with portfolio regime posture.
 
 Supporting Points:
-- IBIT | downside | Rates/inflation pressure can pressure long-duration or speculative exposure.
-- SCHG | downside | Rates/inflation pressure can pressure long-duration or speculative exposure.
+- UNH position concentration 41.5%
+- Growth exposure conflicts with inflation/rates theme
+- Inflation/Energy Risk
+- UNH position concentration 41.5%
+- Inflation Stress
+- Middle East Energy Risk
 
 Caveats:
 None
 
 Used Sources:
-- security_master_search
-- dynamic_news_coverage
-- market_coverage
-- market_opportunity_scan
 - memory_context
+- change_detection
+- knowledge_graph
+- macro_report
+- news_report
+- portfolio_report
+- research_report
 
 Debug Summary:
-- Query Class: market_risks
+- Query Class: multi_agent
 - Budget Level: expanded
-- Routing Mode: investment_query
-- Assembly Mode: investment_query
-- Full Reports Included: False
+- Routing Mode: all_agents
+- Assembly Mode: multi_agent
+- Full Reports Included: True

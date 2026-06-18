@@ -21,6 +21,8 @@ RAW_TOOL_NAMES = (
     "echo_get_market_opportunity_scan",
     "echo_get_market_coverage",
     "echo_get_dynamic_news_coverage",
+    "echo_get_security_intelligence",
+    "echo_compare_securities",
     "echo_get_portfolio_auto_import"
 )
 
@@ -845,6 +847,78 @@ def _category_macro_note(category):
 
 def _ticker_response(user_query, context_assembly):
 
+    comparison = _block_json(context_assembly, "security_comparison")
+    if (
+        comparison.get("comparison")
+        and _has_any(user_query, ("compare", " vs ", " versus "))
+    ):
+        rows = _list(comparison.get("comparison"))
+        labels = [
+            (
+                f"{item.get('ticker')} | {item.get('held_status')} | "
+                f"{item.get('category') or 'uncategorized'} | "
+                f"thesis {'available' if item.get('thesis_available') else 'missing'} | "
+                f"bull {_join_labels(_list(item.get('bull_factors'))[:2])} | "
+                f"bear {_join_labels(_list(item.get('bear_factors'))[:2])}"
+            )
+            for item in rows[:4]
+        ]
+        answer = (
+            f"Security comparison: {_join_labels(labels)}. "
+            "Prior recommendations are not evidence; quality-control flags "
+            "are separate from evidence."
+        )
+        return answer, labels, []
+
+    intelligence = _block_json(context_assembly, "security_intelligence")
+    profiles = _list(intelligence.get("profiles"))
+    if profiles:
+        profile = profiles[0]
+        relation = (
+            "currently held"
+            if profile.get("is_current_holding")
+            else "not currently held"
+        )
+        if profile.get("is_watchlist") and not profile.get("is_current_holding"):
+            relation = "on the watchlist but not currently held"
+        bull = _join_labels(_list(profile.get("bull_factors"))[:3])
+        bear = _join_labels(_list(profile.get("bear_factors"))[:3])
+        missing = _join_labels(_list(profile.get("missing_data"))[:3])
+        quality = _join_labels(_list(profile.get("research_quality_flags"))[:2])
+        query_text = _safe_text(user_query).casefold()
+        base = (
+            f"{profile.get('ticker')} is {relation}. "
+            f"Security profile: {profile.get('name') or 'unknown name'} | "
+            f"{profile.get('category') or 'uncategorized'} | "
+            f"confidence {profile.get('confidence')}. "
+        )
+        if "bull" in query_text:
+            answer = (
+                f"{base}Bull factors from allowed evidence: {bull}. "
+                f"Missing data: {missing}. Prior recommendations are not evidence."
+            )
+        elif "bear" in query_text or "risk" in query_text:
+            answer = (
+                f"{base}Bear/risk factors from allowed evidence: {bear}; "
+                f"{_join_labels(_list(profile.get('macro_exposures'))[:3])}. "
+                f"Missing data: {missing}. Prior recommendations are not evidence."
+            )
+        else:
+            answer = (
+                f"{base}Bull factors from allowed evidence: {bull}. "
+                f"Bear factors from allowed evidence: {bear}. "
+                f"Missing data: {missing}. Prior recommendations are not evidence."
+            )
+        if quality != "None identified.":
+            answer = (
+                f"{answer} Quality-control flags, not investment evidence: "
+                f"{quality}."
+            )
+        return answer, [
+            json.dumps(profile, sort_keys=True)
+            for profile in profiles[:3]
+        ], []
+
     result = _block_json(context_assembly, "security_master_search")
     matches = _list(result.get("matches"))
     if not matches:
@@ -897,6 +971,28 @@ def _ticker_response(user_query, context_assembly):
 
 
 def _market_scan_response(query_class, context_assembly):
+
+    intelligence = _block_json(context_assembly, "security_intelligence")
+    profiles = _list(intelligence.get("profiles"))
+    if query_class == "market_risks" and profiles:
+        profile = profiles[0]
+        labels = (
+            _list(profile.get("bear_factors"))[:3]
+            + _list(profile.get("macro_exposures"))[:3]
+        )
+        missing = _join_labels(_list(profile.get("missing_data"))[:3])
+        answer = (
+            f"Risks that matter for {profile.get('ticker')}: "
+            f"{_join_labels(labels)}. Missing data: {missing}. "
+            "Prior recommendations are not evidence."
+        )
+        quality = _join_labels(_list(profile.get("research_quality_flags"))[:2])
+        if quality != "None identified.":
+            answer = (
+                f"{answer} Quality-control flags, not investment evidence: "
+                f"{quality}."
+            )
+        return answer, labels, []
 
     scan = _block_json(context_assembly, "market_opportunity_scan")
     if not scan:

@@ -1,0 +1,781 @@
+{
+  "evidence_policy": "Previous recommendations are not evidence. Low conviction, reevaluate, buy, sell, and top-priority text may appear only as research quality-control signals.",
+  "generated_at": "2026-06-18T14:49:39",
+  "profile_count": 14,
+  "profiles": [
+    {
+      "bear_factors": [
+        "Security classification risk bucket is speculative."
+      ],
+      "bull_factors": [
+        "Thesis support: Environmental services demand can benefit from infrastructure investment and tighter waste standards",
+        "Classified as commodity stock; factors: commodity."
+      ],
+      "category": "Marine Shipping",
+      "classification": {
+        "asset_class": "commodity",
+        "risk_bucket": "speculative",
+        "security_type": "stock",
+        "ticker": "ECO"
+      },
+      "confidence": "HIGH",
+      "conviction": "low",
+      "expense_ratio": null,
+      "factors": [
+        "commodity"
+      ],
+      "generated_at": "2026-06-18T14:49:35",
+      "historical_market_data": {
+        "data_points": 712,
+        "end_date": "2026-06-16",
+        "first_close": 19.286832809448242,
+        "latest_close": 51.7598991394043,
+        "source": "CACHE",
+        "start_date": "2023-08-14",
+        "status": "CACHE_HIT",
+        "trailing_return_percent": 168.37
+      },
+      "is_current_holding": true,
+      "is_watchlist": false,
+      "known_data": [
+        "security_master metadata",
+        "portfolio holding data",
+        "thesis text",
+        "local news exposure",
+        "cached historical market data",
+        "security classification"
+      ],
+      "macro_exposures": [],
+      "missing_data": [],
+      "name": "OKEANIS ECO TANKERS CO F",
+      "news_exposures": [
+        "Direct local News Agent mention found for: TANKERS."
+      ],
+      "portfolio_weight": 3.616,
+      "research_quality_flags": [
+        "Low conviction: quality-control signal only, not investment evidence."
+      ],
+      "thesis_status": "active",
+      "thesis_summary": "Environmental services demand can benefit from infrastructure investment and tighter waste standards",
+      "ticker": "ECO"
+    },
+    {
+      "bear_factors": [
+        "Security classification risk bucket is speculative."
+      ],
+      "bull_factors": [
+        "Thesis on file: Direct bitcoin exposure provides asymmetric return potential within a deliberately limited allocation",
+        "Classified as bitcoin ETF; factors: bitcoin."
+      ],
+      "category": "Non-Traditional",
+      "classification": {
+        "asset_class": "bitcoin",
+        "risk_bucket": "speculative",
+        "security_type": "ETF",
+        "ticker": "IBIT"
+      },
+      "confidence": "HIGH",
+      "conviction": "medium",
+      "expense_ratio": 0.0012,
+      "factors": [
+        "bitcoin"
+      ],
+      "generated_at": "2026-06-18T14:49:35",
+      "historical_market_data": {
+        "data_points": 608,
+        "end_date": "2026-06-16",
+        "first_close": 26.6299991607666,
+        "latest_close": 37.28499984741211,
+        "source": "CACHE",
+        "start_date": "2024-01-11",
+        "status": "CACHE_HIT",
+        "trailing_return_percent": 40.01
+      },
+      "is_current_holding": true,
+      "is_watchlist": false,
+      "known_data": [
+        "security_master metadata",
+        "portfolio holding data",
+        "thesis text",
+        "macro/category exposure",
+        "cached historical market data",
+        "security classification"
+      ],
+      "macro_exposures": [
+        "Crypto/liquidity exposure: sensitive to rates, liquidity, and risk appetite."
+      ],
+      "missing_data": [
+        "No direct local news was found for this ticker."
+      ],
+      "name": "ISHARES BITCOIN TRUST ETF",
+      "news_exposures": [],
+      "portfolio_weight": 8.4613,
+      "research_quality_flags": [],
+      "thesis_status": "active",
+      "thesis_summary": "Direct bitcoin exposure provides asymmetric return potential within a deliberately limited allocation",
+      "ticker": "IBIT"
+    },
+    {
+      "bear_factors": [
+        "Thesis risk: Bitcoin treasury exposure offers amplified upside but carries substantial leverage and concentration risk",
+        "Security classification risk bucket is high."
+      ],
+      "bull_factors": [
+        "Thesis support: Bitcoin treasury exposure offers amplified upside but carries substantial leverage and concentration risk",
+        "Classified as equity stock; factors: blend, small."
+      ],
+      "category": "US Small Blend",
+      "classification": {
+        "asset_class": "equity",
+        "risk_bucket": "high",
+        "security_type": "stock",
+        "ticker": "MSTR"
+      },
+      "confidence": "HIGH",
+      "conviction": "low",
+      "expense_ratio": null,
+      "factors": [
+        "blend",
+        "small"
+      ],
+      "generated_at": "2026-06-18T14:49:35",
+      "historical_market_data": {
+        "data_points": 1255,
+        "end_date": "2026-06-16",
+        "first_close": 61.981998443603516,
+        "latest_close": 126.61000061035156,
+        "source": "CACHE",
+        "start_date": "2021-06-16",
+        "status": "CACHE_HIT",
+        "trailing_return_percent": 104.27
+      },
+      "is_current_holding": true,
+      "is_watchlist": false,
+      "known_data": [
+        "security_master metadata",
+        "portfolio holding data",
+        "thesis text",
+        "macro/category exposure",
+        "cached historical market data",
+        "security classification"
+      ],
+      "macro_exposures": [
+        "Small-cap exposure: sensitive to credit conditions, rates, and growth expectations."
+      ],
+      "missing_data": [
+        "No direct local news was found for this ticker."
+      ],
+      "name": "STRATEGY INC CLASS A",
+      "news_exposures": [],
+      "portfolio_weight": 0.7217,
+      "research_quality_flags": [
+        "Low conviction: quality-control signal only, not investment evidence."
+      ],
+      "thesis_status": "active",
+      "thesis_summary": "Bitcoin treasury exposure offers amplified upside but carries substantial leverage and concentration risk",
+      "ticker": "MSTR"
+    },
+    {
+      "bear_factors": [
+        "Thesis risk: AI infrastructure demand can support server growth but competition and execution risk remain elevated",
+        "Security classification risk bucket is high."
+      ],
+      "bull_factors": [
+        "Thesis support: AI infrastructure demand can support server growth but competition and execution risk remain elevated",
+        "Classified as equity stock; factors: growth, small."
+      ],
+      "category": "US Small Growth",
+      "classification": {
+        "asset_class": "equity",
+        "risk_bucket": "high",
+        "security_type": "stock",
+        "ticker": "SMCI"
+      },
+      "confidence": "HIGH",
+      "conviction": "low",
+      "expense_ratio": null,
+      "factors": [
+        "growth",
+        "small"
+      ],
+      "generated_at": "2026-06-18T14:49:36",
+      "historical_market_data": {
+        "data_points": 1255,
+        "end_date": "2026-06-16",
+        "first_close": 3.5759999752044678,
+        "latest_close": 29.760000228881836,
+        "source": "CACHE",
+        "start_date": "2021-06-16",
+        "status": "CACHE_HIT",
+        "trailing_return_percent": 732.21
+      },
+      "is_current_holding": true,
+      "is_watchlist": false,
+      "known_data": [
+        "security_master metadata",
+        "portfolio holding data",
+        "thesis text",
+        "macro/category exposure",
+        "cached historical market data",
+        "security classification"
+      ],
+      "macro_exposures": [
+        "Growth/rates exposure: sensitive to inflation, rates, and discount-rate changes.",
+        "Small-cap exposure: sensitive to credit conditions, rates, and growth expectations."
+      ],
+      "missing_data": [
+        "No direct local news was found for this ticker."
+      ],
+      "name": "SUPER MICRO COMPUTER INC",
+      "news_exposures": [],
+      "portfolio_weight": 23.5861,
+      "research_quality_flags": [
+        "Low conviction: quality-control signal only, not investment evidence."
+      ],
+      "thesis_status": "active",
+      "thesis_summary": "AI infrastructure demand can support server growth but competition and execution risk remain elevated",
+      "ticker": "SMCI"
+    },
+    {
+      "bear_factors": [
+        "Thesis risk: Scale and vertical integration support long term health care earnings despite regulatory risk",
+        "Security classification risk bucket is high."
+      ],
+      "bull_factors": [
+        "Thesis on file: Scale and vertical integration support long term health care earnings despite regulatory risk",
+        "Classified as equity stock; factors: growth, large."
+      ],
+      "category": "US Large Growth",
+      "classification": {
+        "asset_class": "equity",
+        "risk_bucket": "high",
+        "security_type": "stock",
+        "ticker": "UNH"
+      },
+      "confidence": "HIGH",
+      "conviction": "high",
+      "expense_ratio": null,
+      "factors": [
+        "growth",
+        "large"
+      ],
+      "generated_at": "2026-06-18T14:49:36",
+      "historical_market_data": {
+        "data_points": 1255,
+        "end_date": "2026-06-16",
+        "first_close": 362.5556945800781,
+        "latest_close": 408.5378112792969,
+        "source": "CACHE",
+        "start_date": "2021-06-16",
+        "status": "CACHE_HIT",
+        "trailing_return_percent": 12.68
+      },
+      "is_current_holding": true,
+      "is_watchlist": false,
+      "known_data": [
+        "security_master metadata",
+        "portfolio holding data",
+        "thesis text",
+        "macro/category exposure",
+        "cached historical market data",
+        "security classification"
+      ],
+      "macro_exposures": [
+        "Growth/rates exposure: sensitive to inflation, rates, and discount-rate changes.",
+        "Healthcare exposure: sensitive to regulation, reimbursement, and policy risk."
+      ],
+      "missing_data": [
+        "No direct local news was found for this ticker."
+      ],
+      "name": "UNITEDHEALTH GROUP INC",
+      "news_exposures": [],
+      "portfolio_weight": 41.5176,
+      "research_quality_flags": [],
+      "thesis_status": "active",
+      "thesis_summary": "Scale and vertical integration support long term health care earnings despite regulatory risk",
+      "ticker": "UNH"
+    },
+    {
+      "bear_factors": [
+        "Security classification risk bucket is speculative."
+      ],
+      "bull_factors": [
+        "Thesis support: Mineral interests provide energy income and commodity upside without direct drilling costs",
+        "Classified as commodity stock; factors: commodity."
+      ],
+      "category": "MLP",
+      "classification": {
+        "asset_class": "commodity",
+        "risk_bucket": "speculative",
+        "security_type": "stock",
+        "ticker": "VNOM"
+      },
+      "confidence": "HIGH",
+      "conviction": "medium",
+      "expense_ratio": null,
+      "factors": [
+        "commodity"
+      ],
+      "generated_at": "2026-06-18T14:49:36",
+      "historical_market_data": {
+        "data_points": 1256,
+        "end_date": "2026-06-16",
+        "first_close": 13.854793548583984,
+        "latest_close": 43.38999938964844,
+        "source": "CACHE",
+        "start_date": "2021-06-16",
+        "status": "CACHE_HIT",
+        "trailing_return_percent": 213.18
+      },
+      "is_current_holding": true,
+      "is_watchlist": false,
+      "known_data": [
+        "security_master metadata",
+        "portfolio holding data",
+        "thesis text",
+        "macro/category exposure",
+        "cached historical market data",
+        "security classification"
+      ],
+      "macro_exposures": [
+        "Energy exposure: sensitive to oil prices, supply shocks, and geopolitics."
+      ],
+      "missing_data": [
+        "No direct local news was found for this ticker."
+      ],
+      "name": "VIPER ENERGY INC NEW CLASS CLASS A",
+      "news_exposures": [],
+      "portfolio_weight": 5.842,
+      "research_quality_flags": [],
+      "thesis_status": "active",
+      "thesis_summary": "Mineral interests provide energy income and commodity upside without direct drilling costs",
+      "ticker": "VNOM"
+    },
+    {
+      "bear_factors": [],
+      "bull_factors": [
+        "Thesis on file: Systematic momentum exposure can capture persistent relative strength across US equities",
+        "Classified as equity ETF; factors: blend, large, momentum."
+      ],
+      "category": "US Large Blend",
+      "classification": {
+        "asset_class": "equity",
+        "risk_bucket": "medium",
+        "security_type": "ETF",
+        "ticker": "QMOM"
+      },
+      "confidence": "MEDIUM",
+      "conviction": "medium",
+      "expense_ratio": 0.0029,
+      "factors": [
+        "blend",
+        "large",
+        "momentum"
+      ],
+      "generated_at": "2026-06-18T14:49:37",
+      "historical_market_data": {
+        "data_points": 1256,
+        "end_date": "2026-06-16",
+        "first_close": 47.54741668701172,
+        "latest_close": 79.12999725341797,
+        "source": "CACHE",
+        "start_date": "2021-06-16",
+        "status": "CACHE_HIT",
+        "trailing_return_percent": 66.42
+      },
+      "is_current_holding": true,
+      "is_watchlist": false,
+      "known_data": [
+        "security_master metadata",
+        "portfolio holding data",
+        "thesis text",
+        "cached historical market data",
+        "security classification"
+      ],
+      "macro_exposures": [],
+      "missing_data": [
+        "No direct local news was found for this ticker."
+      ],
+      "name": "ALPHA ARCHITECT U.S. QUANTITATIVE MOMENTUM ETF",
+      "news_exposures": [],
+      "portfolio_weight": 3.0378,
+      "research_quality_flags": [],
+      "thesis_status": "active",
+      "thesis_summary": "Systematic momentum exposure can capture persistent relative strength across US equities",
+      "ticker": "QMOM"
+    },
+    {
+      "bear_factors": [],
+      "bull_factors": [
+        "Thesis support: Small cap US equities offer long term growth and diversification beyond large cap holdings",
+        "Diversification thesis: Small cap US equities offer long term growth and diversification beyond large cap holdings",
+        "Classified as equity ETF; factors: blend, small."
+      ],
+      "category": "US Small Blend",
+      "classification": {
+        "asset_class": "equity",
+        "risk_bucket": "medium",
+        "security_type": "ETF",
+        "ticker": "SCHA"
+      },
+      "confidence": "HIGH",
+      "conviction": "high",
+      "expense_ratio": 0.0005,
+      "factors": [
+        "blend",
+        "small"
+      ],
+      "generated_at": "2026-06-18T14:49:37",
+      "historical_market_data": {
+        "data_points": 1255,
+        "end_date": "2026-06-16",
+        "first_close": 24.373716354370117,
+        "latest_close": 35.03499984741211,
+        "source": "CACHE",
+        "start_date": "2021-06-16",
+        "status": "CACHE_HIT",
+        "trailing_return_percent": 43.74
+      },
+      "is_current_holding": true,
+      "is_watchlist": false,
+      "known_data": [
+        "security_master metadata",
+        "portfolio holding data",
+        "thesis text",
+        "macro/category exposure",
+        "cached historical market data",
+        "security classification"
+      ],
+      "macro_exposures": [
+        "Small-cap exposure: sensitive to credit conditions, rates, and growth expectations."
+      ],
+      "missing_data": [
+        "No direct local news was found for this ticker."
+      ],
+      "name": "SCHWAB U.S. SMALL-CAP ETF",
+      "news_exposures": [],
+      "portfolio_weight": 3.8492,
+      "research_quality_flags": [],
+      "thesis_status": "active",
+      "thesis_summary": "Small cap US equities offer long term growth and diversification beyond large cap holdings",
+      "ticker": "SCHA"
+    },
+    {
+      "bear_factors": [],
+      "bull_factors": [
+        "Diversification thesis: Low cost exposure to developed international equities improves geographic diversification",
+        "Classified as equity ETF; factors: blend, large."
+      ],
+      "category": "Intl Large Blend",
+      "classification": {
+        "asset_class": "equity",
+        "risk_bucket": "medium",
+        "security_type": "ETF",
+        "ticker": "SCHF"
+      },
+      "confidence": "MEDIUM",
+      "conviction": "high",
+      "expense_ratio": 0.0006,
+      "factors": [
+        "blend",
+        "large"
+      ],
+      "generated_at": "2026-06-18T14:49:37",
+      "historical_market_data": {
+        "data_points": 1255,
+        "end_date": "2026-06-16",
+        "first_close": 17.34479331970215,
+        "latest_close": 28.153099060058594,
+        "source": "CACHE",
+        "start_date": "2021-06-16",
+        "status": "CACHE_HIT",
+        "trailing_return_percent": 62.31
+      },
+      "is_current_holding": true,
+      "is_watchlist": false,
+      "known_data": [
+        "security_master metadata",
+        "portfolio holding data",
+        "thesis text",
+        "cached historical market data",
+        "security classification"
+      ],
+      "macro_exposures": [],
+      "missing_data": [
+        "No direct local news was found for this ticker."
+      ],
+      "name": "SCHWAB INTERNATIONAL EQUITY ETF",
+      "news_exposures": [],
+      "portfolio_weight": 2.5532,
+      "research_quality_flags": [],
+      "thesis_status": "active",
+      "thesis_summary": "Low cost exposure to developed international equities improves geographic diversification",
+      "ticker": "SCHF"
+    },
+    {
+      "bear_factors": [],
+      "bull_factors": [
+        "Thesis support: Large cap growth companies provide durable earnings growth and innovation exposure",
+        "Classified as equity ETF; factors: growth, large."
+      ],
+      "category": "US Large Growth",
+      "classification": {
+        "asset_class": "equity",
+        "risk_bucket": "medium",
+        "security_type": "ETF",
+        "ticker": "SCHG"
+      },
+      "confidence": "HIGH",
+      "conviction": "high",
+      "expense_ratio": 0.0004,
+      "factors": [
+        "growth",
+        "large"
+      ],
+      "generated_at": "2026-06-18T14:49:38",
+      "historical_market_data": {
+        "data_points": 1255,
+        "end_date": "2026-06-16",
+        "first_close": 17.123645782470703,
+        "latest_close": 34.0900993347168,
+        "source": "CACHE",
+        "start_date": "2021-06-16",
+        "status": "CACHE_HIT",
+        "trailing_return_percent": 99.08
+      },
+      "is_current_holding": true,
+      "is_watchlist": false,
+      "known_data": [
+        "security_master metadata",
+        "portfolio holding data",
+        "thesis text",
+        "macro/category exposure",
+        "cached historical market data",
+        "security classification"
+      ],
+      "macro_exposures": [
+        "Growth/rates exposure: sensitive to inflation, rates, and discount-rate changes."
+      ],
+      "missing_data": [
+        "No direct local news was found for this ticker."
+      ],
+      "name": "SCHWAB U.S. LARGE-CAP GROWTH ETF",
+      "news_exposures": [],
+      "portfolio_weight": 3.9256,
+      "research_quality_flags": [],
+      "thesis_status": "active",
+      "thesis_summary": "Large cap growth companies provide durable earnings growth and innovation exposure",
+      "ticker": "SCHG"
+    },
+    {
+      "bear_factors": [],
+      "bull_factors": [
+        "Thesis support: Mid cap US equities provide balanced exposure between large cap stability and small cap growth",
+        "Classified as equity ETF; factors: blend, large."
+      ],
+      "category": "US Large Blend",
+      "classification": {
+        "asset_class": "equity",
+        "risk_bucket": "medium",
+        "security_type": "ETF",
+        "ticker": "SPYM"
+      },
+      "confidence": "HIGH",
+      "conviction": "high",
+      "expense_ratio": 0.0002,
+      "factors": [
+        "blend",
+        "large"
+      ],
+      "generated_at": "2026-06-18T14:49:38",
+      "historical_market_data": {
+        "data_points": 1255,
+        "end_date": "2026-06-16",
+        "first_close": 46.13496398925781,
+        "latest_close": 88.43009948730469,
+        "source": "CACHE",
+        "start_date": "2021-06-16",
+        "status": "CACHE_HIT",
+        "trailing_return_percent": 91.68
+      },
+      "is_current_holding": true,
+      "is_watchlist": false,
+      "known_data": [
+        "security_master metadata",
+        "portfolio holding data",
+        "thesis text",
+        "local news exposure",
+        "cached historical market data",
+        "security classification"
+      ],
+      "macro_exposures": [],
+      "missing_data": [],
+      "name": "STATE STREET SPDR PORTFOLIO S&P 500 ETF",
+      "news_exposures": [
+        "Direct local News Agent mention found for: STREET, PORTFOLIO."
+      ],
+      "portfolio_weight": 2.8488,
+      "research_quality_flags": [],
+      "thesis_status": "active",
+      "thesis_summary": "Mid cap US equities provide balanced exposure between large cap stability and small cap growth",
+      "ticker": "SPYM"
+    },
+    {
+      "bear_factors": [],
+      "bull_factors": [
+        "Diversification thesis: US small cap value exposure may improve factor diversification and complement broad small cap holdings",
+        "Classified as equity ETF; factors: value, small."
+      ],
+      "category": "US Small Value",
+      "classification": {
+        "asset_class": "equity",
+        "risk_bucket": "medium",
+        "security_type": "ETF",
+        "ticker": "AVUV"
+      },
+      "confidence": "MEDIUM",
+      "conviction": "high",
+      "expense_ratio": 0.0025,
+      "factors": [
+        "value",
+        "small"
+      ],
+      "generated_at": "2026-06-18T14:49:38",
+      "historical_market_data": {},
+      "is_current_holding": false,
+      "is_watchlist": true,
+      "known_data": [
+        "security_master metadata",
+        "watchlist data",
+        "thesis text",
+        "macro/category exposure",
+        "security classification"
+      ],
+      "macro_exposures": [
+        "Small-cap exposure: sensitive to credit conditions, rates, and growth expectations."
+      ],
+      "missing_data": [
+        "No direct local news was found for this ticker.",
+        "Cached historical market data was not available."
+      ],
+      "name": "Avantis US Small Cap Value ETF",
+      "news_exposures": [],
+      "portfolio_weight": null,
+      "research_quality_flags": [],
+      "thesis_status": "active",
+      "thesis_summary": "US small cap value exposure may improve factor diversification and complement broad small cap holdings",
+      "ticker": "AVUV"
+    },
+    {
+      "bear_factors": [],
+      "bull_factors": [
+        "Diversification thesis: International small cap value exposure may broaden geographic and factor diversification",
+        "Classified as equity ETF; factors: value, small."
+      ],
+      "category": "Intl Small Value",
+      "classification": {
+        "asset_class": "equity",
+        "risk_bucket": "medium",
+        "security_type": "ETF",
+        "ticker": "AVDV"
+      },
+      "confidence": "MEDIUM",
+      "conviction": "medium",
+      "expense_ratio": 0.0036,
+      "factors": [
+        "value",
+        "small"
+      ],
+      "generated_at": "2026-06-18T14:49:38",
+      "historical_market_data": {},
+      "is_current_holding": false,
+      "is_watchlist": true,
+      "known_data": [
+        "security_master metadata",
+        "watchlist data",
+        "thesis text",
+        "macro/category exposure",
+        "security classification"
+      ],
+      "macro_exposures": [
+        "Small-cap exposure: sensitive to credit conditions, rates, and growth expectations."
+      ],
+      "missing_data": [
+        "No direct local news was found for this ticker.",
+        "Cached historical market data was not available."
+      ],
+      "name": "Avantis\u00ae International Small Cap Val ETF",
+      "news_exposures": [],
+      "portfolio_weight": null,
+      "research_quality_flags": [],
+      "thesis_status": "watch",
+      "thesis_summary": "International small cap value exposure may broaden geographic and factor diversification",
+      "ticker": "AVDV"
+    },
+    {
+      "bear_factors": [],
+      "bull_factors": [
+        "Thesis on file: Short term Treasury exposure can preserve capital and improve yield on cash not needed immediately",
+        "Classified as bond ETF; factors: unknown."
+      ],
+      "category": "Short-Term Treasury",
+      "classification": {
+        "asset_class": "bond",
+        "risk_bucket": "low",
+        "security_type": "ETF",
+        "ticker": "SGOV"
+      },
+      "confidence": "HIGH",
+      "conviction": "high",
+      "expense_ratio": 0.0005,
+      "factors": [
+        "unknown"
+      ],
+      "generated_at": "2026-06-18T14:49:39",
+      "historical_market_data": {},
+      "is_current_holding": false,
+      "is_watchlist": true,
+      "known_data": [
+        "security_master metadata",
+        "watchlist data",
+        "thesis text",
+        "local news exposure",
+        "macro/category exposure",
+        "security classification"
+      ],
+      "macro_exposures": [
+        "Rate/yield exposure: sensitive to Fed policy and Treasury yields."
+      ],
+      "missing_data": [
+        "Cached historical market data was not available."
+      ],
+      "name": "iShares\u00ae 0-3 Month Treasury Bond ETF",
+      "news_exposures": [
+        "Direct local News Agent mention found for: Treasury."
+      ],
+      "portfolio_weight": null,
+      "research_quality_flags": [],
+      "thesis_status": "active",
+      "thesis_summary": "Short term Treasury exposure can preserve capital and improve yield on cash not needed immediately",
+      "ticker": "SGOV"
+    }
+  ],
+  "schema_version": "1.0",
+  "tickers": [
+    "ECO",
+    "IBIT",
+    "MSTR",
+    "SMCI",
+    "UNH",
+    "VNOM",
+    "QMOM",
+    "SCHA",
+    "SCHF",
+    "SCHG",
+    "SPYM",
+    "AVUV",
+    "AVDV",
+    "SGOV"
+  ],
+  "warnings": []
+}

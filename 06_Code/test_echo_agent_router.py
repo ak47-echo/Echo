@@ -130,6 +130,12 @@ class EchoAgentRouterTests(unittest.TestCase):
 
         self.assertEqual(["research"], routing["primary_agents"])
         self.assertNotIn("portfolio", routing["primary_agents"])
+        sources = [
+            source
+            for item in routing["agent_context_plan"]
+            for source in item["context_sources"]
+        ]
+        self.assertIn("security_intelligence", sources)
 
     def test_market_opportunity_scan_routes_news_macro_research(self):
 
@@ -144,6 +150,7 @@ class EchoAgentRouterTests(unittest.TestCase):
             for source in item["context_sources"]
         ]
         self.assertIn("market_opportunity_scan", sources)
+        self.assertIn("security_intelligence", sources)
         self.assertIn("market_coverage", sources)
         self.assertIn("dynamic_news_coverage", sources)
         self.assertIn("security_master_search", sources)
@@ -165,6 +172,21 @@ class EchoAgentRouterTests(unittest.TestCase):
             "market_coverage",
             routing["agent_context_plan"][0]["context_sources"]
         )
+
+    def test_ticker_comparison_routes_security_comparison_context(self):
+
+        routing = route_query_to_agents(
+            "compare SMCI vs NVDA",
+            _budget("standard", "ticker_question")
+        )
+
+        sources = [
+            source
+            for item in routing["agent_context_plan"]
+            for source in item["context_sources"]
+        ]
+        self.assertIn("security_intelligence", sources)
+        self.assertIn("security_comparison", sources)
 
     def test_broad_synthesis_routes_to_all_active_agents(self):
 

@@ -1,5 +1,5 @@
 {
-  "archive_path": "C:\\Users\\PC\\OneDrive\\Desktop\\Echo\\02_Data\\portfolio_archive\\20260618_141936_All-Accounts-Positions-2026-06-18-120550.csv",
+  "archive_path": "C:\\Users\\PC\\OneDrive\\Desktop\\Echo\\02_Data\\portfolio_archive\\20260618_144928_All-Accounts-Positions-2026-06-18-120550.csv",
   "changes": {
     "market_value_changes": [],
     "new_positions": [],
@@ -7,11 +7,11 @@
     "removed_positions": [],
     "total_market_value_change": 0.0
   },
-  "generated_at": "2026-06-18T14:19:36",
+  "generated_at": "2026-06-18T14:49:28",
   "output_path": "C:\\Users\\PC\\OneDrive\\Desktop\\Echo\\02_Data\\portfolio_current\\holdings_normalized.csv",
   "portfolio_change_detection_path": "C:\\Users\\PC\\OneDrive\\Desktop\\Echo\\04_Reports\\portfolio_change_detection.json",
   "position_count": 15,
-  "previous_normalized_snapshot_path": "C:\\Users\\PC\\OneDrive\\Desktop\\Echo\\02_Data\\portfolio_archive\\normalized\\20260618_141936_holdings_normalized.csv",
+  "previous_normalized_snapshot_path": "C:\\Users\\PC\\OneDrive\\Desktop\\Echo\\02_Data\\portfolio_archive\\normalized\\20260618_144928_holdings_normalized.csv",
   "rows_normalized": 15,
   "rows_read": 15,
   "rows_skipped": 0,

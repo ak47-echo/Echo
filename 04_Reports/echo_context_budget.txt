@@ -2,31 +2,24 @@ ECHO CONTEXT BUDGET
 ===================
 
 Schema Version: 1.0
-Generated At: 2026-06-18T14:20:31
-Query: what stocks could go down based on recent news
-Query Class: market_risks
+Generated At: 2026-06-18T14:49:39
+Query: Echo daily run overall executive summary
+Query Class: multi_agent
 Budget Level: expanded
 Max Context Items: 40
 
 Preferred Context Sources:
-- market_opportunity_scan
-- market_coverage
-- dynamic_news_coverage
-- news_snapshot
-- macro_snapshot
-- research_snapshot
-- security_master_search
+- memory_context
+- change_detection
+- knowledge_graph
+- relevant_reports
 
 Excluded Context Sources:
-- generic_state_delta
+- unrelated_full_reports
 
 Tool Hints:
-- echo_get_market_opportunity_scan
-- echo_get_market_coverage
-- echo_get_dynamic_news_coverage
-- echo_search_security_master
-- echo_get_news_snapshot
-- echo_get_macro_snapshot
-- echo_get_research_snapshot
+- echo_get_memory_context
+- echo_get_change_detection
+- echo_get_knowledge_graph
 
-Reason: Query asks for market opportunity or risk research candidates.
+Reason: Broad synthesis query spans multiple agents or relationship layers.
