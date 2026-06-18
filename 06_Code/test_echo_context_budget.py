@@ -91,6 +91,8 @@ class EchoContextBudgetTests(unittest.TestCase):
 
         self.assertEqual("holding_news", budget["query_class"])
         self.assertIn("portfolio_snapshot", budget["preferred_context_sources"])
+        self.assertIn("market_coverage", budget["preferred_context_sources"])
+        self.assertIn("dynamic_news_coverage", budget["preferred_context_sources"])
         self.assertIn("news_snapshot", budget["preferred_context_sources"])
         self.assertIn("macro_snapshot", budget["preferred_context_sources"])
 
@@ -99,7 +101,10 @@ class EchoContextBudgetTests(unittest.TestCase):
         budget = build_context_budget("small cap value ETFs", _memory_context())
 
         self.assertEqual("security_master_search", budget["query_class"])
-        self.assertEqual(["security_master_search"], budget["preferred_context_sources"])
+        self.assertEqual(
+            ["security_master_search", "market_coverage"],
+            budget["preferred_context_sources"]
+        )
 
     def test_market_opportunity_scan_uses_broad_research_context(self):
 
@@ -110,6 +115,8 @@ class EchoContextBudgetTests(unittest.TestCase):
 
         self.assertEqual("market_opportunities", budget["query_class"])
         self.assertIn("market_opportunity_scan", budget["preferred_context_sources"])
+        self.assertIn("market_coverage", budget["preferred_context_sources"])
+        self.assertIn("dynamic_news_coverage", budget["preferred_context_sources"])
         self.assertIn("security_master_search", budget["preferred_context_sources"])
 
     def test_broad_synthesis_query_becomes_multi_agent(self):

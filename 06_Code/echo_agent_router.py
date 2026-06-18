@@ -277,14 +277,14 @@ def _investment_plan(query_class):
             (
                 "portfolio",
                 "primary",
-                ["portfolio_snapshot"],
+                ["portfolio_snapshot", "market_coverage"],
                 False,
                 "Current holdings define affected securities."
             ),
             (
                 "news",
                 "secondary",
-                ["news_snapshot", "news_report"],
+                ["dynamic_news_coverage", "news_snapshot", "news_report"],
                 True,
                 "Local news narratives supply event context."
             ),
@@ -300,7 +300,7 @@ def _investment_plan(query_class):
             (
                 "research",
                 "primary",
-                ["security_master_search", "research_snapshot"],
+                ["security_master_search", "market_coverage", "research_snapshot"],
                 False,
                 "Ticker question needs local security and research context."
             )
@@ -309,7 +309,12 @@ def _investment_plan(query_class):
             (
                 "news",
                 "primary",
-                ["security_master_search", "news_snapshot"],
+                [
+                    "security_master_search",
+                    "market_coverage",
+                    "dynamic_news_coverage",
+                    "news_snapshot"
+                ],
                 False,
                 "Ticker news question needs local news context."
             ),
@@ -325,7 +330,13 @@ def _investment_plan(query_class):
             (
                 "research",
                 "primary",
-                ["market_opportunity_scan", "research_snapshot", "security_master_search"],
+                [
+                    "market_opportunity_scan",
+                    "market_coverage",
+                    "dynamic_news_coverage",
+                    "research_snapshot",
+                    "security_master_search"
+                ],
                 False,
                 "Opportunity query needs conservative research candidates."
             ),
@@ -348,7 +359,7 @@ def _investment_plan(query_class):
             (
                 "portfolio",
                 "primary",
-                ["market_opportunity_scan", "portfolio_snapshot"],
+                ["market_opportunity_scan", "market_coverage", "portfolio_snapshot"],
                 False,
                 "Risk query should include held-position risk candidates."
             ),
@@ -370,14 +381,21 @@ def _investment_plan(query_class):
         "watchlist_management": [(
             "research",
             "primary",
-            ["research_snapshot", "market_opportunity_scan", "news_snapshot", "macro_snapshot"],
+            [
+                "research_snapshot",
+                "market_opportunity_scan",
+                "market_coverage",
+                "dynamic_news_coverage",
+                "news_snapshot",
+                "macro_snapshot"
+            ],
             False,
             "Watchlist query belongs to research context."
         )],
         "security_master_search": [(
             "research",
             "primary",
-            ["security_master_search"],
+            ["security_master_search", "market_coverage"],
             False,
             "Security master search uses the broad local security universe."
         )],

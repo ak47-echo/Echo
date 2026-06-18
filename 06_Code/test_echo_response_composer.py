@@ -403,6 +403,7 @@ class EchoResponseComposerTests(unittest.TestCase):
 
         self.assertIn("not currently held", response["answer"])
         self.assertIn("NVDA", response["answer"])
+        self.assertIn("No direct local news was found", response["answer"])
 
     def test_market_scan_response_is_research_only(self):
 

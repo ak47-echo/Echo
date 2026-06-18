@@ -2,14 +2,14 @@ ECHO KNOWLEDGE GRAPH
 ====================
 
 Schema Version: 1.0
-Generated At: 2026-06-18T13:47:19
-Node Count: 47
-Edge Count: 93
+Generated At: 2026-06-18T14:19:43
+Node Count: 51
+Edge Count: 97
 
 Most Connected Entities:
 - Portfolio Agent (agent, degree 34, weight 5)
 - Echo (agent, degree 16, weight 5)
-- News Agent (agent, degree 11, weight 5)
+- News Agent (agent, degree 15, weight 5)
 - Macro Agent (agent, degree 9, weight 5)
 - UNH position concentration 41.5% (risk, degree 8, weight 90)
 - SMCI position size conflicts with research conviction (risk, degree 7, weight 90)
@@ -21,8 +21,8 @@ Most Connected Entities:
 Dominant Cluster:
 Cluster: UNH position concentration 41.5%
 Primary Node: UNH position concentration 41.5%
-Total Weight: 1370
-Node Count: 47
+Total Weight: 1410
+Node Count: 51
 
 Linked Risks, Themes, And Actions:
 - Reevaluate SMCI: Low conviction holding generated_by Echo (weight 12)
@@ -44,6 +44,6 @@ Linked Risks, Themes, And Actions:
 Agent Connectivity:
 - Portfolio Agent: 34 connected edges
 - Echo: 16 connected edges
-- News Agent: 11 connected edges
+- News Agent: 15 connected edges
 - Macro Agent: 9 connected edges
 - Research Agent: 6 connected edges

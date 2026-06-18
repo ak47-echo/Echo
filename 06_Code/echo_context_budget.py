@@ -339,10 +339,18 @@ def _base_budget(query, agents):
         return (
             "holding_news",
             "expanded",
-            ["portfolio_snapshot", "news_snapshot", "macro_snapshot"],
+            [
+                "portfolio_snapshot",
+                "market_coverage",
+                "dynamic_news_coverage",
+                "news_snapshot",
+                "macro_snapshot"
+            ],
             ["generic_state_delta"],
             [
                 "echo_get_portfolio_snapshot",
+                "echo_get_market_coverage",
+                "echo_get_dynamic_news_coverage",
                 "echo_get_news_snapshot",
                 "echo_get_macro_snapshot"
             ],
@@ -355,6 +363,8 @@ def _base_budget(query, agents):
             "standard",
             [
                 "security_master_search",
+                "market_coverage",
+                "dynamic_news_coverage",
                 "portfolio_snapshot",
                 "research_snapshot",
                 "news_snapshot"
@@ -362,6 +372,8 @@ def _base_budget(query, agents):
             ["generic_state_delta"],
             [
                 "echo_search_security_master",
+                "echo_get_market_coverage",
+                "echo_get_dynamic_news_coverage",
                 "echo_get_research_snapshot",
                 "echo_get_news_snapshot"
             ],
@@ -374,6 +386,8 @@ def _base_budget(query, agents):
             "expanded",
             [
                 "market_opportunity_scan",
+                "market_coverage",
+                "dynamic_news_coverage",
                 "news_snapshot",
                 "macro_snapshot",
                 "research_snapshot",
@@ -382,6 +396,8 @@ def _base_budget(query, agents):
             ["generic_state_delta"],
             [
                 "echo_get_market_opportunity_scan",
+                "echo_get_market_coverage",
+                "echo_get_dynamic_news_coverage",
                 "echo_search_security_master",
                 "echo_get_news_snapshot",
                 "echo_get_macro_snapshot",
@@ -394,9 +410,9 @@ def _base_budget(query, agents):
         return (
             "security_master_search",
             "standard",
-            ["security_master_search"],
+            ["security_master_search", "market_coverage"],
             ["generic_state_delta", "full_reports"],
-            ["echo_search_security_master"],
+            ["echo_search_security_master", "echo_get_market_coverage"],
             "Query asks to search the local security master."
         )
 
@@ -407,6 +423,8 @@ def _base_budget(query, agents):
             [
                 "research_snapshot",
                 "market_opportunity_scan",
+                "market_coverage",
+                "dynamic_news_coverage",
                 "news_snapshot",
                 "macro_snapshot"
             ],
@@ -414,6 +432,8 @@ def _base_budget(query, agents):
             [
                 "echo_get_research_snapshot",
                 "echo_get_market_opportunity_scan",
+                "echo_get_market_coverage",
+                "echo_get_dynamic_news_coverage",
                 "echo_get_news_snapshot",
                 "echo_get_macro_snapshot"
             ],

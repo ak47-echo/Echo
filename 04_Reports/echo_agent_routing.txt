@@ -2,23 +2,24 @@ ECHO AGENT ROUTING
 ==================
 
 Schema Version: 1.0
-Generated At: 2026-06-18T13:47:32
-Query: if UNH fell 40 percent tomorrow, what happens?
+Generated At: 2026-06-18T14:20:31
+Query: what stocks could go down based on recent news
 Routing Mode: investment_query
 Confidence: high
 
 Primary Agents:
-- research
+- portfolio
 
 Secondary Agents:
-None
-
-Excluded Agents:
-- portfolio
 - news
 - macro
 
-Agent Context Plan:
-- research | primary | Full Report: False | Sources: security_master_search, research_snapshot
+Excluded Agents:
+- research
 
-Reason: Universal investment query routed by investment intent ticker_question.
+Agent Context Plan:
+- portfolio | primary | Full Report: False | Sources: market_opportunity_scan, market_coverage, portfolio_snapshot
+- news | secondary | Full Report: False | Sources: news_snapshot
+- macro | secondary | Full Report: False | Sources: macro_snapshot
+
+Reason: Universal investment query routed by investment intent market_risks.

@@ -1,29 +1,28 @@
 {
-  "budget_level": "standard",
+  "budget_level": "expanded",
   "excluded_context_sources": [
     "generic_state_delta"
   ],
-  "generated_at": "2026-06-18T13:47:32",
+  "generated_at": "2026-06-18T14:20:31",
   "investment_intent": {
-    "answer_mode": "ticker_analysis",
+    "answer_mode": "risk_scan",
     "categories": [],
     "confidence": "high",
     "entities": [
-      "UNH",
-      "UNITEDHEALTH GROUP INC",
-      "Grossmont Califo 4.75%40",
-      "BlackRock LifePath\u00ae Index 2040 Inv A",
-      "BlackRock LifePath\u00ae Index 2040 Fund Institutional Shares",
-      "BlackRock LifePath\u00ae Index 2040 K"
+      "ON Semiconductor Corp",
+      "WTS ALICANTO MINERALS LTD OPTIONS AUD0.28",
+      "American Beacon Large Cap Value Instl(USD,AADEX)",
+      "Silver47 Exploration Corp.",
+      "American Beacon Large Cap Value Inv"
     ],
-    "generated_at": "2026-06-18T13:47:32",
-    "investment_intent": "ticker_question",
-    "portfolio_relevance": "holding",
-    "query": "if UNH fell 40 percent tomorrow, what happens?",
-    "reason": "User asked about a specific ticker or security.",
+    "generated_at": "2026-06-18T14:20:31",
+    "investment_intent": "market_risks",
+    "portfolio_relevance": "unknown",
+    "query": "what stocks could go down based on recent news",
+    "reason": "User asked for downside or risk candidates.",
     "requires_external_ticker_context": false,
-    "requires_macro_context": false,
-    "requires_news_context": false,
+    "requires_macro_context": true,
+    "requires_news_context": true,
     "requires_portfolio_change_context": false,
     "requires_portfolio_context": true,
     "requires_research_context": true,
@@ -31,30 +30,35 @@
     "requires_watchlist_context": false,
     "schema_version": "1.0",
     "security_names": [
-      "UNITEDHEALTH GROUP INC",
-      "Grossmont Califo 4.75%40",
-      "BlackRock LifePath\u00ae Index 2040 Inv A",
-      "BlackRock LifePath\u00ae Index 2040 Fund Institutional Shares",
-      "BlackRock LifePath\u00ae Index 2040 K"
+      "ON Semiconductor Corp",
+      "WTS ALICANTO MINERALS LTD OPTIONS AUD0.28",
+      "American Beacon Large Cap Value Instl(USD,AADEX)",
+      "Silver47 Exploration Corp.",
+      "American Beacon Large Cap Value Inv"
     ],
-    "tickers": [
-      "UNH"
-    ]
+    "tickers": []
   },
-  "max_context_items": 20,
+  "max_context_items": 40,
   "preferred_context_sources": [
-    "security_master_search",
-    "portfolio_snapshot",
+    "market_opportunity_scan",
+    "market_coverage",
+    "dynamic_news_coverage",
+    "news_snapshot",
+    "macro_snapshot",
     "research_snapshot",
-    "news_snapshot"
+    "security_master_search"
   ],
-  "query": "if UNH fell 40 percent tomorrow, what happens?",
-  "query_class": "ticker_question",
-  "reason": "Query asks about a specific ticker or security.",
+  "query": "what stocks could go down based on recent news",
+  "query_class": "market_risks",
+  "reason": "Query asks for market opportunity or risk research candidates.",
   "schema_version": "1.0",
   "tool_hints": [
+    "echo_get_market_opportunity_scan",
+    "echo_get_market_coverage",
+    "echo_get_dynamic_news_coverage",
     "echo_search_security_master",
-    "echo_get_research_snapshot",
-    "echo_get_news_snapshot"
+    "echo_get_news_snapshot",
+    "echo_get_macro_snapshot",
+    "echo_get_research_snapshot"
   ]
 }

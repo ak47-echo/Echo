@@ -1,30 +1,25 @@
 {
-  "answer_style": "scenario",
-  "confidence": "high",
-  "detected_entities": [
-    "UNH"
-  ],
-  "detected_horizon": "tomorrow",
-  "generated_at": "2026-06-18T13:47:33",
-  "query": "if UNH fell 40 percent tomorrow, what happens?",
-  "reason": "Scenario or consequence wording detected.",
-  "reasoning_depth": "deep",
+  "answer_style": "brief",
+  "confidence": "low",
+  "detected_entities": [],
+  "detected_horizon": null,
+  "generated_at": "2026-06-18T14:20:32",
+  "query": "what stocks could go down based on recent news",
+  "reason": "No deterministic reasoning intent matched.",
+  "reasoning_depth": "none",
   "reasoning_instructions": [
-    "Estimate first-order impact using available portfolio concentration data.",
-    "Discuss second-order consequences.",
-    "Identify assumptions explicitly.",
-    "Avoid pretending to know exact future outcomes.",
-    "Tie scenario back to current risks and priorities."
+    "Answer from available Echo context if possible.",
+    "Say what context is missing if the query cannot be answered."
   ],
-  "reasoning_intent": "scenario_analysis",
+  "reasoning_intent": "unknown",
   "required_context": [
     "response_composer",
     "context_assembly",
-    "security_master_search",
+    "market_opportunity_scan",
+    "news_context",
+    "macro_context",
     "research_context",
-    "memory_context",
-    "agent_context",
-    "current_state",
+    "security_master_search",
     "portfolio_context"
   ],
   "schema_version": "1.0"

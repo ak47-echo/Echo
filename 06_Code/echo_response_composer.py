@@ -19,6 +19,8 @@ RAW_TOOL_NAMES = (
     "echo_get_portfolio_change_detection",
     "echo_search_security_master",
     "echo_get_market_opportunity_scan",
+    "echo_get_market_coverage",
+    "echo_get_dynamic_news_coverage",
     "echo_get_portfolio_auto_import"
 )
 
@@ -214,6 +216,26 @@ def _block_json(context_assembly, source):
             return value
 
     return {}
+
+
+def _market_coverage(context_assembly):
+
+    coverage = _block_json(context_assembly, "market_coverage")
+    if coverage.get("coverage_universe"):
+        return coverage
+    dynamic = _block_json(context_assembly, "dynamic_news_coverage")
+    coverage = _dict(dynamic.get("market_coverage"))
+    if coverage.get("coverage_universe"):
+        return coverage
+    try:
+        value = json.loads(
+            (REPORTS_DIR / "market_coverage.json").read_text(
+                encoding="utf-8"
+            )
+        )
+    except (OSError, TypeError, ValueError, json.JSONDecodeError):
+        return {}
+    return value if isinstance(value, dict) else {}
 
 
 def _clean_answer(answer):
@@ -803,6 +825,24 @@ def _security_master_response(user_query, context_assembly):
     return answer, labels, []
 
 
+def _category_macro_note(category):
+
+    text = _safe_text(category).casefold()
+    if not text:
+        return ""
+    if "large growth" in text or "growth" in text:
+        return "growth securities are generally sensitive to rates, inflation, and discount-rate changes."
+    if "energy" in text:
+        return "energy securities are generally sensitive to oil prices, supply shocks, and geopolitics."
+    if "crypto" in text or "bitcoin" in text:
+        return "crypto-linked securities are generally sensitive to liquidity, rates, and risk appetite."
+    if "small cap" in text or "small-cap" in text:
+        return "small-cap securities are generally sensitive to credit conditions, rates, and growth expectations."
+    if "health" in text:
+        return "healthcare securities are generally sensitive to regulation, reimbursement, and policy risk."
+    return ""
+
+
 def _ticker_response(user_query, context_assembly):
 
     result = _block_json(context_assembly, "security_master_search")
@@ -820,6 +860,27 @@ def _ticker_response(user_query, context_assembly):
     relation = "currently held" if "holding" in reason else "not currently held"
     if "watchlist" in reason and "holding" not in reason:
         relation = "on the watchlist but not currently held"
+    direct_news_note = "No direct local news was found for this ticker."
+    coverage = _market_coverage(context_assembly)
+    ticker = _safe_text(first.get("ticker")).upper()
+    if ticker:
+        news_blob = " ".join(_block_texts(context_assembly, "news_report"))
+        if ticker.casefold() in news_blob.casefold():
+            direct_news_note = (
+                "Direct local News Agent context mentions this ticker; use "
+                "the News Agent output for headline-level evidence."
+            )
+    category_note = _category_macro_note(first.get("category"))
+    coverage_note = ""
+    for item in _list(coverage.get("coverage_universe")):
+        if _safe_text(item.get("ticker")).upper() == ticker:
+            if item.get("is_current_holding"):
+                relation = "currently held"
+            elif item.get("is_watchlist") and relation == "not currently held":
+                relation = "on the watchlist but not currently held"
+            break
+    if category_note:
+        coverage_note = f" Broader category/macro exposure: {category_note}"
     answer = (
         f"{first.get('ticker')} is {relation} in Echo's local data. "
         f"Local reference: {first.get('name')} | "
@@ -830,8 +891,7 @@ def _ticker_response(user_query, context_assembly):
     else:
         answer = f"{answer}."
     answer = (
-        f"{answer} I do not have verified current company-specific news unless "
-        "it appears in the local News Agent output."
+        f"{answer} {direct_news_note}{coverage_note}"
     )
     return answer, [json.dumps(item, sort_keys=True) for item in matches[:5]], []
 
@@ -873,12 +933,12 @@ def _holding_news_response(memory_context, context_assembly):
     news = _title(current.get("news_top_narrative"))
     macro = _title(current.get("macro_regime"))
     theme = _title(current.get("dominant_theme"))
-    portfolio_texts = _block_texts(context_assembly, "portfolio_report")
-    affected = []
-    for ticker in ("UNH", "SMCI", "IBIT", "VNOM", "ECO", "MSTR", "SCHG"):
-        blob = " ".join(portfolio_texts + [news, macro, theme]).casefold()
-        if ticker.casefold() in blob:
-            affected.append(ticker)
+    coverage = _market_coverage(context_assembly)
+    affected = [
+        item.get("ticker")
+        for item in _list(coverage.get("coverage_universe"))
+        if item.get("is_current_holding") and item.get("ticker")
+    ][:8]
     if not affected:
         affected = ["current holdings"]
     answer = (

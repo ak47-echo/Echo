@@ -9,37 +9,21 @@
       "count": 11
     },
     {
-      "action": "Review SMCI position concentration 23.7%",
-      "count": 6
+      "action": "Review SMCI position concentration 23.6%",
+      "count": 9
     },
     {
-      "action": "Review SMCI position concentration 23.6%",
-      "count": 5
+      "action": "Review SMCI position concentration 23.7%",
+      "count": 2
     }
   ],
-  "generated_at": "2026-06-18T13:47:19",
+  "generated_at": "2026-06-18T14:19:43",
   "lookback": {
     "available_snapshots": 10,
-    "newest_snapshot": "2026-06-18T13:47:19",
-    "oldest_snapshot": "2026-06-18T10:38:33"
+    "newest_snapshot": "2026-06-18T14:19:43",
+    "oldest_snapshot": "2026-06-18T11:02:08"
   },
   "macro_regime_history": [
-    {
-      "generated_at": "2026-06-18T10:38:33",
-      "macro_regime": "Inflation Stress"
-    },
-    {
-      "generated_at": "2026-06-18T10:40:53",
-      "macro_regime": "Inflation Stress"
-    },
-    {
-      "generated_at": "2026-06-18T10:50:58",
-      "macro_regime": "Inflation Stress"
-    },
-    {
-      "generated_at": "2026-06-18T11:00:06",
-      "macro_regime": "Inflation Stress"
-    },
     {
       "generated_at": "2026-06-18T11:02:08",
       "macro_regime": "Inflation Stress"
@@ -66,27 +50,27 @@
     },
     {
       "generated_at": "2026-06-18T13:47:19",
+      "macro_regime": "Inflation Stress"
+    },
+    {
+      "generated_at": "2026-06-18T13:50:07",
+      "macro_regime": "Inflation Stress"
+    },
+    {
+      "generated_at": "2026-06-18T14:14:40",
+      "macro_regime": "Inflation Stress"
+    },
+    {
+      "generated_at": "2026-06-18T14:15:27",
+      "macro_regime": "Inflation Stress"
+    },
+    {
+      "generated_at": "2026-06-18T14:19:43",
       "macro_regime": "Inflation Stress"
     }
   ],
   "news_narrative_history": [
     {
-      "generated_at": "2026-06-18T10:38:33",
-      "news_narrative": "Middle East Energy Risk"
-    },
-    {
-      "generated_at": "2026-06-18T10:40:53",
-      "news_narrative": "Middle East Energy Risk"
-    },
-    {
-      "generated_at": "2026-06-18T10:50:58",
-      "news_narrative": "Middle East Energy Risk"
-    },
-    {
-      "generated_at": "2026-06-18T11:00:06",
-      "news_narrative": "Middle East Energy Risk"
-    },
-    {
       "generated_at": "2026-06-18T11:02:08",
       "news_narrative": "Middle East Energy Risk"
     },
@@ -112,6 +96,22 @@
     },
     {
       "generated_at": "2026-06-18T13:47:19",
+      "news_narrative": "Middle East Energy Risk"
+    },
+    {
+      "generated_at": "2026-06-18T13:50:07",
+      "news_narrative": "Middle East Energy Risk"
+    },
+    {
+      "generated_at": "2026-06-18T14:14:40",
+      "news_narrative": "Middle East Energy Risk"
+    },
+    {
+      "generated_at": "2026-06-18T14:15:27",
+      "news_narrative": "Middle East Energy Risk"
+    },
+    {
+      "generated_at": "2026-06-18T14:19:43",
       "news_narrative": "Middle East Energy Risk"
     }
   ],
@@ -125,12 +125,12 @@
       "count": 11
     },
     {
-      "action": "Review SMCI position concentration 23.7%",
-      "count": 6
+      "action": "Review SMCI position concentration 23.6%",
+      "count": 9
     },
     {
-      "action": "Review SMCI position concentration 23.6%",
-      "count": 5
+      "action": "Review SMCI position concentration 23.7%",
+      "count": 2
     }
   ],
   "persistent_risks": [
@@ -207,22 +207,6 @@
   ],
   "portfolio_risk_history": [
     {
-      "generated_at": "2026-06-18T10:38:33",
-      "portfolio_risk": "UNH position concentration 41.5%"
-    },
-    {
-      "generated_at": "2026-06-18T10:40:53",
-      "portfolio_risk": "UNH position concentration 41.5%"
-    },
-    {
-      "generated_at": "2026-06-18T10:50:58",
-      "portfolio_risk": "UNH position concentration 41.5%"
-    },
-    {
-      "generated_at": "2026-06-18T11:00:06",
-      "portfolio_risk": "UNH position concentration 41.5%"
-    },
-    {
       "generated_at": "2026-06-18T11:02:08",
       "portfolio_risk": "UNH position concentration 41.5%"
     },
@@ -248,27 +232,27 @@
     },
     {
       "generated_at": "2026-06-18T13:47:19",
+      "portfolio_risk": "UNH position concentration 41.5%"
+    },
+    {
+      "generated_at": "2026-06-18T13:50:07",
+      "portfolio_risk": "UNH position concentration 41.5%"
+    },
+    {
+      "generated_at": "2026-06-18T14:14:40",
+      "portfolio_risk": "UNH position concentration 41.5%"
+    },
+    {
+      "generated_at": "2026-06-18T14:15:27",
+      "portfolio_risk": "UNH position concentration 41.5%"
+    },
+    {
+      "generated_at": "2026-06-18T14:19:43",
       "portfolio_risk": "UNH position concentration 41.5%"
     }
   ],
   "priority_history": [
     {
-      "generated_at": "2026-06-18T10:38:33",
-      "top_priority": "UNH position concentration 41.5%"
-    },
-    {
-      "generated_at": "2026-06-18T10:40:53",
-      "top_priority": "UNH position concentration 41.5%"
-    },
-    {
-      "generated_at": "2026-06-18T10:50:58",
-      "top_priority": "UNH position concentration 41.5%"
-    },
-    {
-      "generated_at": "2026-06-18T11:00:06",
-      "top_priority": "UNH position concentration 41.5%"
-    },
-    {
       "generated_at": "2026-06-18T11:02:08",
       "top_priority": "UNH position concentration 41.5%"
     },
@@ -294,6 +278,22 @@
     },
     {
       "generated_at": "2026-06-18T13:47:19",
+      "top_priority": "UNH position concentration 41.5%"
+    },
+    {
+      "generated_at": "2026-06-18T13:50:07",
+      "top_priority": "UNH position concentration 41.5%"
+    },
+    {
+      "generated_at": "2026-06-18T14:14:40",
+      "top_priority": "UNH position concentration 41.5%"
+    },
+    {
+      "generated_at": "2026-06-18T14:15:27",
+      "top_priority": "UNH position concentration 41.5%"
+    },
+    {
+      "generated_at": "2026-06-18T14:19:43",
       "top_priority": "UNH position concentration 41.5%"
     }
   ],
@@ -379,22 +379,6 @@
   },
   "stress_scenario_history": [
     {
-      "generated_at": "2026-06-18T10:38:33",
-      "stress_scenario": "2008_STYLE_CRISIS | Impact -51.60%"
-    },
-    {
-      "generated_at": "2026-06-18T10:40:53",
-      "stress_scenario": "2008_STYLE_CRISIS | Impact -51.60%"
-    },
-    {
-      "generated_at": "2026-06-18T10:50:58",
-      "stress_scenario": "2008_STYLE_CRISIS | Impact -51.60%"
-    },
-    {
-      "generated_at": "2026-06-18T11:00:06",
-      "stress_scenario": "2008_STYLE_CRISIS | Impact -51.60%"
-    },
-    {
       "generated_at": "2026-06-18T11:02:08",
       "stress_scenario": "2008_STYLE_CRISIS | Impact -51.60%"
     },
@@ -421,6 +405,22 @@
     {
       "generated_at": "2026-06-18T13:47:19",
       "stress_scenario": "2008_STYLE_CRISIS | Impact -51.57%"
+    },
+    {
+      "generated_at": "2026-06-18T13:50:07",
+      "stress_scenario": "2008_STYLE_CRISIS | Impact -51.57%"
+    },
+    {
+      "generated_at": "2026-06-18T14:14:40",
+      "stress_scenario": "2008_STYLE_CRISIS | Impact -51.57%"
+    },
+    {
+      "generated_at": "2026-06-18T14:15:27",
+      "stress_scenario": "2008_STYLE_CRISIS | Impact -51.57%"
+    },
+    {
+      "generated_at": "2026-06-18T14:19:43",
+      "stress_scenario": "2008_STYLE_CRISIS | Impact -51.57%"
     }
   ],
   "summary": {
@@ -441,22 +441,6 @@
     "most_common_theme": "Inflation/Energy Risk"
   },
   "theme_history": [
-    {
-      "dominant_theme": "Inflation/Energy Risk",
-      "generated_at": "2026-06-18T10:38:33"
-    },
-    {
-      "dominant_theme": "Inflation/Energy Risk",
-      "generated_at": "2026-06-18T10:40:53"
-    },
-    {
-      "dominant_theme": "Inflation/Energy Risk",
-      "generated_at": "2026-06-18T10:50:58"
-    },
-    {
-      "dominant_theme": "Inflation/Energy Risk",
-      "generated_at": "2026-06-18T11:00:06"
-    },
     {
       "dominant_theme": "Inflation/Energy Risk",
       "generated_at": "2026-06-18T11:02:08"
@@ -484,6 +468,22 @@
     {
       "dominant_theme": "Inflation/Energy Risk",
       "generated_at": "2026-06-18T13:47:19"
+    },
+    {
+      "dominant_theme": "Inflation/Energy Risk",
+      "generated_at": "2026-06-18T13:50:07"
+    },
+    {
+      "dominant_theme": "Inflation/Energy Risk",
+      "generated_at": "2026-06-18T14:14:40"
+    },
+    {
+      "dominant_theme": "Inflation/Energy Risk",
+      "generated_at": "2026-06-18T14:15:27"
+    },
+    {
+      "dominant_theme": "Inflation/Energy Risk",
+      "generated_at": "2026-06-18T14:19:43"
     }
   ]
 }

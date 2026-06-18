@@ -1,0 +1,27 @@
+MARKET COVERAGE
+
+Generated At: 2026-06-18T14:20:28
+Holdings Terms: 143
+Watchlist Terms: 24
+Query Terms: 0
+Security Master Terms: 103
+Universe Size: 14
+
+Coverage Universe
+- ECO | OKEANIS ECO TANKERS CO F |  | source holding | holding True | watchlist False | weight 3.616
+- IBIT | ISHARES BITCOIN TRUST ETF |  | source holding | holding True | watchlist False | weight 8.4613
+- MSTR | STRATEGY INC CLASS A |  | source holding | holding True | watchlist False | weight 0.7217
+- SMCI | SUPER MICRO COMPUTER INC |  | source holding | holding True | watchlist False | weight 23.5861
+- UNH | UNITEDHEALTH GROUP INC |  | source holding | holding True | watchlist False | weight 41.5176
+- VNOM | VIPER ENERGY INC NEW CLASS CLASS A |  | source holding | holding True | watchlist False | weight 5.842
+- QMOM | ALPHA ARCHITECT U.S. QUANTITATIVE MOMENTUM ETF |  | source holding | holding True | watchlist False | weight 3.0378
+- SCHA | SCHWAB U.S. SMALL-CAP ETF |  | source holding | holding True | watchlist False | weight 3.8492
+- SCHF | SCHWAB INTERNATIONAL EQUITY ETF |  | source holding | holding True | watchlist False | weight 2.5532
+- SCHG | SCHWAB U.S. LARGE-CAP GROWTH ETF |  | source holding | holding True | watchlist False | weight 3.9256
+- SPYM | STATE STREET SPDR PORTFOLIO S&P 500 ETF |  | source holding | holding True | watchlist False | weight 2.8488
+- AVUV |  | US Small Value | source watchlist | holding False | watchlist True | weight None
+- AVDV |  | Intl Small Value | source watchlist | holding False | watchlist True | weight None
+- SGOV |  | Short-Term Treasury | source watchlist | holding False | watchlist True | weight None
+
+Warnings
+None

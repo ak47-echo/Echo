@@ -6,6 +6,11 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 
+try:
+    from market_coverage import build_market_coverage
+except ImportError:
+    build_market_coverage = None
+
 
 DEFAULT_NEWS_SOURCES = (
     {
@@ -40,8 +45,7 @@ DEFAULT_NEWS_SOURCES = (
     }
 )
 
-# TODO: Replace static portfolio/watchlist term lists with dynamic
-# holdings/watchlist integration in a future phase.
+# Fallback terms used only when the dynamic market coverage layer is unavailable.
 PORTFOLIO_TERMS = (
     "UNH",
     "UnitedHealth",
@@ -229,6 +233,7 @@ RATES_TERMS = (
 TAG_ORDER = (
     "PORTFOLIO",
     "WATCHLIST",
+    "SECURITY_MASTER",
     "MACRO",
     "MARKET",
     "WORLD_EVENT",
@@ -802,14 +807,74 @@ def _rule_matches(text, rule):
     return required_matches, context_matches
 
 
-def _score_impact_categories(searchable_text):
+def _unique_terms(*term_groups):
+
+    terms = []
+    for group in term_groups:
+        for term in group or ():
+            if term and term not in terms:
+                terms.append(term)
+    return tuple(terms)
+
+
+def _market_coverage_terms(market_coverage=None, user_query=None):
+
+    coverage = market_coverage if isinstance(market_coverage, dict) else None
+    if coverage is None and build_market_coverage is not None:
+        try:
+            coverage = build_market_coverage(user_query=user_query)
+        except Exception:
+            coverage = {}
+
+    coverage = coverage or {}
+    holdings = tuple(coverage.get("holdings_terms") or ()) or PORTFOLIO_TERMS
+    watchlist = tuple(coverage.get("watchlist_terms") or ()) or WATCHLIST_TERMS
+    query_terms = tuple(coverage.get("query_terms") or ())
+    security_master = tuple(coverage.get("security_master_terms") or ())
+    categories = tuple(coverage.get("sector_category_terms") or ())
+
+    return {
+        "coverage": coverage,
+        "holdings_terms": holdings,
+        "watchlist_terms": watchlist,
+        "query_terms": query_terms,
+        "security_master_terms": security_master,
+        "sector_category_terms": categories,
+        "portfolio_terms": _unique_terms(holdings, query_terms),
+        "watch_terms": _unique_terms(watchlist, query_terms),
+        "security_terms": _unique_terms(security_master, categories),
+        "all_terms": _unique_terms(
+            holdings,
+            watchlist,
+            query_terms,
+            security_master,
+            categories
+        )
+    }
+
+
+def _dynamic_rule(rule, coverage_terms):
+
+    dynamic_portfolio = coverage_terms["portfolio_terms"] or PORTFOLIO_TERMS
+    updated = dict(rule)
+    if rule.get("required_any") == PORTFOLIO_TERMS:
+        updated["required_any"] = dynamic_portfolio
+    if rule.get("context_any") == PORTFOLIO_TERMS:
+        updated["context_any"] = dynamic_portfolio
+    if rule.get("context_any") == MEGA_CAP_TERMS + PORTFOLIO_TERMS:
+        updated["context_any"] = _unique_terms(MEGA_CAP_TERMS, dynamic_portfolio)
+    return updated
+
+
+def _score_impact_categories(searchable_text, market_coverage=None):
 
     matches = []
+    coverage_terms = _market_coverage_terms(market_coverage)
 
     for rule in MARKET_IMPACT_RULES:
         required_matches, context_matches = _rule_matches(
             searchable_text,
-            rule
+            _dynamic_rule(rule, coverage_terms)
         )
 
         if not required_matches or not context_matches:
@@ -864,12 +929,23 @@ def _is_routine_low_impact_headline(title):
     return bool(routine_matches) and not high_impact_matches
 
 
-def _score_article(article, current_date=None):
+def _score_article(article, current_date=None, market_coverage=None):
 
     current_date = current_date or datetime.now(timezone.utc).date()
     searchable_text = f"{article['title']} {article['summary']}"
-    portfolio_matches = _find_matches(searchable_text, PORTFOLIO_TERMS)
-    watchlist_matches = _find_matches(searchable_text, WATCHLIST_TERMS)
+    coverage_terms = _market_coverage_terms(market_coverage)
+    portfolio_matches = _find_matches(
+        searchable_text,
+        coverage_terms["portfolio_terms"]
+    )
+    watchlist_matches = _find_matches(
+        searchable_text,
+        coverage_terms["watch_terms"]
+    )
+    security_master_matches = _find_matches(
+        searchable_text,
+        coverage_terms["security_terms"]
+    )
     macro_matches = _find_matches(searchable_text, MACRO_TERMS)
     market_matches = _find_matches(searchable_text, MARKET_TERMS)
     world_matches = _find_matches(searchable_text, WORLD_EVENT_TERMS)
@@ -885,7 +961,10 @@ def _score_article(article, current_date=None):
         searchable_text,
         ("Fed", "Federal Reserve", "FOMC", "Powell")
     )
-    impact_matches = _score_impact_categories(searchable_text)
+    impact_matches = _score_impact_categories(
+        searchable_text,
+        market_coverage=coverage_terms["coverage"]
+    )
     top_impact = impact_matches[0]
     routine_low_impact_headline = _is_routine_low_impact_headline(
         article["title"]
@@ -932,7 +1011,7 @@ def _score_article(article, current_date=None):
     )
     relevance_bonus = 0
 
-    if portfolio_matches or watchlist_matches:
+    if portfolio_matches or watchlist_matches or security_master_matches:
         relevance_bonus += 5
 
     if urgency_matches and top_impact["weight"] >= 50:
@@ -950,6 +1029,7 @@ def _score_article(article, current_date=None):
     for tag, matches in (
         ("PORTFOLIO", portfolio_matches),
         ("WATCHLIST", watchlist_matches),
+        ("SECURITY_MASTER", security_master_matches),
         ("MACRO", macro_matches),
         ("MARKET", market_matches),
         ("WORLD_EVENT", world_matches),
@@ -980,6 +1060,7 @@ def _score_article(article, current_date=None):
     for matches in (
         portfolio_matches,
         watchlist_matches,
+        security_master_matches,
         macro_matches,
         market_matches,
         world_matches,
@@ -1000,6 +1081,7 @@ def _score_article(article, current_date=None):
         "matched_terms": all_matches,
         "portfolio_matches": portfolio_matches,
         "watchlist_matches": watchlist_matches,
+        "security_master_matches": security_master_matches,
         "macro_matches": macro_matches,
         "market_matches": market_matches,
         "world_event_matches": world_matches,
@@ -1106,6 +1188,10 @@ def _narrative_entities(article):
 def _narrative_topic_bucket(article):
 
     text = f"{article['title']} {article['summary']}"
+    if article.get("portfolio_matches"):
+        return "portfolio"
+    if article.get("watchlist_matches") or article.get("security_master_matches"):
+        return "covered-security"
 
     for bucket, terms in (
         ("federal-reserve", ("Fed", "Federal Reserve", "FOMC", "Powell", "Warsh")),
@@ -1115,8 +1201,7 @@ def _narrative_topic_bucket(article):
         ("middle-east-energy", ("Iran", "Hormuz", "Middle East", "oil", "crude")),
         ("china-taiwan", ("China", "Taiwan")),
         ("regulatory", ("SEC", "DOJ", "FTC", "antitrust", "lawsuit")),
-        ("mega-cap-earnings", MEGA_CAP_TERMS + EARNINGS_TERMS),
-        ("portfolio", PORTFOLIO_TERMS)
+        ("mega-cap-earnings", MEGA_CAP_TERMS + EARNINGS_TERMS)
     ):
         if _find_matches(text, terms):
             return bucket
@@ -1294,7 +1379,22 @@ def build_news_narratives(articles):
     return sorted(narratives, key=_narrative_sort_key)
 
 
-def collect_news(sources=None, fetcher=None, current_date=None):
+def _coverage_summary(coverage):
+
+    coverage = coverage or {}
+    return {
+        "holdings_term_count": len(coverage.get("holdings_terms") or []),
+        "watchlist_term_count": len(coverage.get("watchlist_terms") or []),
+        "query_term_count": len(coverage.get("query_terms") or []),
+        "security_master_term_count": len(
+            coverage.get("security_master_terms") or []
+        ),
+        "coverage_universe_count": len(coverage.get("coverage_universe") or [])
+    }
+
+
+def collect_news(sources=None, fetcher=None, current_date=None,
+                 market_coverage=None, user_query=None):
 
     sources = tuple(
         DEFAULT_NEWS_SOURCES
@@ -1302,6 +1402,12 @@ def collect_news(sources=None, fetcher=None, current_date=None):
         else sources
     )
     fetcher = fetcher or _fetch_source
+    coverage = market_coverage
+    if coverage is None and build_market_coverage is not None:
+        try:
+            coverage = build_market_coverage(user_query=user_query)
+        except Exception:
+            coverage = {}
 
     if not sources:
         return {
@@ -1309,6 +1415,8 @@ def collect_news(sources=None, fetcher=None, current_date=None):
             "source_health": [],
             "articles": [],
             "narratives": [],
+            "market_coverage": coverage or {},
+            "dynamic_coverage": _coverage_summary(coverage),
             "failed_source_count": 0,
             "successful_source_count": 0
         }
@@ -1347,7 +1455,11 @@ def collect_news(sources=None, fetcher=None, current_date=None):
 
     for result in source_results:
         for article in result["articles"]:
-            articles.append(_score_article(article, current_date=current_date))
+            articles.append(_score_article(
+                article,
+                current_date=current_date,
+                market_coverage=coverage
+            ))
 
     articles = _deduplicate_articles(articles)
     narratives = build_news_narratives(articles)
@@ -1380,6 +1492,8 @@ def collect_news(sources=None, fetcher=None, current_date=None):
         ],
         "articles": articles,
         "narratives": narratives,
+        "market_coverage": coverage or {},
+        "dynamic_coverage": _coverage_summary(coverage),
         "failed_source_count": failed_source_count,
         "successful_source_count": successful_source_count
     }
@@ -1448,6 +1562,10 @@ def build_news_report(news_data):
     executive_brief = [
         f"News Agent Status: {news_data['status']}",
         (
+            "Dynamic Coverage Universe: "
+            f"{news_data.get('dynamic_coverage', {}).get('coverage_universe_count', 0)}"
+        ),
+        (
             f"Top Market Narrative: "
             f"{_top_ranked_narrative(narratives)}"
         ),
@@ -1496,6 +1614,23 @@ def build_news_report(news_data):
         )
     ]
     full_report = ["Source Health:"]
+    dynamic_coverage = news_data.get("dynamic_coverage") or {}
+    full_report.extend([
+        "",
+        "Dynamic Market Coverage:",
+        (
+            "Universe "
+            f"{dynamic_coverage.get('coverage_universe_count', 0)} | "
+            "Holdings Terms "
+            f"{dynamic_coverage.get('holdings_term_count', 0)} | "
+            "Watchlist Terms "
+            f"{dynamic_coverage.get('watchlist_term_count', 0)} | "
+            "Query Terms "
+            f"{dynamic_coverage.get('query_term_count', 0)} | "
+            "Security Master Terms "
+            f"{dynamic_coverage.get('security_master_term_count', 0)}"
+        )
+    ])
 
     if news_data["source_health"]:
         for source in news_data["source_health"]:
@@ -1585,13 +1720,16 @@ def build_news_report(news_data):
     }
 
 
-def get_news_report(sources=None, fetcher=None, current_date=None):
+def get_news_report(sources=None, fetcher=None, current_date=None,
+                    market_coverage=None, user_query=None):
 
     return build_news_report(
         collect_news(
             sources=sources,
             fetcher=fetcher,
-            current_date=current_date
+            current_date=current_date,
+            market_coverage=market_coverage,
+            user_query=user_query
         )
     )
 

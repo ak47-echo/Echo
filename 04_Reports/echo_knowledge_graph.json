@@ -22,15 +22,19 @@
         "holding:unh",
         "holding:vnom__thesis_status_active__conviction_medium__research_status_moderate",
         "macro_regime:inflation_stress",
-        "news_narrative:analysis_chairman_kevin_warshs_task_forces_are_the_key_to_understanding_the_new_fed__source_cnbc_markets__relevance_score_97__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_macro_central_bank_rates",
-        "news_narrative:here_are_the_five_big_takeaways_from_kevin_warshs_first_meeting_as_fed_chairman__source_cnbc_markets__relevance_score_95__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_macro_central_bank_rates",
-        "news_narrative:kalshi_traders_see_greater_than_50_odds_the_fed_will_hike_rates_this_year__source_cnbc_markets__relevance_score_97__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_macro_central_bank",
+        "news_narrative:analysis_chairman_kevin_warshs_task_forces_are_the_key_to_understanding_the_new_fed__source_cnbc_markets__relevance_score_100__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_portfolio_macro_central_bank_rates",
+        "news_narrative:analysis_chairman_kevin_warshs_task_forces_are_the_key_to_understanding_the_new_fed__source_cnbc_markets__score_100__impact_category_fed_policy__impact_tier_critical__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__matched_terms_to__link_https_wwwcnbccom_2026_06_17_kevin-warsh-fed-interest-rates-risk-analysishtml",
+        "news_narrative:hegseth_warns_nato_allies_that_some_nations_will_fail_us_defense_review__source_cnbc_markets__score_89__impact_category_energy_supply_shock__impact_tier_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__matched_terms_us_to__link_https_wwwcnbccom_2026_06_18_hegseth-nato-defense-review-fail-europehtml",
+        "news_narrative:kalshi_traders_see_greater_than_50_odds_the_fed_will_hike_rates_this_year__source_cnbc_markets__relevance_score_100__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_watchlist_macro_central_bank",
         "news_narrative:market_significant_news",
         "news_narrative:middle_east_energy_risk",
-        "news_narrative:none",
         "news_narrative:portfolio_relevant_news",
-        "news_narrative:us_navy_ends_blockade_of_irans_ports_and_coastal_areas__source_cnbc_markets__relevance_score_84__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_world_event",
-        "news_narrative:vance_says_us_isnt_giving_iran_a_cent_as_he_defends_trump_peace_deal__source_cnbc_markets__relevance_score_84__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_world_event",
+        "news_narrative:three_saudi_oil_tankers_carrying_6_million_barrels_cross_strait_of_hormuz__source_cnbc_markets__relevance_score_89__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_portfolio_watchlist_energy",
+        "news_narrative:three_saudi_oil_tankers_carrying_6_million_barrels_cross_strait_of_hormuz__source_cnbc_markets__score_89__impact_category_energy_supply_shock__impact_tier_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__matched_terms_tankers__link_https_wwwcnbccom_2026_06_18_iran-deal-strait-hormuz-oil-tanker-saudi-arabia-traffichtml",
+        "news_narrative:us_navy_ends_blockade_of_irans_ports_and_coastal_areas__source_cnbc_markets__relevance_score_89__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_portfolio_watchlist_world_event",
+        "news_narrative:us_navy_ends_blockade_of_irans_ports_and_coastal_areas__source_cnbc_markets__score_89__impact_category_energy_supply_shock__impact_tier_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__matched_terms_us__link_https_wwwcnbccom_2026_06_18_us-navy-blockade-iran-trump-oilhtml",
+        "news_narrative:vance_says_us_isnt_giving_iran_a_cent_as_he_defends_trump_peace_deal__source_cnbc_markets__relevance_score_89__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_portfolio_world_event",
+        "news_narrative:vance_says_us_isnt_giving_iran_a_cent_as_he_defends_trump_peace_deal__source_cnbc_markets__score_89__impact_category_energy_supply_shock__impact_tier_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__matched_terms_us__link_https_wwwcnbccom_2026_06_18_vance-iran-war-memo-oil-gashtml",
         "portfolio_signal:unh_position_concentration_415",
         "priority:unh_position_concentration_415",
         "research_signal:eco_reevaluate_thesis",
@@ -53,7 +57,7 @@
         "theme:inflation_energy_risk"
       ],
       "primary_node": "risk:unh_position_concentration_415",
-      "total_weight": 1370
+      "total_weight": 1410
     }
   ],
   "edges": [
@@ -356,7 +360,7 @@
     {
       "metadata": {},
       "relationship": "relates_to",
-      "source": "news_narrative:analysis_chairman_kevin_warshs_task_forces_are_the_key_to_understanding_the_new_fed__source_cnbc_markets__relevance_score_97__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_macro_central_bank_rates",
+      "source": "news_narrative:analysis_chairman_kevin_warshs_task_forces_are_the_key_to_understanding_the_new_fed__source_cnbc_markets__relevance_score_100__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_portfolio_macro_central_bank_rates",
       "source_layer": "state",
       "target": "agent:news_agent",
       "weight": 7
@@ -364,7 +368,7 @@
     {
       "metadata": {},
       "relationship": "relates_to",
-      "source": "news_narrative:here_are_the_five_big_takeaways_from_kevin_warshs_first_meeting_as_fed_chairman__source_cnbc_markets__relevance_score_95__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_macro_central_bank_rates",
+      "source": "news_narrative:analysis_chairman_kevin_warshs_task_forces_are_the_key_to_understanding_the_new_fed__source_cnbc_markets__score_100__impact_category_fed_policy__impact_tier_critical__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__matched_terms_to__link_https_wwwcnbccom_2026_06_17_kevin-warsh-fed-interest-rates-risk-analysishtml",
       "source_layer": "state",
       "target": "agent:news_agent",
       "weight": 7
@@ -372,7 +376,15 @@
     {
       "metadata": {},
       "relationship": "relates_to",
-      "source": "news_narrative:kalshi_traders_see_greater_than_50_odds_the_fed_will_hike_rates_this_year__source_cnbc_markets__relevance_score_97__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_macro_central_bank",
+      "source": "news_narrative:hegseth_warns_nato_allies_that_some_nations_will_fail_us_defense_review__source_cnbc_markets__score_89__impact_category_energy_supply_shock__impact_tier_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__matched_terms_us_to__link_https_wwwcnbccom_2026_06_18_hegseth-nato-defense-review-fail-europehtml",
+      "source_layer": "state",
+      "target": "agent:news_agent",
+      "weight": 7
+    },
+    {
+      "metadata": {},
+      "relationship": "relates_to",
+      "source": "news_narrative:kalshi_traders_see_greater_than_50_odds_the_fed_will_hike_rates_this_year__source_cnbc_markets__relevance_score_100__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_watchlist_macro_central_bank",
       "source_layer": "state",
       "target": "agent:news_agent",
       "weight": 7
@@ -403,14 +415,6 @@
     },
     {
       "metadata": {},
-      "relationship": "relates_to",
-      "source": "news_narrative:none",
-      "source_layer": "state",
-      "target": "agent:news_agent",
-      "weight": 7
-    },
-    {
-      "metadata": {},
       "relationship": "generated_by",
       "source": "news_narrative:portfolio_relevant_news",
       "source_layer": "change_detection",
@@ -420,7 +424,7 @@
     {
       "metadata": {},
       "relationship": "relates_to",
-      "source": "news_narrative:us_navy_ends_blockade_of_irans_ports_and_coastal_areas__source_cnbc_markets__relevance_score_84__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_world_event",
+      "source": "news_narrative:three_saudi_oil_tankers_carrying_6_million_barrels_cross_strait_of_hormuz__source_cnbc_markets__relevance_score_89__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_portfolio_watchlist_energy",
       "source_layer": "state",
       "target": "agent:news_agent",
       "weight": 7
@@ -428,7 +432,39 @@
     {
       "metadata": {},
       "relationship": "relates_to",
-      "source": "news_narrative:vance_says_us_isnt_giving_iran_a_cent_as_he_defends_trump_peace_deal__source_cnbc_markets__relevance_score_84__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_world_event",
+      "source": "news_narrative:three_saudi_oil_tankers_carrying_6_million_barrels_cross_strait_of_hormuz__source_cnbc_markets__score_89__impact_category_energy_supply_shock__impact_tier_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__matched_terms_tankers__link_https_wwwcnbccom_2026_06_18_iran-deal-strait-hormuz-oil-tanker-saudi-arabia-traffichtml",
+      "source_layer": "state",
+      "target": "agent:news_agent",
+      "weight": 7
+    },
+    {
+      "metadata": {},
+      "relationship": "relates_to",
+      "source": "news_narrative:us_navy_ends_blockade_of_irans_ports_and_coastal_areas__source_cnbc_markets__relevance_score_89__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_portfolio_watchlist_world_event",
+      "source_layer": "state",
+      "target": "agent:news_agent",
+      "weight": 7
+    },
+    {
+      "metadata": {},
+      "relationship": "relates_to",
+      "source": "news_narrative:us_navy_ends_blockade_of_irans_ports_and_coastal_areas__source_cnbc_markets__score_89__impact_category_energy_supply_shock__impact_tier_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__matched_terms_us__link_https_wwwcnbccom_2026_06_18_us-navy-blockade-iran-trump-oilhtml",
+      "source_layer": "state",
+      "target": "agent:news_agent",
+      "weight": 7
+    },
+    {
+      "metadata": {},
+      "relationship": "relates_to",
+      "source": "news_narrative:vance_says_us_isnt_giving_iran_a_cent_as_he_defends_trump_peace_deal__source_cnbc_markets__relevance_score_89__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_portfolio_world_event",
+      "source_layer": "state",
+      "target": "agent:news_agent",
+      "weight": 7
+    },
+    {
+      "metadata": {},
+      "relationship": "relates_to",
+      "source": "news_narrative:vance_says_us_isnt_giving_iran_a_cent_as_he_defends_trump_peace_deal__source_cnbc_markets__score_89__impact_category_energy_supply_shock__impact_tier_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__matched_terms_us__link_https_wwwcnbccom_2026_06_18_vance-iran-war-memo-oil-gashtml",
       "source_layer": "state",
       "target": "agent:news_agent",
       "weight": 7
@@ -806,8 +842,11 @@
     "2008_style_crisis__impact_-5157": [
       "stress_scenario:2008_style_crisis__impact_-5157"
     ],
-    "analysis_chairman_kevin_warshs_task_forces_are_the_key_to_understanding_the_new_fed__source_cnbc_markets__relevance_score_97__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_macro_central_bank_rates": [
-      "news_narrative:analysis_chairman_kevin_warshs_task_forces_are_the_key_to_understanding_the_new_fed__source_cnbc_markets__relevance_score_97__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_macro_central_bank_rates"
+    "analysis_chairman_kevin_warshs_task_forces_are_the_key_to_understanding_the_new_fed__source_cnbc_markets__relevance_score_100__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_portfolio_macro_central_bank_rates": [
+      "news_narrative:analysis_chairman_kevin_warshs_task_forces_are_the_key_to_understanding_the_new_fed__source_cnbc_markets__relevance_score_100__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_portfolio_macro_central_bank_rates"
+    ],
+    "analysis_chairman_kevin_warshs_task_forces_are_the_key_to_understanding_the_new_fed__source_cnbc_markets__score_100__impact_category_fed_policy__impact_tier_critical__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__matched_terms_to__link_https_wwwcnbccom_2026_06_17_kevin-warsh-fed-interest-rates-risk-analysishtml": [
+      "news_narrative:analysis_chairman_kevin_warshs_task_forces_are_the_key_to_understanding_the_new_fed__source_cnbc_markets__score_100__impact_category_fed_policy__impact_tier_critical__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__matched_terms_to__link_https_wwwcnbccom_2026_06_17_kevin-warsh-fed-interest-rates-risk-analysishtml"
     ],
     "echo": [
       "agent:echo"
@@ -827,8 +866,8 @@
     "growth_exposure_conflicts_with_inflation_rates_theme": [
       "risk:growth_exposure_conflicts_with_inflation_rates_theme"
     ],
-    "here_are_the_five_big_takeaways_from_kevin_warshs_first_meeting_as_fed_chairman__source_cnbc_markets__relevance_score_95__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_macro_central_bank_rates": [
-      "news_narrative:here_are_the_five_big_takeaways_from_kevin_warshs_first_meeting_as_fed_chairman__source_cnbc_markets__relevance_score_95__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_macro_central_bank_rates"
+    "hegseth_warns_nato_allies_that_some_nations_will_fail_us_defense_review__source_cnbc_markets__score_89__impact_category_energy_supply_shock__impact_tier_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__matched_terms_us_to__link_https_wwwcnbccom_2026_06_18_hegseth-nato-defense-review-fail-europehtml": [
+      "news_narrative:hegseth_warns_nato_allies_that_some_nations_will_fail_us_defense_review__source_cnbc_markets__score_89__impact_category_energy_supply_shock__impact_tier_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__matched_terms_us_to__link_https_wwwcnbccom_2026_06_18_hegseth-nato-defense-review-fail-europehtml"
     ],
     "ibit__thesis_status_active__conviction_medium__research_status_moderate": [
       "holding:ibit__thesis_status_active__conviction_medium__research_status_moderate"
@@ -842,8 +881,8 @@
     "inflation_trend_rising": [
       "risk:inflation_trend_rising"
     ],
-    "kalshi_traders_see_greater_than_50_odds_the_fed_will_hike_rates_this_year__source_cnbc_markets__relevance_score_97__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_macro_central_bank": [
-      "news_narrative:kalshi_traders_see_greater_than_50_odds_the_fed_will_hike_rates_this_year__source_cnbc_markets__relevance_score_97__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_macro_central_bank"
+    "kalshi_traders_see_greater_than_50_odds_the_fed_will_hike_rates_this_year__source_cnbc_markets__relevance_score_100__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_watchlist_macro_central_bank": [
+      "news_narrative:kalshi_traders_see_greater_than_50_odds_the_fed_will_hike_rates_this_year__source_cnbc_markets__relevance_score_100__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_watchlist_macro_central_bank"
     ],
     "labor_market_strong": [
       "risk:labor_market_strong"
@@ -868,9 +907,6 @@
     ],
     "news_agent": [
       "agent:news_agent"
-    ],
-    "none": [
-      "news_narrative:none"
     ],
     "portfolio_agent": [
       "agent:portfolio_agent"
@@ -912,6 +948,12 @@
     "smci_reevaluate_thesis": [
       "research_signal:smci_reevaluate_thesis"
     ],
+    "three_saudi_oil_tankers_carrying_6_million_barrels_cross_strait_of_hormuz__source_cnbc_markets__relevance_score_89__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_portfolio_watchlist_energy": [
+      "news_narrative:three_saudi_oil_tankers_carrying_6_million_barrels_cross_strait_of_hormuz__source_cnbc_markets__relevance_score_89__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_portfolio_watchlist_energy"
+    ],
+    "three_saudi_oil_tankers_carrying_6_million_barrels_cross_strait_of_hormuz__source_cnbc_markets__score_89__impact_category_energy_supply_shock__impact_tier_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__matched_terms_tankers__link_https_wwwcnbccom_2026_06_18_iran-deal-strait-hormuz-oil-tanker-saudi-arabia-traffichtml": [
+      "news_narrative:three_saudi_oil_tankers_carrying_6_million_barrels_cross_strait_of_hormuz__source_cnbc_markets__score_89__impact_category_energy_supply_shock__impact_tier_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__matched_terms_tankers__link_https_wwwcnbccom_2026_06_18_iran-deal-strait-hormuz-oil-tanker-saudi-arabia-traffichtml"
+    ],
     "unh": [
       "holding:unh",
       "research_signal:unh",
@@ -922,11 +964,17 @@
       "priority:unh_position_concentration_415",
       "risk:unh_position_concentration_415"
     ],
-    "us_navy_ends_blockade_of_irans_ports_and_coastal_areas__source_cnbc_markets__relevance_score_84__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_world_event": [
-      "news_narrative:us_navy_ends_blockade_of_irans_ports_and_coastal_areas__source_cnbc_markets__relevance_score_84__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_world_event"
+    "us_navy_ends_blockade_of_irans_ports_and_coastal_areas__source_cnbc_markets__relevance_score_89__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_portfolio_watchlist_world_event": [
+      "news_narrative:us_navy_ends_blockade_of_irans_ports_and_coastal_areas__source_cnbc_markets__relevance_score_89__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_portfolio_watchlist_world_event"
     ],
-    "vance_says_us_isnt_giving_iran_a_cent_as_he_defends_trump_peace_deal__source_cnbc_markets__relevance_score_84__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_world_event": [
-      "news_narrative:vance_says_us_isnt_giving_iran_a_cent_as_he_defends_trump_peace_deal__source_cnbc_markets__relevance_score_84__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_world_event"
+    "us_navy_ends_blockade_of_irans_ports_and_coastal_areas__source_cnbc_markets__score_89__impact_category_energy_supply_shock__impact_tier_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__matched_terms_us__link_https_wwwcnbccom_2026_06_18_us-navy-blockade-iran-trump-oilhtml": [
+      "news_narrative:us_navy_ends_blockade_of_irans_ports_and_coastal_areas__source_cnbc_markets__score_89__impact_category_energy_supply_shock__impact_tier_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__matched_terms_us__link_https_wwwcnbccom_2026_06_18_us-navy-blockade-iran-trump-oilhtml"
+    ],
+    "vance_says_us_isnt_giving_iran_a_cent_as_he_defends_trump_peace_deal__source_cnbc_markets__relevance_score_89__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_portfolio_world_event": [
+      "news_narrative:vance_says_us_isnt_giving_iran_a_cent_as_he_defends_trump_peace_deal__source_cnbc_markets__relevance_score_89__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_portfolio_world_event"
+    ],
+    "vance_says_us_isnt_giving_iran_a_cent_as_he_defends_trump_peace_deal__source_cnbc_markets__score_89__impact_category_energy_supply_shock__impact_tier_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__matched_terms_us__link_https_wwwcnbccom_2026_06_18_vance-iran-war-memo-oil-gashtml": [
+      "news_narrative:vance_says_us_isnt_giving_iran_a_cent_as_he_defends_trump_peace_deal__source_cnbc_markets__score_89__impact_category_energy_supply_shock__impact_tier_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__matched_terms_us__link_https_wwwcnbccom_2026_06_18_vance-iran-war-memo-oil-gashtml"
     ],
     "vnom__thesis_status_active__conviction_medium__research_status_moderate": [
       "holding:vnom__thesis_status_active__conviction_medium__research_status_moderate"
@@ -935,7 +983,7 @@
       "risk:yield_curve_flat"
     ]
   },
-  "generated_at": "2026-06-18T13:47:19",
+  "generated_at": "2026-06-18T14:19:43",
   "nodes": [
     {
       "id": "action:reevaluate_smci_low_conviction_holding",
@@ -961,7 +1009,7 @@
       "metadata": {
         "action": "Review SMCI position concentration 23.6%",
         "category": "action",
-        "count": 5,
+        "count": 9,
         "description": "Current action queue contains a review-class action.",
         "is_material": false,
         "name": "Review SMCI position concentration 23.6%",
@@ -979,8 +1027,8 @@
       "metadata": {
         "action": "Review SMCI position concentration 23.7%",
         "category": "action",
-        "count": 6,
-        "description": "Action appears in 6 state samples.",
+        "count": 2,
+        "description": "Action appears in 2 state samples.",
         "is_material": false,
         "name": "Review SMCI position concentration 23.7%",
         "score": 15,
@@ -1151,39 +1199,42 @@
       "weight": 25
     },
     {
-      "id": "news_narrative:analysis_chairman_kevin_warshs_task_forces_are_the_key_to_understanding_the_new_fed__source_cnbc_markets__relevance_score_97__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_macro_central_bank_rates",
-      "label": "Analysis: Chairman Kevin Warsh\u2019s task forces are the key to understanding the new Fed | Source CNBC Markets | Relevance Score 97 | Impact Category Fed Policy | Impact Tier CRITICAL | Relevance HIGH | Reason Federal Reserve policy directly reprices rates, equities, and risk assets. | Tags MACRO, CENTRAL_BANK, RATES",
+      "id": "news_narrative:analysis_chairman_kevin_warshs_task_forces_are_the_key_to_understanding_the_new_fed__source_cnbc_markets__relevance_score_100__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_portfolio_macro_central_bank_rates",
+      "label": "Analysis: Chairman Kevin Warsh\u2019s task forces are the key to understanding the new Fed | Source CNBC Markets | Relevance Score 100 | Impact Category Fed Policy | Impact Tier CRITICAL | Relevance HIGH | Reason Federal Reserve policy directly reprices rates, equities, and risk assets. | Tags PORTFOLIO, MACRO, CENTRAL_BANK, RATES",
       "metadata": {
         "evidence": [],
         "fields": {},
         "rank": 2,
-        "title": "Analysis: Chairman Kevin Warsh\u2019s task forces are the key to understanding the new Fed | Source CNBC Markets | Relevance Score 97 | Impact Category Fed Policy | Impact Tier CRITICAL | Relevance HIGH | Reason Federal Reserve policy directly reprices rates, equities, and risk assets. | Tags MACRO, CENTRAL_BANK, RATES"
+        "title": "Analysis: Chairman Kevin Warsh\u2019s task forces are the key to understanding the new Fed | Source CNBC Markets | Relevance Score 100 | Impact Category Fed Policy | Impact Tier CRITICAL | Relevance HIGH | Reason Federal Reserve policy directly reprices rates, equities, and risk assets. | Tags PORTFOLIO, MACRO, CENTRAL_BANK, RATES"
       },
       "source": "state",
       "type": "news_narrative",
       "weight": 10
     },
     {
-      "id": "news_narrative:here_are_the_five_big_takeaways_from_kevin_warshs_first_meeting_as_fed_chairman__source_cnbc_markets__relevance_score_95__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_macro_central_bank_rates",
-      "label": "Here are the five big takeaways from Kevin Warsh's first meeting as Fed chairman | Source CNBC Markets | Relevance Score 95 | Impact Category Fed Policy | Impact Tier CRITICAL | Relevance HIGH | Reason Federal Reserve policy directly reprices rates, equities, and risk assets. | Tags MACRO, CENTRAL_BANK, RATES",
-      "metadata": {
-        "evidence": [],
-        "fields": {},
-        "rank": 3,
-        "title": "Here are the five big takeaways from Kevin Warsh's first meeting as Fed chairman | Source CNBC Markets | Relevance Score 95 | Impact Category Fed Policy | Impact Tier CRITICAL | Relevance HIGH | Reason Federal Reserve policy directly reprices rates, equities, and risk assets. | Tags MACRO, CENTRAL_BANK, RATES"
-      },
+      "id": "news_narrative:analysis_chairman_kevin_warshs_task_forces_are_the_key_to_understanding_the_new_fed__source_cnbc_markets__score_100__impact_category_fed_policy__impact_tier_critical__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__matched_terms_to__link_https_wwwcnbccom_2026_06_17_kevin-warsh-fed-interest-rates-risk-analysishtml",
+      "label": "Analysis: Chairman Kevin Warsh\u2019s task forces are the key to understanding the new Fed | Source CNBC Markets | Score 100 | Impact Category Fed Policy | Impact Tier CRITICAL | Reason Federal Reserve policy directly reprices rates, equities, and risk assets. | Matched Terms to | Link https://www.cnbc.com/2026/06/17/kevin-warsh-fed-interest-rates-risk-analysis.html",
+      "metadata": {},
       "source": "state",
       "type": "news_narrative",
       "weight": 10
     },
     {
-      "id": "news_narrative:kalshi_traders_see_greater_than_50_odds_the_fed_will_hike_rates_this_year__source_cnbc_markets__relevance_score_97__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_macro_central_bank",
-      "label": "Kalshi traders see greater than 50% odds the Fed will hike rates this year | Source CNBC Markets | Relevance Score 97 | Impact Category Fed Policy | Impact Tier CRITICAL | Relevance HIGH | Reason Federal Reserve policy directly reprices rates, equities, and risk assets. | Tags MACRO, CENTRAL_BANK",
+      "id": "news_narrative:hegseth_warns_nato_allies_that_some_nations_will_fail_us_defense_review__source_cnbc_markets__score_89__impact_category_energy_supply_shock__impact_tier_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__matched_terms_us_to__link_https_wwwcnbccom_2026_06_18_hegseth-nato-defense-review-fail-europehtml",
+      "label": "Hegseth warns NATO allies that some nations will 'fail' U.S. defense review | Source CNBC Markets | Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms U.S., to | Link https://www.cnbc.com/2026/06/18/hegseth-nato-defense-review-fail-europe.html",
+      "metadata": {},
+      "source": "state",
+      "type": "news_narrative",
+      "weight": 10
+    },
+    {
+      "id": "news_narrative:kalshi_traders_see_greater_than_50_odds_the_fed_will_hike_rates_this_year__source_cnbc_markets__relevance_score_100__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_watchlist_macro_central_bank",
+      "label": "Kalshi traders see greater than 50% odds the Fed will hike rates this year | Source CNBC Markets | Relevance Score 100 | Impact Category Fed Policy | Impact Tier CRITICAL | Relevance HIGH | Reason Federal Reserve policy directly reprices rates, equities, and risk assets. | Tags WATCHLIST, MACRO, CENTRAL_BANK",
       "metadata": {
         "evidence": [],
         "fields": {},
         "rank": 1,
-        "title": "Kalshi traders see greater than 50% odds the Fed will hike rates this year | Source CNBC Markets | Relevance Score 97 | Impact Category Fed Policy | Impact Tier CRITICAL | Relevance HIGH | Reason Federal Reserve policy directly reprices rates, equities, and risk assets. | Tags MACRO, CENTRAL_BANK"
+        "title": "Kalshi traders see greater than 50% odds the Fed will hike rates this year | Source CNBC Markets | Relevance Score 100 | Impact Category Fed Policy | Impact Tier CRITICAL | Relevance HIGH | Reason Federal Reserve policy directly reprices rates, equities, and risk assets. | Tags WATCHLIST, MACRO, CENTRAL_BANK"
       },
       "source": "state",
       "type": "news_narrative",
@@ -1210,7 +1261,7 @@
       "label": "Middle East Energy Risk",
       "metadata": {
         "reason": "7 related Iran, Hormuz, or oil headlines indicate an energy-linked geopolitical market narrative.",
-        "representative_headline": "U.S. Navy ends blockade of Iran's ports and coastal areas",
+        "representative_headline": "Vance says U.S. isn\u2019t giving Iran \u2018a cent\u2019 as he defends Trump peace deal",
         "score": 100,
         "supporting_articles": 7,
         "title": "Middle East Energy Risk"
@@ -1220,19 +1271,11 @@
       "weight": 10
     },
     {
-      "id": "news_narrative:none",
-      "label": "None",
-      "metadata": {},
-      "source": "state",
-      "type": "news_narrative",
-      "weight": 10
-    },
-    {
       "id": "news_narrative:portfolio_relevant_news",
       "label": "Portfolio relevant news",
       "metadata": {
         "category": "news",
-        "description": "1 portfolio relevant news items are present.",
+        "description": "5 portfolio relevant news items are present.",
         "is_material": false,
         "name": "Portfolio relevant news",
         "score": 10,
@@ -1244,27 +1287,64 @@
       "weight": 10
     },
     {
-      "id": "news_narrative:us_navy_ends_blockade_of_irans_ports_and_coastal_areas__source_cnbc_markets__relevance_score_84__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_world_event",
-      "label": "U.S. Navy ends blockade of Iran's ports and coastal areas | Source CNBC Markets | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags WORLD_EVENT",
+      "id": "news_narrative:three_saudi_oil_tankers_carrying_6_million_barrels_cross_strait_of_hormuz__source_cnbc_markets__relevance_score_89__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_portfolio_watchlist_energy",
+      "label": "Three Saudi oil tankers carrying 6 million barrels cross Strait of Hormuz | Source CNBC Markets | Relevance Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags PORTFOLIO, WATCHLIST, ENERGY",
       "metadata": {
         "evidence": [],
         "fields": {},
-        "rank": 4,
-        "title": "U.S. Navy ends blockade of Iran's ports and coastal areas | Source CNBC Markets | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags WORLD_EVENT"
+        "rank": 5,
+        "title": "Three Saudi oil tankers carrying 6 million barrels cross Strait of Hormuz | Source CNBC Markets | Relevance Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags PORTFOLIO, WATCHLIST, ENERGY"
       },
       "source": "state",
       "type": "news_narrative",
       "weight": 10
     },
     {
-      "id": "news_narrative:vance_says_us_isnt_giving_iran_a_cent_as_he_defends_trump_peace_deal__source_cnbc_markets__relevance_score_84__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_world_event",
-      "label": "Vance says U.S. isn\u2019t giving Iran \u2018a cent\u2019 as he defends Trump peace deal | Source CNBC Markets | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags WORLD_EVENT",
+      "id": "news_narrative:three_saudi_oil_tankers_carrying_6_million_barrels_cross_strait_of_hormuz__source_cnbc_markets__score_89__impact_category_energy_supply_shock__impact_tier_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__matched_terms_tankers__link_https_wwwcnbccom_2026_06_18_iran-deal-strait-hormuz-oil-tanker-saudi-arabia-traffichtml",
+      "label": "Three Saudi oil tankers carrying 6 million barrels cross Strait of Hormuz | Source CNBC Markets | Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms TANKERS | Link https://www.cnbc.com/2026/06/18/iran-deal-strait-hormuz-oil-tanker-saudi-arabia-traffic.html",
+      "metadata": {},
+      "source": "state",
+      "type": "news_narrative",
+      "weight": 10
+    },
+    {
+      "id": "news_narrative:us_navy_ends_blockade_of_irans_ports_and_coastal_areas__source_cnbc_markets__relevance_score_89__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_portfolio_watchlist_world_event",
+      "label": "U.S. Navy ends blockade of Iran's ports and coastal areas | Source CNBC Markets | Relevance Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags PORTFOLIO, WATCHLIST, WORLD_EVENT",
       "metadata": {
         "evidence": [],
         "fields": {},
-        "rank": 5,
-        "title": "Vance says U.S. isn\u2019t giving Iran \u2018a cent\u2019 as he defends Trump peace deal | Source CNBC Markets | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags WORLD_EVENT"
+        "rank": 4,
+        "title": "U.S. Navy ends blockade of Iran's ports and coastal areas | Source CNBC Markets | Relevance Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags PORTFOLIO, WATCHLIST, WORLD_EVENT"
       },
+      "source": "state",
+      "type": "news_narrative",
+      "weight": 10
+    },
+    {
+      "id": "news_narrative:us_navy_ends_blockade_of_irans_ports_and_coastal_areas__source_cnbc_markets__score_89__impact_category_energy_supply_shock__impact_tier_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__matched_terms_us__link_https_wwwcnbccom_2026_06_18_us-navy-blockade-iran-trump-oilhtml",
+      "label": "U.S. Navy ends blockade of Iran's ports and coastal areas | Source CNBC Markets | Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms U.S. | Link https://www.cnbc.com/2026/06/18/us-navy-blockade-iran-trump-oil.html",
+      "metadata": {},
+      "source": "state",
+      "type": "news_narrative",
+      "weight": 10
+    },
+    {
+      "id": "news_narrative:vance_says_us_isnt_giving_iran_a_cent_as_he_defends_trump_peace_deal__source_cnbc_markets__relevance_score_89__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_portfolio_world_event",
+      "label": "Vance says U.S. isn\u2019t giving Iran \u2018a cent\u2019 as he defends Trump peace deal | Source CNBC Markets | Relevance Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags PORTFOLIO, WORLD_EVENT",
+      "metadata": {
+        "evidence": [],
+        "fields": {},
+        "rank": 3,
+        "title": "Vance says U.S. isn\u2019t giving Iran \u2018a cent\u2019 as he defends Trump peace deal | Source CNBC Markets | Relevance Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags PORTFOLIO, WORLD_EVENT"
+      },
+      "source": "state",
+      "type": "news_narrative",
+      "weight": 10
+    },
+    {
+      "id": "news_narrative:vance_says_us_isnt_giving_iran_a_cent_as_he_defends_trump_peace_deal__source_cnbc_markets__score_89__impact_category_energy_supply_shock__impact_tier_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__matched_terms_us__link_https_wwwcnbccom_2026_06_18_vance-iran-war-memo-oil-gashtml",
+      "label": "Vance says U.S. isn\u2019t giving Iran \u2018a cent\u2019 as he defends Trump peace deal | Source CNBC Markets | Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms U.S. | Link https://www.cnbc.com/2026/06/18/vance-iran-war-memo-oil-gas.html",
+      "metadata": {},
       "source": "state",
       "type": "news_narrative",
       "weight": 10
@@ -1689,70 +1769,70 @@
   "relationship_index": {
     "appears_with": [
       {
-        "id": "edge:59",
+        "id": "edge:63",
         "source": "risk:energy_falling",
         "source_layer": "history",
         "target": "risk:energy_falling",
         "weight": 0
       },
       {
-        "id": "edge:64",
+        "id": "edge:68",
         "source": "risk:growth_exposure_conflicts_with_inflation_rates_theme",
         "source_layer": "history",
         "target": "risk:growth_exposure_conflicts_with_inflation_rates_theme",
         "weight": 0
       },
       {
-        "id": "edge:68",
+        "id": "edge:72",
         "source": "risk:inflation_trend_rising",
         "source_layer": "history",
         "target": "risk:inflation_trend_rising",
         "weight": 0
       },
       {
-        "id": "edge:73",
+        "id": "edge:77",
         "source": "risk:macro_regime_risk_conflicts_with_portfolio_regime_posture",
         "source_layer": "history",
         "target": "risk:macro_regime_risk_conflicts_with_portfolio_regime_posture",
         "weight": 0
       },
       {
-        "id": "edge:76",
+        "id": "edge:80",
         "source": "risk:portfolio_risk_conflicts_with_defensive_allocation_gap",
         "source_layer": "history",
         "target": "risk:portfolio_risk_conflicts_with_defensive_allocation_gap",
         "weight": 0
       },
       {
-        "id": "edge:79",
+        "id": "edge:83",
         "source": "risk:smci",
         "source_layer": "history",
         "target": "risk:smci",
         "weight": 0
       },
       {
-        "id": "edge:82",
+        "id": "edge:86",
         "source": "risk:smci_position_size_conflicts_with_research_conviction",
         "source_layer": "history",
         "target": "risk:smci_position_size_conflicts_with_research_conviction",
         "weight": 0
       },
       {
-        "id": "edge:85",
+        "id": "edge:89",
         "source": "risk:unh",
         "source_layer": "history",
         "target": "risk:unh",
         "weight": 0
       },
       {
-        "id": "edge:88",
+        "id": "edge:92",
         "source": "risk:unh_position_concentration_415",
         "source_layer": "history",
         "target": "risk:unh_position_concentration_415",
         "weight": 0
       },
       {
-        "id": "edge:92",
+        "id": "edge:96",
         "source": "risk:yield_curve_flat",
         "source_layer": "history",
         "target": "risk:yield_curve_flat",
@@ -1826,7 +1906,7 @@
         "weight": 6
       },
       {
-        "id": "edge:41",
+        "id": "edge:42",
         "source": "news_narrative:market_significant_news",
         "source_layer": "change_detection",
         "target": "agent:news_agent",
@@ -1840,84 +1920,84 @@
         "weight": 6
       },
       {
-        "id": "edge:48",
+        "id": "edge:52",
         "source": "portfolio_signal:unh_position_concentration_415",
         "source_layer": "change_detection",
         "target": "agent:portfolio_agent",
         "weight": 6
       },
       {
-        "id": "edge:49",
+        "id": "edge:53",
         "source": "priority:unh_position_concentration_415",
         "source_layer": "change_detection",
         "target": "agent:echo",
         "weight": 12
       },
       {
-        "id": "edge:57",
+        "id": "edge:61",
         "source": "risk:energy_falling",
         "source_layer": "change_detection",
         "target": "agent:portfolio_agent",
         "weight": 6
       },
       {
-        "id": "edge:62",
+        "id": "edge:66",
         "source": "risk:growth_exposure_conflicts_with_inflation_rates_theme",
         "source_layer": "change_detection",
         "target": "agent:portfolio_agent",
         "weight": 12
       },
       {
-        "id": "edge:66",
+        "id": "edge:70",
         "source": "risk:inflation_trend_rising",
         "source_layer": "change_detection",
         "target": "agent:portfolio_agent",
         "weight": 12
       },
       {
-        "id": "edge:71",
+        "id": "edge:75",
         "source": "risk:macro_regime_risk_conflicts_with_portfolio_regime_posture",
         "source_layer": "change_detection",
         "target": "agent:portfolio_agent",
         "weight": 12
       },
       {
-        "id": "edge:74",
+        "id": "edge:78",
         "source": "risk:portfolio_risk_conflicts_with_defensive_allocation_gap",
         "source_layer": "change_detection",
         "target": "agent:portfolio_agent",
         "weight": 12
       },
       {
-        "id": "edge:77",
+        "id": "edge:81",
         "source": "risk:smci",
         "source_layer": "change_detection",
         "target": "agent:portfolio_agent",
         "weight": 6
       },
       {
-        "id": "edge:80",
+        "id": "edge:84",
         "source": "risk:smci_position_size_conflicts_with_research_conviction",
         "source_layer": "change_detection",
         "target": "agent:portfolio_agent",
         "weight": 12
       },
       {
-        "id": "edge:83",
+        "id": "edge:87",
         "source": "risk:unh",
         "source_layer": "change_detection",
         "target": "agent:portfolio_agent",
         "weight": 12
       },
       {
-        "id": "edge:86",
+        "id": "edge:90",
         "source": "risk:unh_position_concentration_415",
         "source_layer": "change_detection",
         "target": "agent:portfolio_agent",
         "weight": 12
       },
       {
-        "id": "edge:90",
+        "id": "edge:94",
         "source": "risk:yield_curve_flat",
         "source_layer": "change_detection",
         "target": "agent:portfolio_agent",
@@ -1933,7 +2013,7 @@
         "weight": 10
       },
       {
-        "id": "edge:43",
+        "id": "edge:44",
         "source": "news_narrative:middle_east_energy_risk",
         "source_layer": "state",
         "target": "theme:inflation_energy_risk",
@@ -2132,216 +2212,244 @@
       },
       {
         "id": "edge:38",
-        "source": "news_narrative:analysis_chairman_kevin_warshs_task_forces_are_the_key_to_understanding_the_new_fed__source_cnbc_markets__relevance_score_97__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_macro_central_bank_rates",
+        "source": "news_narrative:analysis_chairman_kevin_warshs_task_forces_are_the_key_to_understanding_the_new_fed__source_cnbc_markets__relevance_score_100__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_portfolio_macro_central_bank_rates",
         "source_layer": "state",
         "target": "agent:news_agent",
         "weight": 7
       },
       {
         "id": "edge:39",
-        "source": "news_narrative:here_are_the_five_big_takeaways_from_kevin_warshs_first_meeting_as_fed_chairman__source_cnbc_markets__relevance_score_95__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_macro_central_bank_rates",
+        "source": "news_narrative:analysis_chairman_kevin_warshs_task_forces_are_the_key_to_understanding_the_new_fed__source_cnbc_markets__score_100__impact_category_fed_policy__impact_tier_critical__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__matched_terms_to__link_https_wwwcnbccom_2026_06_17_kevin-warsh-fed-interest-rates-risk-analysishtml",
         "source_layer": "state",
         "target": "agent:news_agent",
         "weight": 7
       },
       {
         "id": "edge:40",
-        "source": "news_narrative:kalshi_traders_see_greater_than_50_odds_the_fed_will_hike_rates_this_year__source_cnbc_markets__relevance_score_97__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_macro_central_bank",
+        "source": "news_narrative:hegseth_warns_nato_allies_that_some_nations_will_fail_us_defense_review__source_cnbc_markets__score_89__impact_category_energy_supply_shock__impact_tier_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__matched_terms_us_to__link_https_wwwcnbccom_2026_06_18_hegseth-nato-defense-review-fail-europehtml",
         "source_layer": "state",
         "target": "agent:news_agent",
         "weight": 7
       },
       {
-        "id": "edge:42",
+        "id": "edge:41",
+        "source": "news_narrative:kalshi_traders_see_greater_than_50_odds_the_fed_will_hike_rates_this_year__source_cnbc_markets__relevance_score_100__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_watchlist_macro_central_bank",
+        "source_layer": "state",
+        "target": "agent:news_agent",
+        "weight": 7
+      },
+      {
+        "id": "edge:43",
         "source": "news_narrative:middle_east_energy_risk",
         "source_layer": "state",
         "target": "agent:news_agent",
         "weight": 7
       },
       {
-        "id": "edge:44",
-        "source": "news_narrative:none",
-        "source_layer": "state",
-        "target": "agent:news_agent",
-        "weight": 7
-      },
-      {
         "id": "edge:46",
-        "source": "news_narrative:us_navy_ends_blockade_of_irans_ports_and_coastal_areas__source_cnbc_markets__relevance_score_84__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_world_event",
+        "source": "news_narrative:three_saudi_oil_tankers_carrying_6_million_barrels_cross_strait_of_hormuz__source_cnbc_markets__relevance_score_89__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_portfolio_watchlist_energy",
         "source_layer": "state",
         "target": "agent:news_agent",
         "weight": 7
       },
       {
         "id": "edge:47",
-        "source": "news_narrative:vance_says_us_isnt_giving_iran_a_cent_as_he_defends_trump_peace_deal__source_cnbc_markets__relevance_score_84__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_world_event",
+        "source": "news_narrative:three_saudi_oil_tankers_carrying_6_million_barrels_cross_strait_of_hormuz__source_cnbc_markets__score_89__impact_category_energy_supply_shock__impact_tier_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__matched_terms_tankers__link_https_wwwcnbccom_2026_06_18_iran-deal-strait-hormuz-oil-tanker-saudi-arabia-traffichtml",
+        "source_layer": "state",
+        "target": "agent:news_agent",
+        "weight": 7
+      },
+      {
+        "id": "edge:48",
+        "source": "news_narrative:us_navy_ends_blockade_of_irans_ports_and_coastal_areas__source_cnbc_markets__relevance_score_89__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_portfolio_watchlist_world_event",
+        "source_layer": "state",
+        "target": "agent:news_agent",
+        "weight": 7
+      },
+      {
+        "id": "edge:49",
+        "source": "news_narrative:us_navy_ends_blockade_of_irans_ports_and_coastal_areas__source_cnbc_markets__score_89__impact_category_energy_supply_shock__impact_tier_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__matched_terms_us__link_https_wwwcnbccom_2026_06_18_us-navy-blockade-iran-trump-oilhtml",
         "source_layer": "state",
         "target": "agent:news_agent",
         "weight": 7
       },
       {
         "id": "edge:50",
+        "source": "news_narrative:vance_says_us_isnt_giving_iran_a_cent_as_he_defends_trump_peace_deal__source_cnbc_markets__relevance_score_89__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_portfolio_world_event",
+        "source_layer": "state",
+        "target": "agent:news_agent",
+        "weight": 7
+      },
+      {
+        "id": "edge:51",
+        "source": "news_narrative:vance_says_us_isnt_giving_iran_a_cent_as_he_defends_trump_peace_deal__source_cnbc_markets__score_89__impact_category_energy_supply_shock__impact_tier_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__matched_terms_us__link_https_wwwcnbccom_2026_06_18_vance-iran-war-memo-oil-gashtml",
+        "source_layer": "state",
+        "target": "agent:news_agent",
+        "weight": 7
+      },
+      {
+        "id": "edge:54",
         "source": "priority:unh_position_concentration_415",
         "source_layer": "state",
         "target": "risk:unh_position_concentration_415",
         "weight": 12
       },
       {
-        "id": "edge:51",
+        "id": "edge:55",
         "source": "priority:unh_position_concentration_415",
         "source_layer": "state",
         "target": "theme:inflation_energy_risk",
         "weight": 12
       },
       {
-        "id": "edge:52",
+        "id": "edge:56",
         "source": "research_signal:eco_reevaluate_thesis",
         "source_layer": "state",
         "target": "agent:research_agent",
         "weight": 7
       },
       {
-        "id": "edge:53",
+        "id": "edge:57",
         "source": "research_signal:mstr_reevaluate_thesis",
         "source_layer": "state",
         "target": "agent:research_agent",
         "weight": 7
       },
       {
-        "id": "edge:54",
+        "id": "edge:58",
         "source": "research_signal:smci_reevaluate_thesis",
         "source_layer": "state",
         "target": "agent:research_agent",
         "weight": 7
       },
       {
-        "id": "edge:55",
+        "id": "edge:59",
         "source": "research_signal:unh",
         "source_layer": "state",
         "target": "agent:research_agent",
         "weight": 7
       },
       {
-        "id": "edge:56",
+        "id": "edge:60",
         "source": "risk:energy_falling",
         "source_layer": "state",
         "target": "agent:macro_agent",
         "weight": 7
       },
       {
-        "id": "edge:58",
+        "id": "edge:62",
         "source": "risk:energy_falling",
         "source_layer": "state",
         "target": "agent:portfolio_agent",
         "weight": 12
       },
       {
-        "id": "edge:60",
+        "id": "edge:64",
         "source": "risk:growth_expanding",
         "source_layer": "state",
         "target": "agent:macro_agent",
         "weight": 7
       },
       {
-        "id": "edge:61",
+        "id": "edge:65",
         "source": "risk:growth_expanding",
         "source_layer": "state",
         "target": "agent:portfolio_agent",
         "weight": 6
       },
       {
-        "id": "edge:63",
+        "id": "edge:67",
         "source": "risk:growth_exposure_conflicts_with_inflation_rates_theme",
         "source_layer": "state",
         "target": "agent:portfolio_agent",
         "weight": 12
       },
       {
-        "id": "edge:65",
+        "id": "edge:69",
         "source": "risk:inflation_trend_rising",
         "source_layer": "state",
         "target": "agent:macro_agent",
         "weight": 7
       },
       {
-        "id": "edge:67",
+        "id": "edge:71",
         "source": "risk:inflation_trend_rising",
         "source_layer": "state",
         "target": "agent:portfolio_agent",
         "weight": 12
       },
       {
-        "id": "edge:69",
+        "id": "edge:73",
         "source": "risk:labor_market_strong",
         "source_layer": "state",
         "target": "agent:macro_agent",
         "weight": 7
       },
       {
-        "id": "edge:70",
+        "id": "edge:74",
         "source": "risk:labor_market_strong",
         "source_layer": "state",
         "target": "agent:portfolio_agent",
         "weight": 6
       },
       {
-        "id": "edge:72",
+        "id": "edge:76",
         "source": "risk:macro_regime_risk_conflicts_with_portfolio_regime_posture",
         "source_layer": "state",
         "target": "agent:portfolio_agent",
         "weight": 12
       },
       {
-        "id": "edge:75",
+        "id": "edge:79",
         "source": "risk:portfolio_risk_conflicts_with_defensive_allocation_gap",
         "source_layer": "state",
         "target": "agent:portfolio_agent",
         "weight": 12
       },
       {
-        "id": "edge:78",
+        "id": "edge:82",
         "source": "risk:smci",
         "source_layer": "state",
         "target": "agent:portfolio_agent",
         "weight": 6
       },
       {
-        "id": "edge:81",
+        "id": "edge:85",
         "source": "risk:smci_position_size_conflicts_with_research_conviction",
         "source_layer": "state",
         "target": "agent:portfolio_agent",
         "weight": 12
       },
       {
-        "id": "edge:84",
+        "id": "edge:88",
         "source": "risk:unh",
         "source_layer": "state",
         "target": "agent:portfolio_agent",
         "weight": 6
       },
       {
-        "id": "edge:87",
+        "id": "edge:91",
         "source": "risk:unh_position_concentration_415",
         "source_layer": "state",
         "target": "agent:portfolio_agent",
         "weight": 12
       },
       {
-        "id": "edge:89",
+        "id": "edge:93",
         "source": "risk:yield_curve_flat",
         "source_layer": "state",
         "target": "agent:macro_agent",
         "weight": 7
       },
       {
-        "id": "edge:91",
+        "id": "edge:95",
         "source": "risk:yield_curve_flat",
         "source_layer": "state",
         "target": "agent:portfolio_agent",
         "weight": 12
       },
       {
-        "id": "edge:93",
+        "id": "edge:97",
         "source": "stress_scenario:2008_style_crisis__impact_-5157",
         "source_layer": "state",
         "target": "agent:portfolio_agent",
@@ -2352,8 +2460,8 @@
   "schema_version": "1.0",
   "summary": {
     "dominant_cluster": "cluster:1",
-    "edge_count": 93,
-    "node_count": 47,
+    "edge_count": 97,
+    "node_count": 51,
     "top_connected_nodes": [
       {
         "degree": 34,
@@ -2370,7 +2478,7 @@
         "weight": 5
       },
       {
-        "degree": 11,
+        "degree": 15,
         "id": "agent:news_agent",
         "label": "News Agent",
         "type": "agent",

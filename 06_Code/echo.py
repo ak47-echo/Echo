@@ -81,6 +81,11 @@ from market_opportunity_scan import (
     build_and_write_market_opportunity_scan,
     read_market_opportunity_scan
 )
+from market_coverage import (
+    build_and_write_market_coverage,
+    build_market_coverage,
+    read_market_coverage
+)
 from portfolio_auto_import import (
     read_portfolio_auto_import,
     run_and_write_portfolio_auto_import
@@ -5641,6 +5646,66 @@ def echo_get_market_opportunity_scan(context=None):
     )
 
 
+def echo_get_market_coverage(context=None):
+
+    query = ""
+    if isinstance(context, dict):
+        query = context.get("message") or context.get("query") or ""
+
+    coverage = build_market_coverage(query) if query else read_market_coverage()
+    universe = coverage.get("coverage_universe") or []
+    holdings = [
+        item for item in universe
+        if item.get("is_current_holding")
+    ]
+    watchlist = [
+        item for item in universe
+        if item.get("is_watchlist")
+    ]
+    summary = (
+        f"Coverage universe: {len(universe)}. "
+        f"Current holdings: {len(holdings)}. "
+        f"Watchlist names: {len(watchlist)}. "
+        f"Query terms: {len(coverage.get('query_terms') or [])}."
+    )
+    return _echo_tool_response(
+        "echo_get_market_coverage",
+        {"market_coverage": coverage},
+        summary,
+        "HIGH",
+        "Dynamic holdings, watchlist, query, category, and security-master coverage."
+    )
+
+
+def echo_get_dynamic_news_coverage(context=None):
+
+    coverage_response = echo_get_market_coverage(context)
+    coverage = coverage_response["data"]["market_coverage"]
+    data = {
+        "schema_version": "1.0",
+        "generated_at": datetime.now().isoformat(timespec="seconds"),
+        "market_coverage": coverage,
+        "news_matching_policy": (
+            "News Agent scores portfolio/watchlist/query/security-master "
+            "terms dynamically and reports when no direct local news is found."
+        ),
+        "direct_news_fields": [
+            "portfolio_matches",
+            "watchlist_matches",
+            "security_master_matches",
+            "macro_matches",
+            "market_matches"
+        ]
+    }
+    return _echo_tool_response(
+        "echo_get_dynamic_news_coverage",
+        {"dynamic_news_coverage": data},
+        coverage_response.get("summary", "Dynamic news coverage available."),
+        "MEDIUM",
+        "Dynamic coverage terms used by the local News Agent."
+    )
+
+
 def echo_get_portfolio_auto_import(context=None):
 
     result = read_portfolio_auto_import()
@@ -6149,6 +6214,25 @@ ECHO_TOOL_REGISTRY = {
             "Dictionary with conservative upside, downside, and watch "
             "research candidates from local news, macro, research, holdings, "
             "watchlist, and security master signals."
+        )
+    },
+    "echo_get_market_coverage": {
+        "function_name": "echo_get_market_coverage",
+        "description": "Return dynamic holdings/watchlist/security coverage terms.",
+        "expected_input_fields": {},
+        "output_description": (
+            "Dictionary with dynamic holdings terms, watchlist terms, query "
+            "terms, security master terms, sector/category terms, and the "
+            "coverage universe used by market/news matching."
+        )
+    },
+    "echo_get_dynamic_news_coverage": {
+        "function_name": "echo_get_dynamic_news_coverage",
+        "description": "Return dynamic News Agent coverage metadata.",
+        "expected_input_fields": {},
+        "output_description": (
+            "Dictionary describing the dynamic market coverage used for "
+            "portfolio, watchlist, query, and security-master news matching."
         )
     },
     "echo_get_portfolio_auto_import": {
@@ -7174,6 +7258,7 @@ def _context_assembly_reports(context, user_query=None):
     sections = _echo_tool_context(context)["sections"]
     query = " ".join(str(user_query or "").split())
     investment_intent = classify_investment_intent(query)
+    market_coverage = build_market_coverage(query)
 
     return {
         "portfolio_change_detection": read_portfolio_change_report(),
@@ -7184,6 +7269,17 @@ def _context_assembly_reports(context, user_query=None):
             tickers=investment_intent.get("tickers"),
             categories=investment_intent.get("categories")
         ),
+        "market_coverage": market_coverage,
+        "dynamic_news_coverage": {
+            "schema_version": "1.0",
+            "generated_at": datetime.now().isoformat(timespec="seconds"),
+            "market_coverage": market_coverage,
+            "news_matching_policy": (
+                "News Agent scores direct company/security matches from "
+                "portfolio, watchlist, query, and security master terms, "
+                "then separates those from broader macro/category matches."
+            )
+        },
         "market_opportunity_scan": read_market_opportunity_scan(),
         "portfolio": sections.get("portfolio"),
         "research": sections.get("research"),
@@ -7266,19 +7362,23 @@ def _echo_orchestrator_select_tools(message, context, context_budget=None,
     if query_class == "holding_news":
         add_tools(
             "echo_get_portfolio_snapshot",
+            "echo_get_market_coverage",
+            "echo_get_dynamic_news_coverage",
             "echo_get_news_snapshot",
             "echo_get_macro_snapshot"
         )
 
     if query_class in {"ticker_question", "ticker_news", "security_master_search"}:
-        add_tools("echo_search_security_master")
+        add_tools("echo_search_security_master", "echo_get_market_coverage")
         if query_class != "security_master_search":
             add_tools("echo_get_research_snapshot")
         if query_class == "ticker_news":
-            add_tools("echo_get_news_snapshot")
+            add_tools("echo_get_dynamic_news_coverage", "echo_get_news_snapshot")
 
     if query_class in {"market_opportunities", "market_risks", "watchlist_management"}:
         add_tools(
+            "echo_get_market_coverage",
+            "echo_get_dynamic_news_coverage",
             "echo_get_market_opportunity_scan",
             "echo_search_security_master",
             "echo_get_news_snapshot",
@@ -7471,6 +7571,8 @@ def _run_echo_orchestrator_tool(tool_name, message, context):
         "echo_get_investment_intent": echo_get_investment_intent,
         "echo_search_security_master": echo_search_security_master,
         "echo_get_market_opportunity_scan": echo_get_market_opportunity_scan,
+        "echo_get_market_coverage": echo_get_market_coverage,
+        "echo_get_dynamic_news_coverage": echo_get_dynamic_news_coverage,
         "echo_get_portfolio_auto_import": echo_get_portfolio_auto_import,
         "echo_get_top_priority": echo_get_top_priority,
         "echo_get_themes": echo_get_themes,
@@ -8251,10 +8353,12 @@ def build_morning_brief(
 ):
 
     registry = create_agent_registry()
+    market_coverage_result = build_and_write_market_coverage()
+    market_coverage = market_coverage_result.get("coverage") or {}
     news = run_report_agent(
         registry,
         "News Agent",
-        get_news_report,
+        lambda: get_news_report(market_coverage=market_coverage),
         lambda error: {
             "executive_brief": [f"News Agent unavailable: {error}"],
             "full_report": ["No news articles available."]

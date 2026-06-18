@@ -5,7 +5,7 @@
     "max_items": 20
   },
   "context_mode": "memory_first",
-  "generated_at": "2026-06-18T13:47:19",
+  "generated_at": "2026-06-18T14:19:43",
   "operating_context": {
     "connected_entities": [
       {
@@ -13,8 +13,8 @@
         "layer": "knowledge_graph",
         "metadata": {
           "dominant_cluster": "cluster:1",
-          "edge_count": 93,
-          "node_count": 47
+          "edge_count": 97,
+          "node_count": 51
         },
         "type": "summary"
       },
@@ -38,9 +38,9 @@
           "id": "cluster:1",
           "label": "UNH position concentration 41.5%",
           "primary_node": "risk:unh_position_concentration_415",
-          "total_weight": 1370
+          "total_weight": 1410
         },
-        "score": 1370,
+        "score": 1410,
         "type": "dominant_cluster"
       }
     ],
@@ -59,7 +59,7 @@
       },
       "news_top_narrative": {
         "reason": "7 related Iran, Hormuz, or oil headlines indicate an energy-linked geopolitical market narrative.",
-        "representative_headline": "U.S. Navy ends blockade of Iran's ports and coastal areas",
+        "representative_headline": "Vance says U.S. isn\u2019t giving Iran \u2018a cent\u2019 as he defends Trump peace deal",
         "score": 100,
         "supporting_articles": 7,
         "title": "Middle East Energy Risk"

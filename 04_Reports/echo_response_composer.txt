@@ -2,30 +2,30 @@ ECHO RESPONSE COMPOSER
 ======================
 
 Schema Version: 1.0
-Generated At: 2026-06-18T13:47:33
-Query: if UNH fell 40 percent tomorrow, what happens?
+Generated At: 2026-06-18T14:20:32
+Query: what stocks could go down based on recent news
 Response Mode: memory
 
 Answer:
-UNH is currently held in Echo's local data. Local reference: UNITEDHEALTH GROUP INC | uncategorized. I do not have verified current company-specific news unless it appears in the local News Agent output.
+Risk candidates: IBIT | downside | Rates/inflation pressure can pressure long-duration or speculative exposure.; SCHG | downside | Rates/inflation pressure can pressure long-duration or speculative exposure. These are research candidates only; no trades are being placed.
 
 Supporting Points:
-- {"category": "", "expense_ratio": null, "match_reason": "holding:ticker", "name": "UNITEDHEALTH GROUP INC", "score": 220, "ticker": "UNH"}
-- {"category": "Long-Term Inv. Grade", "expense_ratio": 0.0, "match_reason": "security_master:name", "name": "Grossmont Califo 4.75%40", "score": 70, "ticker": "GROSSMONT CALIFO 4.75%40"}
-- {"category": "** 50 US Large Blend / 20 Intl Large Blend / 15 Emerging Large Blend / 15 Int-Term Inv. Grade **", "expense_ratio": 0.0039, "match_reason": "security_master:name", "name": "BlackRock LifePath\u00ae Index 2040 Inv A", "score": 70, "ticker": "LIKAX"}
-- {"category": "** 55 US Large Blend / 35 Intl Large Blend / 10 Int-Term Inv. Grade **", "expense_ratio": 0.0016, "match_reason": "security_master:name", "name": "BlackRock LifePath\u00ae Index 2040 Fund Institutional Shares", "score": 70, "ticker": "LIKIX"}
-- {"category": "** 50 US Large Blend / 35 US Large Blend / 15 Int-Term Inv. Grade **", "expense_ratio": 0.0009, "match_reason": "security_master:name", "name": "BlackRock LifePath\u00ae Index 2040 K", "score": 70, "ticker": "LIKKX"}
+- IBIT | downside | Rates/inflation pressure can pressure long-duration or speculative exposure.
+- SCHG | downside | Rates/inflation pressure can pressure long-duration or speculative exposure.
 
 Caveats:
 None
 
 Used Sources:
 - security_master_search
+- dynamic_news_coverage
+- market_coverage
+- market_opportunity_scan
 - memory_context
 
 Debug Summary:
-- Query Class: ticker_question
-- Budget Level: standard
+- Query Class: market_risks
+- Budget Level: expanded
 - Routing Mode: investment_query
 - Assembly Mode: investment_query
 - Full Reports Included: False

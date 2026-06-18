@@ -57,6 +57,10 @@ from market_opportunity_scan import (
     build_and_write_market_opportunity_scan,
     read_market_opportunity_scan
 )
+from market_coverage import (
+    build_and_write_market_coverage,
+    read_market_coverage
+)
 from portfolio_auto_import import (
     read_portfolio_auto_import,
     run_and_write_portfolio_auto_import
@@ -271,6 +275,26 @@ def create_app():
     @app.get("/market/opportunities")
     async def market_opportunities():
         return read_market_opportunity_scan()
+
+    @app.get("/market/coverage")
+    async def market_coverage():
+        return read_market_coverage()
+
+    @app.get("/market/news-coverage")
+    async def market_news_coverage():
+        coverage = read_market_coverage()
+        return {
+            "schema_version": "1.0",
+            "market_coverage": coverage,
+            "news_matching_policy": (
+                "News Agent uses dynamic holdings, watchlist, query, "
+                "category, and security-master terms for relevance scoring."
+            )
+        }
+
+    @app.post("/market/coverage/run")
+    async def market_coverage_run():
+        return build_and_write_market_coverage()["coverage"]
 
     @app.post("/market/opportunities/run")
     async def market_opportunities_run():

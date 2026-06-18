@@ -20,18 +20,18 @@
     },
     {
       "category": "action",
-      "description": "Action appears in 6 state samples.",
+      "description": "Action appears in 9 state samples.",
       "is_material": false,
-      "name": "Review SMCI position concentration 23.7%",
+      "name": "Review SMCI position concentration 23.6%",
       "score": 15,
       "source": "history",
       "type": "persistent_action"
     },
     {
       "category": "action",
-      "description": "Action appears in 5 state samples.",
+      "description": "Action appears in 2 state samples.",
       "is_material": false,
-      "name": "Review SMCI position concentration 23.6%",
+      "name": "Review SMCI position concentration 23.7%",
       "score": 15,
       "source": "history",
       "type": "persistent_action"
@@ -66,7 +66,7 @@
   ],
   "deescalations": [],
   "escalations": [],
-  "generated_at": "2026-06-18T13:47:19",
+  "generated_at": "2026-06-18T14:19:43",
   "macro_signals": [
     {
       "category": "macro",
@@ -90,7 +90,7 @@
     },
     {
       "category": "news",
-      "description": "1 portfolio relevant news items are present.",
+      "description": "5 portfolio relevant news items are present.",
       "is_material": false,
       "name": "Portfolio relevant news",
       "score": 10,
@@ -246,18 +246,18 @@
     },
     {
       "category": "action",
-      "description": "Action appears in 6 state samples.",
+      "description": "Action appears in 9 state samples.",
       "is_material": false,
-      "name": "Review SMCI position concentration 23.7%",
+      "name": "Review SMCI position concentration 23.6%",
       "score": 15,
       "source": "history",
       "type": "persistent_action"
     },
     {
       "category": "action",
-      "description": "Action appears in 5 state samples.",
+      "description": "Action appears in 2 state samples.",
       "is_material": false,
-      "name": "Review SMCI position concentration 23.6%",
+      "name": "Review SMCI position concentration 23.7%",
       "score": 15,
       "source": "history",
       "type": "persistent_action"

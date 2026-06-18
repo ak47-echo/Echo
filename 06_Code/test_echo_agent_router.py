@@ -113,6 +113,13 @@ class EchoAgentRouterTests(unittest.TestCase):
         self.assertIn("portfolio", routing["primary_agents"])
         self.assertIn("news", routing["secondary_agents"])
         self.assertIn("macro", routing["secondary_agents"])
+        sources = [
+            source
+            for item in routing["agent_context_plan"]
+            for source in item["context_sources"]
+        ]
+        self.assertIn("market_coverage", sources)
+        self.assertIn("dynamic_news_coverage", sources)
 
     def test_nonheld_ticker_does_not_require_portfolio_primary(self):
 
@@ -137,6 +144,8 @@ class EchoAgentRouterTests(unittest.TestCase):
             for source in item["context_sources"]
         ]
         self.assertIn("market_opportunity_scan", sources)
+        self.assertIn("market_coverage", sources)
+        self.assertIn("dynamic_news_coverage", sources)
         self.assertIn("security_master_search", sources)
         self.assertIn("news", routing["secondary_agents"])
         self.assertIn("macro", routing["secondary_agents"])
@@ -150,6 +159,10 @@ class EchoAgentRouterTests(unittest.TestCase):
 
         self.assertIn(
             "security_master_search",
+            routing["agent_context_plan"][0]["context_sources"]
+        )
+        self.assertIn(
+            "market_coverage",
             routing["agent_context_plan"][0]["context_sources"]
         )
 

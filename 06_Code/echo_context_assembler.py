@@ -18,6 +18,8 @@ SPECIAL_REPORT_SOURCES = {
     "portfolio_change_detection": "Portfolio Change Detection",
     "portfolio_ingestion": "Portfolio Ingestion",
     "security_master_search": "Security Master Search",
+    "market_coverage": "Market Coverage",
+    "dynamic_news_coverage": "Dynamic News Coverage",
     "market_opportunity_scan": "Market Opportunity Scan",
     "portfolio_auto_import": "Portfolio Auto Import"
 }
