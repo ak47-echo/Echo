@@ -2,26 +2,28 @@ ECHO RESPONSE COMPOSER
 ======================
 
 Schema Version: 1.0
-Generated At: 2026-06-18T11:04:14
-Query: did my cash change
+Generated At: 2026-06-18T11:45:15
+Query: what stocks could go down based on recent news
 Response Mode: memory
 
 Answer:
-Cash changes: None identified.
+Risk candidates: IBIT | downside | Rates/inflation pressure can pressure long-duration or speculative exposure.; SCHG | downside | Rates/inflation pressure can pressure long-duration or speculative exposure. These are research candidates only; no trades are being placed.
 
 Supporting Points:
-None
+- IBIT | downside | Rates/inflation pressure can pressure long-duration or speculative exposure.
+- SCHG | downside | Rates/inflation pressure can pressure long-duration or speculative exposure.
 
 Caveats:
 None
 
 Used Sources:
-- portfolio_change_detection
+- security_master_search
+- market_opportunity_scan
 - memory_context
 
 Debug Summary:
-- Query Class: portfolio_change
-- Budget Level: standard
-- Routing Mode: single_agent
-- Assembly Mode: portfolio_change
+- Query Class: market_risks
+- Budget Level: expanded
+- Routing Mode: investment_query
+- Assembly Mode: investment_query
 - Full Reports Included: False

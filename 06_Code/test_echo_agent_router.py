@@ -102,6 +102,57 @@ class EchoAgentRouterTests(unittest.TestCase):
             routing["agent_context_plan"][0]["context_sources"]
         )
 
+    def test_holding_news_routes_portfolio_news_macro(self):
+
+        routing = route_query_to_agents(
+            "what world events affect my current stocks",
+            _budget("expanded", "holding_news")
+        )
+
+        self.assertEqual("investment_query", routing["routing_mode"])
+        self.assertIn("portfolio", routing["primary_agents"])
+        self.assertIn("news", routing["secondary_agents"])
+        self.assertIn("macro", routing["secondary_agents"])
+
+    def test_nonheld_ticker_does_not_require_portfolio_primary(self):
+
+        routing = route_query_to_agents(
+            "what do you think about NVDA",
+            _budget("standard", "ticker_question")
+        )
+
+        self.assertEqual(["research"], routing["primary_agents"])
+        self.assertNotIn("portfolio", routing["primary_agents"])
+
+    def test_market_opportunity_scan_routes_news_macro_research(self):
+
+        routing = route_query_to_agents(
+            "what stocks could go up from this news",
+            _budget("expanded", "market_opportunities")
+        )
+
+        sources = [
+            source
+            for item in routing["agent_context_plan"]
+            for source in item["context_sources"]
+        ]
+        self.assertIn("market_opportunity_scan", sources)
+        self.assertIn("security_master_search", sources)
+        self.assertIn("news", routing["secondary_agents"])
+        self.assertIn("macro", routing["secondary_agents"])
+
+    def test_security_master_search_routes_to_security_master(self):
+
+        routing = route_query_to_agents(
+            "small cap value ETFs",
+            _budget("standard", "security_master_search")
+        )
+
+        self.assertIn(
+            "security_master_search",
+            routing["agent_context_plan"][0]["context_sources"]
+        )
+
     def test_broad_synthesis_routes_to_all_active_agents(self):
 
         routing = route_query_to_agents(

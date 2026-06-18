@@ -1,0 +1,182 @@
+{
+  "generated_at": "2026-06-18T11:45:00",
+  "opportunity_candidates": [
+    {
+      "category": "** 90 US Mid Growth / 10 Intl Mid Growth **",
+      "confidence": "low",
+      "direction": "watch",
+      "evidence": [
+        "",
+        ""
+      ],
+      "is_current_holding": false,
+      "is_watchlist": false,
+      "name": "ALPS Clean Energy ETF",
+      "reason": "Energy/inflation themes are active; treat as a research candidate only.",
+      "security_master_match": {
+        "category": "** 90 US Mid Growth / 10 Intl Mid Growth **",
+        "expense_ratio": 0.0055,
+        "match_reason": "security_master:fund, name",
+        "name": "ALPS Clean Energy ETF",
+        "score": 115,
+        "ticker": "ACES"
+      },
+      "source_agents": [
+        "news",
+        "macro"
+      ],
+      "ticker": "ACES"
+    },
+    {
+      "category": "** 30 US Large Value / 45 Intl Large Value / 25 Emerging Large Value **",
+      "confidence": "low",
+      "direction": "watch",
+      "evidence": [
+        "",
+        ""
+      ],
+      "is_current_holding": false,
+      "is_watchlist": false,
+      "name": "VanEck Oil Refiners ETF",
+      "reason": "Energy/inflation themes are active; treat as a research candidate only.",
+      "security_master_match": {
+        "category": "** 30 US Large Value / 45 Intl Large Value / 25 Emerging Large Value **",
+        "expense_ratio": 0.0059,
+        "match_reason": "security_master:fund, name",
+        "name": "VanEck Oil Refiners ETF",
+        "score": 115,
+        "ticker": "CRAK"
+      },
+      "source_agents": [
+        "news",
+        "macro"
+      ],
+      "ticker": "CRAK"
+    },
+    {
+      "category": "Non-Traditional",
+      "confidence": "low",
+      "direction": "watch",
+      "evidence": [
+        "",
+        ""
+      ],
+      "is_current_holding": false,
+      "is_watchlist": false,
+      "name": "Direxion Dly S&P Oil&Gs Ex&Prd Br 2X ETF",
+      "reason": "Energy/inflation themes are active; treat as a research candidate only.",
+      "security_master_match": {
+        "category": "Non-Traditional",
+        "expense_ratio": 0.0109,
+        "match_reason": "security_master:fund, name",
+        "name": "Direxion Dly S&P Oil&Gs Ex&Prd Br 2X ETF",
+        "score": 115,
+        "ticker": "DRIP"
+      },
+      "source_agents": [
+        "news",
+        "macro"
+      ],
+      "ticker": "DRIP"
+    },
+    {
+      "category": "US Small Value",
+      "confidence": "medium",
+      "direction": "watch",
+      "evidence": [
+        "Potential small-cap value complement; review overlap with SCHA before adding."
+      ],
+      "is_current_holding": false,
+      "is_watchlist": true,
+      "name": "",
+      "reason": "Existing watchlist candidate available for research review.",
+      "security_master_match": null,
+      "source_agents": [
+        "research"
+      ],
+      "ticker": "AVUV"
+    },
+    {
+      "category": "Intl Small Value",
+      "confidence": "low",
+      "direction": "watch",
+      "evidence": [
+        "Potential international small-cap value diversifier; monitor valuation and fund fit."
+      ],
+      "is_current_holding": false,
+      "is_watchlist": true,
+      "name": "",
+      "reason": "Existing watchlist candidate available for research review.",
+      "security_master_match": null,
+      "source_agents": [
+        "research"
+      ],
+      "ticker": "AVDV"
+    },
+    {
+      "category": "Short-Term Treasury",
+      "confidence": "low",
+      "direction": "watch",
+      "evidence": [
+        "Potential cash alternative for funds not needed for immediate liquidity."
+      ],
+      "is_current_holding": false,
+      "is_watchlist": true,
+      "name": "",
+      "reason": "Existing watchlist candidate available for research review.",
+      "security_master_match": null,
+      "source_agents": [
+        "research"
+      ],
+      "ticker": "SGOV"
+    }
+  ],
+  "risk_candidates": [
+    {
+      "category": "",
+      "confidence": "medium",
+      "direction": "downside",
+      "evidence": [
+        "",
+        "Inflation/Energy Risk"
+      ],
+      "is_current_holding": true,
+      "is_watchlist": false,
+      "name": "ISHARES BITCOIN TRUST ETF",
+      "reason": "Rates/inflation pressure can pressure long-duration or speculative exposure.",
+      "security_master_match": null,
+      "source_agents": [
+        "portfolio",
+        "macro"
+      ],
+      "ticker": "IBIT"
+    },
+    {
+      "category": "",
+      "confidence": "medium",
+      "direction": "downside",
+      "evidence": [
+        "",
+        "Inflation/Energy Risk"
+      ],
+      "is_current_holding": true,
+      "is_watchlist": false,
+      "name": "SCHWAB U.S. LARGE-CAP GROWTH ETF",
+      "reason": "Rates/inflation pressure can pressure long-duration or speculative exposure.",
+      "security_master_match": null,
+      "source_agents": [
+        "portfolio",
+        "macro"
+      ],
+      "ticker": "SCHG"
+    }
+  ],
+  "schema_version": "1.0",
+  "source_signals": [
+    {
+      "signal": "Inflation/Energy Risk",
+      "source": "theme"
+    }
+  ],
+  "warnings": []
+}

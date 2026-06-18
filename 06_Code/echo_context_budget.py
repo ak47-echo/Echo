@@ -3,6 +3,8 @@ import json
 from pathlib import Path
 import re
 
+from echo_investment_intent import classify_investment_intent
+
 
 REPORTS_DIR = Path(__file__).resolve().parent.parent / "04_Reports"
 CONTEXT_BUDGET_JSON_PATH = REPORTS_DIR / "echo_context_budget.json"
@@ -204,7 +206,6 @@ def _is_multi_agent(query, agents):
 
 
 def _base_budget(query, agents):
-
     if _is_conversational_query(query):
         return (
             "conversational",
@@ -246,23 +247,6 @@ def _base_budget(query, agents):
             "Deep-dive wording requests detailed secondary context."
         )
 
-    if _is_portfolio_change_query(query):
-        return (
-            "portfolio_change",
-            "standard",
-            [
-                "portfolio_change_detection",
-                "portfolio_ingestion",
-                "portfolio_snapshot"
-            ],
-            ["generic_state_delta"],
-            [
-                "echo_get_portfolio_change_detection",
-                "echo_get_portfolio_ingestion"
-            ],
-            "Query asks about holdings-level portfolio changes."
-        )
-
     if _is_multi_agent(query, agents):
         return (
             "multi_agent",
@@ -282,19 +266,21 @@ def _base_budget(query, agents):
             "Broad synthesis query spans multiple agents or relationship layers."
         )
 
-    if len(agents) == 1:
-        agent = agents[0]
-        report_source, snapshot_source = AGENT_SOURCE_MAP[agent]
+    if _is_portfolio_change_query(query):
         return (
-            "agent_specific",
-            "expanded" if agent == "portfolio" else "standard",
-            ["memory_context", snapshot_source, report_source],
-            ["unrelated_reports"],
+            "portfolio_change",
+            "standard",
             [
-                "echo_get_memory_context",
-                f"echo_get_{agent}_snapshot"
+                "portfolio_change_detection",
+                "portfolio_ingestion",
+                "portfolio_snapshot"
             ],
-            f"Query is specific to the {agent} agent context."
+            ["generic_state_delta"],
+            [
+                "echo_get_portfolio_change_detection",
+                "echo_get_portfolio_ingestion"
+            ],
+            "Query asks about holdings-level portfolio changes."
         )
 
     if _is_memory_query(query):
@@ -312,6 +298,177 @@ def _base_budget(query, agents):
             "Query asks for current memory, changes, or persistence."
         )
 
+    investment_intent = classify_investment_intent(query)
+    intent = investment_intent.get("investment_intent")
+
+    if intent == "portfolio_change":
+        return (
+            "portfolio_change",
+            "standard",
+            [
+                "portfolio_change_detection",
+                "portfolio_ingestion",
+                "portfolio_snapshot"
+            ],
+            ["generic_state_delta"],
+            [
+                "echo_get_portfolio_change_detection",
+                "echo_get_portfolio_ingestion"
+            ],
+            "Query asks about holdings-level portfolio changes."
+        )
+
+    if intent == "portfolio_movement":
+        return (
+            "portfolio_movement",
+            "standard",
+            [
+                "portfolio_change_detection",
+                "portfolio_snapshot",
+                "portfolio_report"
+            ],
+            ["generic_state_delta"],
+            [
+                "echo_get_portfolio_change_detection",
+                "echo_get_portfolio_snapshot"
+            ],
+            "Query asks what drove portfolio movement."
+        )
+
+    if intent == "holding_news":
+        return (
+            "holding_news",
+            "expanded",
+            ["portfolio_snapshot", "news_snapshot", "macro_snapshot"],
+            ["generic_state_delta"],
+            [
+                "echo_get_portfolio_snapshot",
+                "echo_get_news_snapshot",
+                "echo_get_macro_snapshot"
+            ],
+            "Query asks which news or macro themes affect current holdings."
+        )
+
+    if intent in {"ticker_question", "ticker_news"}:
+        return (
+            intent,
+            "standard",
+            [
+                "security_master_search",
+                "portfolio_snapshot",
+                "research_snapshot",
+                "news_snapshot"
+            ],
+            ["generic_state_delta"],
+            [
+                "echo_search_security_master",
+                "echo_get_research_snapshot",
+                "echo_get_news_snapshot"
+            ],
+            "Query asks about a specific ticker or security."
+        )
+
+    if intent in {"market_opportunities", "market_risks"}:
+        return (
+            intent,
+            "expanded",
+            [
+                "market_opportunity_scan",
+                "news_snapshot",
+                "macro_snapshot",
+                "research_snapshot",
+                "security_master_search"
+            ],
+            ["generic_state_delta"],
+            [
+                "echo_get_market_opportunity_scan",
+                "echo_search_security_master",
+                "echo_get_news_snapshot",
+                "echo_get_macro_snapshot",
+                "echo_get_research_snapshot"
+            ],
+            "Query asks for market opportunity or risk research candidates."
+        )
+
+    if intent == "security_master_search":
+        return (
+            "security_master_search",
+            "standard",
+            ["security_master_search"],
+            ["generic_state_delta", "full_reports"],
+            ["echo_search_security_master"],
+            "Query asks to search the local security master."
+        )
+
+    if intent == "watchlist_management":
+        return (
+            "watchlist_management",
+            "expanded",
+            [
+                "research_snapshot",
+                "market_opportunity_scan",
+                "news_snapshot",
+                "macro_snapshot"
+            ],
+            ["generic_state_delta"],
+            [
+                "echo_get_research_snapshot",
+                "echo_get_market_opportunity_scan",
+                "echo_get_news_snapshot",
+                "echo_get_macro_snapshot"
+            ],
+            "Query asks for watchlist review or management."
+        )
+
+    if intent == "paper_allocation_future":
+        return (
+            "paper_allocation_future",
+            "minimal",
+            ["research_snapshot", "market_opportunity_scan"],
+            ["trading", "brokerage", "generic_state_delta"],
+            ["echo_get_market_opportunity_scan", "echo_get_research_snapshot"],
+            "Query asks about future paper allocation mode."
+        )
+
+    if intent == "portfolio_snapshot":
+        return (
+            "agent_specific",
+            "expanded",
+            ["memory_context", "portfolio_snapshot", "portfolio_report"],
+            ["unrelated_reports"],
+            ["echo_get_memory_context", "echo_get_portfolio_snapshot"],
+            "Query asks about current portfolio holdings or allocation."
+        )
+
+    if intent == "general_market_question":
+        return (
+            "multi_agent",
+            "standard",
+            ["news_snapshot", "macro_snapshot", "memory_context"],
+            ["unrelated_full_reports"],
+            [
+                "echo_get_news_snapshot",
+                "echo_get_macro_snapshot",
+                "echo_get_memory_context"
+            ],
+            "Query asks a broad market or macro question."
+        )
+
+    if len(agents) == 1:
+        agent = agents[0]
+        report_source, snapshot_source = AGENT_SOURCE_MAP[agent]
+        return (
+            "agent_specific",
+            "expanded" if agent == "portfolio" else "standard",
+            ["memory_context", snapshot_source, report_source],
+            ["unrelated_reports"],
+            [
+                "echo_get_memory_context",
+                f"echo_get_{agent}_snapshot"
+            ],
+            f"Query is specific to the {agent} agent context."
+        )
+
     return (
         "unknown",
         "standard",
@@ -327,6 +484,10 @@ def build_context_budget(user_query, memory_context=None, available_tools=None):
     query = _safe_text(user_query)
     tools = _available_tools(available_tools)
     agents = [] if _is_conversational_query(query) else _agent_terms(query)
+    investment_intent = classify_investment_intent(
+        query,
+        memory_context=memory_context
+    )
     (
         query_class,
         budget_level,
@@ -366,6 +527,7 @@ def build_context_budget(user_query, memory_context=None, available_tools=None):
         "preferred_context_sources": preferred_sources,
         "excluded_context_sources": excluded_sources,
         "tool_hints": tool_hints,
+        "investment_intent": investment_intent,
         "reason": reason
     }
 

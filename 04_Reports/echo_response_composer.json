@@ -1,20 +1,24 @@
 {
-  "answer": "Cash changes: None identified.",
+  "answer": "Risk candidates: IBIT | downside | Rates/inflation pressure can pressure long-duration or speculative exposure.; SCHG | downside | Rates/inflation pressure can pressure long-duration or speculative exposure. These are research candidates only; no trades are being placed.",
   "caveats": [],
   "debug_summary": {
-    "assembly_mode": "portfolio_change",
-    "budget_level": "standard",
+    "assembly_mode": "investment_query",
+    "budget_level": "expanded",
     "full_reports_included": false,
-    "query_class": "portfolio_change",
-    "routing_mode": "single_agent"
+    "query_class": "market_risks",
+    "routing_mode": "investment_query"
   },
-  "generated_at": "2026-06-18T11:04:14",
-  "query": "did my cash change",
+  "generated_at": "2026-06-18T11:45:15",
+  "query": "what stocks could go down based on recent news",
   "response_mode": "memory",
   "schema_version": "1.0",
-  "supporting_points": [],
+  "supporting_points": [
+    "IBIT | downside | Rates/inflation pressure can pressure long-duration or speculative exposure.",
+    "SCHG | downside | Rates/inflation pressure can pressure long-duration or speculative exposure."
+  ],
   "used_sources": [
-    "portfolio_change_detection",
+    "security_master_search",
+    "market_opportunity_scan",
     "memory_context"
   ]
 }

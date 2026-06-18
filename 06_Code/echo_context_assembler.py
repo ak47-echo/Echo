@@ -14,6 +14,14 @@ AGENT_REPORT_SOURCES = {
     "macro": "macro_report"
 }
 
+SPECIAL_REPORT_SOURCES = {
+    "portfolio_change_detection": "Portfolio Change Detection",
+    "portfolio_ingestion": "Portfolio Ingestion",
+    "security_master_search": "Security Master Search",
+    "market_opportunity_scan": "Market Opportunity Scan",
+    "portfolio_auto_import": "Portfolio Auto Import"
+}
+
 
 def _now():
 
@@ -152,6 +160,11 @@ def _portfolio_change_report(reports):
     return _dict(reports).get("portfolio_change_detection")
 
 
+def _special_report(reports, source):
+
+    return _dict(reports).get(source)
+
+
 def _assembly_mode(context_budget, agent_routing):
 
     budget_level = _dict(context_budget).get("budget_level") or "standard"
@@ -164,6 +177,19 @@ def _assembly_mode(context_budget, agent_routing):
     if query_class == "portfolio_change":
         return "portfolio_change"
 
+    if query_class in {
+        "portfolio_movement",
+        "holding_news",
+        "ticker_question",
+        "ticker_news",
+        "market_opportunities",
+        "market_risks",
+        "watchlist_management",
+        "security_master_search",
+        "paper_allocation_future"
+    }:
+        return "investment_query"
+
     if query_class == "memory" or routing_mode == "none":
         return "memory_only"
 
@@ -173,7 +199,7 @@ def _assembly_mode(context_budget, agent_routing):
     if routing_mode in {"multi_agent", "all_agents"}:
         return "multi_agent"
 
-    if routing_mode == "single_agent":
+    if routing_mode in {"single_agent", "investment_query"}:
         return "agent_focused"
 
     return "memory_only"
@@ -188,6 +214,9 @@ def _report_allowed(plan_item, mode, budget_level):
         return False
 
     if mode == "agent_focused":
+        return bool(plan_item.get("include_full_report"))
+
+    if mode == "investment_query":
         return bool(plan_item.get("include_full_report"))
 
     if mode == "multi_agent":
@@ -224,9 +253,9 @@ def assemble_echo_context(user_query, memory_context, context_budget,
     seen = set()
     excluded_sources = set()
 
-    if mode == "portfolio_change":
+    if mode in {"portfolio_change", "investment_query"}:
         change_report = _portfolio_change_report(reports)
-        if change_report:
+        if change_report and mode == "portfolio_change":
             _add_block(
                 blocks,
                 _block(
@@ -240,7 +269,30 @@ def assemble_echo_context(user_query, memory_context, context_budget,
                 seen
             )
         else:
-            excluded_sources.add("portfolio_change_detection")
+            if mode == "portfolio_change":
+                excluded_sources.add("portfolio_change_detection")
+
+    if mode == "investment_query":
+        preferred_sources = context_budget.get("preferred_context_sources") or []
+        for source in preferred_sources:
+            if source not in SPECIAL_REPORT_SOURCES:
+                continue
+            content = _special_report(reports, source)
+            if not content:
+                excluded_sources.add(source)
+                continue
+            _add_block(
+                blocks,
+                _block(
+                    source,
+                    "primary" if source in preferred_sources[:2] else "secondary",
+                    SPECIAL_REPORT_SOURCES[source],
+                    content,
+                    125 if source == "security_master_search" else 115,
+                    12000
+                ),
+                seen
+            )
 
     _add_block(
         blocks,
@@ -259,7 +311,8 @@ def assemble_echo_context(user_query, memory_context, context_budget,
         "agent_focused",
         "multi_agent",
         "full",
-        "portfolio_change"
+        "portfolio_change",
+        "investment_query"
     }:
         _add_block(
             blocks,

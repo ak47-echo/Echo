@@ -1,21 +1,60 @@
 {
-  "budget_level": "standard",
+  "budget_level": "expanded",
   "excluded_context_sources": [
     "generic_state_delta"
   ],
-  "generated_at": "2026-06-18T11:04:14",
-  "max_context_items": 20,
+  "generated_at": "2026-06-18T11:45:15",
+  "investment_intent": {
+    "answer_mode": "risk_scan",
+    "categories": [],
+    "confidence": "high",
+    "entities": [
+      "ON Semiconductor Corp",
+      "WTS ALICANTO MINERALS LTD OPTIONS AUD0.28",
+      "American Beacon Large Cap Value Instl(USD,AADEX)",
+      "Silver47 Exploration Corp.",
+      "American Beacon Large Cap Value Inv"
+    ],
+    "generated_at": "2026-06-18T11:45:14",
+    "investment_intent": "market_risks",
+    "portfolio_relevance": "unknown",
+    "query": "what stocks could go down based on recent news",
+    "reason": "User asked for downside or risk candidates.",
+    "requires_external_ticker_context": false,
+    "requires_macro_context": true,
+    "requires_news_context": true,
+    "requires_portfolio_change_context": false,
+    "requires_portfolio_context": true,
+    "requires_research_context": true,
+    "requires_security_master_context": true,
+    "requires_watchlist_context": false,
+    "schema_version": "1.0",
+    "security_names": [
+      "ON Semiconductor Corp",
+      "WTS ALICANTO MINERALS LTD OPTIONS AUD0.28",
+      "American Beacon Large Cap Value Instl(USD,AADEX)",
+      "Silver47 Exploration Corp.",
+      "American Beacon Large Cap Value Inv"
+    ],
+    "tickers": []
+  },
+  "max_context_items": 40,
   "preferred_context_sources": [
-    "portfolio_change_detection",
-    "portfolio_ingestion",
-    "portfolio_snapshot"
+    "market_opportunity_scan",
+    "news_snapshot",
+    "macro_snapshot",
+    "research_snapshot",
+    "security_master_search"
   ],
-  "query": "did my cash change",
-  "query_class": "portfolio_change",
-  "reason": "Query asks about holdings-level portfolio changes.",
+  "query": "what stocks could go down based on recent news",
+  "query_class": "market_risks",
+  "reason": "Query asks for market opportunity or risk research candidates.",
   "schema_version": "1.0",
   "tool_hints": [
-    "echo_get_portfolio_change_detection",
-    "echo_get_portfolio_ingestion"
+    "echo_get_market_opportunity_scan",
+    "echo_search_security_master",
+    "echo_get_news_snapshot",
+    "echo_get_macro_snapshot",
+    "echo_get_research_snapshot"
   ]
 }

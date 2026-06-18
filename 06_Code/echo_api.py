@@ -53,6 +53,14 @@ from portfolio_ingestion import (
     write_portfolio_ingestion_text
 )
 from portfolio_change_detection import read_portfolio_change_report
+from market_opportunity_scan import (
+    build_and_write_market_opportunity_scan,
+    read_market_opportunity_scan
+)
+from portfolio_auto_import import (
+    read_portfolio_auto_import,
+    run_and_write_portfolio_auto_import
+)
 
 
 LOCALHOST_ORIGINS = [
@@ -245,6 +253,28 @@ def create_app():
         write_portfolio_ingestion_json(ingestion)
         write_portfolio_ingestion_text(ingestion)
         return ingestion
+
+    @app.get("/portfolio/auto-import")
+    async def portfolio_auto_import():
+        return read_portfolio_auto_import()
+
+    @app.post("/portfolio/auto-import/run")
+    async def portfolio_auto_import_run():
+        auto_import = run_and_write_portfolio_auto_import()
+        if auto_import.get("status") in {"copied", "already_imported"}:
+            ingestion = ingest_default_portfolio_import()
+            write_portfolio_ingestion_json(ingestion)
+            write_portfolio_ingestion_text(ingestion)
+            auto_import["ingestion"] = ingestion
+        return auto_import
+
+    @app.get("/market/opportunities")
+    async def market_opportunities():
+        return read_market_opportunity_scan()
+
+    @app.post("/market/opportunities/run")
+    async def market_opportunities_run():
+        return build_and_write_market_opportunity_scan()["scan"]
 
     @app.get("/status")
     async def status():

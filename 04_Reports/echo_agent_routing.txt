@@ -2,23 +2,24 @@ ECHO AGENT ROUTING
 ==================
 
 Schema Version: 1.0
-Generated At: 2026-06-18T11:04:14
-Query: did my cash change
-Routing Mode: single_agent
+Generated At: 2026-06-18T11:45:15
+Query: what stocks could go down based on recent news
+Routing Mode: investment_query
 Confidence: high
 
 Primary Agents:
 - portfolio
 
 Secondary Agents:
-None
-
-Excluded Agents:
-- research
 - news
 - macro
 
-Agent Context Plan:
-- portfolio | primary | Full Report: False | Sources: portfolio_change_detection, portfolio_ingestion, portfolio_snapshot
+Excluded Agents:
+- research
 
-Reason: Portfolio-change query should be answered from normalized holdings change detection.
+Agent Context Plan:
+- portfolio | primary | Full Report: False | Sources: market_opportunity_scan, portfolio_snapshot
+- news | secondary | Full Report: False | Sources: news_snapshot
+- macro | secondary | Full Report: False | Sources: macro_snapshot
+
+Reason: Universal investment query routed by investment intent market_risks.

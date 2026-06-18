@@ -3,28 +3,46 @@
     {
       "agent": "portfolio",
       "context_sources": [
-        "portfolio_change_detection",
-        "portfolio_ingestion",
+        "market_opportunity_scan",
         "portfolio_snapshot"
       ],
       "include_full_report": false,
-      "reason": "Portfolio-change query needs holdings-level change context.",
+      "reason": "Risk query should include held-position risk candidates.",
       "role": "primary"
+    },
+    {
+      "agent": "news",
+      "context_sources": [
+        "news_snapshot"
+      ],
+      "include_full_report": false,
+      "reason": "News narratives provide downside signals.",
+      "role": "secondary"
+    },
+    {
+      "agent": "macro",
+      "context_sources": [
+        "macro_snapshot"
+      ],
+      "include_full_report": false,
+      "reason": "Macro regime provides downside signals.",
+      "role": "secondary"
     }
   ],
   "confidence": "high",
   "excluded_agents": [
-    "research",
-    "news",
-    "macro"
+    "research"
   ],
-  "generated_at": "2026-06-18T11:04:14",
+  "generated_at": "2026-06-18T11:45:15",
   "primary_agents": [
     "portfolio"
   ],
-  "query": "did my cash change",
-  "reason": "Portfolio-change query should be answered from normalized holdings change detection.",
-  "routing_mode": "single_agent",
+  "query": "what stocks could go down based on recent news",
+  "reason": "Universal investment query routed by investment intent market_risks.",
+  "routing_mode": "investment_query",
   "schema_version": "1.0",
-  "secondary_agents": []
+  "secondary_agents": [
+    "news",
+    "macro"
+  ]
 }

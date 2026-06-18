@@ -2,27 +2,27 @@ ECHO KNOWLEDGE GRAPH
 ====================
 
 Schema Version: 1.0
-Generated At: 2026-06-18T11:03:51
-Node Count: 49
-Edge Count: 99
+Generated At: 2026-06-18T11:45:00
+Node Count: 47
+Edge Count: 93
 
 Most Connected Entities:
-- Portfolio Agent (agent, degree 35, weight 5)
-- Echo (agent, degree 17, weight 5)
+- Portfolio Agent (agent, degree 34, weight 5)
+- Echo (agent, degree 16, weight 5)
 - News Agent (agent, degree 11, weight 5)
-- UNH position concentration 41.5% (risk, degree 9, weight 90)
 - Macro Agent (agent, degree 9, weight 5)
-- SMCI position size conflicts with research conviction (risk, degree 8, weight 90)
-- UNH (risk, degree 6, weight 80)
-- Review SMCI position concentration 23.7% (action, degree 6, weight 50)
+- UNH position concentration 41.5% (risk, degree 8, weight 90)
+- SMCI position size conflicts with research conviction (risk, degree 7, weight 90)
+- Review SMCI position concentration 23.6% (action, degree 6, weight 50)
 - Review UNH position concentration 41.5% (action, degree 6, weight 50)
 - SMCI (risk, degree 6, weight 50)
+- Research Agent (agent, degree 6, weight 5)
 
 Dominant Cluster:
 Cluster: UNH position concentration 41.5%
 Primary Node: UNH position concentration 41.5%
-Total Weight: 1450
-Node Count: 49
+Total Weight: 1370
+Node Count: 47
 
 Linked Risks, Themes, And Actions:
 - Reevaluate SMCI: Low conviction holding generated_by Echo (weight 12)
@@ -30,20 +30,20 @@ Linked Risks, Themes, And Actions:
 - Reevaluate SMCI: Low conviction holding relates_to SMCI (weight 8)
 - Reevaluate SMCI: Low conviction holding relates_to SMCI (weight 8)
 - Reevaluate SMCI: Low conviction holding relates_to SMCI position size conflicts with research conviction (weight 16)
-- Review SMCI position concentration 19.1% generated_by Echo (weight 6)
-- Review SMCI position concentration 23.7% generated_by Echo (weight 12)
-- Review SMCI position concentration 23.7% relates_to Echo (weight 5)
-- Review SMCI position concentration 23.7% relates_to SMCI (weight 8)
-- Review SMCI position concentration 23.7% relates_to SMCI (weight 8)
-- Review SMCI position concentration 23.7% relates_to SMCI position size conflicts with research conviction (weight 16)
-- Review SMCI position concentration 23.7% relates_to UNH position concentration 41.5% (weight 16)
+- Review SMCI position concentration 23.6% generated_by Echo (weight 12)
+- Review SMCI position concentration 23.6% relates_to Echo (weight 5)
+- Review SMCI position concentration 23.6% relates_to SMCI (weight 8)
+- Review SMCI position concentration 23.6% relates_to SMCI (weight 8)
+- Review SMCI position concentration 23.6% relates_to SMCI position size conflicts with research conviction (weight 16)
+- Review SMCI position concentration 23.6% relates_to UNH position concentration 41.5% (weight 16)
+- Review SMCI position concentration 23.7% generated_by Echo (weight 6)
 - Review UNH position concentration 41.5% generated_by Echo (weight 12)
 - Review UNH position concentration 41.5% relates_to Echo (weight 5)
 - Review UNH position concentration 41.5% relates_to UNH (weight 8)
 
 Agent Connectivity:
-- Portfolio Agent: 35 connected edges
-- Echo: 17 connected edges
+- Portfolio Agent: 34 connected edges
+- Echo: 16 connected edges
 - News Agent: 11 connected edges
 - Macro Agent: 9 connected edges
 - Research Agent: 6 connected edges

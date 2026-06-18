@@ -1,0 +1,18 @@
+MARKET OPPORTUNITY AND RISK SCAN
+
+Generated At: 2026-06-18T11:45:00
+
+Opportunity Candidates
+- ACES | watch | Energy/inflation themes are active; treat as a research candidate only.
+- CRAK | watch | Energy/inflation themes are active; treat as a research candidate only.
+- DRIP | watch | Energy/inflation themes are active; treat as a research candidate only.
+- AVUV | watch | Existing watchlist candidate available for research review.
+- AVDV | watch | Existing watchlist candidate available for research review.
+- SGOV | watch | Existing watchlist candidate available for research review.
+
+Risk Candidates
+- IBIT | downside | Rates/inflation pressure can pressure long-duration or speculative exposure.
+- SCHG | downside | Rates/inflation pressure can pressure long-duration or speculative exposure.
+
+Warnings
+None

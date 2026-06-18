@@ -75,6 +75,16 @@ from portfolio_ingestion import (
     write_portfolio_ingestion_text
 )
 from portfolio_change_detection import read_portfolio_change_report
+from echo_investment_intent import classify_investment_intent
+from security_master_search import search_security_master
+from market_opportunity_scan import (
+    build_and_write_market_opportunity_scan,
+    read_market_opportunity_scan
+)
+from portfolio_auto_import import (
+    read_portfolio_auto_import,
+    run_and_write_portfolio_auto_import
+)
 import json
 import os
 from pathlib import Path
@@ -5552,6 +5562,100 @@ def echo_get_portfolio_change_detection(context=None):
     )
 
 
+def echo_get_investment_intent(context=None):
+
+    query = ""
+    if isinstance(context, dict):
+        query = context.get("message") or context.get("query") or ""
+        context_budget = context.get("context_budget")
+        if isinstance(context_budget, dict):
+            intent = context_budget.get("investment_intent")
+            if isinstance(intent, dict):
+                return _echo_tool_response(
+                    "echo_get_investment_intent",
+                    {"investment_intent": intent},
+                    (
+                        "Investment intent: "
+                        f"{intent.get('investment_intent') or 'unknown'}."
+                    ),
+                    "HIGH",
+                    "Deterministic universal investment intent classification."
+                )
+
+    intent = classify_investment_intent(query)
+    return _echo_tool_response(
+        "echo_get_investment_intent",
+        {"investment_intent": intent},
+        f"Investment intent: {intent.get('investment_intent') or 'unknown'}.",
+        "HIGH",
+        "Deterministic universal investment intent classification."
+    )
+
+
+def echo_search_security_master(context=None):
+
+    query = ""
+    tickers = None
+    categories = None
+    if isinstance(context, dict):
+        query = context.get("message") or context.get("query") or ""
+        intent = (context.get("context_budget") or {}).get("investment_intent")
+        if isinstance(intent, dict):
+            tickers = intent.get("tickers")
+            categories = intent.get("categories")
+
+    result = search_security_master(
+        query,
+        tickers=tickers,
+        categories=categories
+    )
+    top = (result.get("matches") or [{}])[0]
+    summary = (
+        f"Matches: {result.get('match_count') or 0}. "
+        f"Top match: {top.get('ticker') or 'None'}."
+    )
+    return _echo_tool_response(
+        "echo_search_security_master",
+        {"security_master_search": result},
+        summary,
+        "HIGH" if result.get("matches") else "LOW",
+        "Local security master, watchlist, and current holdings search."
+    )
+
+
+def echo_get_market_opportunity_scan(context=None):
+
+    scan = read_market_opportunity_scan()
+    summary = (
+        "Opportunity candidates: "
+        f"{len(scan.get('opportunity_candidates') or [])}. "
+        "Risk candidates: "
+        f"{len(scan.get('risk_candidates') or [])}."
+    )
+    return _echo_tool_response(
+        "echo_get_market_opportunity_scan",
+        {"market_opportunity_scan": scan},
+        summary,
+        "MEDIUM",
+        "Conservative local research candidate scan. No trades are placed."
+    )
+
+
+def echo_get_portfolio_auto_import(context=None):
+
+    result = read_portfolio_auto_import()
+    return _echo_tool_response(
+        "echo_get_portfolio_auto_import",
+        {"portfolio_auto_import": result},
+        (
+            f"Auto import status: {result.get('status') or 'unknown'}. "
+            f"Copied: {result.get('copied_path') or 'None'}."
+        ),
+        "HIGH",
+        "Local-only Downloads portfolio export pickup status."
+    )
+
+
 def echo_ask(question, context=None):
 
     result = answer_echo_multi_agent_query(question, _echo_tool_context(context))
@@ -6017,6 +6121,43 @@ ECHO_TOOL_REGISTRY = {
             "Dictionary with new positions, removed positions, quantity "
             "changes, market value changes, concentration changes, cash "
             "changes, and material-change summary."
+        )
+    },
+    "echo_get_investment_intent": {
+        "function_name": "echo_get_investment_intent",
+        "description": "Return universal investment intent classification.",
+        "expected_input_fields": {},
+        "output_description": (
+            "Dictionary with investment intent, entities, tickers, required "
+            "context flags, answer mode, confidence, and reason."
+        )
+    },
+    "echo_search_security_master": {
+        "function_name": "echo_search_security_master",
+        "description": "Search holdings, watchlist, and security_master.csv.",
+        "expected_input_fields": {},
+        "output_description": (
+            "Dictionary with matched ticker, name, category, expense ratio, "
+            "match reason, and score."
+        )
+    },
+    "echo_get_market_opportunity_scan": {
+        "function_name": "echo_get_market_opportunity_scan",
+        "description": "Return local market opportunity and risk candidates.",
+        "expected_input_fields": {},
+        "output_description": (
+            "Dictionary with conservative upside, downside, and watch "
+            "research candidates from local news, macro, research, holdings, "
+            "watchlist, and security master signals."
+        )
+    },
+    "echo_get_portfolio_auto_import": {
+        "function_name": "echo_get_portfolio_auto_import",
+        "description": "Return local Downloads portfolio auto-import status.",
+        "expected_input_fields": {},
+        "output_description": (
+            "Dictionary with auto-import enabled status, source file, copied "
+            "path, duplicate detection, and warnings."
         )
     },
     "echo_ask": {
@@ -6926,12 +7067,22 @@ AGENT_ROUTING_TOOL_MAP = {
 }
 
 
-def _context_assembly_reports(context):
+def _context_assembly_reports(context, user_query=None):
 
     sections = _echo_tool_context(context)["sections"]
+    query = " ".join(str(user_query or "").split())
+    investment_intent = classify_investment_intent(query)
 
     return {
         "portfolio_change_detection": read_portfolio_change_report(),
+        "portfolio_ingestion": read_portfolio_ingestion(),
+        "portfolio_auto_import": read_portfolio_auto_import(),
+        "security_master_search": search_security_master(
+            query,
+            tickers=investment_intent.get("tickers"),
+            categories=investment_intent.get("categories")
+        ),
+        "market_opportunity_scan": read_market_opportunity_scan(),
         "portfolio": sections.get("portfolio"),
         "research": sections.get("research"),
         "news": sections.get("news"),
@@ -6993,7 +7144,8 @@ def _echo_orchestrator_select_tools(message, context, context_budget=None,
         "echo_get_memory_context",
         "echo_get_context_assembly",
         "echo_get_response_composer",
-        "echo_get_intent_reasoning"
+        "echo_get_intent_reasoning",
+        "echo_get_investment_intent"
     )
 
     if query_class in {"simple", "conversational"}:
@@ -7005,6 +7157,35 @@ def _echo_orchestrator_select_tools(message, context, context_budget=None,
 
     if query_class == "portfolio_change":
         add_tools("echo_get_portfolio_change_detection")
+
+    if query_class == "portfolio_movement":
+        add_tools("echo_get_portfolio_change_detection", "echo_get_portfolio_snapshot")
+
+    if query_class == "holding_news":
+        add_tools(
+            "echo_get_portfolio_snapshot",
+            "echo_get_news_snapshot",
+            "echo_get_macro_snapshot"
+        )
+
+    if query_class in {"ticker_question", "ticker_news", "security_master_search"}:
+        add_tools("echo_search_security_master")
+        if query_class != "security_master_search":
+            add_tools("echo_get_research_snapshot")
+        if query_class == "ticker_news":
+            add_tools("echo_get_news_snapshot")
+
+    if query_class in {"market_opportunities", "market_risks", "watchlist_management"}:
+        add_tools(
+            "echo_get_market_opportunity_scan",
+            "echo_search_security_master",
+            "echo_get_news_snapshot",
+            "echo_get_macro_snapshot",
+            "echo_get_research_snapshot"
+        )
+
+    if query_class == "paper_allocation_future":
+        add_tools("echo_get_market_opportunity_scan", "echo_get_research_snapshot")
 
     if isinstance(agent_routing, dict):
         include_secondary = budget_level in {"expanded", "full"}
@@ -7131,7 +7312,8 @@ def _echo_orchestrator_select_tools(message, context, context_budget=None,
         "echo_get_memory_context",
         "echo_get_context_assembly",
         "echo_get_response_composer",
-        "echo_get_intent_reasoning"
+        "echo_get_intent_reasoning",
+        "echo_get_investment_intent"
     ]:
         add_tools(
             "echo_get_top_priority",
@@ -7147,7 +7329,8 @@ def _echo_orchestrator_select_tools(message, context, context_budget=None,
                 "echo_get_memory_context",
                 "echo_get_context_assembly",
                 "echo_get_response_composer",
-                "echo_get_intent_reasoning"
+                "echo_get_intent_reasoning",
+                "echo_get_investment_intent"
             }
         ]
     elif budget_level == "standard":
@@ -7183,6 +7366,10 @@ def _run_echo_orchestrator_tool(tool_name, message, context):
         "echo_get_portfolio_change_detection": (
             echo_get_portfolio_change_detection
         ),
+        "echo_get_investment_intent": echo_get_investment_intent,
+        "echo_search_security_master": echo_search_security_master,
+        "echo_get_market_opportunity_scan": echo_get_market_opportunity_scan,
+        "echo_get_portfolio_auto_import": echo_get_portfolio_auto_import,
         "echo_get_top_priority": echo_get_top_priority,
         "echo_get_themes": echo_get_themes,
         "echo_get_theme_impacts": echo_get_theme_impacts,
@@ -7276,7 +7463,7 @@ def echo_orchestrate_user_message(message, context=None):
         memory_context,
         context_budget,
         agent_routing,
-        _context_assembly_reports(query_context)
+        _context_assembly_reports(query_context, normalized_message)
     )
     response_composer = compose_echo_response(
         normalized_message,
@@ -7303,6 +7490,8 @@ def echo_orchestrate_user_message(message, context=None):
     write_intent_reasoning_json(intent_reasoning)
     write_intent_reasoning_text(intent_reasoning)
     query_context = dict(query_context)
+    query_context["message"] = normalized_message
+    query_context["query"] = normalized_message
     query_context["context_budget"] = context_budget
     query_context["agent_routing"] = agent_routing
     query_context["context_assembly"] = context_assembly
@@ -8235,6 +8424,7 @@ def save_report(brief):
 
 
 if __name__ == "__main__":
+    portfolio_auto_import = run_and_write_portfolio_auto_import()
     portfolio_ingestion = ingest_default_portfolio_import()
     portfolio_ingestion_json_result = write_portfolio_ingestion_json(
         portfolio_ingestion
@@ -8309,6 +8499,7 @@ if __name__ == "__main__":
     )
     memory_context_json_result = write_memory_context_json(memory_context)
     memory_context_text_result = write_memory_context_text(memory_context)
+    market_scan_result = build_and_write_market_opportunity_scan()
     daily_orchestration_query = "Echo daily run overall executive summary"
     context_budget = build_context_budget(
         daily_orchestration_query,

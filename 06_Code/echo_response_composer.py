@@ -16,7 +16,10 @@ RAW_TOOL_NAMES = (
     "echo_get_change_detection",
     "echo_get_state_delta",
     "echo_get_state_history",
-    "echo_get_portfolio_change_detection"
+    "echo_get_portfolio_change_detection",
+    "echo_search_security_master",
+    "echo_get_market_opportunity_scan",
+    "echo_get_portfolio_auto_import"
 )
 
 def _now():
@@ -233,6 +236,19 @@ def _intent(user_query, context_budget, agent_routing):
     if query_class == "conversational":
         return "conversational"
 
+    if query_class in {
+        "portfolio_movement",
+        "holding_news",
+        "ticker_question",
+        "ticker_news",
+        "market_opportunities",
+        "market_risks",
+        "watchlist_management",
+        "security_master_search",
+        "paper_allocation_future"
+    }:
+        return query_class
+
     if query_class == "portfolio_change" or _has_any(query, (
         "what changed in my portfolio",
         "portfolio changed",
@@ -353,6 +369,15 @@ def _response_mode(intent, agent_routing):
         "priority_status",
         "change_status",
         "portfolio_change_status",
+        "portfolio_movement",
+        "holding_news",
+        "ticker_question",
+        "ticker_news",
+        "market_opportunities",
+        "market_risks",
+        "watchlist_management",
+        "security_master_search",
+        "paper_allocation_future",
         "persistence_status",
         "attention_status"
     }:
@@ -582,6 +607,300 @@ def _portfolio_change_response(user_query, context_assembly):
         )
 
     return answer, labels, []
+
+
+def _format_money(value):
+
+    return f"${float(value or 0):,.2f}"
+
+
+def _format_weight(value):
+
+    return f"{float(value or 0):.2f}%"
+
+
+def _position_detail(change, current=True):
+
+    account = _safe_text(change.get("account"))
+    ticker = _safe_text(change.get("ticker"))
+    quantity_key = "current_quantity" if current else "previous_quantity"
+    value_key = "current_market_value" if current else "previous_market_value"
+    quantity = change.get(quantity_key, change.get("quantity"))
+    market_value = change.get(value_key, change.get("market_value"))
+    return (
+        f"{account} {ticker} | qty {float(quantity or 0):g} | "
+        f"value {_format_money(market_value)}"
+    )
+
+
+def _portfolio_movement_response(context_assembly):
+
+    report = _block_json(context_assembly, "portfolio_change_detection")
+    if not report:
+        return (
+            "I do not have portfolio movement data yet.",
+            [],
+            ["Run Echo after importing holdings to populate movement attribution."]
+        )
+
+    summary = _dict(report.get("summary"))
+    quantity_changes = _list(report.get("quantity_changes"))
+    value_changes = _list(report.get("market_value_changes"))
+    concentration_changes = _list(report.get("concentration_changes"))
+    cash_changes = _list(report.get("cash_changes"))
+    total_delta = float(summary.get("total_market_value_change") or 0)
+    driver = (
+        "holdings changes and market value changes"
+        if quantity_changes else
+        "market value and concentration changes, not buys or sells"
+    )
+    movers = sorted(
+        value_changes,
+        key=lambda item: abs(float(item.get("delta_market_value") or 0)),
+        reverse=True
+    )[:5]
+    labels = [
+        (
+            f"{_change_label(item)} value "
+            f"{float(item.get('delta_market_value') or 0):+.2f}"
+        )
+        for item in movers
+    ]
+    concentration = [
+        (
+            f"{_change_label(item)} weight "
+            f"{float(item.get('delta_weight') or 0):+.2f} pts"
+        )
+        for item in concentration_changes[:3]
+    ]
+    cash = [
+        (
+            f"{_change_label(item)} cash "
+            f"{float(item.get('delta_cash') or 0):+.2f}"
+        )
+        for item in cash_changes[:3]
+    ]
+    answer = (
+        f"Portfolio value changed {_format_money(total_delta)}. "
+        f"The movement was driven by {driver}. "
+        f"Largest value movers: {_join_labels(labels).rstrip('.')}. "
+        f"Concentration movers: {_join_labels(concentration).rstrip('.')}. "
+        f"Cash movement: {_join_labels(cash).rstrip('.')}."
+    )
+    return answer, labels + concentration + cash, []
+
+
+def _enhanced_portfolio_change_response(user_query, context_assembly):
+
+    report = _block_json(context_assembly, "portfolio_change_detection")
+    if not report:
+        return _portfolio_change_response(user_query, context_assembly)
+
+    query = _safe_text(user_query).casefold()
+    new_positions = _list(report.get("new_positions"))
+    removed_positions = _list(report.get("removed_positions"))
+    quantity_changes = _list(report.get("quantity_changes"))
+    value_changes = _list(report.get("market_value_changes"))
+    concentration_changes = _list(report.get("concentration_changes"))
+    cash_changes = _list(report.get("cash_changes"))
+
+    if "new position" in query:
+        labels = [_position_detail(item, True) for item in new_positions]
+        return (
+            f"New positions: {_join_labels(labels).rstrip('.')}.",
+            labels,
+            []
+        )
+
+    if "removed position" in query or "what did i sell" in query:
+        labels = [_position_detail(item, False) for item in removed_positions]
+        return (
+            f"Removed positions: {_join_labels(labels).rstrip('.')}.",
+            labels,
+            []
+        )
+
+    if "concentration" in query:
+        labels = [
+            (
+                f"{_change_label(item)} "
+                f"{_format_weight(item.get('previous_weight'))} -> "
+                f"{_format_weight(item.get('current_weight'))} "
+                f"({float(item.get('delta_weight') or 0):+.2f} pts)"
+            )
+            for item in concentration_changes[:6]
+        ]
+        return f"Concentration changes: {_join_labels(labels).rstrip('.')}.", labels, []
+
+    if "cash" in query:
+        labels = [
+            f"{_change_label(item)} {float(item.get('delta_cash') or 0):+.2f}"
+            for item in cash_changes
+        ]
+        return f"Cash changes: {_join_labels(labels).rstrip('.')}.", labels, []
+
+    if not new_positions and not removed_positions and not quantity_changes:
+        if value_changes or concentration_changes or cash_changes:
+            answer = (
+                "No new positions, removed positions, or quantity changes "
+                "were detected. The movement came from market value, "
+                "concentration, or cash changes."
+            )
+        else:
+            answer = (
+                "No new positions, removed positions, quantity changes, "
+                "market value changes, concentration changes, or cash changes "
+                "were detected."
+            )
+        labels = [
+            f"{_change_label(item)} value {float(item.get('delta_market_value') or 0):+.2f}"
+            for item in value_changes[:3]
+        ]
+        labels.extend(
+            f"{_change_label(item)} weight {float(item.get('delta_weight') or 0):+.2f} pts"
+            for item in concentration_changes[:3]
+        )
+        return answer, labels, []
+
+    labels = []
+    labels.extend(f"New: {_position_detail(item, True)}" for item in new_positions[:4])
+    labels.extend(f"Removed: {_position_detail(item, False)}" for item in removed_positions[:4])
+    for item in quantity_changes[:4]:
+        delta = float(item.get("delta_quantity") or 0)
+        direction = "buy" if delta > 0 else "sell"
+        labels.append(f"{direction}: {_change_label(item)} qty {delta:+g}")
+    answer = (
+        "Transaction and holding changes: "
+        f"{_join_labels(labels).rstrip('.')}. "
+        "Market value, concentration, and cash changes are tracked separately."
+    )
+    return answer, labels, []
+
+
+def _security_master_response(user_query, context_assembly):
+
+    result = _block_json(context_assembly, "security_master_search")
+    matches = _list(result.get("matches"))
+    if not matches:
+        warning = _join_labels(result.get("warnings") or [])
+        return (
+            f"Echo does not have enough local security master data for that security. {warning}",
+            [],
+            []
+        )
+    labels = [
+        (
+            f"{item.get('ticker')} | {item.get('name')} | "
+            f"{item.get('category') or 'uncategorized'} | "
+            f"expense ratio {item.get('expense_ratio')}"
+        )
+        for item in matches[:8]
+    ]
+    answer = (
+        f"Security master matches for '{_safe_text(user_query)}': "
+        f"{_join_labels(labels).rstrip('.')}."
+    )
+    return answer, labels, []
+
+
+def _ticker_response(user_query, context_assembly):
+
+    result = _block_json(context_assembly, "security_master_search")
+    matches = _list(result.get("matches"))
+    if not matches:
+        return (
+            "I do not have enough local data for that ticker yet. "
+            "It can be added as a research or watchlist candidate before I "
+            "make a stronger local assessment.",
+            [],
+            []
+        )
+    first = matches[0]
+    reason = _safe_text(first.get("match_reason"))
+    relation = "currently held" if "holding" in reason else "not currently held"
+    if "watchlist" in reason and "holding" not in reason:
+        relation = "on the watchlist but not currently held"
+    answer = (
+        f"{first.get('ticker')} is {relation} in Echo's local data. "
+        f"Local reference: {first.get('name')} | "
+        f"{first.get('category') or 'uncategorized'}"
+    )
+    if first.get("expense_ratio") is not None:
+        answer = f"{answer} | expense ratio {first.get('expense_ratio')}."
+    else:
+        answer = f"{answer}."
+    answer = (
+        f"{answer} I do not have verified current company-specific news unless "
+        "it appears in the local News Agent output."
+    )
+    return answer, [json.dumps(item, sort_keys=True) for item in matches[:5]], []
+
+
+def _market_scan_response(query_class, context_assembly):
+
+    scan = _block_json(context_assembly, "market_opportunity_scan")
+    if not scan:
+        return (
+            "I do not have a market opportunity scan available yet.",
+            [],
+            ["Run Echo to generate the local opportunity and risk scan."]
+        )
+    key = (
+        "risk_candidates"
+        if query_class == "market_risks" else "opportunity_candidates"
+    )
+    label = "Risk candidates" if key == "risk_candidates" else "Research candidates"
+    candidates = _list(scan.get(key))
+    labels = [
+        (
+            f"{item.get('ticker') or 'UNKNOWN'} | {item.get('direction')} | "
+            f"{item.get('reason')}"
+        )
+        for item in candidates[:6]
+    ]
+    if not labels:
+        labels = scan.get("warnings") or []
+    answer = (
+        f"{label}: {_join_labels(labels).rstrip('.')}. "
+        "These are research candidates only; no trades are being placed."
+    )
+    return answer, labels, []
+
+
+def _holding_news_response(memory_context, context_assembly):
+
+    current = _dict(_current_state(memory_context))
+    news = _title(current.get("news_top_narrative"))
+    macro = _title(current.get("macro_regime"))
+    theme = _title(current.get("dominant_theme"))
+    portfolio_texts = _block_texts(context_assembly, "portfolio_report")
+    affected = []
+    for ticker in ("UNH", "SMCI", "IBIT", "VNOM", "ECO", "MSTR", "SCHG"):
+        blob = " ".join(portfolio_texts + [news, macro, theme]).casefold()
+        if ticker.casefold() in blob:
+            affected.append(ticker)
+    if not affected:
+        affected = ["current holdings"]
+    answer = (
+        f"Current local news/macro context points to {news or 'no direct local news narrative'} "
+        f"and {macro or 'no macro regime in memory'}. "
+        f"Holdings most exposed from local context: {_join_labels(affected)}. "
+        "No direct company-specific news is assumed unless it appears in the local News Agent output."
+    )
+    return answer, [point for point in (news, macro, theme) if point], []
+
+
+def _paper_allocation_response():
+
+    return (
+        "Paper allocation is a future Echo mode. No real trades will be "
+        "placed. Before Echo can simulate allocating capital responsibly, it "
+        "needs stronger watchlist coverage, research scoring, paper-tracking, "
+        "and performance audit loops. In this phase I can only surface "
+        "research candidates.",
+        [],
+        []
+    )
 
 
 def _persistence_response(memory_context):
@@ -862,10 +1181,41 @@ def compose_echo_response(user_query, context_budget, agent_routing,
     elif intent == "change_status":
         answer, supporting_points, caveats = _change_response(memory_context)
     elif intent == "portfolio_change_status":
-        answer, supporting_points, caveats = _portfolio_change_response(
+        answer, supporting_points, caveats = _enhanced_portfolio_change_response(
             query,
             context_assembly
         )
+    elif intent == "portfolio_movement":
+        answer, supporting_points, caveats = _portfolio_movement_response(
+            context_assembly
+        )
+    elif intent == "holding_news":
+        answer, supporting_points, caveats = _holding_news_response(
+            memory_context,
+            context_assembly
+        )
+    elif intent in {"ticker_question", "ticker_news"}:
+        answer, supporting_points, caveats = _ticker_response(
+            query,
+            context_assembly
+        )
+    elif intent == "security_master_search":
+        answer, supporting_points, caveats = _security_master_response(
+            query,
+            context_assembly
+        )
+    elif intent in {"market_opportunities", "market_risks"}:
+        answer, supporting_points, caveats = _market_scan_response(
+            intent,
+            context_assembly
+        )
+    elif intent == "watchlist_management":
+        answer, supporting_points, caveats = _market_scan_response(
+            "market_opportunities",
+            context_assembly
+        )
+    elif intent == "paper_allocation_future":
+        answer, supporting_points, caveats = _paper_allocation_response()
     elif intent == "persistence_status":
         answer, supporting_points, caveats = _persistence_response(
             memory_context

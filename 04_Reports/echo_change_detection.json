@@ -11,6 +11,15 @@
     },
     {
       "category": "action",
+      "description": "Action appears in 11 state samples.",
+      "is_material": false,
+      "name": "Review UNH position concentration 41.5%",
+      "score": 15,
+      "source": "history",
+      "type": "persistent_action"
+    },
+    {
+      "category": "action",
       "description": "Action appears in 7 state samples.",
       "is_material": false,
       "name": "Review SMCI position concentration 23.7%",
@@ -20,27 +29,9 @@
     },
     {
       "category": "action",
-      "description": "Action appears in 7 state samples.",
+      "description": "Action appears in 4 state samples.",
       "is_material": false,
-      "name": "Review UNH position concentration 41.5%",
-      "score": 15,
-      "source": "history",
-      "type": "persistent_action"
-    },
-    {
-      "category": "action",
-      "description": "Action appears in 3 state samples.",
-      "is_material": false,
-      "name": "Review SMCI position concentration 19.1%",
-      "score": 15,
-      "source": "history",
-      "type": "persistent_action"
-    },
-    {
-      "category": "action",
-      "description": "Action appears in 2 state samples.",
-      "is_material": false,
-      "name": "Review UNH position concentration 44.9%",
+      "name": "Review SMCI position concentration 23.6%",
       "score": 15,
       "source": "history",
       "type": "persistent_action"
@@ -67,7 +58,7 @@
       "category": "action",
       "description": "Current action queue contains a review-class action.",
       "is_material": false,
-      "name": "Review SMCI position concentration 23.7%",
+      "name": "Review SMCI position concentration 23.6%",
       "score": 10,
       "source": "state",
       "type": "high_priority_action"
@@ -75,7 +66,7 @@
   ],
   "deescalations": [],
   "escalations": [],
-  "generated_at": "2026-06-18T11:03:51",
+  "generated_at": "2026-06-18T11:45:00",
   "macro_signals": [
     {
       "category": "macro",
@@ -120,7 +111,7 @@
     },
     {
       "category": "priority",
-      "description": "Top priority appears in risk frequency across 7 samples.",
+      "description": "Top priority appears in risk frequency across 11 samples.",
       "is_material": false,
       "name": "UNH position concentration 41.5%",
       "score": 20,
@@ -184,6 +175,24 @@
     {
       "category": "risk",
       "description": "Risk appears in 11 state samples.",
+      "is_material": true,
+      "name": "UNH position concentration 41.5%",
+      "score": 35,
+      "source": "history",
+      "type": "persistent_risk"
+    },
+    {
+      "category": "risk",
+      "description": "Risk appears in 11 state samples.",
+      "is_material": false,
+      "name": "Energy: FALLING",
+      "score": 25,
+      "source": "history",
+      "type": "persistent_risk"
+    },
+    {
+      "category": "risk",
+      "description": "Risk appears in 11 state samples.",
       "is_material": false,
       "name": "SMCI",
       "score": 25,
@@ -196,33 +205,6 @@
       "is_material": false,
       "name": "Yield Curve: FLAT",
       "score": 25,
-      "source": "history",
-      "type": "persistent_risk"
-    },
-    {
-      "category": "risk",
-      "description": "Risk appears in 10 state samples.",
-      "is_material": false,
-      "name": "Energy: FALLING",
-      "score": 25,
-      "source": "history",
-      "type": "persistent_risk"
-    },
-    {
-      "category": "risk",
-      "description": "Risk appears in 7 state samples.",
-      "is_material": true,
-      "name": "UNH position concentration 41.5%",
-      "score": 35,
-      "source": "history",
-      "type": "persistent_risk"
-    },
-    {
-      "category": "risk",
-      "description": "Risk appears in 2 state samples.",
-      "is_material": true,
-      "name": "UNH position concentration 44.9%",
-      "score": 35,
       "source": "history",
       "type": "persistent_risk"
     },
@@ -255,6 +237,15 @@
     },
     {
       "category": "action",
+      "description": "Action appears in 11 state samples.",
+      "is_material": false,
+      "name": "Review UNH position concentration 41.5%",
+      "score": 15,
+      "source": "history",
+      "type": "persistent_action"
+    },
+    {
+      "category": "action",
       "description": "Action appears in 7 state samples.",
       "is_material": false,
       "name": "Review SMCI position concentration 23.7%",
@@ -264,27 +255,9 @@
     },
     {
       "category": "action",
-      "description": "Action appears in 7 state samples.",
+      "description": "Action appears in 4 state samples.",
       "is_material": false,
-      "name": "Review UNH position concentration 41.5%",
-      "score": 15,
-      "source": "history",
-      "type": "persistent_action"
-    },
-    {
-      "category": "action",
-      "description": "Action appears in 3 state samples.",
-      "is_material": false,
-      "name": "Review SMCI position concentration 19.1%",
-      "score": 15,
-      "source": "history",
-      "type": "persistent_action"
-    },
-    {
-      "category": "action",
-      "description": "Action appears in 2 state samples.",
-      "is_material": false,
-      "name": "Review UNH position concentration 44.9%",
+      "name": "Review SMCI position concentration 23.6%",
       "score": 15,
       "source": "history",
       "type": "persistent_action"
@@ -313,7 +286,7 @@
     },
     {
       "category": "priority",
-      "description": "Top priority appears in risk frequency across 7 samples.",
+      "description": "Top priority appears in risk frequency across 11 samples.",
       "is_material": false,
       "name": "UNH position concentration 41.5%",
       "score": 20,
@@ -411,6 +384,24 @@
     {
       "category": "risk",
       "description": "Risk appears in 11 state samples.",
+      "is_material": true,
+      "name": "UNH position concentration 41.5%",
+      "score": 35,
+      "source": "history",
+      "type": "persistent_risk"
+    },
+    {
+      "category": "risk",
+      "description": "Risk appears in 11 state samples.",
+      "is_material": false,
+      "name": "Energy: FALLING",
+      "score": 25,
+      "source": "history",
+      "type": "persistent_risk"
+    },
+    {
+      "category": "risk",
+      "description": "Risk appears in 11 state samples.",
       "is_material": false,
       "name": "SMCI",
       "score": 25,
@@ -423,33 +414,6 @@
       "is_material": false,
       "name": "Yield Curve: FLAT",
       "score": 25,
-      "source": "history",
-      "type": "persistent_risk"
-    },
-    {
-      "category": "risk",
-      "description": "Risk appears in 10 state samples.",
-      "is_material": false,
-      "name": "Energy: FALLING",
-      "score": 25,
-      "source": "history",
-      "type": "persistent_risk"
-    },
-    {
-      "category": "risk",
-      "description": "Risk appears in 7 state samples.",
-      "is_material": true,
-      "name": "UNH position concentration 41.5%",
-      "score": 35,
-      "source": "history",
-      "type": "persistent_risk"
-    },
-    {
-      "category": "risk",
-      "description": "Risk appears in 2 state samples.",
-      "is_material": true,
-      "name": "UNH position concentration 44.9%",
-      "score": 35,
       "source": "history",
       "type": "persistent_risk"
     },
@@ -522,7 +486,7 @@
     "change_level": "moderate",
     "material_change_count": 0,
     "novel_change_count": 0,
-    "persistent_issue_count": 20,
+    "persistent_issue_count": 18,
     "top_signal": {
       "category": "risk",
       "description": "Risk appears in 11 state samples.",

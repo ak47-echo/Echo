@@ -2,22 +2,27 @@ ECHO CONTEXT BUDGET
 ===================
 
 Schema Version: 1.0
-Generated At: 2026-06-18T11:04:14
-Query: did my cash change
-Query Class: portfolio_change
-Budget Level: standard
-Max Context Items: 20
+Generated At: 2026-06-18T11:45:15
+Query: what stocks could go down based on recent news
+Query Class: market_risks
+Budget Level: expanded
+Max Context Items: 40
 
 Preferred Context Sources:
-- portfolio_change_detection
-- portfolio_ingestion
-- portfolio_snapshot
+- market_opportunity_scan
+- news_snapshot
+- macro_snapshot
+- research_snapshot
+- security_master_search
 
 Excluded Context Sources:
 - generic_state_delta
 
 Tool Hints:
-- echo_get_portfolio_change_detection
-- echo_get_portfolio_ingestion
+- echo_get_market_opportunity_scan
+- echo_search_security_master
+- echo_get_news_snapshot
+- echo_get_macro_snapshot
+- echo_get_research_snapshot
 
-Reason: Query asks about holdings-level portfolio changes.
+Reason: Query asks for market opportunity or risk research candidates.

@@ -2,7 +2,7 @@
   "action_queue": [
     "Review UNH position concentration 41.5%",
     "Reevaluate SMCI: Low conviction holding",
-    "Review SMCI position concentration 23.7%"
+    "Review SMCI position concentration 23.6%"
   ],
   "conflicts": [
     {
@@ -16,7 +16,7 @@
       "conflict_title": "Growth exposure conflicts with inflation/rates theme",
       "conflict_type": "Growth Exposure vs Inflation/Rates Conflict",
       "evidence": [
-        "Growth factor exposure 69.1%",
+        "Growth factor exposure 69%",
         "Active themes: Fed/Rates Risk, Inflation/Energy Risk"
       ],
       "suggested_review_area": "Review growth and rates-sensitive exposure."
@@ -59,19 +59,19 @@
       "conflict_type": "Research Conviction vs Position Size Conflict",
       "evidence": [
         "SMCI low conviction",
-        "SMCI allocation 23.65%",
+        "SMCI allocation 23.59%",
         "SMCI overweight flag present"
       ],
       "suggested_review_area": "Review SMCI thesis quality against position size."
     }
   ],
   "dominant_theme": {
-    "theme_reason": "Inflation/Energy Risk links 3 signals across 2 agent(s): Macro Agent, News Agent.",
+    "theme_reason": "Inflation/Energy Risk links 4 signals across 2 agent(s): Macro Agent, News Agent.",
     "theme_score": 100,
     "theme_strength": "CRITICAL",
     "theme_title": "Inflation/Energy Risk"
   },
-  "generated_at": "2026-06-18T11:03:51",
+  "generated_at": "2026-06-18T11:45:00",
   "macro": {
     "regime": {
       "confidence": "HIGH",
@@ -154,19 +154,19 @@
         "evidence": [],
         "fields": {},
         "rank": 1,
-        "title": "Analysis: Chairman Kevin Warsh\u2019s task forces are the key to understanding the new Fed | Source CNBC Markets | Relevance Score 97 | Impact Category Fed Policy | Impact Tier CRITICAL | Relevance HIGH | Reason Federal Reserve policy directly reprices rates, equities, and risk assets. | Tags MACRO, CENTRAL_BANK, RATES"
+        "title": "Fed Chair Kevin Warsh wants to get inflation under control. That could be bad news for home buyers seeking lower mortgage rates. | Source MarketWatch | Relevance Score 97 | Impact Category Fed Policy | Impact Tier CRITICAL | Relevance HIGH | Reason Federal Reserve policy directly reprices rates, equities, and risk assets. | Tags MACRO, CENTRAL_BANK"
       },
       {
         "evidence": [],
         "fields": {},
         "rank": 2,
-        "title": "Here are the five big takeaways from Kevin Warsh's first meeting as Fed chairman | Source CNBC Markets | Relevance Score 95 | Impact Category Fed Policy | Impact Tier CRITICAL | Relevance HIGH | Reason Federal Reserve policy directly reprices rates, equities, and risk assets. | Tags MACRO, CENTRAL_BANK, RATES"
+        "title": "Analysis: Chairman Kevin Warsh\u2019s task forces are the key to understanding the new Fed | Source CNBC Markets | Relevance Score 97 | Impact Category Fed Policy | Impact Tier CRITICAL | Relevance HIGH | Reason Federal Reserve policy directly reprices rates, equities, and risk assets. | Tags MACRO, CENTRAL_BANK, RATES"
       },
       {
         "evidence": [],
         "fields": {},
         "rank": 3,
-        "title": "Hegseth warns NATO allies that some nations will 'fail' U.S. defense review | Source CNBC Markets | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags WORLD_EVENT"
+        "title": "Here are the five big takeaways from Kevin Warsh's first meeting as Fed chairman | Source CNBC Markets | Relevance Score 95 | Impact Category Fed Policy | Impact Tier CRITICAL | Relevance HIGH | Reason Federal Reserve policy directly reprices rates, equities, and risk assets. | Tags MACRO, CENTRAL_BANK, RATES"
       },
       {
         "evidence": [],
@@ -178,7 +178,7 @@
         "evidence": [],
         "fields": {},
         "rank": 5,
-        "title": "OPEC chief dismisses IEA supply glut forecast as 'critical' Strait of Hormuz reopens | Source CNBC Markets | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags WORLD_EVENT, ENERGY"
+        "title": "Vance says U.S. isn\u2019t giving Iran \u2018a cent\u2019 as he defends Trump peace deal | Source CNBC Markets | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags WORLD_EVENT"
       }
     ],
     "portfolio_relevant_items": [
@@ -186,7 +186,7 @@
     ],
     "top_narrative": {
       "reason": "6 related Iran, Hormuz, or oil headlines indicate an energy-linked geopolitical market narrative.",
-      "representative_headline": "Hegseth warns NATO allies that some nations will 'fail' U.S. defense review",
+      "representative_headline": "Oil prices fall after Vance says more than 12 million barrels exit Strait of Hormuz",
       "score": 100,
       "supporting_articles": 6,
       "title": "Middle East Energy Risk"
@@ -200,7 +200,7 @@
         "ticker": "UNH"
       },
       {
-        "description": "Position concentration 23.7%",
+        "description": "Position concentration 23.6%",
         "severity": "MEDIUM",
         "ticker": "SMCI"
       }
@@ -218,7 +218,7 @@
       "VNOM | Thesis Status active | Conviction medium | Research Status MODERATE"
     ],
     "worst_stress_scenario": {
-      "title": "2008_STYLE_CRISIS | Impact -51.60%"
+      "title": "2008_STYLE_CRISIS | Impact -51.57%"
     }
   },
   "research": {
@@ -249,7 +249,7 @@
       "title": "UNH"
     },
     {
-      "reason": "Position concentration 23.7%",
+      "reason": "Position concentration 23.6%",
       "severity": "MEDIUM",
       "source": "portfolio_concentration",
       "title": "SMCI"

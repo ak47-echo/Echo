@@ -1,0 +1,12 @@
+PORTFOLIO AUTO IMPORT
+
+Status: disabled
+Enabled: False
+Downloads Dir: None
+Pattern: All-Accounts-Positions-*.csv
+Source File: None
+Copied Path: None
+Already Imported: False
+
+Warnings
+Portfolio auto import is disabled.

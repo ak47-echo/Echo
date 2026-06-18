@@ -155,6 +155,50 @@ def _portfolio_change_assembly():
         }
     }
 
+
+def _custom_block_assembly(source, payload, mode="investment_query"):
+
+    return {
+        "assembly_mode": mode,
+        "context_blocks": [
+            {
+                "source": source,
+                "role": "primary",
+                "title": source,
+                "content": json.dumps(payload),
+                "priority": 120
+            }
+        ],
+        "context_summary": {
+            "full_reports_included": False,
+            "block_count": 1
+        }
+    }
+
+
+def _portfolio_change_report(**updates):
+
+    report = {
+        "summary": {
+            "change_count": 0,
+            "material_change_count": 0,
+            "total_market_value_change": 0,
+            "top_change": None
+        },
+        "new_positions": [],
+        "removed_positions": [],
+        "quantity_changes": [],
+        "market_value_changes": [],
+        "concentration_changes": [],
+        "cash_changes": []
+    }
+    report.update(updates)
+    return _custom_block_assembly(
+        "portfolio_change_detection",
+        report,
+        "portfolio_change"
+    )
+
 class EchoResponseComposerTests(unittest.TestCase):
 
     def _assert_no_tool_names(self, answer):
@@ -225,7 +269,177 @@ class EchoResponseComposerTests(unittest.TestCase):
 
         self.assertEqual("memory", response["response_mode"])
         self.assertIn("AVUV", response["answer"])
-        self.assertIn("Brokerage AVUV", response["supporting_points"])
+        self.assertTrue(
+            any("Brokerage AVUV" in point for point in response["supporting_points"])
+        )
+
+    def test_price_only_movement_does_not_become_generic_risk(self):
+
+        response = compose_echo_response(
+            "what changed in my portfolio now",
+            _budget("portfolio_change", "standard"),
+            _routing(["portfolio"], "single_agent"),
+            _portfolio_change_report(
+                summary={"change_count": 1, "material_change_count": 1},
+                market_value_changes=[{
+                    "account": "Brokerage",
+                    "ticker": "SMCI",
+                    "delta_market_value": 120.0
+                }]
+            ),
+            _memory([])
+        )
+
+        self.assertIn("No new positions", response["answer"])
+        self.assertNotIn("Portfolio read", response["answer"])
+
+    def test_removed_position_question_lists_removed_positions(self):
+
+        response = compose_echo_response(
+            "what did I sell",
+            _budget("portfolio_change", "standard"),
+            _routing(["portfolio"], "single_agent"),
+            _portfolio_change_report(
+                removed_positions=[{
+                    "account": "Brokerage",
+                    "ticker": "MSTR",
+                    "previous_quantity": 1,
+                    "previous_market_value": 100
+                }]
+            ),
+            _memory([])
+        )
+
+        self.assertIn("MSTR", response["answer"])
+        self.assertIn("qty 1", response["answer"])
+
+    def test_cash_change_question_uses_cash_changes(self):
+
+        response = compose_echo_response(
+            "did my cash change",
+            _budget("portfolio_change", "standard"),
+            _routing(["portfolio"], "single_agent"),
+            _portfolio_change_report(
+                cash_changes=[{
+                    "account": "Brokerage",
+                    "ticker": "CASH0",
+                    "delta_cash": 150
+                }]
+            ),
+            _memory([])
+        )
+
+        self.assertIn("Cash changes", response["answer"])
+        self.assertIn("CASH0", response["answer"])
+
+    def test_concentration_question_uses_concentration_changes(self):
+
+        response = compose_echo_response(
+            "did my UNH concentration change",
+            _budget("portfolio_change", "standard"),
+            _routing(["portfolio"], "single_agent"),
+            _portfolio_change_report(
+                concentration_changes=[{
+                    "account": "Brokerage",
+                    "ticker": "UNH",
+                    "previous_weight": 40,
+                    "current_weight": 41.5,
+                    "delta_weight": 1.5
+                }]
+            ),
+            _memory([])
+        )
+
+        self.assertIn("40.00%", response["answer"])
+        self.assertIn("41.50%", response["answer"])
+
+    def test_security_master_response(self):
+
+        response = compose_echo_response(
+            "small cap value ETFs",
+            _budget("security_master_search", "standard"),
+            _routing(["research"], "investment_query"),
+            _custom_block_assembly(
+                "security_master_search",
+                {
+                    "matches": [{
+                        "ticker": "AVUV",
+                        "name": "Avantis US Small Cap Value ETF",
+                        "category": "US Small Value",
+                        "expense_ratio": 0.0025
+                    }],
+                    "match_count": 1,
+                    "warnings": []
+                }
+            ),
+            _memory([])
+        )
+
+        self.assertIn("AVUV", response["answer"])
+        self.assertIn("expense ratio", response["answer"])
+
+    def test_ticker_response_handles_nonheld_security(self):
+
+        response = compose_echo_response(
+            "what do you think about NVDA",
+            _budget("ticker_question", "standard"),
+            _routing(["research"], "investment_query"),
+            _custom_block_assembly(
+                "security_master_search",
+                {
+                    "matches": [{
+                        "ticker": "NVDA",
+                        "name": "Nvidia Corp",
+                        "category": "US Large Growth",
+                        "expense_ratio": 0.0,
+                        "match_reason": "security_master:ticker"
+                    }],
+                    "match_count": 1,
+                    "warnings": []
+                }
+            ),
+            _memory([])
+        )
+
+        self.assertIn("not currently held", response["answer"])
+        self.assertIn("NVDA", response["answer"])
+
+    def test_market_scan_response_is_research_only(self):
+
+        response = compose_echo_response(
+            "what stocks could go up from this news",
+            _budget("market_opportunities", "expanded"),
+            _routing(["research"], "investment_query"),
+            _custom_block_assembly(
+                "market_opportunity_scan",
+                {
+                    "opportunity_candidates": [{
+                        "ticker": "AVUV",
+                        "direction": "watch",
+                        "reason": "Watchlist candidate."
+                    }],
+                    "risk_candidates": [],
+                    "warnings": []
+                }
+            ),
+            _memory([])
+        )
+
+        self.assertIn("AVUV", response["answer"])
+        self.assertIn("no trades", response["answer"])
+
+    def test_paper_allocation_future_placeholder(self):
+
+        response = compose_echo_response(
+            "if I gave Echo $1000 to allocate on paper, what would it do?",
+            _budget("paper_allocation_future", "minimal"),
+            _routing(["research"], "investment_query"),
+            _assembly(),
+            _memory([])
+        )
+
+        self.assertIn("future Echo mode", response["answer"])
+        self.assertIn("No real trades", response["answer"])
 
     def test_macro_risk_query_returns_summary_mode(self):
 

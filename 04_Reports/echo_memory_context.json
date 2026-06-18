@@ -5,7 +5,7 @@
     "max_items": 20
   },
   "context_mode": "memory_first",
-  "generated_at": "2026-06-18T11:03:51",
+  "generated_at": "2026-06-18T11:45:00",
   "operating_context": {
     "connected_entities": [
       {
@@ -13,8 +13,8 @@
         "layer": "knowledge_graph",
         "metadata": {
           "dominant_cluster": "cluster:1",
-          "edge_count": 99,
-          "node_count": 49
+          "edge_count": 93,
+          "node_count": 47
         },
         "type": "summary"
       },
@@ -22,13 +22,13 @@
         "label": "Portfolio Agent",
         "layer": "knowledge_graph",
         "metadata": {
-          "degree": 35,
+          "degree": 34,
           "id": "agent:portfolio_agent",
           "label": "Portfolio Agent",
           "type": "agent",
           "weight": 5
         },
-        "score": 35,
+        "score": 34,
         "type": "connected_entity"
       },
       {
@@ -38,15 +38,15 @@
           "id": "cluster:1",
           "label": "UNH position concentration 41.5%",
           "primary_node": "risk:unh_position_concentration_415",
-          "total_weight": 1450
+          "total_weight": 1370
         },
-        "score": 1450,
+        "score": 1370,
         "type": "dominant_cluster"
       }
     ],
     "current_state": {
       "dominant_theme": {
-        "theme_reason": "Inflation/Energy Risk links 3 signals across 2 agent(s): Macro Agent, News Agent.",
+        "theme_reason": "Inflation/Energy Risk links 4 signals across 2 agent(s): Macro Agent, News Agent.",
         "theme_score": 100,
         "theme_strength": "CRITICAL",
         "theme_title": "Inflation/Energy Risk"
@@ -59,7 +59,7 @@
       },
       "news_top_narrative": {
         "reason": "6 related Iran, Hormuz, or oil headlines indicate an energy-linked geopolitical market narrative.",
-        "representative_headline": "Hegseth warns NATO allies that some nations will 'fail' U.S. defense review",
+        "representative_headline": "Oil prices fall after Vance says more than 12 million barrels exit Strait of Hormuz",
         "score": 100,
         "supporting_articles": 6,
         "title": "Middle East Energy Risk"
@@ -69,7 +69,7 @@
         "title": "UNH position concentration 41.5%"
       },
       "portfolio_worst_stress_scenario": {
-        "title": "2008_STYLE_CRISIS | Impact -51.60%"
+        "title": "2008_STYLE_CRISIS | Impact -51.57%"
       },
       "top_priority": {
         "category": "Portfolio Risk",
@@ -162,7 +162,7 @@
           "change_level": "moderate",
           "material_change_count": 0,
           "novel_change_count": 0,
-          "persistent_issue_count": 20
+          "persistent_issue_count": 18
         },
         "type": "summary"
       },
@@ -211,7 +211,7 @@
     "dominant_cluster": "cluster:1",
     "dominant_theme": "Inflation/Energy Risk",
     "material_change_count": 0,
-    "persistent_issue_count": 20,
+    "persistent_issue_count": 18,
     "top_priority": "UNH position concentration 41.5%",
     "top_signal": "Growth exposure conflicts with inflation/rates theme"
   }

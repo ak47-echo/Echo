@@ -82,6 +82,36 @@ class EchoContextBudgetTests(unittest.TestCase):
             budget["tool_hints"]
         )
 
+    def test_holding_news_includes_portfolio_news_macro(self):
+
+        budget = build_context_budget(
+            "what world events affect my current stocks",
+            _memory_context()
+        )
+
+        self.assertEqual("holding_news", budget["query_class"])
+        self.assertIn("portfolio_snapshot", budget["preferred_context_sources"])
+        self.assertIn("news_snapshot", budget["preferred_context_sources"])
+        self.assertIn("macro_snapshot", budget["preferred_context_sources"])
+
+    def test_security_master_search_uses_security_master_primary(self):
+
+        budget = build_context_budget("small cap value ETFs", _memory_context())
+
+        self.assertEqual("security_master_search", budget["query_class"])
+        self.assertEqual(["security_master_search"], budget["preferred_context_sources"])
+
+    def test_market_opportunity_scan_uses_broad_research_context(self):
+
+        budget = build_context_budget(
+            "what stocks could go up from this news",
+            _memory_context()
+        )
+
+        self.assertEqual("market_opportunities", budget["query_class"])
+        self.assertIn("market_opportunity_scan", budget["preferred_context_sources"])
+        self.assertIn("security_master_search", budget["preferred_context_sources"])
+
     def test_broad_synthesis_query_becomes_multi_agent(self):
 
         budget = build_context_budget(

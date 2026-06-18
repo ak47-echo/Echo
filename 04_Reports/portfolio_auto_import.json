@@ -1,0 +1,15 @@
+{
+  "already_imported": false,
+  "copied_path": null,
+  "downloads_dir": "",
+  "enabled": false,
+  "generated_at": "2026-06-18T11:44:57",
+  "import_dir": "C:\\Users\\PC\\OneDrive\\Desktop\\Echo\\02_Data\\portfolio_imports",
+  "pattern": "All-Accounts-Positions-*.csv",
+  "schema_version": "1.0",
+  "source_file": null,
+  "status": "disabled",
+  "warnings": [
+    "Portfolio auto import is disabled."
+  ]
+}

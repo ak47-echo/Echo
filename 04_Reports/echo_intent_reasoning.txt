@@ -2,8 +2,8 @@ ECHO INTENT REASONING
 =====================
 
 Schema Version: 1.0
-Generated At: 2026-06-18T11:04:14
-Query: did my cash change
+Generated At: 2026-06-18T11:45:15
+Query: what stocks could go down based on recent news
 Reasoning Intent: unknown
 Reasoning Depth: none
 Answer Style: brief
@@ -16,7 +16,11 @@ None
 Required Context:
 - response_composer
 - context_assembly
-- portfolio_change_detection
+- market_opportunity_scan
+- news_context
+- macro_context
+- research_context
+- security_master_search
 - portfolio_context
 
 Reasoning Instructions:

@@ -3,8 +3,8 @@
   "confidence": "low",
   "detected_entities": [],
   "detected_horizon": null,
-  "generated_at": "2026-06-18T11:04:14",
-  "query": "did my cash change",
+  "generated_at": "2026-06-18T11:45:15",
+  "query": "what stocks could go down based on recent news",
   "reason": "No deterministic reasoning intent matched.",
   "reasoning_depth": "none",
   "reasoning_instructions": [
@@ -15,7 +15,11 @@
   "required_context": [
     "response_composer",
     "context_assembly",
-    "portfolio_change_detection",
+    "market_opportunity_scan",
+    "news_context",
+    "macro_context",
+    "research_context",
+    "security_master_search",
     "portfolio_context"
   ],
   "schema_version": "1.0"

@@ -323,6 +323,32 @@ def _required_context(intent, entities, context_budget=None, agent_routing=None)
     if query_class == "portfolio_change":
         context.append("portfolio_change_detection")
 
+    if query_class == "portfolio_movement":
+        context.extend(["portfolio_change_detection", "portfolio_context"])
+
+    if query_class == "holding_news":
+        context.extend(["portfolio_context", "news_context", "macro_context"])
+
+    if query_class in {"ticker_question", "ticker_news"}:
+        context.extend(["security_master_search", "research_context"])
+        if query_class == "ticker_news":
+            context.append("news_context")
+
+    if query_class in {"market_opportunities", "market_risks"}:
+        context.extend([
+            "market_opportunity_scan",
+            "news_context",
+            "macro_context",
+            "research_context",
+            "security_master_search"
+        ])
+
+    if query_class == "security_master_search":
+        context.append("security_master_search")
+
+    if query_class == "paper_allocation_future":
+        context.extend(["market_opportunity_scan", "research_context"])
+
     if intent in {"explanation", "scenario_analysis", "critique", "recommendation"}:
         context.extend(["memory_context", "agent_context", "current_state"])
 

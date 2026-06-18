@@ -2,15 +2,16 @@ ECHO CONTEXT ASSEMBLY
 =====================
 
 Schema Version: 1.0
-Generated At: 2026-06-18T11:04:14
-Query: did my cash change
-Assembly Mode: portfolio_change
-Block Count: 3
-Estimated Size: 3823
+Generated At: 2026-06-18T11:45:15
+Query: what stocks could go down based on recent news
+Assembly Mode: investment_query
+Block Count: 4
+Estimated Size: 11970
 Full Reports Included: No
 
 Included Sources:
-- portfolio_change_detection
+- security_master_search
+- market_opportunity_scan
 - memory_context
 
 Excluded Sources:
@@ -20,8 +21,9 @@ Excluded Sources:
 - research_report
 
 Context Blocks:
-- portfolio_change_detection | primary | Portfolio Change Detection | priority 120
+- security_master_search | secondary | Security Master Search | priority 125
+- market_opportunity_scan | primary | Market Opportunity Scan | priority 115
 - memory_context | primary | Memory Summary | priority 100
 - memory_context | primary | Recommended Attention And Persistence | priority 90
 
-Reason: Assembled portfolio_change context from memory, budget standard, and routed agent plan.
+Reason: Assembled investment_query context from memory, budget expanded, and routed agent plan.

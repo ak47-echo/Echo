@@ -102,6 +102,18 @@ PORTFOLIO_CHANGE_TERMS = (
     "cash changed"
 )
 
+INVESTMENT_QUERY_CLASSES = {
+    "portfolio_movement",
+    "holding_news",
+    "ticker_question",
+    "ticker_news",
+    "market_opportunities",
+    "market_risks",
+    "watchlist_management",
+    "security_master_search",
+    "paper_allocation_future"
+}
+
 SYNTHESIS_TERMS = (
     "synthesis",
     "overall picture",
@@ -251,6 +263,144 @@ def _portfolio_change_plan():
     }]
 
 
+def _investment_plan(query_class):
+
+    plans = {
+        "portfolio_movement": [(
+            "portfolio",
+            "primary",
+            ["portfolio_change_detection", "portfolio_snapshot", "portfolio_report"],
+            False,
+            "Portfolio movement needs holdings change detection and current portfolio context."
+        )],
+        "holding_news": [
+            (
+                "portfolio",
+                "primary",
+                ["portfolio_snapshot"],
+                False,
+                "Current holdings define affected securities."
+            ),
+            (
+                "news",
+                "secondary",
+                ["news_snapshot", "news_report"],
+                True,
+                "Local news narratives supply event context."
+            ),
+            (
+                "macro",
+                "secondary",
+                ["macro_snapshot"],
+                False,
+                "Macro regime supplies broad exposure context."
+            )
+        ],
+        "ticker_question": [
+            (
+                "research",
+                "primary",
+                ["security_master_search", "research_snapshot"],
+                False,
+                "Ticker question needs local security and research context."
+            )
+        ],
+        "ticker_news": [
+            (
+                "news",
+                "primary",
+                ["security_master_search", "news_snapshot"],
+                False,
+                "Ticker news question needs local news context."
+            ),
+            (
+                "research",
+                "secondary",
+                ["research_snapshot"],
+                False,
+                "Research context helps qualify local ticker coverage."
+            )
+        ],
+        "market_opportunities": [
+            (
+                "research",
+                "primary",
+                ["market_opportunity_scan", "research_snapshot", "security_master_search"],
+                False,
+                "Opportunity query needs conservative research candidates."
+            ),
+            (
+                "news",
+                "secondary",
+                ["news_snapshot"],
+                False,
+                "News narratives provide source signals."
+            ),
+            (
+                "macro",
+                "secondary",
+                ["macro_snapshot"],
+                False,
+                "Macro context provides source signals."
+            )
+        ],
+        "market_risks": [
+            (
+                "portfolio",
+                "primary",
+                ["market_opportunity_scan", "portfolio_snapshot"],
+                False,
+                "Risk query should include held-position risk candidates."
+            ),
+            (
+                "news",
+                "secondary",
+                ["news_snapshot"],
+                False,
+                "News narratives provide downside signals."
+            ),
+            (
+                "macro",
+                "secondary",
+                ["macro_snapshot"],
+                False,
+                "Macro regime provides downside signals."
+            )
+        ],
+        "watchlist_management": [(
+            "research",
+            "primary",
+            ["research_snapshot", "market_opportunity_scan", "news_snapshot", "macro_snapshot"],
+            False,
+            "Watchlist query belongs to research context."
+        )],
+        "security_master_search": [(
+            "research",
+            "primary",
+            ["security_master_search"],
+            False,
+            "Security master search uses the broad local security universe."
+        )],
+        "paper_allocation_future": [(
+            "research",
+            "primary",
+            ["research_snapshot", "market_opportunity_scan"],
+            False,
+            "Paper allocation is future-mode only; use research candidates as context."
+        )]
+    }
+    plan = []
+    for agent, role, sources, include_full, reason in plans.get(query_class, []):
+        plan.append({
+            "agent": agent,
+            "role": role,
+            "context_sources": sources,
+            "include_full_report": include_full,
+            "reason": reason
+        })
+    return plan
+
+
 def _plan(primary_agents, secondary_agents, budget_level):
 
     plan = []
@@ -323,6 +473,33 @@ def route_query_to_agents(user_query, context_budget=None, memory_context=None,
             "reason": (
                 "Portfolio-change query should be answered from normalized "
                 "holdings change detection."
+            )
+        }
+
+    if query_class in INVESTMENT_QUERY_CLASSES:
+        plan = _investment_plan(query_class)
+        primary_agents = [
+            item["agent"] for item in plan if item.get("role") == "primary"
+        ]
+        secondary_agents = [
+            item["agent"] for item in plan if item.get("role") == "secondary"
+        ]
+        included = set(primary_agents + secondary_agents)
+        return {
+            "schema_version": "1.0",
+            "generated_at": _now(),
+            "query": query,
+            "primary_agents": primary_agents,
+            "secondary_agents": secondary_agents,
+            "excluded_agents": [
+                agent for agent in agents if agent not in included
+            ],
+            "routing_mode": "investment_query",
+            "confidence": "high",
+            "agent_context_plan": plan,
+            "reason": (
+                "Universal investment query routed by investment intent "
+                f"{query_class}."
             )
         }
 

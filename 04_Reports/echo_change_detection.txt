@@ -2,11 +2,11 @@ ECHO CHANGE DETECTION
 =====================
 
 Schema Version: 1.0
-Generated At: 2026-06-18T11:03:51
+Generated At: 2026-06-18T11:45:00
 Change Level: moderate
 Material Change Count: 0
 Novel Change Count: 0
-Persistent Issue Count: 20
+Persistent Issue Count: 18
 
 Most Important Signal:
 risk: Growth exposure conflicts with inflation/rates theme (score 35)
@@ -23,9 +23,9 @@ What Persists That Matters:
 - risk: SMCI position size conflicts with research conviction (score 35)
 - risk: UNH (score 35)
 - risk: UNH position concentration 41.5% (score 35)
-- risk: UNH position concentration 44.9% (score 35)
 - risk: Energy: FALLING (score 25)
 - risk: SMCI (score 25)
+- risk: Yield Curve: FLAT (score 25)
 
 Escalations:
 None
