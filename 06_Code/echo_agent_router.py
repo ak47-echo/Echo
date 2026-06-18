@@ -137,10 +137,19 @@ def _is_conversational_query(query):
 
     normalized = _safe_text(query).casefold().strip(" ?!.")
 
-    if normalized in CONVERSATIONAL_TERMS:
+    exact_terms = {
+        term for term in CONVERSATIONAL_TERMS
+        if " " not in term
+    }
+    phrase_terms = tuple(
+        term for term in CONVERSATIONAL_TERMS
+        if " " in term
+    )
+
+    if normalized in exact_terms:
         return True
 
-    return _has_phrase(query, CONVERSATIONAL_TERMS)
+    return _has_phrase(query, phrase_terms)
 
 
 def _available_agents(available_agents):

@@ -37,6 +37,28 @@ class FakeAnsweredProvider:
         }
 
 
+class IntentAwareProvider(FakeAnsweredProvider):
+
+    def generate_response(self, messages, tools=None, context=None):
+
+        tool_context = echo.format_tool_context_for_llm(tools)
+
+        return {
+            "status": "ANSWERED",
+            "provider": self.provider_name,
+            "model": self.model_name(),
+            "answer": (
+                "Reasoned LLM answer using "
+                f"{tools['intent_reasoning']['reasoning_intent']}."
+            ),
+            "tool_context_used": True,
+            "tool_context_char_count": len(tool_context),
+            "live_call_attempted": True,
+            "confidence": "HIGH",
+            "notes": tool_context
+        }
+
+
 class FakeFailedProvider(FakeAnsweredProvider):
 
     def generate_response(self, messages, tools=None, context=None):
@@ -90,7 +112,9 @@ def _no_write_patches():
         "write_context_assembly_json",
         "write_context_assembly_text",
         "write_response_composer_json",
-        "write_response_composer_text"
+        "write_response_composer_text",
+        "write_intent_reasoning_json",
+        "write_intent_reasoning_text"
     )
 
     return [
@@ -204,10 +228,70 @@ class EchoLLMProviderTests(unittest.TestCase):
             )
         )
 
-        self.assertIn("Echo assembled context", prompt)
+        self.assertIn("Echo reasoning intent", prompt)
         self.assertIn("response_composer", prompt)
         self.assertIn("Review UNH risk.", prompt)
         self.assertIn("Do not introduce facts", prompt)
+        self.assertIn("grounding aid only", prompt)
+
+    def test_llm_context_includes_reasoning_intent(self):
+
+        with patch.object(
+            echo,
+            "get_llm_provider",
+            return_value=IntentAwareProvider()
+        ):
+            result = self._run_with_no_writes(
+                echo.echo_generate_llm_answer,
+                "Why is UNH my top priority?",
+                _minimal_context()
+            )
+
+        self.assertEqual("llm", result["response_source"])
+        self.assertEqual("explanation", result["reasoning_intent"])
+        self.assertIn('"reasoning_intent": "explanation"', result["notes"])
+        self.assertIn("response_composer", result["notes"])
+
+    def test_explanation_query_does_not_return_plain_template_on_llm_success(self):
+
+        with patch.object(
+            echo,
+            "get_llm_provider",
+            return_value=IntentAwareProvider()
+        ):
+            result = self._run_with_no_writes(
+                echo.echo_generate_llm_answer,
+                "Why is UNH my top priority?",
+                _minimal_context()
+            )
+
+        self.assertEqual("ANSWERED", result["status"])
+        self.assertEqual("explanation", result["reasoning_intent"])
+        self.assertEqual("Reasoned LLM answer using explanation.", result["answer"])
+        self.assertNotEqual(
+            result["response_composer"]["answer"],
+            result["answer"]
+        )
+
+    def test_scenario_query_does_not_return_plain_template_on_llm_success(self):
+
+        with patch.object(
+            echo,
+            "get_llm_provider",
+            return_value=IntentAwareProvider()
+        ):
+            result = self._run_with_no_writes(
+                echo.echo_generate_llm_answer,
+                "If UNH fell 40% tomorrow, how would that affect me?",
+                _minimal_context()
+            )
+
+        self.assertEqual("ANSWERED", result["status"])
+        self.assertEqual("scenario_analysis", result["reasoning_intent"])
+        self.assertEqual(
+            "Reasoned LLM answer using scenario_analysis.",
+            result["answer"]
+        )
 
     def test_hi_returns_llm_answer_when_provider_succeeds(self):
 
@@ -229,6 +313,7 @@ class EchoLLMProviderTests(unittest.TestCase):
         self.assertTrue(result["live_call_attempted"])
         self.assertFalse(result["fallback_used"])
         self.assertEqual("conversational", result["query_class"])
+        self.assertEqual("conversation", result["reasoning_intent"])
 
     def test_hi_returns_clean_fallback_when_live_mode_disabled(self):
 
@@ -248,6 +333,24 @@ class EchoLLMProviderTests(unittest.TestCase):
         self.assertIn("I'm here.", result["answer"])
         self.assertNotIn("deterministic answer", result["answer"].casefold())
         self.assertNotIn("compact memory context", result["answer"].casefold())
+
+    def test_reasoning_fallback_is_safe_for_scenario(self):
+
+        with patch.object(
+            echo,
+            "get_llm_provider",
+            return_value=FakeDisabledProvider()
+        ):
+            result = self._run_with_no_writes(
+                echo.echo_generate_llm_answer,
+                "If UNH fell 40% tomorrow, how would that affect me?",
+                _minimal_context()
+            )
+
+        self.assertEqual("scenario_analysis", result["reasoning_intent"])
+        self.assertEqual("deterministic", result["response_source"])
+        self.assertIn("requires reasoning beyond deterministic fallback",
+                      result["answer"])
 
     def test_joke_does_not_return_portfolio_risk_summary(self):
 
@@ -331,7 +434,10 @@ class EchoLLMProviderTests(unittest.TestCase):
             "response_source": "llm",
             "llm_provider": "anthropic",
             "live_call_attempted": True,
-            "fallback_used": False
+            "fallback_used": False,
+            "reasoning_intent": "conversation",
+            "reasoning_depth": "light",
+            "answer_style": "conversational"
         }
 
         with patch.object(echo_api, "echo_generate_llm_answer", return_value=result):
@@ -342,6 +448,7 @@ class EchoLLMProviderTests(unittest.TestCase):
         payload = response.json()
         self.assertEqual("LLM conversational answer.", payload["answer"])
         self.assertEqual("llm", payload["response_source"])
+        self.assertEqual("conversation", payload.get("reasoning_intent"))
 
     def test_ask_uses_llm_answer_when_provider_succeeds(self):
 
@@ -352,7 +459,10 @@ class EchoLLMProviderTests(unittest.TestCase):
             "response_source": "llm",
             "llm_provider": "anthropic",
             "live_call_attempted": True,
-            "fallback_used": False
+            "fallback_used": False,
+            "reasoning_intent": "conversation",
+            "reasoning_depth": "light",
+            "answer_style": "conversational"
         }
 
         with patch.object(echo_api, "echo_generate_llm_answer", return_value=result):
@@ -374,6 +484,9 @@ class EchoLLMProviderTests(unittest.TestCase):
             "llm_provider": "anthropic",
             "live_call_attempted": True,
             "fallback_used": True,
+            "reasoning_intent": "conversation",
+            "reasoning_depth": "light",
+            "answer_style": "conversational",
             "notes": "Provider failed without exposing secrets."
         }
 
@@ -387,6 +500,27 @@ class EchoLLMProviderTests(unittest.TestCase):
         self.assertTrue(payload["fallback_used"])
         self.assertIn("I'm here.", payload["answer"])
         self.assertNotIn("TEST_SECRET_VALUE", str(payload))
+
+    def test_intent_reasoning_endpoint_returns_latest_artifact(self):
+
+        from fastapi.testclient import TestClient
+
+        artifact = {
+            "reasoning_intent": "retrieval",
+            "reasoning_depth": "light",
+            "answer_style": "brief"
+        }
+
+        with patch.object(
+            echo_api,
+            "read_intent_reasoning",
+            return_value=artifact
+        ):
+            client = TestClient(echo_api.create_app())
+            response = client.get("/intent-reasoning")
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual("retrieval", response.json()["reasoning_intent"])
 
 
 if __name__ == "__main__":

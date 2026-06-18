@@ -62,6 +62,12 @@ from echo_response_composer import (
     write_response_composer_json,
     write_response_composer_text
 )
+from echo_intent_reasoning import (
+    classify_reasoning_intent,
+    read_intent_reasoning,
+    write_intent_reasoning_json,
+    write_intent_reasoning_text
+)
 import json
 import os
 from pathlib import Path
@@ -5469,6 +5475,33 @@ def echo_get_response_composer(context=None):
     )
 
 
+def echo_get_intent_reasoning(context=None):
+
+    intent_reasoning = (
+        context.get("intent_reasoning")
+        if isinstance(context, dict)
+        else None
+    )
+
+    if not isinstance(intent_reasoning, dict):
+        intent_reasoning = read_intent_reasoning()
+
+    summary = (
+        "Reasoning intent: "
+        f"{intent_reasoning.get('reasoning_intent') or 'unknown'}. "
+        f"Depth: {intent_reasoning.get('reasoning_depth') or 'none'}. "
+        f"Style: {intent_reasoning.get('answer_style') or 'brief'}."
+    )
+
+    return _echo_tool_response(
+        "echo_get_intent_reasoning",
+        {"intent_reasoning": intent_reasoning},
+        summary,
+        intent_reasoning.get("confidence", "MEDIUM").upper(),
+        "Deterministic reasoning intent classification."
+    )
+
+
 def echo_ask(question, context=None):
 
     result = answer_echo_multi_agent_query(question, _echo_tool_context(context))
@@ -5906,6 +5939,15 @@ ECHO_TOOL_REGISTRY = {
         "output_description": (
             "Dictionary with response mode, answer, supporting points, "
             "caveats, used sources, and compact debug summary."
+        )
+    },
+    "echo_get_intent_reasoning": {
+        "function_name": "echo_get_intent_reasoning",
+        "description": "Return deterministic reasoning intent classification.",
+        "expected_input_fields": {},
+        "output_description": (
+            "Dictionary with reasoning intent, depth, answer style, "
+            "required context, detected entities, horizon, and instructions."
         )
     },
     "echo_ask": {
@@ -6360,6 +6402,8 @@ def build_echo_llm_system_prompt():
         "You are Echo, a personal chief-of-staff interface over deterministic tools.",
         "Ground operating, portfolio, macro, news, and research answers in the provided Echo tool context.",
         "For casual conversation, greetings, thanks, or harmless creative prompts, respond naturally and do not force an agent report.",
+        "Use reasoning intent to decide whether to retrieve, explain, analyze a scenario, critique, prioritize, recommend, or converse.",
+        "Treat the deterministic response composer answer as a reference draft, not the final answer.",
         "Clearly separate known tool facts from inference or judgment.",
         "Do not invent portfolio holdings, news, macro data, prices, or research conclusions.",
         "If the tool context is insufficient, say what is missing.",
@@ -6473,6 +6517,7 @@ def format_tool_context_for_llm(orchestrator_result, max_chars=12000):
         "context_budget": orchestrator_result.get("context_budget", {}),
         "agent_routing": orchestrator_result.get("agent_routing", {}),
         "context_assembly": orchestrator_result.get("context_assembly", {}),
+        "intent_reasoning": orchestrator_result.get("intent_reasoning", {}),
         "response_composer": orchestrator_result.get("response_composer", {}),
         "tool_summaries": {},
         "tool_data": {}
@@ -6623,10 +6668,13 @@ def _build_openai_prompt_messages(messages, tool_context):
     tool_context_text = str(tool_context or "")
     user_message = (
         f"User question:\n{_message_content(messages)}\n\n"
-        f"Echo tool context:\n{tool_context_text}\n\n"
-        "Synthesize a final answer from this context. Use risk, exposure, "
-        "monitor, review, and tradeoff framing. Do not issue unsupported "
-        "buy or sell directives."
+        f"Echo reasoning/context package:\n{tool_context_text}\n\n"
+        "Answer the user's actual question using reasoning_intent, "
+        "reasoning_depth, answer_style, reasoning_instructions, assembled "
+        "context, and tool summaries. The response_composer answer is a "
+        "grounding reference only, not the final answer. Use risk, exposure, "
+        "monitor, review, and tradeoff framing. Do not issue unsupported buy "
+        "or sell directives."
     )
 
     return [
@@ -6639,18 +6687,28 @@ def _build_anthropic_prompt_message(messages, tool_context):
 
     return (
         f"User question:\n{_message_content(messages)}\n\n"
-        "Echo assembled context and deterministic response composer output:\n"
+        "Echo reasoning intent, assembled context, and deterministic "
+        "response composer reference:\n"
         f"{str(tool_context or '')}\n\n"
-        "Polish or synthesize from the Echo context above. Do not introduce "
-        "facts, holdings, prices, recommendations, or conclusions outside "
-        "the provided Echo context. Preserve caveats where context is "
-        "incomplete."
+        "Answer the user's actual question using reasoning_intent, "
+        "reasoning_depth, answer_style, and reasoning_instructions. Treat "
+        "response_composer.answer as a grounding aid only, not the final "
+        "answer. Do not introduce facts, holdings, prices, recommendations, "
+        "or conclusions outside the provided Echo context. Preserve caveats "
+        "where context is incomplete."
     )
 
 
 def _response_metadata(provider_name, provider_model, live_call_attempted,
                        fallback_used, response_source, context_budget,
-                       agent_routing, context_assembly):
+                       agent_routing, context_assembly,
+                       intent_reasoning=None):
+
+    intent_reasoning = (
+        intent_reasoning
+        if isinstance(intent_reasoning, dict)
+        else {}
+    )
 
     return {
         "llm_provider": provider_name,
@@ -6672,8 +6730,57 @@ def _response_metadata(provider_name, provider_model, live_call_attempted,
             context_assembly.get("assembly_mode")
             if isinstance(context_assembly, dict)
             else None
-        )
+        ),
+        "reasoning_intent": intent_reasoning.get("reasoning_intent"),
+        "reasoning_depth": intent_reasoning.get("reasoning_depth"),
+        "answer_style": intent_reasoning.get("answer_style")
     }
+
+
+def _reasoning_fallback_answer(fallback_answer, intent_reasoning,
+                               context_assembly):
+
+    intent = (
+        intent_reasoning.get("reasoning_intent")
+        if isinstance(intent_reasoning, dict)
+        else ""
+    )
+
+    if intent not in {"scenario_analysis", "explanation", "critique"}:
+        return fallback_answer
+
+    blocks = (
+        context_assembly.get("context_blocks")
+        if isinstance(context_assembly, dict)
+        else []
+    )
+    relevant = []
+
+    for block in blocks or []:
+        if not isinstance(block, dict):
+            continue
+
+        title = " ".join(str(block.get("title") or "").split())
+        content = _concise(block.get("content", ""), limit=180)
+
+        if title or content:
+            relevant.append(
+                f"{title}: {content}".strip(": ")
+            )
+
+        if len(relevant) == 2:
+            break
+
+    context_text = (
+        " | ".join(relevant)
+        if relevant
+        else _concise(fallback_answer, limit=220)
+    )
+
+    return (
+        "This requires reasoning beyond deterministic fallback. "
+        f"Relevant context: {context_text}"
+    )
 
 
 def _normalize_llm_provider_name(provider_name=None):
@@ -6792,7 +6899,8 @@ def _echo_orchestrator_select_tools(message, context, context_budget=None,
         "echo_get_agent_routing",
         "echo_get_memory_context",
         "echo_get_context_assembly",
-        "echo_get_response_composer"
+        "echo_get_response_composer",
+        "echo_get_intent_reasoning"
     )
 
     if query_class in {"simple", "conversational"}:
@@ -6895,7 +7003,8 @@ def _echo_orchestrator_select_tools(message, context, context_budget=None,
         "echo_get_agent_routing",
         "echo_get_memory_context",
         "echo_get_context_assembly",
-        "echo_get_response_composer"
+        "echo_get_response_composer",
+        "echo_get_intent_reasoning"
     ]:
         add_tools(
             "echo_get_top_priority",
@@ -6910,7 +7019,8 @@ def _echo_orchestrator_select_tools(message, context, context_budget=None,
                 "echo_get_agent_routing",
                 "echo_get_memory_context",
                 "echo_get_context_assembly",
-                "echo_get_response_composer"
+                "echo_get_response_composer",
+                "echo_get_intent_reasoning"
             }
         ]
     elif budget_level == "standard":
@@ -6941,6 +7051,7 @@ def _run_echo_orchestrator_tool(tool_name, message, context):
         "echo_get_agent_routing": echo_get_agent_routing,
         "echo_get_context_assembly": echo_get_context_assembly,
         "echo_get_response_composer": echo_get_response_composer,
+        "echo_get_intent_reasoning": echo_get_intent_reasoning,
         "echo_get_top_priority": echo_get_top_priority,
         "echo_get_themes": echo_get_themes,
         "echo_get_theme_impacts": echo_get_theme_impacts,
@@ -7043,6 +7154,13 @@ def echo_orchestrate_user_message(message, context=None):
         context_assembly,
         memory_context
     )
+    intent_reasoning = classify_reasoning_intent(
+        normalized_message,
+        context_budget,
+        agent_routing,
+        context_assembly,
+        memory_context
+    )
     write_context_budget_json(context_budget)
     write_context_budget_text(context_budget)
     write_agent_routing_json(agent_routing)
@@ -7051,11 +7169,14 @@ def echo_orchestrate_user_message(message, context=None):
     write_context_assembly_text(context_assembly)
     write_response_composer_json(response_composer)
     write_response_composer_text(response_composer)
+    write_intent_reasoning_json(intent_reasoning)
+    write_intent_reasoning_text(intent_reasoning)
     query_context = dict(query_context)
     query_context["context_budget"] = context_budget
     query_context["agent_routing"] = agent_routing
     query_context["context_assembly"] = context_assembly
     query_context["response_composer"] = response_composer
+    query_context["intent_reasoning"] = intent_reasoning
 
     selected_tools = _echo_orchestrator_select_tools(
         normalized_message,
@@ -7081,6 +7202,7 @@ def echo_orchestrate_user_message(message, context=None):
         "agent_routing": agent_routing,
         "context_assembly": context_assembly,
         "response_composer": response_composer,
+        "intent_reasoning": intent_reasoning,
         "tool_results": tool_results,
         "answer": response_composer.get("answer") or _echo_orchestrator_answer(
             tool_results
@@ -7114,8 +7236,13 @@ def echo_generate_llm_answer(message, context=None):
     agent_routing = orchestrator_result.get("agent_routing", {})
     context_assembly = orchestrator_result.get("context_assembly", {})
     response_composer = orchestrator_result.get("response_composer", {})
+    intent_reasoning = orchestrator_result.get("intent_reasoning", {})
     tool_results = orchestrator_result.get("tool_results", {})
-    fallback_answer = orchestrator_result.get("answer", "")
+    fallback_answer = _reasoning_fallback_answer(
+        orchestrator_result.get("answer", ""),
+        intent_reasoning,
+        context_assembly
+    )
     fallback_validation = validate_llm_response(
         fallback_answer,
         tool_context
@@ -7146,7 +7273,8 @@ def echo_generate_llm_answer(message, context=None):
             ),
             context_budget,
             agent_routing,
-            context_assembly
+            context_assembly,
+            intent_reasoning
         )
 
         if validation["fallback_required"]:
@@ -7163,6 +7291,7 @@ def echo_generate_llm_answer(message, context=None):
                 "agent_routing": agent_routing,
                 "context_assembly": context_assembly,
                 "response_composer": response_composer,
+                "intent_reasoning": intent_reasoning,
                 "tool_results": tool_results,
                 "confidence": orchestrator_result.get(
                     "confidence",
@@ -7193,6 +7322,7 @@ def echo_generate_llm_answer(message, context=None):
             "agent_routing": agent_routing,
             "context_assembly": context_assembly,
             "response_composer": response_composer,
+            "intent_reasoning": intent_reasoning,
             "tool_results": tool_results,
             "confidence": provider_result.get("confidence", "MEDIUM"),
             "validation": validation,
@@ -7220,7 +7350,8 @@ def echo_generate_llm_answer(message, context=None):
         "deterministic",
         context_budget,
         agent_routing,
-        context_assembly
+        context_assembly,
+        intent_reasoning
     )
 
     return {
@@ -7236,6 +7367,7 @@ def echo_generate_llm_answer(message, context=None):
         "agent_routing": agent_routing,
         "context_assembly": context_assembly,
         "response_composer": response_composer,
+        "intent_reasoning": intent_reasoning,
         "tool_results": tool_results,
         "confidence": orchestrator_result.get("confidence", "MEDIUM"),
         "validation": fallback_validation,
@@ -8078,6 +8210,19 @@ if __name__ == "__main__":
     response_composer_text_result = write_response_composer_text(
         response_composer
     )
+    intent_reasoning = classify_reasoning_intent(
+        daily_orchestration_query,
+        context_budget,
+        agent_routing,
+        context_assembly,
+        memory_context
+    )
+    intent_reasoning_json_result = write_intent_reasoning_json(
+        intent_reasoning
+    )
+    intent_reasoning_text_result = write_intent_reasoning_text(
+        intent_reasoning
+    )
 
     if not state_result["success"]:
         print(f"Echo state write failed: {state_result['error']}")
@@ -8182,6 +8327,18 @@ if __name__ == "__main__":
         print(
             "Echo response composer text write failed: "
             f"{response_composer_text_result['error']}"
+        )
+
+    if not intent_reasoning_json_result["success"]:
+        print(
+            "Echo intent reasoning JSON write failed: "
+            f"{intent_reasoning_json_result['error']}"
+        )
+
+    if not intent_reasoning_text_result["success"]:
+        print(
+            "Echo intent reasoning text write failed: "
+            f"{intent_reasoning_text_result['error']}"
         )
 
     print(report_bundle["daily_brief"])

@@ -44,6 +44,7 @@ from echo_context_budget import read_context_budget
 from echo_agent_router import read_agent_routing
 from echo_context_assembler import read_context_assembly
 from echo_response_composer import read_response_composer
+from echo_intent_reasoning import read_intent_reasoning
 
 
 LOCALHOST_ORIGINS = [
@@ -216,6 +217,10 @@ def create_app():
     @app.get("/response-composer")
     async def response_composer():
         return read_response_composer()
+
+    @app.get("/intent-reasoning")
+    async def intent_reasoning():
+        return read_intent_reasoning()
 
     @app.get("/status")
     async def status():
