@@ -139,7 +139,7 @@ def _parse_number(value):
 
     text = _clean_text(value)
 
-    if not text:
+    if not text or text == "--":
         return 0.0
 
     negative = text.startswith("(") and text.endswith(")")
@@ -155,7 +155,14 @@ def _parse_number(value):
 def _normalize_ticker(value):
 
     ticker = _clean_text(value).upper()
-    cash_terms = {"CASH", "CASH0", "MONEY MARKET", "SWEEP", "CORE CASH"}
+    cash_terms = {
+        "CASH",
+        "CASH0",
+        "CASH & CASH INVESTMENTS",
+        "MONEY MARKET",
+        "SWEEP",
+        "CORE CASH"
+    }
 
     if ticker in cash_terms:
         return "CASH0"
@@ -304,6 +311,179 @@ def _write_normalized(rows, output_path):
         writer.writerows(rows)
 
 
+def _blank_row(row):
+
+    return not any(_clean_text(cell) for cell in row)
+
+
+def _cell(row, index):
+
+    if index < 0 or index >= len(row):
+        return ""
+
+    return row[index]
+
+
+def _header_index(row, *names):
+
+    wanted = {_canonical_header(name) for name in names}
+
+    for index, value in enumerate(row):
+        if _canonical_header(value) in wanted:
+            return index
+
+    return None
+
+
+def _is_schwab_header(row):
+
+    return _header_index(row, "Symbol") is not None
+
+
+def _is_schwab_sectioned_rows(rows):
+
+    for index, row in enumerate(rows[:-1]):
+        first_cell = _clean_text(_cell(row, 0))
+
+        if first_cell and _is_schwab_header(rows[index + 1]):
+            return True
+
+    return False
+
+
+def _add_aggregate_position(aggregate, row):
+
+    key = (row["account"], row["ticker"])
+
+    if key not in aggregate:
+        aggregate[key] = {
+            "account": row["account"],
+            "ticker": row["ticker"],
+            "quantity": 0.0,
+            "cost_basis": 0.0,
+            "market_value": 0.0,
+            "security_name": row["security_name"],
+            "source_file": row["source_file"],
+            "imported_at": row["imported_at"]
+        }
+
+    aggregate[key]["quantity"] += row["quantity"]
+    aggregate[key]["cost_basis"] += row["cost_basis"]
+    aggregate[key]["market_value"] += row["market_value"]
+
+    if not aggregate[key]["security_name"] and row["security_name"]:
+        aggregate[key]["security_name"] = row["security_name"]
+
+
+def _formatted_normalized_rows(aggregate):
+
+    return [
+        {
+            **row,
+            "quantity": f"{row['quantity']:.8f}".rstrip("0").rstrip("."),
+            "cost_basis": f"{row['cost_basis']:.2f}",
+            "market_value": f"{row['market_value']:.2f}"
+        }
+        for row in sorted(
+            aggregate.values(),
+            key=lambda item: (item["account"], item["ticker"])
+        )
+    ]
+
+
+def _parse_schwab_sectioned_rows(rows, source_file, imported_at, result):
+
+    aggregate = {}
+    account = ""
+    header = None
+    symbol_index = None
+    description_index = None
+    quantity_index = None
+    market_value_index = None
+    cost_basis_index = None
+    index = 0
+
+    while index < len(rows):
+        row = rows[index]
+
+        if _blank_row(row):
+            index += 1
+            continue
+
+        first_cell = _clean_text(_cell(row, 0))
+
+        if first_cell and index + 1 < len(rows) and _is_schwab_header(
+            rows[index + 1]
+        ):
+            account = first_cell
+            header = rows[index + 1]
+            symbol_index = _header_index(header, "Symbol")
+            description_index = _header_index(header, "Description")
+            quantity_index = _header_index(header, "Qty (Quantity)")
+            market_value_index = _header_index(
+                header,
+                "Mkt Val (Market Value)"
+            )
+            cost_basis_index = _header_index(header, "Cost Basis")
+            index += 2
+            continue
+
+        if header is None or _is_schwab_header(row):
+            index += 1
+            continue
+
+        symbol_text = _clean_text(_cell(row, symbol_index))
+
+        if not symbol_text:
+            index += 1
+            continue
+
+        if symbol_text.casefold() == "positions total":
+            index += 1
+            continue
+
+        result["rows_read"] += 1
+        ticker = _normalize_ticker(symbol_text)
+        security_name = _clean_text(_cell(row, description_index))
+
+        if ticker == "CASH0" and (
+            not security_name or security_name == "--"
+        ):
+            security_name = "Cash & Cash Investments"
+
+        try:
+            market_value = _parse_number(_cell(row, market_value_index))
+            cost_basis = _parse_number(_cell(row, cost_basis_index))
+            quantity = _parse_number(_cell(row, quantity_index))
+        except (TypeError, ValueError):
+            result["rows_skipped"] += 1
+            result["warnings"].append(
+                f"{source_file.name} line {index + 1}: invalid numeric value."
+            )
+            index += 1
+            continue
+
+        if ticker == "CASH0" and quantity == 0 and market_value > 0:
+            quantity = market_value
+
+        _add_aggregate_position(
+            aggregate,
+            {
+                "account": account,
+                "ticker": ticker,
+                "quantity": quantity,
+                "cost_basis": cost_basis,
+                "market_value": market_value,
+                "security_name": security_name,
+                "source_file": source_file.name,
+                "imported_at": imported_at
+            }
+        )
+        index += 1
+
+    return _formatted_normalized_rows(aggregate)
+
+
 def ingest_latest_portfolio_import(import_dir, output_path, archive_dir):
 
     import_dir = Path(import_dir)
@@ -348,90 +528,86 @@ def ingest_latest_portfolio_import(import_dir, output_path, archive_dir):
 
     try:
         with source_file.open("r", newline="", encoding="utf-8-sig") as file:
-            reader = csv.DictReader(file)
+            raw_rows = list(csv.reader(file))
 
-            if not reader.fieldnames:
-                result["warnings"].append(
-                    f"{source_file.name}: Empty CSV or missing header."
-                )
-                result["status"] = "partial"
-                return result
-
-            lookup = _alias_lookup(reader.fieldnames)
-
-            if "ticker" not in lookup:
-                result["warnings"].append(
-                    f"{source_file.name}: Missing ticker/symbol column."
-                )
-                result["status"] = "error"
-                return result
-
-            aggregate = {}
-
-            for line_number, row in enumerate(reader, start=2):
-                result["rows_read"] += 1
-                ticker = _normalize_ticker(_row_value(row, lookup, "ticker"))
-
-                if not ticker:
-                    result["rows_skipped"] += 1
-                    result["warnings"].append(
-                        f"{source_file.name} line {line_number}: missing ticker."
-                    )
-                    continue
-
-                try:
-                    quantity = _parse_number(_row_value(row, lookup, "quantity"))
-                    cost_basis = _parse_number(
-                        _row_value(row, lookup, "cost_basis")
-                    )
-                    market_value = _parse_number(
-                        _row_value(row, lookup, "market_value")
-                    )
-                except (TypeError, ValueError):
-                    result["rows_skipped"] += 1
-                    result["warnings"].append(
-                        f"{source_file.name} line {line_number}: invalid numeric value."
-                    )
-                    continue
-
-                account = _clean_text(_row_value(row, lookup, "account"))
-                security_name = _clean_text(
-                    _row_value(row, lookup, "security_name")
-                )
-                key = (account, ticker)
-
-                if key not in aggregate:
-                    aggregate[key] = {
-                        "account": account,
-                        "ticker": ticker,
-                        "quantity": 0.0,
-                        "cost_basis": 0.0,
-                        "market_value": 0.0,
-                        "security_name": security_name,
-                        "source_file": source_file.name,
-                        "imported_at": imported_at
-                    }
-
-                aggregate[key]["quantity"] += quantity
-                aggregate[key]["cost_basis"] += cost_basis
-                aggregate[key]["market_value"] += market_value
-
-                if not aggregate[key]["security_name"] and security_name:
-                    aggregate[key]["security_name"] = security_name
-
-            rows = [
-                {
-                    **row,
-                    "quantity": f"{row['quantity']:.8f}".rstrip("0").rstrip("."),
-                    "cost_basis": f"{row['cost_basis']:.2f}",
-                    "market_value": f"{row['market_value']:.2f}"
-                }
-                for row in sorted(
-                    aggregate.values(),
-                    key=lambda item: (item["account"], item["ticker"])
-                )
-            ]
+        if _is_schwab_sectioned_rows(raw_rows):
+            rows = _parse_schwab_sectioned_rows(
+                raw_rows,
+                source_file,
+                imported_at,
+                result
+            )
             _write_normalized(rows, output_path)
+        else:
+            with source_file.open("r", newline="", encoding="utf-8-sig") as file:
+                reader = csv.DictReader(file)
+
+                if not reader.fieldnames:
+                    result["warnings"].append(
+                        f"{source_file.name}: Empty CSV or missing header."
+                    )
+                    result["status"] = "partial"
+                    return result
+
+                lookup = _alias_lookup(reader.fieldnames)
+
+                if "ticker" not in lookup:
+                    result["warnings"].append(
+                        f"{source_file.name}: Missing ticker/symbol column."
+                    )
+                    result["status"] = "error"
+                    return result
+
+                aggregate = {}
+
+                for line_number, row in enumerate(reader, start=2):
+                    result["rows_read"] += 1
+                    ticker = _normalize_ticker(_row_value(row, lookup, "ticker"))
+
+                    if not ticker:
+                        result["rows_skipped"] += 1
+                        result["warnings"].append(
+                            f"{source_file.name} line {line_number}: missing ticker."
+                        )
+                        continue
+
+                    try:
+                        quantity = _parse_number(
+                            _row_value(row, lookup, "quantity")
+                        )
+                        cost_basis = _parse_number(
+                            _row_value(row, lookup, "cost_basis")
+                        )
+                        market_value = _parse_number(
+                            _row_value(row, lookup, "market_value")
+                        )
+                    except (TypeError, ValueError):
+                        result["rows_skipped"] += 1
+                        result["warnings"].append(
+                            f"{source_file.name} line {line_number}: invalid numeric value."
+                        )
+                        continue
+
+                    account = _clean_text(_row_value(row, lookup, "account"))
+                    security_name = _clean_text(
+                        _row_value(row, lookup, "security_name")
+                    )
+                    _add_aggregate_position(
+                        aggregate,
+                        {
+                            "account": account,
+                            "ticker": ticker,
+                            "quantity": quantity,
+                            "cost_basis": cost_basis,
+                            "market_value": market_value,
+                            "security_name": security_name,
+                            "source_file": source_file.name,
+                            "imported_at": imported_at
+                        }
+                    )
+
+                rows = _formatted_normalized_rows(aggregate)
+                _write_normalized(rows, output_path)
     except (OSError, csv.Error, UnicodeDecodeError) as error:
         result["status"] = "error"
         result["warnings"].append(

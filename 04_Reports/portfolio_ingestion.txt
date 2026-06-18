@@ -1,15 +1,15 @@
 PORTFOLIO INGESTION
 
-Status: no_imports
-Generated At: 2026-06-18T10:29:35
-Source File: None
+Status: success
+Generated At: 2026-06-18T10:38:30
+Source File: C:\Users\PC\OneDrive\Desktop\Echo\02_Data\portfolio_imports\All-Accounts-Positions-2026-06-18-113230.csv
 Output Path: C:\Users\PC\OneDrive\Desktop\Echo\02_Data\portfolio_current\holdings_normalized.csv
-Archive Path: None
-Rows Read: 0
-Rows Normalized: 0
+Archive Path: C:\Users\PC\OneDrive\Desktop\Echo\02_Data\portfolio_archive\20260618_103830_All-Accounts-Positions-2026-06-18-113230.csv
+Rows Read: 15
+Rows Normalized: 15
 Rows Skipped: 0
-Position Count: 0
-Total Market Value: $0.00
+Position Count: 15
+Total Market Value: $15553.34
 
 CHANGE DETECTION
 

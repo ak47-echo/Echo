@@ -1,5 +1,5 @@
 {
-  "answer": "Overall picture: start with UNH position concentration 44.9%. Change level is critical; dominant theme is Inflation/Energy Risk. Portfolio: UNH position concentration 44.9%. Macro: Inflation Stress. News: Middle East Energy Risk. Watch next: UNH position concentration 44.9%.",
+  "answer": "Overall picture: start with UNH position concentration 41.5%. Change level is moderate; dominant theme is Inflation/Energy Risk. Portfolio: UNH position concentration 41.5%. Macro: Inflation Stress. News: Middle East Energy Risk. Watch next: ECO: Low conviction holding; Energy: RISING; Growth exposure conflicts with inflation/rates theme.",
   "caveats": [],
   "debug_summary": {
     "assembly_mode": "multi_agent",
@@ -8,15 +8,15 @@
     "query_class": "multi_agent",
     "routing_mode": "all_agents"
   },
-  "generated_at": "2026-06-18T10:29:42",
+  "generated_at": "2026-06-18T10:38:33",
   "query": "Echo daily run overall executive summary",
   "response_mode": "multi_agent_summary",
   "schema_version": "1.0",
   "supporting_points": [
-    "UNH position concentration 44.9%",
-    "UNH position concentration 44.9%",
+    "UNH position concentration 41.5%",
+    "ECO: Low conviction holding",
     "Inflation/Energy Risk",
-    "UNH position concentration 44.9%",
+    "UNH position concentration 41.5%",
     "Inflation Stress",
     "Middle East Energy Risk"
   ],

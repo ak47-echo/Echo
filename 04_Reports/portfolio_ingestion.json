@@ -1,5 +1,5 @@
 {
-  "archive_path": null,
+  "archive_path": "C:\\Users\\PC\\OneDrive\\Desktop\\Echo\\02_Data\\portfolio_archive\\20260618_103830_All-Accounts-Positions-2026-06-18-113230.csv",
   "changes": {
     "market_value_changes": [],
     "new_positions": [],
@@ -7,16 +7,77 @@
     "removed_positions": [],
     "total_market_value_change": 0.0
   },
-  "generated_at": "2026-06-18T10:29:35",
+  "generated_at": "2026-06-18T10:38:30",
   "output_path": "C:\\Users\\PC\\OneDrive\\Desktop\\Echo\\02_Data\\portfolio_current\\holdings_normalized.csv",
-  "position_count": 0,
-  "rows_normalized": 0,
-  "rows_read": 0,
+  "position_count": 15,
+  "rows_normalized": 15,
+  "rows_read": 15,
   "rows_skipped": 0,
   "schema_version": "1.0",
-  "source_file": null,
-  "status": "no_imports",
-  "top_positions": [],
-  "total_market_value": 0.0,
+  "source_file": "C:\\Users\\PC\\OneDrive\\Desktop\\Echo\\02_Data\\portfolio_imports\\All-Accounts-Positions-2026-06-18-113230.csv",
+  "status": "success",
+  "top_positions": [
+    {
+      "account": "Individual ...082",
+      "market_value": 6461.73,
+      "quantity": 16.0,
+      "ticker": "UNH"
+    },
+    {
+      "account": "Individual ...082",
+      "market_value": 2797.26,
+      "quantity": 92.0,
+      "ticker": "SMCI"
+    },
+    {
+      "account": "Individual ...082",
+      "market_value": 902.58,
+      "quantity": 21.0,
+      "ticker": "VNOM"
+    },
+    {
+      "account": "Individual ...082",
+      "market_value": 894.8,
+      "quantity": 25.0,
+      "ticker": "IBIT"
+    },
+    {
+      "account": "Roth_Contributory_IRA ...399",
+      "market_value": 881.75,
+      "quantity": 29.0,
+      "ticker": "SMCI"
+    },
+    {
+      "account": "Roth_Contributory_IRA ...399",
+      "market_value": 606.69,
+      "quantity": 18.0,
+      "ticker": "SCHG"
+    },
+    {
+      "account": "Roth_Contributory_IRA ...399",
+      "market_value": 595.51,
+      "quantity": 17.0,
+      "ticker": "SCHA"
+    },
+    {
+      "account": "Individual ...082",
+      "market_value": 557.35,
+      "quantity": 11.0,
+      "ticker": "ECO"
+    },
+    {
+      "account": "Roth_Contributory_IRA ...399",
+      "market_value": 470.97,
+      "quantity": 6.0,
+      "ticker": "QMOM"
+    },
+    {
+      "account": "Roth_Contributory_IRA ...399",
+      "market_value": 440.91,
+      "quantity": 5.0258,
+      "ticker": "SPYM"
+    }
+  ],
+  "total_market_value": 15553.34,
   "warnings": []
 }

@@ -1,11 +1,11 @@
 {
   "context_budget": {
-    "excluded_items": 2,
-    "included_items": 20,
+    "excluded_items": 0,
+    "included_items": 18,
     "max_items": 20
   },
   "context_mode": "memory_first",
-  "generated_at": "2026-06-18T10:29:42",
+  "generated_at": "2026-06-18T10:38:33",
   "operating_context": {
     "connected_entities": [
       {
@@ -13,8 +13,8 @@
         "layer": "knowledge_graph",
         "metadata": {
           "dominant_cluster": "cluster:1",
-          "edge_count": 155,
-          "node_count": 58
+          "edge_count": 112,
+          "node_count": 56
         },
         "type": "summary"
       },
@@ -22,25 +22,25 @@
         "label": "Portfolio Agent",
         "layer": "knowledge_graph",
         "metadata": {
-          "degree": 41,
+          "degree": 39,
           "id": "agent:portfolio_agent",
           "label": "Portfolio Agent",
           "type": "agent",
           "weight": 5
         },
-        "score": 41,
+        "score": 39,
         "type": "connected_entity"
       },
       {
-        "label": "UNH position concentration 44.9%",
+        "label": "UNH position concentration 41.5%",
         "layer": "knowledge_graph",
         "metadata": {
           "id": "cluster:1",
-          "label": "UNH position concentration 44.9%",
-          "primary_node": "priority:unh_position_concentration_449",
-          "total_weight": 1790
+          "label": "UNH position concentration 41.5%",
+          "primary_node": "risk:unh_position_concentration_415",
+          "total_weight": 1710
         },
-        "score": 1790,
+        "score": 1710,
         "type": "dominant_cluster"
       }
     ],
@@ -66,76 +66,27 @@
       },
       "portfolio_current_risk": {
         "source": "Echo executive summary",
-        "title": "UNH position concentration 44.9%"
+        "title": "UNH position concentration 41.5%"
       },
       "portfolio_worst_stress_scenario": {
-        "title": "2008_STYLE_CRISIS | Impact -50.09%"
+        "title": "2008_STYLE_CRISIS | Impact -51.60%"
       },
       "top_priority": {
         "category": "Portfolio Risk",
-        "reason": "HIGH | UNH | Position concentration 44.9%",
+        "reason": "HIGH | UNH | Position concentration 41.5%",
         "risk_timeframe": "current",
         "severity": "HIGH",
         "source_agent": "Portfolio Manager",
-        "title": "UNH position concentration 44.9%"
+        "title": "UNH position concentration 41.5%"
       }
     },
-    "important_changes": [
-      {
-        "label": "UNH position concentration 44.9%",
-        "layer": "delta",
-        "metadata": {
-          "change_type": "changed",
-          "current": "UNH position concentration 44.9%",
-          "field": "top_priority",
-          "material": true,
-          "previous": "UNH position concentration 44.8%",
-          "reason": "Top priority changed."
-        },
-        "type": "material_change"
-      },
-      {
-        "label": "UNH position concentration 44.9%",
-        "layer": "delta",
-        "metadata": {
-          "change_type": "changed",
-          "current": "UNH position concentration 44.9%",
-          "field": "portfolio.current_risk",
-          "material": true,
-          "previous": "UNH position concentration 44.8%",
-          "reason": "Portfolio current risk changed."
-        },
-        "type": "material_change"
-      },
-      {
-        "label": "UNH position concentration 44.9%",
-        "layer": "delta",
-        "metadata": {
-          "reason": "HIGH | UNH | Position concentration 44.9%",
-          "severity": "HIGH",
-          "source": "top_priority",
-          "title": "UNH position concentration 44.9%"
-        },
-        "type": "new_risk"
-      },
-      {
-        "label": "UNH position concentration 44.8%",
-        "layer": "delta",
-        "metadata": {
-          "reason": "HIGH | UNH | Position concentration 44.8%",
-          "severity": "HIGH",
-          "source": "top_priority",
-          "title": "UNH position concentration 44.8%"
-        },
-        "type": "resolved_risk"
-      }
-    ],
+    "important_changes": [],
     "persistent_patterns": [
       {
         "label": "Growth exposure conflicts with inflation/rates theme",
         "layer": "history",
         "metadata": {
-          "count": 5,
+          "count": 7,
           "reason": "High growth exposure is sensitive to discount-rate pressure when inflation, energy, or rates themes are active.",
           "severity": "HIGH",
           "source": "conflict",
@@ -147,7 +98,7 @@
         "label": "Inflation Trend: RISING",
         "layer": "history",
         "metadata": {
-          "count": 5,
+          "count": 7,
           "reason": "Rising inflation can reprice Fed expectations, broad equities, long-duration growth assets, and drawdown risk.",
           "severity": "HIGH",
           "source": "macro",
@@ -160,66 +111,90 @@
         "layer": "history",
         "metadata": {
           "action": "Reevaluate SMCI: Low conviction holding",
-          "count": 8
+          "count": 10
         },
         "type": "persistent_action"
       }
     ],
     "recommended_attention": [
       {
-        "label": "UNH position concentration 44.9%",
+        "label": "ECO: Low conviction holding",
         "layer": "change_detection",
         "metadata": {
-          "category": "priority",
-          "description": "Top priority changed from UNH position concentration 44.8% to UNH position concentration 44.9%.",
-          "name": "UNH position concentration 44.9%",
-          "score": 50
+          "category": "risk",
+          "description": "Risk appears in 3 state samples.",
+          "name": "ECO: Low conviction holding",
+          "score": 35
         },
-        "score": 50,
+        "score": 35,
+        "type": "recommended_attention"
+      },
+      {
+        "label": "Energy: RISING",
+        "layer": "change_detection",
+        "metadata": {
+          "category": "risk",
+          "description": "Risk appears in 2 state samples.",
+          "name": "Energy: RISING",
+          "score": 35
+        },
+        "score": 35,
+        "type": "recommended_attention"
+      },
+      {
+        "label": "Growth exposure conflicts with inflation/rates theme",
+        "layer": "change_detection",
+        "metadata": {
+          "category": "risk",
+          "description": "Risk appears in 7 state samples.",
+          "name": "Growth exposure conflicts with inflation/rates theme",
+          "score": 35
+        },
+        "score": 35,
         "type": "recommended_attention"
       }
     ],
     "top_signals": [
       {
-        "label": "UNH position concentration 44.9%",
+        "label": "ECO: Low conviction holding",
         "layer": "change_detection",
         "metadata": {
-          "change_level": "critical",
-          "material_change_count": 5,
-          "novel_change_count": 4,
-          "persistent_issue_count": 24
+          "change_level": "moderate",
+          "material_change_count": 0,
+          "novel_change_count": 0,
+          "persistent_issue_count": 26
         },
         "type": "summary"
       },
       {
-        "label": "UNH position concentration 44.9%",
-        "layer": "change_detection",
-        "metadata": {
-          "category": "priority",
-          "description": "Top priority changed from UNH position concentration 44.8% to UNH position concentration 44.9%.",
-          "is_material": true,
-          "name": "UNH position concentration 44.9%",
-          "score": 50,
-          "source": "delta",
-          "type": "priority_changed"
-        },
-        "score": 50,
-        "type": "priority_changed"
-      },
-      {
-        "label": "UNH position concentration 44.9%",
+        "label": "ECO: Low conviction holding",
         "layer": "change_detection",
         "metadata": {
           "category": "risk",
-          "description": "New risk appeared with severity HIGH.",
+          "description": "Risk appears in 3 state samples.",
           "is_material": true,
-          "name": "UNH position concentration 44.9%",
-          "score": 40,
-          "source": "delta",
-          "type": "new_risk"
+          "name": "ECO: Low conviction holding",
+          "score": 35,
+          "source": "history",
+          "type": "persistent_risk"
         },
-        "score": 40,
-        "type": "new_risk"
+        "score": 35,
+        "type": "persistent_risk"
+      },
+      {
+        "label": "Energy: RISING",
+        "layer": "change_detection",
+        "metadata": {
+          "category": "risk",
+          "description": "Risk appears in 2 state samples.",
+          "is_material": true,
+          "name": "Energy: RISING",
+          "score": 35,
+          "source": "history",
+          "type": "persistent_risk"
+        },
+        "score": 35,
+        "type": "persistent_risk"
       }
     ]
   },
@@ -232,12 +207,12 @@
     "state": true
   },
   "summary": {
-    "change_level": "critical",
+    "change_level": "moderate",
     "dominant_cluster": "cluster:1",
     "dominant_theme": "Inflation/Energy Risk",
-    "material_change_count": 5,
-    "persistent_issue_count": 24,
-    "top_priority": "UNH position concentration 44.9%",
-    "top_signal": "UNH position concentration 44.9%"
+    "material_change_count": 0,
+    "persistent_issue_count": 26,
+    "top_priority": "UNH position concentration 41.5%",
+    "top_signal": "ECO: Low conviction holding"
   }
 }

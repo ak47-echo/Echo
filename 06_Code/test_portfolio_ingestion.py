@@ -32,6 +32,14 @@ class PortfolioIngestionTests(unittest.TestCase):
         with Path(output_path).open("r", newline="", encoding="utf-8") as file:
             return list(csv.DictReader(file))
 
+    def _write_rows(self, path, rows):
+
+        path.parent.mkdir(parents=True, exist_ok=True)
+
+        with path.open("w", newline="", encoding="utf-8") as file:
+            writer = csv.writer(file)
+            writer.writerows(rows)
+
     def test_no_import_directory_does_not_crash(self):
 
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -282,6 +290,165 @@ class PortfolioIngestionTests(unittest.TestCase):
             )
 
             json.dumps(result, sort_keys=True)
+
+    def test_schwab_sectioned_all_accounts_export_normalizes(self):
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            import_dir, output_path, archive_dir = self._paths(temp_dir)
+            header = [
+                "Symbol",
+                "Description",
+                "Qty (Quantity)",
+                "Price",
+                "Price Chng %",
+                "Mkt Val (Market Value)",
+                "Day Chng $",
+                "Cost Basis",
+                "Gain $",
+                "% of Acct"
+            ]
+            self._write_rows(
+                import_dir / "schwab_positions.csv",
+                [
+                    ["All-Accounts Positions for June 18, 2026"],
+                    [],
+                    ["Roth_Contributory_IRA ...399"],
+                    header,
+                    [
+                        "UNH",
+                        "UNITEDHEALTH GROUP INC",
+                        "16",
+                        "$403.86",
+                        "-0.02%",
+                        "$6,461.73",
+                        "-$18.58",
+                        "$4,573.17",
+                        "$1,888.56",
+                        "97.2%"
+                    ],
+                    [
+                        "Cash & Cash Investments",
+                        "",
+                        "--",
+                        "",
+                        "",
+                        "$183.76",
+                        "",
+                        "--",
+                        "",
+                        "2.8%"
+                    ],
+                    [
+                        "Positions Total",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "$6,645.49",
+                        "",
+                        "$4,573.17",
+                        "",
+                        "100%"
+                    ],
+                    [],
+                    ["Individual_Brokerage ...123"],
+                    header,
+                    [
+                        "SMCI",
+                        "SUPER MICRO COMPUTER INC",
+                        "91",
+                        "$30.34",
+                        "1.20%",
+                        "$2,760.50",
+                        "$10.00",
+                        "$3,555.26",
+                        "-$794.76",
+                        "74.8%"
+                    ],
+                    [
+                        "IBIT",
+                        "ISHARES BITCOIN TRUST ETF",
+                        "25",
+                        "$35.77",
+                        "0.5%",
+                        "$894.25",
+                        "$5.00",
+                        "$1,100.50",
+                        "-$206.25",
+                        "24.2%"
+                    ],
+                    [
+                        "Cash & Cash Investments",
+                        "",
+                        "--",
+                        "",
+                        "",
+                        "$35.06",
+                        "",
+                        "--",
+                        "",
+                        "1.0%"
+                    ],
+                    [
+                        "Positions Total",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "$3,689.81",
+                        "",
+                        "$4,655.76",
+                        "",
+                        "100%"
+                    ]
+                ]
+            )
+
+            result = ingest_latest_portfolio_import(
+                import_dir,
+                output_path,
+                archive_dir
+            )
+            rows = self._read_output(output_path)
+            positions = {
+                (row["account"], row["ticker"]): row
+                for row in rows
+            }
+
+            self.assertEqual("success", result["status"])
+            self.assertEqual(5, result["position_count"])
+            self.assertEqual(5, result["rows_read"])
+            self.assertEqual(0, result["rows_skipped"])
+            self.assertAlmostEqual(10335.30, result["total_market_value"])
+            self.assertIn(("Roth_Contributory_IRA ...399", "UNH"), positions)
+            self.assertIn(("Individual_Brokerage ...123", "SMCI"), positions)
+            self.assertIn(("Individual_Brokerage ...123", "IBIT"), positions)
+            self.assertIn(("Roth_Contributory_IRA ...399", "CASH0"), positions)
+            self.assertIn(("Individual_Brokerage ...123", "CASH0"), positions)
+            self.assertEqual(
+                "6461.73",
+                positions[("Roth_Contributory_IRA ...399", "UNH")][
+                    "market_value"
+                ]
+            )
+            self.assertEqual(
+                "3555.26",
+                positions[("Individual_Brokerage ...123", "SMCI")][
+                    "cost_basis"
+                ]
+            )
+            self.assertEqual(
+                "25",
+                positions[("Individual_Brokerage ...123", "IBIT")][
+                    "quantity"
+                ]
+            )
+            self.assertEqual(
+                "Cash & Cash Investments",
+                positions[("Roth_Contributory_IRA ...399", "CASH0")][
+                    "security_name"
+                ]
+            )
 
 
 if __name__ == "__main__":

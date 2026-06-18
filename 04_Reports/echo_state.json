@@ -1,8 +1,8 @@
 {
   "action_queue": [
-    "Review UNH position concentration 44.9%",
+    "Review UNH position concentration 41.5%",
     "Reevaluate SMCI: Low conviction holding",
-    "Review SMCI position concentration 19.1%"
+    "Review SMCI position concentration 23.7%"
   ],
   "conflicts": [
     {
@@ -16,7 +16,7 @@
       "conflict_title": "Growth exposure conflicts with inflation/rates theme",
       "conflict_type": "Growth Exposure vs Inflation/Rates Conflict",
       "evidence": [
-        "Growth factor exposure 68.2%",
+        "Growth factor exposure 69.1%",
         "Active themes: Fed/Rates Risk, Inflation/Energy Risk"
       ],
       "suggested_review_area": "Review growth and rates-sensitive exposure."
@@ -43,8 +43,8 @@
       "conflict_type": "Defensive Need vs Cash/Bond Gap Conflict",
       "evidence": [
         "Portfolio health: ELEVATED_RISK",
-        "Cash allocation 1.52%",
-        "Cash target gap -5.48%",
+        "Cash allocation 0.04%",
+        "Cash target gap -6.96%",
         "Bond exposure 0%"
       ],
       "suggested_review_area": "Evaluate liquidity buffer and defensive allocation gap."
@@ -59,7 +59,7 @@
       "conflict_type": "Research Conviction vs Position Size Conflict",
       "evidence": [
         "SMCI low conviction",
-        "SMCI allocation 19.11%",
+        "SMCI allocation 23.65%",
         "SMCI overweight flag present"
       ],
       "suggested_review_area": "Review SMCI thesis quality against position size."
@@ -71,7 +71,7 @@
     "theme_strength": "CRITICAL",
     "theme_title": "Inflation/Energy Risk"
   },
-  "generated_at": "2026-06-18T10:29:42",
+  "generated_at": "2026-06-18T10:38:33",
   "macro": {
     "regime": {
       "confidence": "HIGH",
@@ -195,19 +195,19 @@
   "portfolio": {
     "concentration_flags": [
       {
-        "description": "Position concentration 44.9%",
+        "description": "Position concentration 41.5%",
         "severity": "HIGH",
         "ticker": "UNH"
       },
       {
-        "description": "Position concentration 19.1%",
+        "description": "Position concentration 23.7%",
         "severity": "MEDIUM",
         "ticker": "SMCI"
       }
     ],
     "current_risk": {
       "source": "Echo executive summary",
-      "title": "UNH position concentration 44.9%"
+      "title": "UNH position concentration 41.5%"
     },
     "weak_holdings": [
       "ECO | Thesis Status active | Conviction low | Research Status WEAK",
@@ -218,7 +218,7 @@
       "VNOM | Thesis Status active | Conviction medium | Research Status MODERATE"
     ],
     "worst_stress_scenario": {
-      "title": "2008_STYLE_CRISIS | Impact -50.09%"
+      "title": "2008_STYLE_CRISIS | Impact -51.60%"
     }
   },
   "research": {
@@ -237,19 +237,19 @@
   },
   "risk_register": [
     {
-      "reason": "HIGH | UNH | Position concentration 44.9%",
+      "reason": "HIGH | UNH | Position concentration 41.5%",
       "severity": "HIGH",
       "source": "top_priority",
-      "title": "UNH position concentration 44.9%"
+      "title": "UNH position concentration 41.5%"
     },
     {
-      "reason": "Position concentration 44.9%",
+      "reason": "Position concentration 41.5%",
       "severity": "HIGH",
       "source": "portfolio_concentration",
       "title": "UNH"
     },
     {
-      "reason": "Position concentration 19.1%",
+      "reason": "Position concentration 23.7%",
       "severity": "MEDIUM",
       "source": "portfolio_concentration",
       "title": "SMCI"
@@ -300,10 +300,10 @@
   "schema_version": "1.0",
   "top_priority": {
     "category": "Portfolio Risk",
-    "reason": "HIGH | UNH | Position concentration 44.9%",
+    "reason": "HIGH | UNH | Position concentration 41.5%",
     "risk_timeframe": "current",
     "severity": "HIGH",
     "source_agent": "Portfolio Manager",
-    "title": "UNH position concentration 44.9%"
+    "title": "UNH position concentration 41.5%"
   }
 }

@@ -2,16 +2,7 @@
   "action_signals": [
     {
       "category": "action",
-      "description": "Action queue gained a new item.",
-      "is_material": true,
-      "name": "Review UNH position concentration 44.9%",
-      "score": 25,
-      "source": "delta",
-      "type": "new_action"
-    },
-    {
-      "category": "action",
-      "description": "Action appears in 8 state samples.",
+      "description": "Action appears in 10 state samples.",
       "is_material": false,
       "name": "Reevaluate SMCI: Low conviction holding",
       "score": 15,
@@ -38,16 +29,7 @@
     },
     {
       "category": "action",
-      "description": "Action appears in 2 state samples.",
-      "is_material": false,
-      "name": "Review SMCI position concentration 17.9%",
-      "score": 15,
-      "source": "history",
-      "type": "persistent_action"
-    },
-    {
-      "category": "action",
-      "description": "Action appears in 2 state samples.",
+      "description": "Action appears in 3 state samples.",
       "is_material": false,
       "name": "Review SMCI position concentration 19.1%",
       "score": 15,
@@ -58,7 +40,25 @@
       "category": "action",
       "description": "Action appears in 2 state samples.",
       "is_material": false,
-      "name": "Review UNH position concentration 45.3%",
+      "name": "Review SMCI position concentration 23.7%",
+      "score": 15,
+      "source": "history",
+      "type": "persistent_action"
+    },
+    {
+      "category": "action",
+      "description": "Action appears in 2 state samples.",
+      "is_material": false,
+      "name": "Review UNH position concentration 41.5%",
+      "score": 15,
+      "source": "history",
+      "type": "persistent_action"
+    },
+    {
+      "category": "action",
+      "description": "Action appears in 2 state samples.",
+      "is_material": false,
+      "name": "Review UNH position concentration 44.9%",
       "score": 15,
       "source": "history",
       "type": "persistent_action"
@@ -67,7 +67,7 @@
       "category": "action",
       "description": "Current action queue contains a review-class action.",
       "is_material": false,
-      "name": "Review UNH position concentration 44.9%",
+      "name": "Review UNH position concentration 41.5%",
       "score": 10,
       "source": "state",
       "type": "high_priority_action"
@@ -85,62 +85,15 @@
       "category": "action",
       "description": "Current action queue contains a review-class action.",
       "is_material": false,
-      "name": "Review SMCI position concentration 19.1%",
+      "name": "Review SMCI position concentration 23.7%",
       "score": 10,
       "source": "state",
       "type": "high_priority_action"
     }
   ],
-  "deescalations": [
-    {
-      "category": "risk",
-      "description": "Risk resolved or disappeared with prior severity HIGH.",
-      "is_material": false,
-      "name": "UNH position concentration 44.8%",
-      "score": -15,
-      "source": "delta",
-      "type": "resolved_risk"
-    }
-  ],
-  "escalations": [
-    {
-      "category": "priority",
-      "description": "Top priority changed from UNH position concentration 44.8% to UNH position concentration 44.9%.",
-      "is_material": true,
-      "name": "UNH position concentration 44.9%",
-      "score": 50,
-      "source": "delta",
-      "type": "priority_changed"
-    },
-    {
-      "category": "risk",
-      "description": "New risk appeared with severity HIGH.",
-      "is_material": true,
-      "name": "UNH position concentration 44.9%",
-      "score": 40,
-      "source": "delta",
-      "type": "new_risk"
-    },
-    {
-      "category": "portfolio",
-      "description": "Portfolio current risk changed from UNH position concentration 44.8% to UNH position concentration 44.9%.",
-      "is_material": true,
-      "name": "UNH position concentration 44.9%",
-      "score": 35,
-      "source": "delta",
-      "type": "portfolio_risk_changed"
-    },
-    {
-      "category": "action",
-      "description": "Action queue gained a new item.",
-      "is_material": true,
-      "name": "Review UNH position concentration 44.9%",
-      "score": 25,
-      "source": "delta",
-      "type": "new_action"
-    }
-  ],
-  "generated_at": "2026-06-18T10:29:42",
+  "deescalations": [],
+  "escalations": [],
+  "generated_at": "2026-06-18T10:38:33",
   "macro_signals": [
     {
       "category": "macro",
@@ -181,57 +134,20 @@
       "type": "portfolio_relevant_news"
     }
   ],
-  "novel_signals": [
-    {
-      "category": "priority",
-      "description": "Top priority changed from UNH position concentration 44.8% to UNH position concentration 44.9%.",
-      "is_material": true,
-      "name": "UNH position concentration 44.9%",
-      "score": 50,
-      "source": "delta",
-      "type": "priority_changed"
-    },
-    {
-      "category": "risk",
-      "description": "New risk appeared with severity HIGH.",
-      "is_material": true,
-      "name": "UNH position concentration 44.9%",
-      "score": 40,
-      "source": "delta",
-      "type": "new_risk"
-    },
-    {
-      "category": "portfolio",
-      "description": "Portfolio current risk changed from UNH position concentration 44.8% to UNH position concentration 44.9%.",
-      "is_material": true,
-      "name": "UNH position concentration 44.9%",
-      "score": 35,
-      "source": "delta",
-      "type": "portfolio_risk_changed"
-    },
-    {
-      "category": "action",
-      "description": "Action queue gained a new item.",
-      "is_material": true,
-      "name": "Review UNH position concentration 44.9%",
-      "score": 25,
-      "source": "delta",
-      "type": "new_action"
-    }
-  ],
+  "novel_signals": [],
   "persistent_signals": [
     {
       "category": "priority",
-      "description": "Top priority appears in risk frequency across 1 samples.",
+      "description": "Top priority appears in risk frequency across 2 samples.",
       "is_material": false,
-      "name": "UNH position concentration 44.9%",
+      "name": "UNH position concentration 41.5%",
       "score": 20,
       "source": "history",
       "type": "priority_in_risk_frequency"
     },
     {
       "category": "risk",
-      "description": "Risk appears in 5 state samples.",
+      "description": "Risk appears in 7 state samples.",
       "is_material": true,
       "name": "Growth exposure conflicts with inflation/rates theme",
       "score": 35,
@@ -240,7 +156,7 @@
     },
     {
       "category": "risk",
-      "description": "Risk appears in 5 state samples.",
+      "description": "Risk appears in 7 state samples.",
       "is_material": true,
       "name": "Inflation Trend: RISING",
       "score": 35,
@@ -249,7 +165,7 @@
     },
     {
       "category": "risk",
-      "description": "Risk appears in 5 state samples.",
+      "description": "Risk appears in 7 state samples.",
       "is_material": true,
       "name": "Macro regime risk conflicts with portfolio regime posture",
       "score": 35,
@@ -258,7 +174,7 @@
     },
     {
       "category": "risk",
-      "description": "Risk appears in 5 state samples.",
+      "description": "Risk appears in 7 state samples.",
       "is_material": true,
       "name": "Portfolio risk conflicts with defensive allocation gap",
       "score": 35,
@@ -267,7 +183,7 @@
     },
     {
       "category": "risk",
-      "description": "Risk appears in 5 state samples.",
+      "description": "Risk appears in 7 state samples.",
       "is_material": true,
       "name": "SMCI position size conflicts with research conviction",
       "score": 35,
@@ -276,7 +192,7 @@
     },
     {
       "category": "risk",
-      "description": "Risk appears in 5 state samples.",
+      "description": "Risk appears in 7 state samples.",
       "is_material": true,
       "name": "UNH",
       "score": 35,
@@ -285,7 +201,7 @@
     },
     {
       "category": "risk",
-      "description": "Risk appears in 5 state samples.",
+      "description": "Risk appears in 7 state samples.",
       "is_material": false,
       "name": "SMCI",
       "score": 25,
@@ -294,9 +210,18 @@
     },
     {
       "category": "risk",
-      "description": "Risk appears in 5 state samples.",
+      "description": "Risk appears in 7 state samples.",
       "is_material": false,
       "name": "Yield Curve: FLAT",
+      "score": 25,
+      "source": "history",
+      "type": "persistent_risk"
+    },
+    {
+      "category": "risk",
+      "description": "Risk appears in 5 state samples.",
+      "is_material": false,
+      "name": "Energy: FALLING",
       "score": 25,
       "source": "history",
       "type": "persistent_risk"
@@ -306,15 +231,6 @@
       "description": "Risk appears in 3 state samples.",
       "is_material": true,
       "name": "ECO: Low conviction holding",
-      "score": 35,
-      "source": "history",
-      "type": "persistent_risk"
-    },
-    {
-      "category": "risk",
-      "description": "Risk appears in 3 state samples.",
-      "is_material": true,
-      "name": "Energy: RISING",
       "score": 35,
       "source": "history",
       "type": "persistent_risk"
@@ -350,7 +266,7 @@
       "category": "risk",
       "description": "Risk appears in 2 state samples.",
       "is_material": true,
-      "name": "UNH position concentration 45.3%",
+      "name": "Energy: RISING",
       "score": 35,
       "source": "history",
       "type": "persistent_risk"
@@ -358,9 +274,18 @@
     {
       "category": "risk",
       "description": "Risk appears in 2 state samples.",
-      "is_material": false,
-      "name": "Energy: FALLING",
-      "score": 25,
+      "is_material": true,
+      "name": "UNH position concentration 41.5%",
+      "score": 35,
+      "source": "history",
+      "type": "persistent_risk"
+    },
+    {
+      "category": "risk",
+      "description": "Risk appears in 2 state samples.",
+      "is_material": true,
+      "name": "UNH position concentration 44.9%",
+      "score": 35,
       "source": "history",
       "type": "persistent_risk"
     },
@@ -384,7 +309,7 @@
     },
     {
       "category": "action",
-      "description": "Action appears in 8 state samples.",
+      "description": "Action appears in 10 state samples.",
       "is_material": false,
       "name": "Reevaluate SMCI: Low conviction holding",
       "score": 15,
@@ -411,16 +336,7 @@
     },
     {
       "category": "action",
-      "description": "Action appears in 2 state samples.",
-      "is_material": false,
-      "name": "Review SMCI position concentration 17.9%",
-      "score": 15,
-      "source": "history",
-      "type": "persistent_action"
-    },
-    {
-      "category": "action",
-      "description": "Action appears in 2 state samples.",
+      "description": "Action appears in 3 state samples.",
       "is_material": false,
       "name": "Review SMCI position concentration 19.1%",
       "score": 15,
@@ -431,62 +347,43 @@
       "category": "action",
       "description": "Action appears in 2 state samples.",
       "is_material": false,
-      "name": "Review UNH position concentration 45.3%",
+      "name": "Review SMCI position concentration 23.7%",
+      "score": 15,
+      "source": "history",
+      "type": "persistent_action"
+    },
+    {
+      "category": "action",
+      "description": "Action appears in 2 state samples.",
+      "is_material": false,
+      "name": "Review UNH position concentration 41.5%",
+      "score": 15,
+      "source": "history",
+      "type": "persistent_action"
+    },
+    {
+      "category": "action",
+      "description": "Action appears in 2 state samples.",
+      "is_material": false,
+      "name": "Review UNH position concentration 44.9%",
       "score": 15,
       "source": "history",
       "type": "persistent_action"
     }
   ],
-  "portfolio_signals": [
-    {
-      "category": "portfolio",
-      "description": "Portfolio current risk changed from UNH position concentration 44.8% to UNH position concentration 44.9%.",
-      "is_material": true,
-      "name": "UNH position concentration 44.9%",
-      "score": 35,
-      "source": "delta",
-      "type": "portfolio_risk_changed"
-    }
-  ],
+  "portfolio_signals": [],
   "priority_signals": [
     {
       "category": "priority",
-      "description": "Top priority changed from UNH position concentration 44.8% to UNH position concentration 44.9%.",
-      "is_material": true,
-      "name": "UNH position concentration 44.9%",
-      "score": 50,
-      "source": "delta",
-      "type": "priority_changed"
-    },
-    {
-      "category": "priority",
-      "description": "Top priority appears in risk frequency across 1 samples.",
+      "description": "Top priority appears in risk frequency across 2 samples.",
       "is_material": false,
-      "name": "UNH position concentration 44.9%",
+      "name": "UNH position concentration 41.5%",
       "score": 20,
       "source": "history",
       "type": "priority_in_risk_frequency"
     }
   ],
   "recommended_attention": [
-    {
-      "category": "priority",
-      "description": "Top priority changed from UNH position concentration 44.8% to UNH position concentration 44.9%.",
-      "name": "UNH position concentration 44.9%",
-      "score": 50
-    },
-    {
-      "category": "risk",
-      "description": "New risk appeared with severity HIGH.",
-      "name": "UNH position concentration 44.9%",
-      "score": 40
-    },
-    {
-      "category": "portfolio",
-      "description": "Portfolio current risk changed from UNH position concentration 44.8% to UNH position concentration 44.9%.",
-      "name": "UNH position concentration 44.9%",
-      "score": 35
-    },
     {
       "category": "risk",
       "description": "Risk appears in 3 state samples.",
@@ -495,33 +392,33 @@
     },
     {
       "category": "risk",
-      "description": "Risk appears in 3 state samples.",
+      "description": "Risk appears in 2 state samples.",
       "name": "Energy: RISING",
+      "score": 35
+    },
+    {
+      "category": "risk",
+      "description": "Risk appears in 7 state samples.",
+      "name": "Growth exposure conflicts with inflation/rates theme",
+      "score": 35
+    },
+    {
+      "category": "risk",
+      "description": "Risk appears in 7 state samples.",
+      "name": "Inflation Trend: RISING",
+      "score": 35
+    },
+    {
+      "category": "risk",
+      "description": "Risk appears in 7 state samples.",
+      "name": "Macro regime risk conflicts with portfolio regime posture",
       "score": 35
     }
   ],
   "risk_signals": [
     {
       "category": "risk",
-      "description": "New risk appeared with severity HIGH.",
-      "is_material": true,
-      "name": "UNH position concentration 44.9%",
-      "score": 40,
-      "source": "delta",
-      "type": "new_risk"
-    },
-    {
-      "category": "risk",
-      "description": "Risk resolved or disappeared with prior severity HIGH.",
-      "is_material": false,
-      "name": "UNH position concentration 44.8%",
-      "score": -15,
-      "source": "delta",
-      "type": "resolved_risk"
-    },
-    {
-      "category": "risk",
-      "description": "Risk appears in 5 state samples.",
+      "description": "Risk appears in 7 state samples.",
       "is_material": true,
       "name": "Growth exposure conflicts with inflation/rates theme",
       "score": 35,
@@ -530,7 +427,7 @@
     },
     {
       "category": "risk",
-      "description": "Risk appears in 5 state samples.",
+      "description": "Risk appears in 7 state samples.",
       "is_material": true,
       "name": "Inflation Trend: RISING",
       "score": 35,
@@ -539,7 +436,7 @@
     },
     {
       "category": "risk",
-      "description": "Risk appears in 5 state samples.",
+      "description": "Risk appears in 7 state samples.",
       "is_material": true,
       "name": "Macro regime risk conflicts with portfolio regime posture",
       "score": 35,
@@ -548,7 +445,7 @@
     },
     {
       "category": "risk",
-      "description": "Risk appears in 5 state samples.",
+      "description": "Risk appears in 7 state samples.",
       "is_material": true,
       "name": "Portfolio risk conflicts with defensive allocation gap",
       "score": 35,
@@ -557,7 +454,7 @@
     },
     {
       "category": "risk",
-      "description": "Risk appears in 5 state samples.",
+      "description": "Risk appears in 7 state samples.",
       "is_material": true,
       "name": "SMCI position size conflicts with research conviction",
       "score": 35,
@@ -566,7 +463,7 @@
     },
     {
       "category": "risk",
-      "description": "Risk appears in 5 state samples.",
+      "description": "Risk appears in 7 state samples.",
       "is_material": true,
       "name": "UNH",
       "score": 35,
@@ -575,7 +472,7 @@
     },
     {
       "category": "risk",
-      "description": "Risk appears in 5 state samples.",
+      "description": "Risk appears in 7 state samples.",
       "is_material": false,
       "name": "SMCI",
       "score": 25,
@@ -584,9 +481,18 @@
     },
     {
       "category": "risk",
-      "description": "Risk appears in 5 state samples.",
+      "description": "Risk appears in 7 state samples.",
       "is_material": false,
       "name": "Yield Curve: FLAT",
+      "score": 25,
+      "source": "history",
+      "type": "persistent_risk"
+    },
+    {
+      "category": "risk",
+      "description": "Risk appears in 5 state samples.",
+      "is_material": false,
+      "name": "Energy: FALLING",
       "score": 25,
       "source": "history",
       "type": "persistent_risk"
@@ -596,15 +502,6 @@
       "description": "Risk appears in 3 state samples.",
       "is_material": true,
       "name": "ECO: Low conviction holding",
-      "score": 35,
-      "source": "history",
-      "type": "persistent_risk"
-    },
-    {
-      "category": "risk",
-      "description": "Risk appears in 3 state samples.",
-      "is_material": true,
-      "name": "Energy: RISING",
       "score": 35,
       "source": "history",
       "type": "persistent_risk"
@@ -640,7 +537,7 @@
       "category": "risk",
       "description": "Risk appears in 2 state samples.",
       "is_material": true,
-      "name": "UNH position concentration 45.3%",
+      "name": "Energy: RISING",
       "score": 35,
       "source": "history",
       "type": "persistent_risk"
@@ -648,9 +545,18 @@
     {
       "category": "risk",
       "description": "Risk appears in 2 state samples.",
-      "is_material": false,
-      "name": "Energy: FALLING",
-      "score": 25,
+      "is_material": true,
+      "name": "UNH position concentration 41.5%",
+      "score": 35,
+      "source": "history",
+      "type": "persistent_risk"
+    },
+    {
+      "category": "risk",
+      "description": "Risk appears in 2 state samples.",
+      "is_material": true,
+      "name": "UNH position concentration 44.9%",
+      "score": 35,
       "source": "history",
       "type": "persistent_risk"
     },
@@ -658,7 +564,7 @@
       "category": "risk",
       "description": "Current risk register contains a high-priority risk.",
       "is_material": true,
-      "name": "UNH position concentration 44.9%",
+      "name": "UNH position concentration 41.5%",
       "score": 20,
       "source": "state",
       "type": "high_priority_risk"
@@ -720,18 +626,18 @@
   ],
   "schema_version": "1.0",
   "summary": {
-    "change_level": "critical",
-    "material_change_count": 5,
-    "novel_change_count": 4,
-    "persistent_issue_count": 24,
+    "change_level": "moderate",
+    "material_change_count": 0,
+    "novel_change_count": 0,
+    "persistent_issue_count": 26,
     "top_signal": {
-      "category": "priority",
-      "description": "Top priority changed from UNH position concentration 44.8% to UNH position concentration 44.9%.",
+      "category": "risk",
+      "description": "Risk appears in 3 state samples.",
       "is_material": true,
-      "name": "UNH position concentration 44.9%",
-      "score": 50,
-      "source": "delta",
-      "type": "priority_changed"
+      "name": "ECO: Low conviction holding",
+      "score": 35,
+      "source": "history",
+      "type": "persistent_risk"
     }
   }
 }

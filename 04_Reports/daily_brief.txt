@@ -6,19 +6,19 @@ ECHO EXECUTIVE BRIEF
 --------------------
 
 System: HEALTHY
-Top Priority: UNH position concentration 44.9%
+Top Priority: UNH position concentration 41.5%
 Dominant Theme: Inflation/Energy Risk
-Theme Impact: Inflation/Energy Risk touches VNOM/ECO directly and Commodity 10.1%, Growth 68.2% indirectly.
+Theme Impact: Inflation/Energy Risk touches VNOM/ECO directly and Commodity 9.4%, Growth 69.1% indirectly.
 Key Conflict: Growth exposure conflicts with inflation/rates theme
-Portfolio Risk: UNH position concentration 44.9%
-Worst Stress Scenario: 2008_STYLE_CRISIS | Impact -50.09%
+Portfolio Risk: UNH position concentration 41.5%
+Worst Stress Scenario: 2008_STYLE_CRISIS | Impact -51.60%
 Macro Backdrop: Inflation Trend | Macro Regime Inflation Stress | Regime Score 100 | Priority Tier HIGH
 Market Watch: Middle East Energy Risk
 
 Action Queue:
-1. Review UNH position concentration 44.9%
+1. Review UNH position concentration 41.5%
 2. Reevaluate SMCI: Low conviction holding
-3. Review SMCI position concentration 19.1%
+3. Review SMCI position concentration 23.7%
 
 Read Full Report If: High-priority signal requires review.
 
@@ -40,7 +40,7 @@ REPORT RETENTION SUMMARY
 ------------------------
 
 Archive Enabled: Yes
-Archive Folder: 04_Reports/archive/20260618_102942
+Archive Folder: 04_Reports/archive/20260618_103833
 Archive Keep Count: 10
 Archive Runs Retained: 10
 Archive Cleanup Deleted: 1
@@ -52,28 +52,28 @@ ECHO EXECUTIVE SUMMARY
 
 System Health: HEALTHY
 
-Top Priority: UNH position concentration 44.9%
+Top Priority: UNH position concentration 41.5%
 
 Dominant Cross-Agent Theme: Inflation/Energy Risk
 Theme Reason: Inflation/Energy Risk links 4 signals across 2 agent(s): Macro Agent, News Agent.
-Theme Impact: Inflation/Energy Risk touches VNOM/ECO directly and Commodity 10.1%, Growth 68.2% indirectly.
+Theme Impact: Inflation/Energy Risk touches VNOM/ECO directly and Commodity 9.4%, Growth 69.1% indirectly.
 Key Conflict: Growth exposure conflicts with inflation/rates theme
 Conflict Reason: High growth exposure is sensitive to discount-rate pressure when inflation, energy, or rates themes are active.
 
 Top Macro Environment: Inflation Trend | Macro Regime Inflation Stress | Regime Score 100 | Priority Tier HIGH
 
-Top Portfolio Risk: UNH position concentration 44.9%
+Top Portfolio Risk: UNH position concentration 41.5%
 
-Worst Stress Scenario: 2008_STYLE_CRISIS | Impact -50.09%
+Worst Stress Scenario: 2008_STYLE_CRISIS | Impact -51.60%
 
 Top Portfolio Opportunity: Next $1000 | SGOV $351 | AVUV $330 | AVDV $319
 
 Top Market Development: Middle East Energy Risk
 
 Priority Action Queue:
-1. Review UNH position concentration 44.9%
+1. Review UNH position concentration 41.5%
 2. Reevaluate SMCI: Low conviction holding
-3. Review SMCI position concentration 19.1%
+3. Review SMCI position concentration 23.7%
 
 Executive Notes: Research Gap signals dominate today's signal stack, led by Portfolio Manager. Signals are broad across 4 source agents.
 
@@ -125,7 +125,7 @@ CROSS-AGENT THEME DETAILS
    Supporting Signal Count: 1
    Theme Reason: Recession/Growth Slowdown Risk links 1 signals across 1 agent(s): Portfolio Manager.
    Supporting Signals:
-   - Portfolio Manager | STRESS_TEST_RISK | HIGH | Stress-test exposure: 2008_STYLE_CRISIS | Impact -50.09%
+   - Portfolio Manager | STRESS_TEST_RISK | HIGH | Stress-test exposure: 2008_STYLE_CRISIS | Impact -51.60%
 
 4. Portfolio Concentration Risk
    Theme Strength: CRITICAL
@@ -134,8 +134,8 @@ CROSS-AGENT THEME DETAILS
    Supporting Signal Count: 2
    Theme Reason: Portfolio Concentration Risk links 2 signals across 1 agent(s): Portfolio Manager.
    Supporting Signals:
-   - Portfolio Manager | CONCENTRATION_RISK | HIGH | UNH position concentration 44.9%
-   - Portfolio Manager | CONCENTRATION_RISK | HIGH | SMCI position concentration 19.1%
+   - Portfolio Manager | CONCENTRATION_RISK | HIGH | UNH position concentration 41.5%
+   - Portfolio Manager | CONCENTRATION_RISK | HIGH | SMCI position concentration 23.7%
 
 5. Research Quality Risk
    Theme Strength: CRITICAL
@@ -151,14 +151,12 @@ CROSS-AGENT THEME DETAILS
    - Research Agent | RESEARCH_HEALTH_ISSUE | LOW | AVDV: High score candidate still in watch status
 
 6. Tax/Capital Deployment Theme
-   Theme Strength: CRITICAL
-   Theme Score: 100
+   Theme Strength: HIGH
+   Theme Score: 96
    Supporting Agents: Portfolio Manager
-   Supporting Signal Count: 4
-   Theme Reason: Tax/Capital Deployment Theme links 4 signals across 1 agent(s): Portfolio Manager.
+   Supporting Signal Count: 2
+   Theme Reason: Tax/Capital Deployment Theme links 2 signals across 1 agent(s): Portfolio Manager.
    Supporting Signals:
-   - Portfolio Manager | TAX_RISK | MEDIUM | Tax Loss Harvest Candidates: 5
-   - Portfolio Manager | TAX_RISK | MEDIUM | Large Taxable Gain Positions: 1
    - Portfolio Manager | DEPLOYMENT_OPPORTUNITY | MEDIUM | Next $1000 | SGOV $351 | AVUV $330 | AVDV $319
    - Portfolio Manager | REPLACEMENT_CANDIDATE | MEDIUM | Sell MSTR / Buy AVUV | Reason Higher ranked candidate available.
 
@@ -179,7 +177,7 @@ THEME IMPACT SUMMARY
 
 Theme Impact Mapping Status: ACTIVE
 Mapped Themes: 7
-Dominant Theme Impact: Inflation/Energy Risk touches VNOM/ECO directly and Commodity 10.1%, Growth 68.2% indirectly.
+Dominant Theme Impact: Inflation/Energy Risk touches VNOM/ECO directly and Commodity 9.4%, Growth 69.1% indirectly.
 Dominant Impact Tier: CRITICAL
 
 Theme impact mapping connects deterministic cross-agent themes to existing portfolio holdings, exposures, factors, and concentration details.
@@ -191,64 +189,64 @@ THEME IMPACT DETAILS
    Theme Score: 100
    Impact Tier: CRITICAL
    Impacted Holdings: VNOM, ECO
-   Impacted Exposures: Commodity 10.1%, Energy-linked exposure
-   Impacted Factors: Commodity 10.1%, Growth 68.2%
+   Impacted Exposures: Commodity 9.4%, Energy-linked exposure
+   Impacted Factors: Commodity 9.4%, Growth 69.1%
    Risk Channel: oil prices, inflation pressure, rates expectations
-   Impact Reason: Inflation/Energy Risk maps to VNOM/ECO; exposure link: Commodity 10.1%, Energy-linked exposure; factor link: Commodity 10.1%, Growth 68.2%.
+   Impact Reason: Inflation/Energy Risk maps to VNOM/ECO; exposure link: Commodity 9.4%, Energy-linked exposure; factor link: Commodity 9.4%, Growth 69.1%.
 
 2. Fed/Rates Risk
    Theme Score: 100
    Impact Tier: CRITICAL
    Impacted Holdings: UNH, SMCI, SCHG, IBIT
-   Impacted Exposures: Equity 82.2%, Bitcoin 6.2%, Long-duration equity
-   Impacted Factors: Growth 68.2%, Bitcoin 6.2%
+   Impacted Exposures: Equity 82.1%, Bitcoin 8.5%, Long-duration equity
+   Impacted Factors: Growth 69.1%, Bitcoin 8.5%
    Risk Channel: discount rates, liquidity, valuation multiples
-   Impact Reason: Fed/Rates Risk maps to UNH/SMCI/SCHG/IBIT; exposure link: Equity 82.2%, Bitcoin 6.2%, Long-duration equity; factor link: Growth 68.2%, Bitcoin 6.2%.
+   Impact Reason: Fed/Rates Risk maps to UNH/SMCI/SCHG/IBIT; exposure link: Equity 82.1%, Bitcoin 8.5%, Long-duration equity; factor link: Growth 69.1%, Bitcoin 8.5%.
 
 3. Recession/Growth Slowdown Risk
    Theme Score: 100
    Impact Tier: CRITICAL
-   Impacted Holdings: UNH, SMCI, VNOM, IBIT, ECO, MSTR
-   Impacted Exposures: Equity 82.2%, Bitcoin 6.2%
-   Impacted Factors: Growth 68.2%, Small 24%, Bitcoin 6.2%
+   Impacted Holdings: UNH, SMCI, IBIT, VNOM, ECO, MSTR
+   Impacted Exposures: Equity 82.1%, Bitcoin 8.5%
+   Impacted Factors: Growth 69.1%, Small 28.2%, Bitcoin 8.5%
    Risk Channel: earnings expectations, risk appetite, drawdown risk
-   Impact Reason: Recession/Growth Slowdown Risk maps to UNH/SMCI/VNOM/IBIT; exposure link: Equity 82.2%, Bitcoin 6.2%; factor link: Growth 68.2%, Small 24%, Bitcoin 6.2%.
+   Impact Reason: Recession/Growth Slowdown Risk maps to UNH/SMCI/IBIT/VNOM; exposure link: Equity 82.1%, Bitcoin 8.5%; factor link: Growth 69.1%, Small 28.2%, Bitcoin 8.5%.
 
 4. Portfolio Concentration Risk
    Theme Score: 100
    Impact Tier: CRITICAL
    Impacted Holdings: UNH, SMCI
-   Impacted Exposures: Equity 82.2%, Top 3 concentration
-   Impacted Factors: Growth 68.2%
+   Impacted Exposures: Equity 82.1%, Top 3 concentration
+   Impacted Factors: Growth 69.1%
    Risk Channel: single-name drawdown concentration
-   Impact Reason: Portfolio Concentration Risk maps to UNH/SMCI; exposure link: Equity 82.2%, Top 3 concentration; factor link: Growth 68.2%.
+   Impact Reason: Portfolio Concentration Risk maps to UNH/SMCI; exposure link: Equity 82.1%, Top 3 concentration; factor link: Growth 69.1%.
 
 5. Research Quality Risk
    Theme Score: 100
    Impact Tier: CRITICAL
    Impacted Holdings: ECO, MSTR, SMCI
    Impacted Exposures: Low-conviction holdings
-   Impacted Factors: Growth 68.2%, Commodity 10.1%, Bitcoin 6.2%
+   Impacted Factors: Growth 69.1%, Commodity 9.4%, Bitcoin 8.5%
    Risk Channel: position size unsupported by thesis quality
-   Impact Reason: Research Quality Risk maps to ECO/MSTR/SMCI; exposure link: Low-conviction holdings; factor link: Growth 68.2%, Commodity 10.1%, Bitcoin 6.2%.
+   Impact Reason: Research Quality Risk maps to ECO/MSTR/SMCI; exposure link: Low-conviction holdings; factor link: Growth 69.1%, Commodity 9.4%, Bitcoin 8.5%.
 
 6. Tax/Capital Deployment Theme
-   Theme Score: 100
+   Theme Score: 96
    Impact Tier: CRITICAL
-   Impacted Holdings: UNH, SMCI, MSTR, IBIT, VNOM, ECO, CASH0
+   Impacted Holdings: MSTR
    Impacted Exposures: Taxable account, Available cash
    Impacted Factors: None
    Risk Channel: tax drag, opportunity cost, capital allocation
-   Impact Reason: Tax/Capital Deployment Theme maps to UNH/SMCI/MSTR/IBIT; exposure link: Taxable account, Available cash; factor link: no direct factor bucket.
+   Impact Reason: Tax/Capital Deployment Theme maps to MSTR; exposure link: Taxable account, Available cash; factor link: no direct factor bucket.
 
 7. Market/Regulatory Event Theme
    Theme Score: 92
    Impact Tier: HIGH
    Impacted Holdings: None
-   Impacted Exposures: Equity 82.2%, Bitcoin 6.2%, Commodity 10.1%
+   Impacted Exposures: Equity 82.1%, Bitcoin 8.5%, Commodity 9.4%
    Impacted Factors: None
    Risk Channel: headline risk, regulatory pressure, market repricing
-   Impact Reason: Market/Regulatory Event Theme maps to no specific holdings; exposure link: Equity 82.2%, Bitcoin 6.2%, Commodity 10.1%; factor link: no direct factor bucket.
+   Impact Reason: Market/Regulatory Event Theme maps to no specific holdings; exposure link: Equity 82.1%, Bitcoin 8.5%, Commodity 9.4%; factor link: no direct factor bucket.
 
 
 THEME CONFLICT SUMMARY
@@ -274,7 +272,7 @@ THEME CONFLICT DETAILS
    Conflict Reason: High growth exposure is sensitive to discount-rate pressure when inflation, energy, or rates themes are active.
    Suggested Review Area: Review growth and rates-sensitive exposure.
    Evidence:
-   - Growth factor exposure 68.2%
+   - Growth factor exposure 69.1%
    - Active themes: Fed/Rates Risk, Inflation/Energy Risk
 
 2. Macro regime risk conflicts with portfolio regime posture
@@ -295,8 +293,8 @@ THEME CONFLICT DETAILS
    Suggested Review Area: Evaluate liquidity buffer and defensive allocation gap.
    Evidence:
    - Portfolio health: ELEVATED_RISK
-   - Cash allocation 1.52%
-   - Cash target gap -5.48%
+   - Cash allocation 0.04%
+   - Cash target gap -6.96%
    - Bond exposure 0%
 
 4. SMCI position size conflicts with research conviction
@@ -307,7 +305,7 @@ THEME CONFLICT DETAILS
    Suggested Review Area: Review SMCI thesis quality against position size.
    Evidence:
    - SMCI low conviction
-   - SMCI allocation 19.11%
+   - SMCI allocation 23.65%
    - SMCI overweight flag present
 
 
@@ -316,13 +314,13 @@ CROSS-AGENT PRIORITY SUMMARY
 
 Priority Engine Status: ACTIVE
 
-Top Priority: UNH position concentration 44.9%
+Top Priority: UNH position concentration 41.5%
 
 Priority Source: Portfolio Manager
 
 Critical Priorities: 0
 High Priorities: 7
-Medium Priorities: 9
+Medium Priorities: 7
 Low Priorities: 1
 
 Cross-Agent Priority Engine ranks issues across all active agents.
@@ -331,14 +329,14 @@ Stress-test scenarios are separated from current live priorities.
 CROSS-AGENT PRIORITY DETAILS
 ----------------------------
 
-1. UNH position concentration 44.9%
+1. UNH position concentration 41.5%
    Source: Portfolio Manager
    Severity: HIGH
    Category: Portfolio Risk
    Risk Timeframe: current
-   Reason: HIGH | UNH | Position concentration 44.9%
+   Reason: HIGH | UNH | Position concentration 41.5%
 
-2. Stress-test exposure: 2008_STYLE_CRISIS | Impact -50.09%
+2. Stress-test exposure: 2008_STYLE_CRISIS | Impact -51.60%
    Source: Portfolio Manager
    Severity: HIGH
    Category: Scenario Risk
@@ -352,12 +350,12 @@ CROSS-AGENT PRIORITY DETAILS
    Risk Timeframe: current
    Reason: Reevaluate thesis
 
-4. SMCI position concentration 19.1%
+4. SMCI position concentration 23.7%
    Source: Portfolio Manager
    Severity: HIGH
    Category: Portfolio Risk
    Risk Timeframe: current
-   Reason: MEDIUM | SMCI | Position concentration 19.1%
+   Reason: MEDIUM | SMCI | Position concentration 23.7%
 
 5. ECO: Low conviction holding
    Source: Research Agent
@@ -380,36 +378,36 @@ CROSS-AGENT PRIORITY DETAILS
    Risk Timeframe: current
    Reason: Rising inflation can reprice Fed expectations, broad equities, long-duration growth assets, and drawdown risk.
 
-8. Tax Loss Harvest Candidates: 5
-   Source: Portfolio Manager
-   Severity: MEDIUM
-   Category: Portfolio Risk
-   Risk Timeframe: current
-   Reason: Portfolio Manager identified a tax optimization warning.
-
-9. Large Taxable Gain Positions: 1
-   Source: Portfolio Manager
-   Severity: MEDIUM
-   Category: Portfolio Risk
-   Risk Timeframe: current
-   Reason: Portfolio Manager identified a tax optimization warning.
-
-10. Next $1000 | SGOV $351 | AVUV $330 | AVDV $319
+8. Next $1000 | SGOV $351 | AVUV $330 | AVDV $319
    Source: Portfolio Manager
    Severity: MEDIUM
    Category: Portfolio Opportunity
    Risk Timeframe: current
    Reason: Portfolio Manager top capital deployment.
 
+9. ECO: Reevaluate thesis
+   Source: Research Agent
+   Severity: MEDIUM
+   Category: Research Gap
+   Risk Timeframe: current
+   Reason: Research Agent identified this as its top research priority.
+
+10. Inflation trend: RISING
+   Source: Macro Agent
+   Severity: MEDIUM
+   Category: Macro Risk
+   Risk Timeframe: current
+   Reason: Macro Agent identified rising inflation.
+
 
 AGENT SIGNAL BUS SUMMARY
 ------------------------
 
 Signal Bus Status: ACTIVE
-Total Signals: 17
+Total Signals: 15
 Critical Signals: 0
 High Signals: 7
-Medium Signals: 9
+Medium Signals: 7
 Low Signals: 1
 Info Signals: 0
 Agents Emitting Signals: 4
@@ -419,15 +417,15 @@ Agent Signal Bus normalizes agent outputs into structured internal signals.
 AGENT SIGNAL BUS DETAILS
 ------------------------
 
-1. SMCI position concentration 19.1%
+1. SMCI position concentration 23.7%
    Source: Portfolio Manager
    Type: CONCENTRATION_RISK
    Severity: HIGH
    Confidence: HIGH
    Category: Portfolio Risk
-   Description: MEDIUM | SMCI | Position concentration 19.1%
+   Description: MEDIUM | SMCI | Position concentration 23.7%
 
-2. Stress-test exposure: 2008_STYLE_CRISIS | Impact -50.09%
+2. Stress-test exposure: 2008_STYLE_CRISIS | Impact -51.60%
    Source: Portfolio Manager
    Type: STRESS_TEST_RISK
    Severity: HIGH
@@ -435,13 +433,13 @@ AGENT SIGNAL BUS DETAILS
    Category: Scenario Risk
    Description: Portfolio Manager identified this as the worst stress-test exposure.
 
-3. UNH position concentration 44.9%
+3. UNH position concentration 41.5%
    Source: Portfolio Manager
    Type: CONCENTRATION_RISK
    Severity: HIGH
    Confidence: HIGH
    Category: Portfolio Risk
-   Description: HIGH | UNH | Position concentration 44.9%
+   Description: HIGH | UNH | Position concentration 41.5%
 
 4. ECO: Low conviction holding
    Source: Research Agent
@@ -475,15 +473,7 @@ AGENT SIGNAL BUS DETAILS
    Category: Macro Risk
    Description: Rising inflation can reprice Fed expectations, broad equities, long-duration growth assets, and drawdown risk.
 
-8. Large Taxable Gain Positions: 1
-   Source: Portfolio Manager
-   Type: TAX_RISK
-   Severity: MEDIUM
-   Confidence: HIGH
-   Category: Portfolio Risk
-   Description: Portfolio Manager identified a tax optimization warning.
-
-9. Next $1000 | SGOV $351 | AVUV $330 | AVDV $319
+8. Next $1000 | SGOV $351 | AVUV $330 | AVDV $319
    Source: Portfolio Manager
    Type: DEPLOYMENT_OPPORTUNITY
    Severity: MEDIUM
@@ -491,7 +481,7 @@ AGENT SIGNAL BUS DETAILS
    Category: Portfolio Opportunity
    Description: Portfolio Manager top capital deployment.
 
-10. Sell MSTR / Buy AVUV | Reason Higher ranked candidate available.
+9. Sell MSTR / Buy AVUV | Reason Higher ranked candidate available.
    Source: Portfolio Manager
    Type: REPLACEMENT_CANDIDATE
    Severity: MEDIUM
@@ -499,15 +489,7 @@ AGENT SIGNAL BUS DETAILS
    Category: Portfolio Opportunity
    Description: Portfolio Manager top replacement plan.
 
-11. Tax Loss Harvest Candidates: 5
-   Source: Portfolio Manager
-   Type: TAX_RISK
-   Severity: MEDIUM
-   Confidence: HIGH
-   Category: Portfolio Risk
-   Description: Portfolio Manager identified a tax optimization warning.
-
-12. ECO: Reevaluate thesis
+10. ECO: Reevaluate thesis
    Source: Research Agent
    Type: RESEARCH_HEALTH_ISSUE
    Severity: MEDIUM
@@ -515,7 +497,7 @@ AGENT SIGNAL BUS DETAILS
    Category: Research Gap
    Description: Research Agent identified this as its top research priority.
 
-13. Inflation trend: RISING
+11. Inflation trend: RISING
    Source: Macro Agent
    Type: INFLATION_RISING
    Severity: MEDIUM
@@ -523,7 +505,7 @@ AGENT SIGNAL BUS DETAILS
    Category: Macro Risk
    Description: Macro Agent identified rising inflation.
 
-14. Analysis: Chairman Kevin Warsh’s task forces are the key to understanding the new Fed
+12. Analysis: Chairman Kevin Warsh’s task forces are the key to understanding the new Fed
    Source: News Agent
    Type: MACRO_NEWS
    Severity: MEDIUM
@@ -531,7 +513,7 @@ AGENT SIGNAL BUS DETAILS
    Category: Market Event
    Description: News Agent identified this as the top macro story.
 
-15. Middle East Energy Risk
+13. Middle East Energy Risk
    Source: News Agent
    Type: NEWS_NARRATIVE
    Severity: MEDIUM
@@ -539,11 +521,27 @@ AGENT SIGNAL BUS DETAILS
    Category: Market Event
    Description: 6 related Iran, Hormuz, or oil headlines indicate an energy-linked geopolitical market narrative.
 
+14. OPEC chief dismisses IEA supply glut forecast as 'critical' Strait of Hormuz reopens
+   Source: News Agent
+   Type: WORLD_EVENT
+   Severity: MEDIUM
+   Confidence: MEDIUM
+   Category: Market Event
+   Description: News Agent identified this as the top world event story.
+
+15. AVDV: High score candidate still in watch status
+   Source: Research Agent
+   Type: RESEARCH_HEALTH_ISSUE
+   Severity: LOW
+   Confidence: HIGH
+   Category: Research Gap
+   Description: Complete research review
+
 
 SIGNAL WEIGHTING SUMMARY
 ------------------------
 
-Highest Weighted Signal: UNH position concentration 44.9%
+Highest Weighted Signal: UNH position concentration 41.5%
 Source: Portfolio Manager
 Weighted Score: 100
 Dominant Category: Research Gap
@@ -554,25 +552,25 @@ Signal weighting is deterministic and used to drive Echo Executive Summary.
 SIGNAL WEIGHTING DETAILS
 ------------------------
 
-1. UNH position concentration 44.9% | Source Portfolio Manager | Category Portfolio Risk | Severity HIGH | Base Score 75 | Weighted Score 100
-2. Stress-test exposure: 2008_STYLE_CRISIS | Impact -50.09% | Source Portfolio Manager | Category Scenario Risk | Severity HIGH | Base Score 75 | Weighted Score 90
+1. UNH position concentration 41.5% | Source Portfolio Manager | Category Portfolio Risk | Severity HIGH | Base Score 75 | Weighted Score 100
+2. Stress-test exposure: 2008_STYLE_CRISIS | Impact -51.60% | Source Portfolio Manager | Category Scenario Risk | Severity HIGH | Base Score 75 | Weighted Score 90
 3. SMCI: Low conviction holding | Source Research Agent | Category Research Gap | Severity HIGH | Base Score 75 | Weighted Score 96
-4. SMCI position concentration 19.1% | Source Portfolio Manager | Category Portfolio Risk | Severity HIGH | Base Score 75 | Weighted Score 100
+4. SMCI position concentration 23.7% | Source Portfolio Manager | Category Portfolio Risk | Severity HIGH | Base Score 75 | Weighted Score 100
 5. ECO: Low conviction holding | Source Research Agent | Category Research Gap | Severity HIGH | Base Score 75 | Weighted Score 96
 6. MSTR: Low conviction holding | Source Research Agent | Category Research Gap | Severity HIGH | Base Score 75 | Weighted Score 96
 7. Inflation Trend | Macro Regime Inflation Stress | Regime Score 100 | Priority Tier HIGH | Source Macro Agent | Category Macro Risk | Severity HIGH | Base Score 75 | Weighted Score 90
-8. Tax Loss Harvest Candidates: 5 | Source Portfolio Manager | Category Portfolio Risk | Severity MEDIUM | Base Score 50 | Weighted Score 75
-9. Large Taxable Gain Positions: 1 | Source Portfolio Manager | Category Portfolio Risk | Severity MEDIUM | Base Score 50 | Weighted Score 75
-10. Next $1000 | SGOV $351 | AVUV $330 | AVDV $319 | Source Portfolio Manager | Category Portfolio Opportunity | Severity MEDIUM | Base Score 50 | Weighted Score 69
+8. Next $1000 | SGOV $351 | AVUV $330 | AVDV $319 | Source Portfolio Manager | Category Portfolio Opportunity | Severity MEDIUM | Base Score 50 | Weighted Score 69
+9. ECO: Reevaluate thesis | Source Research Agent | Category Research Gap | Severity MEDIUM | Base Score 50 | Weighted Score 71
+10. Inflation trend: RISING | Source Macro Agent | Category Macro Risk | Severity MEDIUM | Base Score 50 | Weighted Score 65
 
 SIGNAL MAGNITUDE SUMMARY
 ------------------------
 
 Magnitude Scoring Status: ACTIVE
-Signals With Magnitude Scores: 13
-Highest Magnitude Signal: UNH position concentration 44.9%
+Signals With Magnitude Scores: 11
+Highest Magnitude Signal: UNH position concentration 41.5%
 Highest Magnitude Score: 35
-Highest Magnitude Adjusted Signal: UNH position concentration 44.9%
+Highest Magnitude Adjusted Signal: UNH position concentration 41.5%
 Highest Magnitude Adjusted Score: 135
 
 Signal magnitude scoring adjusts priorities based on risk or opportunity size.
@@ -580,16 +578,16 @@ Signal magnitude scoring adjusts priorities based on risk or opportunity size.
 SIGNAL MAGNITUDE DETAILS
 ------------------------
 
-1. UNH position concentration 44.9% | Source Portfolio Manager | Type CONCENTRATION_RISK | Base Weighted Score 100 | Magnitude Score 35 | Adjusted Score 135 | Basis Concentration 44.9%.
-2. Stress-test exposure: 2008_STYLE_CRISIS | Impact -50.09% | Source Portfolio Manager | Type STRESS_TEST_RISK | Base Weighted Score 90 | Magnitude Score 35 | Adjusted Score 125 | Basis Stress-test downside -50.09%.
-3. SMCI: Low conviction holding | Source Research Agent | Type LOW_CONVICTION | Base Weighted Score 96 | Magnitude Score 15 | Adjusted Score 111 | Basis Holding allocation 19.11%.
-4. SMCI position concentration 19.1% | Source Portfolio Manager | Type CONCENTRATION_RISK | Base Weighted Score 100 | Magnitude Score 8 | Adjusted Score 108 | Basis Concentration 19.1%.
-5. ECO: Low conviction holding | Source Research Agent | Type LOW_CONVICTION | Base Weighted Score 96 | Magnitude Score 3 | Adjusted Score 99 | Basis Holding allocation 3.87%.
-6. MSTR: Low conviction holding | Source Research Agent | Type LOW_CONVICTION | Base Weighted Score 96 | Magnitude Score 0 | Adjusted Score 96 | Basis Holding allocation 0.78%.
+1. UNH position concentration 41.5% | Source Portfolio Manager | Type CONCENTRATION_RISK | Base Weighted Score 100 | Magnitude Score 35 | Adjusted Score 135 | Basis Concentration 41.5%.
+2. Stress-test exposure: 2008_STYLE_CRISIS | Impact -51.60% | Source Portfolio Manager | Type STRESS_TEST_RISK | Base Weighted Score 90 | Magnitude Score 35 | Adjusted Score 125 | Basis Stress-test downside -51.6%.
+3. SMCI: Low conviction holding | Source Research Agent | Type LOW_CONVICTION | Base Weighted Score 96 | Magnitude Score 25 | Adjusted Score 121 | Basis Holding allocation 23.65%.
+4. SMCI position concentration 23.7% | Source Portfolio Manager | Type CONCENTRATION_RISK | Base Weighted Score 100 | Magnitude Score 12 | Adjusted Score 112 | Basis Concentration 23.7%.
+5. ECO: Low conviction holding | Source Research Agent | Type LOW_CONVICTION | Base Weighted Score 96 | Magnitude Score 3 | Adjusted Score 99 | Basis Holding allocation 3.58%.
+6. MSTR: Low conviction holding | Source Research Agent | Type LOW_CONVICTION | Base Weighted Score 96 | Magnitude Score 0 | Adjusted Score 96 | Basis Holding allocation 0.72%.
 7. Inflation Trend | Macro Regime Inflation Stress | Regime Score 100 | Priority Tier HIGH | Source Macro Agent | Type MACRO_REGIME | Base Weighted Score 90 | Magnitude Score 3 | Adjusted Score 93 | Basis Standard macro regime.
-8. Tax Loss Harvest Candidates: 5 | Source Portfolio Manager | Type TAX_RISK | Base Weighted Score 75 | Magnitude Score 8 | Adjusted Score 83 | Basis Tax item count 5.
-9. Large Taxable Gain Positions: 1 | Source Portfolio Manager | Type TAX_RISK | Base Weighted Score 75 | Magnitude Score 2 | Adjusted Score 77 | Basis Tax item count 1.
-10. Next $1000 | SGOV $351 | AVUV $330 | AVDV $319 | Source Portfolio Manager | Type DEPLOYMENT_OPPORTUNITY | Base Weighted Score 69 | Magnitude Score 6 | Adjusted Score 75 | Basis Deployment amount $1000.
+8. Next $1000 | SGOV $351 | AVUV $330 | AVDV $319 | Source Portfolio Manager | Type DEPLOYMENT_OPPORTUNITY | Base Weighted Score 69 | Magnitude Score 6 | Adjusted Score 75 | Basis Deployment amount $1000.
+9. ECO: Reevaluate thesis | Source Research Agent | Type RESEARCH_HEALTH_ISSUE | Base Weighted Score 71 | Magnitude Score 3 | Adjusted Score 74 | Basis Holding allocation 3.58%.
+10. Inflation trend: RISING | Source Macro Agent | Type INFLATION_RISING | Base Weighted Score 65 | Magnitude Score 8 | Adjusted Score 73 | Basis Deterministic inflation_rising adjustment.
 
 AGENT REGISTRY SUMMARY
 ----------------------
@@ -609,9 +607,9 @@ Echo operates in report mode and supports deterministic backend queries for acti
 AGENT REGISTRY DETAILS
 ----------------------
 
-News Agent | Role Intelligence Officer | Status ACTIVE | Health HEALTHY | Report SUPPORTED | Query SUPPORTED | Last Run SUCCESS | Time 0.89s
-Macro Agent | Role Macro Strategist | Status ACTIVE | Health HEALTHY | Report SUPPORTED | Query SUPPORTED | Last Run SUCCESS | Time 0.32s
-Portfolio Manager | Role Chief Investment Officer | Status ACTIVE | Health HEALTHY | Report SUPPORTED | Query SUPPORTED | Last Run SUCCESS | Time 4.94s
+News Agent | Role Intelligence Officer | Status ACTIVE | Health HEALTHY | Report SUPPORTED | Query SUPPORTED | Last Run SUCCESS | Time 1.06s
+Macro Agent | Role Macro Strategist | Status ACTIVE | Health HEALTHY | Report SUPPORTED | Query SUPPORTED | Last Run SUCCESS | Time 0.28s
+Portfolio Manager | Role Chief Investment Officer | Status ACTIVE | Health HEALTHY | Report SUPPORTED | Query SUPPORTED | Last Run SUCCESS | Time 1.72s
 Research Agent | Role Research Analyst | Status ACTIVE | Health HEALTHY | Report SUPPORTED | Query SUPPORTED | Last Run SUCCESS | Time 0.05s
 Calendar Agent | Role Scheduling Officer | Status PLACEHOLDER | Health UNKNOWN | Report NOT_SUPPORTED | Query PLANNED | Last Run NOT_RUN | Time N/A
 Email Agent | Role Communications Officer | Status PLACEHOLDER | Health UNKNOWN | Report NOT_SUPPORTED | Query PLANNED | Last Run NOT_RUN | Time N/A
@@ -989,7 +987,7 @@ PORTFOLIO MANAGER REPORT
 ------------------------
 
 Portfolio Manager operational.
-holdings_source: legacy_csv
+holdings_source: normalized_import
 
 
 PORTFOLIO MANAGER EXECUTIVE BRIEF
@@ -998,14 +996,14 @@ PORTFOLIO MANAGER EXECUTIVE BRIEF
 
 Portfolio Health: ELEVATED_RISK
 Highest Priority: Sell MSTR / Buy AVUV | Reason Higher ranked candidate available.
-Largest Risk: UNH concentration at 44.9%
+Largest Risk: UNH concentration at 41.5%
 Largest Opportunity: SGOV | Reason Lower priority monitoring candidate.
-Diversification: LOW | Largest asset class Equity 82.2%
-Concentration: HIGH | Largest position UNH 44.9% | Top 3 70.2%
-Research Health: 0 high, 4 medium, 1 low issues
+Diversification: LOW | Largest asset class Equity 82.1%
+Concentration: HIGH | Largest position UNH 41.5% | Top 3 73.7%
+Research Health: 0 high, 6 medium, 1 low issues
 Capital Deployment: Next $1000 | SGOV $351 | AVUV $330 | AVDV $319
-Stress Test: 2008_STYLE_CRISIS | Impact -50.09%
-Expected Return Outlook: Monte Carlo V2 expected return 17.75% | Negative outcome probability 25.8%
+Stress Test: 2008_STYLE_CRISIS | Impact -51.60%
+Expected Return Outlook: Monte Carlo V2 expected return 18.46% | Negative outcome probability 27.2%
 Recommended Actions:
 1. Sell MSTR / Buy AVUV | Reason Higher ranked candidate available.
 2. ECO: Reevaluate thesis
@@ -1036,7 +1034,7 @@ EXPOSURE SUMMARY
 ----------------
 
 
-Largest Asset Class: Equity 82.2%
+Largest Asset Class: Equity 82.1%
 
 Diversification Score: LOW
 
@@ -1045,29 +1043,29 @@ EXPOSURE DETAILS
 ----------------
 
 
-Equity: 82.2%
+Equity: 82.1%
 Bond: 0.0%
-Cash: 1.5%
-Bitcoin: 6.2%
-Commodity: 10.1%
+Cash: 0.0%
+Bitcoin: 8.5%
+Commodity: 9.4%
 Alternative: 0.0%
 Unknown: 0.0%
 
 Top Asset Classes
 
-1. Equity 82.2%
-2. Commodity 10.1%
-3. Bitcoin 6.2%
-4. Cash 1.5%
+1. Equity 82.1%
+2. Commodity 9.4%
+3. Bitcoin 8.5%
+4. Cash 0.0%
 
 
 CONCENTRATION RISK SUMMARY
 --------------------------
 
 
-Largest Position: UNH | 44.9%
-Top 3 Concentration: 70.2%
-Top 5 Concentration: 80.6%
+Largest Position: UNH | 41.5%
+Top 3 Concentration: 73.7%
+Top 5 Concentration: 83.4%
 Portfolio Concentration Risk: HIGH
 
 
@@ -1075,15 +1073,15 @@ CONCENTRATION RISK DETAILS
 --------------------------
 
 
-HIGH | UNH | Position concentration 44.9%
-MEDIUM | SMCI | Position concentration 19.1%
+HIGH | UNH | Position concentration 41.5%
+MEDIUM | SMCI | Position concentration 23.7%
 
 
 FACTOR EXPOSURE SUMMARY
 -----------------------
 
 
-Dominant Factor: Growth 68.2%
+Dominant Factor: Growth 69.1%
 Factor Concentration Risk: HIGH
 
 
@@ -1091,14 +1089,14 @@ FACTOR EXPOSURE DETAILS
 -----------------------
 
 
-Growth: 68.2%
-Large: 58.1%
-Small: 24.0%
-Blend: 14.0%
-Commodity: 10.1%
-Bitcoin: 6.2%
-Momentum: 3.3%
-Cash: 1.5%
+Growth: 69.1%
+Large: 53.9%
+Small: 28.2%
+Blend: 13.0%
+Commodity: 9.4%
+Bitcoin: 8.5%
+Momentum: 3.0%
+Cash: 0.0%
 
 
 REGIME ALIGNMENT SUMMARY
@@ -1109,7 +1107,7 @@ Current Regime: Expansion
 
 Confidence: Medium
 
-Alignment Score: 26
+Alignment Score: 31
 
 Portfolio Alignment: LOW
 
@@ -1120,8 +1118,8 @@ REGIME ALIGNMENT DETAILS
 
 Strengths
 
-Preferred Factor: Small | 24.0%
-Preferred Factor: Momentum | 3.3%
+Preferred Factor: Small | 28.2%
+Preferred Factor: Momentum | 3.0%
 
 Gaps
 
@@ -1129,14 +1127,14 @@ Preferred Factor Missing: Value
 
 Disfavored Exposure
 
-Cash | 1.5%
+Cash | 0.0%
 
 
 CORRELATION PROXY SUMMARY
 -------------------------
 
 
-Highest Correlation Cluster: Equity | 82.2%
+Highest Correlation Cluster: Equity | 82.1%
 Portfolio Correlation Proxy Risk: HIGH
 
 Correlation proxy is based on classification overlap, not historical return correlation.
@@ -1146,35 +1144,35 @@ CORRELATION PROXY DETAILS
 -------------------------
 
 
-HIGH | Equity / Stock / Growth | Exposure 64.0% | Members SMCI, UNH
-MEDIUM | Equity | Exposure 82.2% | Members MSTR, QMOM, SCHA, SCHF, SCHG, SMCI, SPYM, UNH
+HIGH | Equity / Stock / Growth | Exposure 65.2% | Members SMCI, UNH
+MEDIUM | Equity | Exposure 82.1% | Members MSTR, QMOM, SCHA, SCHF, SCHG, SMCI, SPYM, UNH
 
 
 STRESS TEST SUMMARY
 -------------------
 
 
-Worst Scenario: 2008_STYLE_CRISIS | Impact -50.09%
-Estimated Dollar Loss: $7,222.26
+Worst Scenario: 2008_STYLE_CRISIS | Impact -51.60%
+Estimated Dollar Loss: $8,024.82
 
 
 STRESS TEST DETAILS
 -------------------
 
 
-2008_STYLE_CRISIS | Portfolio Impact -50.09% | Estimated Dollar Impact $-7,222.26 | Largest Loss Contributor UNH | Largest Gain Contributor None
-DOT_COM_BUST | Portfolio Impact -34.11% | Estimated Dollar Impact $-4,917.99 | Largest Loss Contributor UNH | Largest Gain Contributor None
-2022_INFLATION_SHOCK | Portfolio Impact -22.74% | Estimated Dollar Impact $-3,279.00 | Largest Loss Contributor UNH | Largest Gain Contributor VNOM
-RISK_OFF_LIQUIDITY_EVENT | Portfolio Impact -22.06% | Estimated Dollar Impact $-3,181.26 | Largest Loss Contributor UNH | Largest Gain Contributor None
+2008_STYLE_CRISIS | Portfolio Impact -51.60% | Estimated Dollar Impact $-8,024.82 | Largest Loss Contributor UNH | Largest Gain Contributor None
+DOT_COM_BUST | Portfolio Impact -35.62% | Estimated Dollar Impact $-5,539.99 | Largest Loss Contributor UNH | Largest Gain Contributor None
+2022_INFLATION_SHOCK | Portfolio Impact -24.22% | Estimated Dollar Impact $-3,766.29 | Largest Loss Contributor UNH | Largest Gain Contributor VNOM
+RISK_OFF_LIQUIDITY_EVENT | Portfolio Impact -23.02% | Estimated Dollar Impact $-3,579.70 | Largest Loss Contributor UNH | Largest Gain Contributor None
 
 
 MACRO REGIME SUMMARY
 --------------------
 
 
-Current Regime: EXPANSION | Confidence 56.64%
+Current Regime: EXPANSION | Confidence 61.69%
 Alignment Level: HIGH
-Top Signal: Equity asset exposure 82.2%
+Top Signal: Equity asset exposure 82.1%
 
 Macro regime is inferred from portfolio classifications, not external macroeconomic data.
 
@@ -1183,26 +1181,26 @@ MACRO REGIME DETAILS
 --------------------
 
 
-EXPANSION | Score 141.35 | Confidence 56.64% | Alignment HIGH | Top Signal Equity asset exposure 82.2%
-DISINFLATION | Score 92.51 | Confidence 37.07% | Alignment HIGH | Top Signal Growth factor exposure 68.2%
-RECESSION | Score 7.86 | Confidence 3.15% | Alignment LOW | Top Signal Large factor exposure 58.1%
-RISK_OFF | Score 7.76 | Confidence 3.11% | Alignment LOW | Top Signal Large factor exposure 58.1%
-INFLATION_SHOCK | Score 0.06 | Confidence 0.03% | Alignment LOW | Top Signal Commodity asset exposure 10.1%
-STAGFLATION | Score 0.00 | Confidence 0.00% | Alignment LOW | Top Signal Commodity asset exposure 10.1%
+EXPANSION | Score 147.86 | Confidence 61.69% | Alignment HIGH | Top Signal Equity asset exposure 82.1%
+DISINFLATION | Score 91.82 | Confidence 38.31% | Alignment HIGH | Top Signal Growth factor exposure 69.1%
+INFLATION_SHOCK | Score 0.00 | Confidence 0.00% | Alignment LOW | Top Signal Commodity asset exposure 9.4%
+RECESSION | Score 0.00 | Confidence 0.00% | Alignment LOW | Top Signal Large factor exposure 53.9%
+RISK_OFF | Score 0.00 | Confidence 0.00% | Alignment LOW | Top Signal Large factor exposure 53.9%
+STAGFLATION | Score 0.00 | Confidence 0.00% | Alignment LOW | Top Signal Commodity asset exposure 9.4%
 
 
 TAX OPTIMIZATION SUMMARY
 ------------------------
 
 
-Taxable Assets: 81.3%
-Tax Advantaged Assets: 18.7%
+Taxable Assets: 0.0%
+Tax Advantaged Assets: 24.6%
 
-Largest Taxable Gain: UNH | +$1,895.47
-Largest Taxable Loss: SMCI | -$799.33
+Largest Taxable Gain: None
+Largest Taxable Loss: None
 
-Tax Loss Harvest Candidates: 5
-Large Taxable Gain Positions: 1
+Tax Loss Harvest Candidates: 0
+Large Taxable Gain Positions: 0
 
 Tax analysis is informational only and not tax advice.
 
@@ -1211,27 +1209,29 @@ TAX OPTIMIZATION DETAILS
 ------------------------
 
 
-UNH | Taxable | Large Gain | +$1,895.47 | Large Taxable Gain
-SMCI | Taxable | Large Loss | -$799.33 | Tax Loss Harvest Candidate
-MSTR | Taxable | Large Loss | -$59.01 | Tax Loss Harvest Candidate
-IBIT | Taxable | Loss | -$206.25 | Tax Loss Harvest Candidate
-VNOM | Taxable | Loss | -$92.30 | Tax Loss Harvest Candidate
-ECO | Taxable | Loss | -$65.34 | Tax Loss Harvest Candidate
-CASH0 | Taxable | Neutral | $0.00 | Taxable Position
-SCHA | Tax Advantaged | Gain | +$95.71 | Tax Efficient Location
-SCHG | Tax Advantaged | Gain | +$74.79 | Tax Efficient Location
-QMOM | Tax Advantaged | Gain | +$50.09 | Tax Efficient Location
+SCHA | Tax Advantaged | Gain | +$95.28 | Tax Efficient Location
+SCHG | Tax Advantaged | Gain | +$74.70 | Tax Efficient Location
+QMOM | Tax Advantaged | Gain | +$49.89 | Tax Efficient Location
 SCHF | Tax Advantaged | Gain | +$48.93 | Tax Efficient Location
-SPYM | Tax Advantaged | Gain | +$36.55 | Tax Efficient Location
+SPYM | Tax Advantaged | Gain | +$36.61 | Tax Efficient Location
+IBIT | Tax Advantaged | Loss | -$26.49 | Tax Efficient Location
+SMCI | Tax Advantaged | Loss | -$18.58 | Tax Efficient Location
 CASH0 | Tax Advantaged | Neutral | $0.00 | Tax Efficient Location
+UNH | Unknown | Large Gain | +$1,888.56 | Unknown Account Status
+SMCI | Unknown | Large Loss | -$789.18 | Unknown Account Status
+IBIT | Unknown | Loss | -$205.70 | Unknown Account Status
+VNOM | Unknown | Loss | -$92.30 | Unknown Account Status
+ECO | Unknown | Loss | -$65.36 | Unknown Account Status
+MSTR | Unknown | Large Loss | -$58.69 | Unknown Account Status
+CASH0 | Unknown | Neutral | $0.00 | Unknown Account Status
 
 
 HISTORICAL RETURN SUMMARY
 -------------------------
 
 
-Portfolio Implied Long Run Return: 7.84%
-Largest Return Contributor: UNH | 3.53%
+Portfolio Implied Long Run Return: 8.05%
+Largest Return Contributor: UNH | 3.27%
 Highest Return Assumption: IBIT | 12.00%
 Lowest Return Assumption: CASH0 | 2.50%
 
@@ -1242,26 +1242,26 @@ HISTORICAL RETURN DETAILS
 -------------------------
 
 
-UNH | Allocation 44.86% | Asset Class equity 8.00% | Factor Growth, Large 7.75% | Blended 7.88% | Contribution 3.53%
-SMCI | Allocation 19.11% | Asset Class equity 8.00% | Factor Growth, Small 8.38% | Blended 8.19% | Contribution 1.56%
-IBIT | Allocation 6.20% | Asset Class bitcoin 12.00% | Factor Bitcoin 12.00% | Blended 12.00% | Contribution 0.74%
-SCHA | Allocation 4.13% | Asset Class equity 8.00% | Factor Blend, Small 8.38% | Blended 8.19% | Contribution 0.34%
-SCHG | Allocation 4.21% | Asset Class equity 8.00% | Factor Growth, Large 7.75% | Blended 7.88% | Contribution 0.33%
-VNOM | Allocation 6.26% | Asset Class commodity 5.00% | Factor Commodity 5.00% | Blended 5.00% | Contribution 0.31%
-QMOM | Allocation 3.27% | Asset Class equity 8.00% | Factor Blend, Large, Momentum 8.00% | Blended 8.00% | Contribution 0.26%
-SPYM | Allocation 3.05% | Asset Class equity 8.00% | Factor Blend, Large 7.75% | Blended 7.88% | Contribution 0.24%
-SCHF | Allocation 2.74% | Asset Class equity 8.00% | Factor Blend, Large 7.75% | Blended 7.88% | Contribution 0.22%
-ECO | Allocation 3.87% | Asset Class commodity 5.00% | Factor Commodity 5.00% | Blended 5.00% | Contribution 0.19%
-MSTR | Allocation 0.78% | Asset Class equity 8.00% | Factor Blend, Small 8.38% | Blended 8.19% | Contribution 0.06%
-CASH0 | Allocation 1.52% | Asset Class cash 2.50% | Factor Cash 2.50% | Blended 2.50% | Contribution 0.04%
+UNH | Allocation 41.55% | Asset Class equity 8.00% | Factor Growth, Large 7.75% | Blended 7.88% | Contribution 3.27%
+SMCI | Allocation 23.65% | Asset Class equity 8.00% | Factor Growth, Small 8.38% | Blended 8.19% | Contribution 1.94%
+IBIT | Allocation 8.51% | Asset Class bitcoin 12.00% | Factor Bitcoin 12.00% | Blended 12.00% | Contribution 1.02%
+SCHA | Allocation 3.83% | Asset Class equity 8.00% | Factor Blend, Small 8.38% | Blended 8.19% | Contribution 0.31%
+SCHG | Allocation 3.90% | Asset Class equity 8.00% | Factor Growth, Large 7.75% | Blended 7.88% | Contribution 0.31%
+VNOM | Allocation 5.80% | Asset Class commodity 5.00% | Factor Commodity 5.00% | Blended 5.00% | Contribution 0.29%
+QMOM | Allocation 3.03% | Asset Class equity 8.00% | Factor Blend, Large, Momentum 8.00% | Blended 8.00% | Contribution 0.24%
+SPYM | Allocation 2.83% | Asset Class equity 8.00% | Factor Blend, Large 7.75% | Blended 7.88% | Contribution 0.22%
+SCHF | Allocation 2.54% | Asset Class equity 8.00% | Factor Blend, Large 7.75% | Blended 7.88% | Contribution 0.20%
+ECO | Allocation 3.58% | Asset Class commodity 5.00% | Factor Commodity 5.00% | Blended 5.00% | Contribution 0.18%
+MSTR | Allocation 0.72% | Asset Class equity 8.00% | Factor Blend, Small 8.38% | Blended 8.19% | Contribution 0.06%
+CASH0 | Allocation 0.04% | Asset Class cash 2.50% | Factor Cash 2.50% | Blended 2.50% | Contribution 0.00%
 
 
 STATISTICAL CORRELATION SUMMARY
 -------------------------------
 
 
-Weighted Average Correlation: 0.69
-Correlation Risk Level: MEDIUM
+Weighted Average Correlation: 0.72
+Correlation Risk Level: HIGH
 Highest Correlation Pair: MSTR / SCHA | 0.95
 Lowest Correlation Pair: CASH0 / ECO | 0.00
 
@@ -1272,81 +1272,81 @@ STATISTICAL CORRELATION DETAILS
 -------------------------------
 
 
-MSTR / SCHA | Correlation 0.95 | Basis equity/equity + shared factor | Weight Impact 0.09%
-MSTR / SMCI | Correlation 0.95 | Basis equity/equity + shared factor | Weight Impact 0.40%
-QMOM / SCHF | Correlation 0.95 | Basis equity/equity + shared factor | Weight Impact 0.24%
-QMOM / SCHG | Correlation 0.95 | Basis equity/equity + shared factor | Weight Impact 0.37%
-QMOM / SPYM | Correlation 0.95 | Basis equity/equity + shared factor | Weight Impact 0.27%
-QMOM / UNH | Correlation 0.95 | Basis equity/equity + shared factor | Weight Impact 3.93%
-SCHA / SMCI | Correlation 0.95 | Basis equity/equity + shared factor | Weight Impact 2.12%
-SCHF / SCHG | Correlation 0.95 | Basis equity/equity + shared factor | Weight Impact 0.31%
-SCHF / SPYM | Correlation 0.95 | Basis equity/equity + shared factor | Weight Impact 0.22%
-SCHF / UNH | Correlation 0.95 | Basis equity/equity + shared factor | Weight Impact 3.30%
-SCHG / SPYM | Correlation 0.95 | Basis equity/equity + shared factor | Weight Impact 0.34%
-SCHG / UNH | Correlation 0.95 | Basis equity/equity + shared factor | Weight Impact 5.06%
-SPYM / UNH | Correlation 0.95 | Basis equity/equity + shared factor | Weight Impact 3.67%
-MSTR / QMOM | Correlation 0.90 | Basis equity/equity + shared factor, large/small | Weight Impact 0.07%
-MSTR / SCHF | Correlation 0.90 | Basis equity/equity + shared factor, large/small | Weight Impact 0.06%
-MSTR / SPYM | Correlation 0.90 | Basis equity/equity + shared factor, large/small | Weight Impact 0.06%
-QMOM / SCHA | Correlation 0.90 | Basis equity/equity + shared factor, large/small | Weight Impact 0.36%
-SCHA / SCHF | Correlation 0.90 | Basis equity/equity + shared factor, large/small | Weight Impact 0.30%
-SCHA / SPYM | Correlation 0.90 | Basis equity/equity + shared factor, large/small | Weight Impact 0.34%
-SCHG / SMCI | Correlation 0.90 | Basis equity/equity + shared factor, large/small | Weight Impact 2.16%
-SMCI / UNH | Correlation 0.90 | Basis equity/equity + shared factor, large/small | Weight Impact 22.98%
-ECO / VNOM | Correlation 0.85 | Basis commodity/commodity + shared factor | Weight Impact 0.65%
-MSTR / SCHG | Correlation 0.80 | Basis equity/equity + large/small | Weight Impact 0.09%
-MSTR / UNH | Correlation 0.80 | Basis equity/equity + large/small | Weight Impact 0.93%
-QMOM / SMCI | Correlation 0.80 | Basis equity/equity + large/small | Weight Impact 1.67%
-SCHA / SCHG | Correlation 0.80 | Basis equity/equity + large/small | Weight Impact 0.47%
-SCHA / UNH | Correlation 0.80 | Basis equity/equity + large/small | Weight Impact 4.97%
-SCHF / SMCI | Correlation 0.80 | Basis equity/equity + large/small | Weight Impact 1.41%
-SMCI / SPYM | Correlation 0.80 | Basis equity/equity + large/small | Weight Impact 1.56%
-IBIT / MSTR | Correlation 0.55 | Basis bitcoin/equity | Weight Impact 0.13%
-IBIT / QMOM | Correlation 0.55 | Basis bitcoin/equity | Weight Impact 0.54%
-IBIT / SCHA | Correlation 0.55 | Basis bitcoin/equity | Weight Impact 0.69%
-IBIT / SCHF | Correlation 0.55 | Basis bitcoin/equity | Weight Impact 0.46%
-IBIT / SCHG | Correlation 0.55 | Basis bitcoin/equity | Weight Impact 0.70%
-IBIT / SMCI | Correlation 0.55 | Basis bitcoin/equity | Weight Impact 3.18%
-IBIT / SPYM | Correlation 0.55 | Basis bitcoin/equity | Weight Impact 0.51%
-IBIT / UNH | Correlation 0.55 | Basis bitcoin/equity | Weight Impact 7.46%
-ECO / MSTR | Correlation 0.40 | Basis commodity/equity | Weight Impact 0.08%
-ECO / QMOM | Correlation 0.40 | Basis commodity/equity | Weight Impact 0.34%
-ECO / SCHA | Correlation 0.40 | Basis commodity/equity | Weight Impact 0.43%
-ECO / SCHF | Correlation 0.40 | Basis commodity/equity | Weight Impact 0.28%
-ECO / SCHG | Correlation 0.40 | Basis commodity/equity | Weight Impact 0.44%
-ECO / SMCI | Correlation 0.40 | Basis commodity/equity | Weight Impact 1.98%
-ECO / SPYM | Correlation 0.40 | Basis commodity/equity | Weight Impact 0.32%
-ECO / UNH | Correlation 0.40 | Basis commodity/equity | Weight Impact 4.65%
-MSTR / VNOM | Correlation 0.40 | Basis equity/commodity | Weight Impact 0.13%
-QMOM / VNOM | Correlation 0.40 | Basis equity/commodity | Weight Impact 0.55%
-SCHA / VNOM | Correlation 0.40 | Basis equity/commodity | Weight Impact 0.69%
-SCHF / VNOM | Correlation 0.40 | Basis equity/commodity | Weight Impact 0.46%
-SCHG / VNOM | Correlation 0.40 | Basis equity/commodity | Weight Impact 0.71%
-SMCI / VNOM | Correlation 0.40 | Basis equity/commodity | Weight Impact 3.21%
-SPYM / VNOM | Correlation 0.40 | Basis equity/commodity | Weight Impact 0.51%
-UNH / VNOM | Correlation 0.40 | Basis equity/commodity | Weight Impact 7.52%
-ECO / IBIT | Correlation 0.30 | Basis commodity/bitcoin | Weight Impact 0.64%
-IBIT / VNOM | Correlation 0.30 | Basis bitcoin/commodity | Weight Impact 1.04%
-CASH0 / ECO | Correlation 0.00 | Basis cash/commodity + cash/non-cash | Weight Impact 0.16%
-CASH0 / IBIT | Correlation 0.00 | Basis cash/bitcoin + cash/non-cash | Weight Impact 0.25%
-CASH0 / MSTR | Correlation 0.00 | Basis cash/equity + cash/non-cash | Weight Impact 0.03%
-CASH0 / QMOM | Correlation 0.00 | Basis cash/equity + cash/non-cash | Weight Impact 0.13%
-CASH0 / SCHA | Correlation 0.00 | Basis cash/equity + cash/non-cash | Weight Impact 0.17%
-CASH0 / SCHF | Correlation 0.00 | Basis cash/equity + cash/non-cash | Weight Impact 0.11%
-CASH0 / SCHG | Correlation 0.00 | Basis cash/equity + cash/non-cash | Weight Impact 0.17%
-CASH0 / SMCI | Correlation 0.00 | Basis cash/equity + cash/non-cash | Weight Impact 0.78%
-CASH0 / SPYM | Correlation 0.00 | Basis cash/equity + cash/non-cash | Weight Impact 0.12%
-CASH0 / UNH | Correlation 0.00 | Basis cash/equity + cash/non-cash | Weight Impact 1.82%
-CASH0 / VNOM | Correlation 0.00 | Basis cash/commodity + cash/non-cash | Weight Impact 0.25%
+MSTR / SCHA | Correlation 0.95 | Basis equity/equity + shared factor | Weight Impact 0.07%
+MSTR / SMCI | Correlation 0.95 | Basis equity/equity + shared factor | Weight Impact 0.45%
+QMOM / SCHF | Correlation 0.95 | Basis equity/equity + shared factor | Weight Impact 0.20%
+QMOM / SCHG | Correlation 0.95 | Basis equity/equity + shared factor | Weight Impact 0.31%
+QMOM / SPYM | Correlation 0.95 | Basis equity/equity + shared factor | Weight Impact 0.23%
+QMOM / UNH | Correlation 0.95 | Basis equity/equity + shared factor | Weight Impact 3.34%
+SCHA / SMCI | Correlation 0.95 | Basis equity/equity + shared factor | Weight Impact 2.40%
+SCHF / SCHG | Correlation 0.95 | Basis equity/equity + shared factor | Weight Impact 0.26%
+SCHF / SPYM | Correlation 0.95 | Basis equity/equity + shared factor | Weight Impact 0.19%
+SCHF / UNH | Correlation 0.95 | Basis equity/equity + shared factor | Weight Impact 2.80%
+SCHG / SPYM | Correlation 0.95 | Basis equity/equity + shared factor | Weight Impact 0.29%
+SCHG / UNH | Correlation 0.95 | Basis equity/equity + shared factor | Weight Impact 4.30%
+SPYM / UNH | Correlation 0.95 | Basis equity/equity + shared factor | Weight Impact 3.12%
+MSTR / QMOM | Correlation 0.90 | Basis equity/equity + shared factor, large/small | Weight Impact 0.06%
+MSTR / SCHF | Correlation 0.90 | Basis equity/equity + shared factor, large/small | Weight Impact 0.05%
+MSTR / SPYM | Correlation 0.90 | Basis equity/equity + shared factor, large/small | Weight Impact 0.05%
+QMOM / SCHA | Correlation 0.90 | Basis equity/equity + shared factor, large/small | Weight Impact 0.31%
+SCHA / SCHF | Correlation 0.90 | Basis equity/equity + shared factor, large/small | Weight Impact 0.26%
+SCHA / SPYM | Correlation 0.90 | Basis equity/equity + shared factor, large/small | Weight Impact 0.29%
+SCHG / SMCI | Correlation 0.90 | Basis equity/equity + shared factor, large/small | Weight Impact 2.45%
+SMCI / UNH | Correlation 0.90 | Basis equity/equity + shared factor, large/small | Weight Impact 26.06%
+ECO / VNOM | Correlation 0.85 | Basis commodity/commodity + shared factor | Weight Impact 0.55%
+MSTR / SCHG | Correlation 0.80 | Basis equity/equity + large/small | Weight Impact 0.07%
+MSTR / UNH | Correlation 0.80 | Basis equity/equity + large/small | Weight Impact 0.80%
+QMOM / SMCI | Correlation 0.80 | Basis equity/equity + large/small | Weight Impact 1.90%
+SCHA / SCHG | Correlation 0.80 | Basis equity/equity + large/small | Weight Impact 0.40%
+SCHA / UNH | Correlation 0.80 | Basis equity/equity + large/small | Weight Impact 4.22%
+SCHF / SMCI | Correlation 0.80 | Basis equity/equity + large/small | Weight Impact 1.60%
+SMCI / SPYM | Correlation 0.80 | Basis equity/equity + large/small | Weight Impact 1.78%
+IBIT / MSTR | Correlation 0.55 | Basis bitcoin/equity | Weight Impact 0.16%
+IBIT / QMOM | Correlation 0.55 | Basis bitcoin/equity | Weight Impact 0.68%
+IBIT / SCHA | Correlation 0.55 | Basis bitcoin/equity | Weight Impact 0.86%
+IBIT / SCHF | Correlation 0.55 | Basis bitcoin/equity | Weight Impact 0.57%
+IBIT / SCHG | Correlation 0.55 | Basis bitcoin/equity | Weight Impact 0.88%
+IBIT / SMCI | Correlation 0.55 | Basis bitcoin/equity | Weight Impact 5.34%
+IBIT / SPYM | Correlation 0.55 | Basis bitcoin/equity | Weight Impact 0.64%
+IBIT / UNH | Correlation 0.55 | Basis bitcoin/equity | Weight Impact 9.38%
+ECO / MSTR | Correlation 0.40 | Basis commodity/equity | Weight Impact 0.07%
+ECO / QMOM | Correlation 0.40 | Basis commodity/equity | Weight Impact 0.29%
+ECO / SCHA | Correlation 0.40 | Basis commodity/equity | Weight Impact 0.36%
+ECO / SCHF | Correlation 0.40 | Basis commodity/equity | Weight Impact 0.24%
+ECO / SCHG | Correlation 0.40 | Basis commodity/equity | Weight Impact 0.37%
+ECO / SMCI | Correlation 0.40 | Basis commodity/equity | Weight Impact 2.25%
+ECO / SPYM | Correlation 0.40 | Basis commodity/equity | Weight Impact 0.27%
+ECO / UNH | Correlation 0.40 | Basis commodity/equity | Weight Impact 3.95%
+MSTR / VNOM | Correlation 0.40 | Basis equity/commodity | Weight Impact 0.11%
+QMOM / VNOM | Correlation 0.40 | Basis equity/commodity | Weight Impact 0.47%
+SCHA / VNOM | Correlation 0.40 | Basis equity/commodity | Weight Impact 0.59%
+SCHF / VNOM | Correlation 0.40 | Basis equity/commodity | Weight Impact 0.39%
+SCHG / VNOM | Correlation 0.40 | Basis equity/commodity | Weight Impact 0.60%
+SMCI / VNOM | Correlation 0.40 | Basis equity/commodity | Weight Impact 3.64%
+SPYM / VNOM | Correlation 0.40 | Basis equity/commodity | Weight Impact 0.44%
+UNH / VNOM | Correlation 0.40 | Basis equity/commodity | Weight Impact 6.39%
+ECO / IBIT | Correlation 0.30 | Basis commodity/bitcoin | Weight Impact 0.81%
+IBIT / VNOM | Correlation 0.30 | Basis bitcoin/commodity | Weight Impact 1.31%
+CASH0 / ECO | Correlation 0.00 | Basis cash/commodity + cash/non-cash | Weight Impact 0.00%
+CASH0 / IBIT | Correlation 0.00 | Basis cash/bitcoin + cash/non-cash | Weight Impact 0.01%
+CASH0 / MSTR | Correlation 0.00 | Basis cash/equity + cash/non-cash | Weight Impact 0.00%
+CASH0 / QMOM | Correlation 0.00 | Basis cash/equity + cash/non-cash | Weight Impact 0.00%
+CASH0 / SCHA | Correlation 0.00 | Basis cash/equity + cash/non-cash | Weight Impact 0.00%
+CASH0 / SCHF | Correlation 0.00 | Basis cash/equity + cash/non-cash | Weight Impact 0.00%
+CASH0 / SCHG | Correlation 0.00 | Basis cash/equity + cash/non-cash | Weight Impact 0.00%
+CASH0 / SMCI | Correlation 0.00 | Basis cash/equity + cash/non-cash | Weight Impact 0.03%
+CASH0 / SPYM | Correlation 0.00 | Basis cash/equity + cash/non-cash | Weight Impact 0.00%
+CASH0 / UNH | Correlation 0.00 | Basis cash/equity + cash/non-cash | Weight Impact 0.04%
+CASH0 / VNOM | Correlation 0.00 | Basis cash/commodity + cash/non-cash | Weight Impact 0.01%
 
 
 VOLATILITY SUMMARY
 ------------------
 
 
-Portfolio Weighted Volatility: 24.47%
-Volatility Risk Level: MEDIUM
-Largest Volatility Contributor: UNH | 8.97%
+Portfolio Weighted Volatility: 26.14%
+Volatility Risk Level: HIGH
+Largest Volatility Contributor: UNH | 8.31%
 Highest Volatility Position: IBIT | 70.00%
 High Volatility Positions: 4
 
@@ -1357,18 +1357,18 @@ VOLATILITY DETAILS
 ------------------
 
 
-UNH | Allocation 44.86% | Asset Class equity Vol 18.00% | Factor Growth, Large Adj +2.00% | Position Vol 20.00% | Contribution 8.97%
-SMCI | Allocation 19.11% | Asset Class equity Vol 18.00% | Factor Growth, Small Adj +8.00% | Position Vol 26.00% | Contribution 4.97%
-IBIT | Allocation 6.20% | Asset Class bitcoin Vol 70.00% | Factor Bitcoin Adj +0.00% | Position Vol 70.00% | Contribution 4.34%
-VNOM | Allocation 6.26% | Asset Class commodity Vol 25.00% | Factor Commodity Adj +0.00% | Position Vol 25.00% | Contribution 1.56%
-ECO | Allocation 3.87% | Asset Class commodity Vol 25.00% | Factor Commodity Adj +0.00% | Position Vol 25.00% | Contribution 0.97%
-SCHA | Allocation 4.13% | Asset Class equity Vol 18.00% | Factor Blend, Small Adj +5.00% | Position Vol 23.00% | Contribution 0.95%
-SCHG | Allocation 4.21% | Asset Class equity Vol 18.00% | Factor Growth, Large Adj +2.00% | Position Vol 20.00% | Contribution 0.84%
-QMOM | Allocation 3.27% | Asset Class equity Vol 18.00% | Factor Blend, Large, Momentum Adj +3.00% | Position Vol 21.00% | Contribution 0.69%
-SPYM | Allocation 3.05% | Asset Class equity Vol 18.00% | Factor Blend, Large Adj -1.00% | Position Vol 17.00% | Contribution 0.52%
-SCHF | Allocation 2.74% | Asset Class equity Vol 18.00% | Factor Blend, Large Adj -1.00% | Position Vol 17.00% | Contribution 0.47%
-MSTR | Allocation 0.78% | Asset Class equity Vol 18.00% | Factor Blend, Small Adj +5.00% | Position Vol 23.00% | Contribution 0.18%
-CASH0 | Allocation 1.52% | Asset Class cash Vol 1.00% | Factor Cash Adj +0.00% | Position Vol 1.00% | Contribution 0.02%
+UNH | Allocation 41.55% | Asset Class equity Vol 18.00% | Factor Growth, Large Adj +2.00% | Position Vol 20.00% | Contribution 8.31%
+SMCI | Allocation 23.65% | Asset Class equity Vol 18.00% | Factor Growth, Small Adj +8.00% | Position Vol 26.00% | Contribution 6.15%
+IBIT | Allocation 8.51% | Asset Class bitcoin Vol 70.00% | Factor Bitcoin Adj +0.00% | Position Vol 70.00% | Contribution 5.96%
+VNOM | Allocation 5.80% | Asset Class commodity Vol 25.00% | Factor Commodity Adj +0.00% | Position Vol 25.00% | Contribution 1.45%
+ECO | Allocation 3.58% | Asset Class commodity Vol 25.00% | Factor Commodity Adj +0.00% | Position Vol 25.00% | Contribution 0.90%
+SCHA | Allocation 3.83% | Asset Class equity Vol 18.00% | Factor Blend, Small Adj +5.00% | Position Vol 23.00% | Contribution 0.88%
+SCHG | Allocation 3.90% | Asset Class equity Vol 18.00% | Factor Growth, Large Adj +2.00% | Position Vol 20.00% | Contribution 0.78%
+QMOM | Allocation 3.03% | Asset Class equity Vol 18.00% | Factor Blend, Large, Momentum Adj +3.00% | Position Vol 21.00% | Contribution 0.64%
+SPYM | Allocation 2.83% | Asset Class equity Vol 18.00% | Factor Blend, Large Adj -1.00% | Position Vol 17.00% | Contribution 0.48%
+SCHF | Allocation 2.54% | Asset Class equity Vol 18.00% | Factor Blend, Large Adj -1.00% | Position Vol 17.00% | Contribution 0.43%
+MSTR | Allocation 0.72% | Asset Class equity Vol 18.00% | Factor Blend, Small Adj +5.00% | Position Vol 23.00% | Contribution 0.17%
+CASH0 | Allocation 0.04% | Asset Class cash Vol 1.00% | Factor Cash Adj +0.00% | Position Vol 1.00% | Contribution 0.00%
 
 
 MONTE CARLO SUMMARY
@@ -1377,13 +1377,13 @@ MONTE CARLO SUMMARY
 
 Simulation Count: 1000
 
-Expected Return: 7.23%
+Expected Return: 7.40%
 
-Median Return: 7.34%
+Median Return: 7.51%
 
-Probability Positive: 60.8%
+Probability Positive: 60.6%
 
-Probability Negative: 39.2%
+Probability Negative: 39.4%
 
 Monte Carlo results are based on static assumptions and are not forecasts.
 Assumptions are derived from Phase 52 historical return and Phase 54 volatility estimates.
@@ -1394,19 +1394,19 @@ MONTE CARLO DETAILS
 -------------------
 
 
-Best Outcome: 89.29%
+Best Outcome: 95.07%
 
-Worst Outcome: -55.73%
+Worst Outcome: -59.86%
 
-Probability Return > 10%: 45.1%
+Probability Return > 10%: 45.5%
 
-Probability Return < -10%: 25.4%
+Probability Return < -10%: 26.7%
 
 Assumption Inputs
 
-Expected Return: 7.84%
+Expected Return: 8.05%
 
-Volatility: 24.47%
+Volatility: 26.14%
 
 
 HISTORICAL MARKET DATA SUMMARY
@@ -1445,12 +1445,12 @@ REAL HISTORICAL RETURN SUMMARY
 ------------------------------
 
 
-1M Portfolio Return: -0.35% | Coverage 98.5%
-3M Portfolio Return: 20.82% | Coverage 98.5%
-6M Portfolio Return: 13.66% | Coverage 98.5%
-1Y Portfolio Return: 18.46% | Coverage 98.5%
-3Y Portfolio Return: 25.77% | Coverage 88.4%
-5Y Portfolio Return: 172.45% | Coverage 88.4%
+1M Portfolio Return: -1.04% | Coverage 100.0%
+3M Portfolio Return: 18.59% | Coverage 100.0%
+6M Portfolio Return: 11.61% | Coverage 100.0%
+1Y Portfolio Return: 14.11% | Coverage 100.0%
+3Y Portfolio Return: 25.62% | Coverage 87.9%
+5Y Portfolio Return: 203.33% | Coverage 87.9%
 
 Real historical returns use available cached/downloaded market data and do not alter recommendations.
 
@@ -1459,17 +1459,17 @@ REAL HISTORICAL RETURN DETAILS
 ------------------------------
 
 
-UNH | Allocation 44.86% | 1M 4.32% | 3M 43.92% | 6M 23.90% | 1Y 36.35% | 3Y -5.33% | 5Y 12.68% | Status CACHE_HIT
-SMCI | Allocation 19.11% | 1M -4.12% | 3M -6.59% | 6M -6.00% | 1Y -31.88% | 3Y 28.96% | 5Y 732.21% | Status CACHE_HIT
-VNOM | Allocation 6.26% | 1M -11.41% | 3M -1.98% | 6M 14.50% | 1Y 10.70% | 3Y 107.30% | 5Y 213.18% | Status CACHE_HIT
-IBIT | Allocation 6.20% | 1M -16.81% | 3M -11.10% | 6M -24.99% | 1Y -39.67% | 3Y N/A | 5Y N/A | Status CACHE_HIT | Note Insufficient history for: 3Y, 5Y
-SCHG | Allocation 4.21% | 1M -0.50% | 3M 12.76% | 6M 5.35% | 1Y 21.21% | 3Y 86.60% | 5Y 99.08% | Status CACHE_HIT
-SCHA | Allocation 4.13% | 1M 7.54% | 3M 20.84% | 6M 21.93% | 1Y 43.13% | 3Y 68.02% | 5Y 43.74% | Status CACHE_HIT
-ECO | Allocation 3.87% | 1M -2.45% | 3M 17.60% | 6M 57.39% | 1Y 136.97% | 3Y N/A | 5Y N/A | Status CACHE_HIT | Note Insufficient history for: 3Y, 5Y
-QMOM | Allocation 3.27% | 1M 2.31% | 3M 15.32% | 6M 21.31% | 1Y 26.73% | 3Y 79.04% | 5Y 66.42% | Status CACHE_HIT
-SPYM | Allocation 3.05% | 1M 1.94% | 3M 12.93% | 6M 11.62% | 1Y 26.51% | 3Y 77.87% | 5Y 91.68% | Status CACHE_HIT
-SCHF | Allocation 2.74% | 1M 5.44% | 3M 11.99% | 6M 18.94% | 1Y 33.11% | 3Y 70.06% | 5Y 62.31% | Status CACHE_HIT
-MSTR | Allocation 0.78% | 1M -28.64% | 3M -14.17% | 6M -24.41% | 1Y -66.88% | 3Y 331.54% | 5Y 104.27% | Status CACHE_HIT
+UNH | Allocation 41.55% | 1M 4.32% | 3M 43.92% | 6M 23.90% | 1Y 36.35% | 3Y -5.33% | 5Y 12.68% | Status CACHE_HIT
+SMCI | Allocation 23.65% | 1M -4.12% | 3M -6.59% | 6M -6.00% | 1Y -31.88% | 3Y 28.96% | 5Y 732.21% | Status CACHE_HIT
+IBIT | Allocation 8.51% | 1M -16.81% | 3M -11.10% | 6M -24.99% | 1Y -39.67% | 3Y N/A | 5Y N/A | Status CACHE_HIT | Note Insufficient history for: 3Y, 5Y
+VNOM | Allocation 5.80% | 1M -11.41% | 3M -1.98% | 6M 14.50% | 1Y 10.70% | 3Y 107.30% | 5Y 213.18% | Status CACHE_HIT
+SCHG | Allocation 3.90% | 1M -0.50% | 3M 12.76% | 6M 5.35% | 1Y 21.21% | 3Y 86.60% | 5Y 99.08% | Status CACHE_HIT
+SCHA | Allocation 3.83% | 1M 7.54% | 3M 20.84% | 6M 21.93% | 1Y 43.13% | 3Y 68.02% | 5Y 43.74% | Status CACHE_HIT
+ECO | Allocation 3.58% | 1M -2.45% | 3M 17.60% | 6M 57.39% | 1Y 136.97% | 3Y N/A | 5Y N/A | Status CACHE_HIT | Note Insufficient history for: 3Y, 5Y
+QMOM | Allocation 3.03% | 1M 2.31% | 3M 15.32% | 6M 21.31% | 1Y 26.73% | 3Y 79.04% | 5Y 66.42% | Status CACHE_HIT
+SPYM | Allocation 2.83% | 1M 1.94% | 3M 12.93% | 6M 11.62% | 1Y 26.51% | 3Y 77.87% | 5Y 91.68% | Status CACHE_HIT
+SCHF | Allocation 2.54% | 1M 5.44% | 3M 11.99% | 6M 18.94% | 1Y 33.11% | 3Y 70.06% | 5Y 62.31% | Status CACHE_HIT
+MSTR | Allocation 0.72% | 1M -28.64% | 3M -14.17% | 6M -24.41% | 1Y -66.88% | 3Y 331.54% | 5Y 104.27% | Status CACHE_HIT
 CASH0 | Status SKIPPED_CASH | Note Cash excluded from price-return calculation
 
 
@@ -1477,12 +1477,12 @@ REAL HISTORICAL VOLATILITY SUMMARY
 ----------------------------------
 
 
-1M Portfolio Volatility: 49.59% | Coverage 98.5% | Risk HIGH
-3M Portfolio Volatility: 49.51% | Coverage 98.5% | Risk HIGH
-6M Portfolio Volatility: 49.12% | Coverage 98.5% | Risk HIGH
-1Y Portfolio Volatility: 44.08% | Coverage 98.5% | Risk HIGH
-3Y Portfolio Volatility: 41.29% | Coverage 88.4% | Risk HIGH
-5Y Portfolio Volatility: 37.43% | Coverage 88.4% | Risk HIGH
+1M Portfolio Volatility: 55.68% | Coverage 100.0% | Risk HIGH
+3M Portfolio Volatility: 54.53% | Coverage 100.0% | Risk HIGH
+6M Portfolio Volatility: 52.96% | Coverage 100.0% | Risk HIGH
+1Y Portfolio Volatility: 47.14% | Coverage 100.0% | Risk HIGH
+3Y Portfolio Volatility: 44.13% | Coverage 87.9% | Risk HIGH
+5Y Portfolio Volatility: 39.83% | Coverage 87.9% | Risk HIGH
 
 Real historical volatility uses available cached/downloaded market data and does not alter recommendations.
 
@@ -1491,17 +1491,17 @@ REAL HISTORICAL VOLATILITY DETAILS
 ----------------------------------
 
 
-UNH | Allocation 44.86% | 1M 26.68% | 3M 33.30% | 6M 41.98% | 1Y 40.13% | 3Y 36.75% | 5Y 31.90% | Status CACHE_HIT
-SMCI | Allocation 19.11% | 1M 143.50% | 3M 128.15% | 6M 102.75% | 1Y 85.31% | 3Y 98.73% | 5Y 86.61% | Status CACHE_HIT
-VNOM | Allocation 6.26% | 1M 22.35% | 3M 27.76% | 6M 28.11% | 1Y 29.12% | 3Y 31.00% | 5Y 35.89% | Status CACHE_HIT
-IBIT | Allocation 6.20% | 1M 43.33% | 3M 37.59% | 6M 48.59% | 1Y 44.22% | 3Y N/A | 5Y N/A | Status CACHE_HIT | Note Insufficient history for: 3Y, 5Y
-SCHG | Allocation 4.21% | 1M 18.73% | 3M 19.21% | 6M 17.65% | 1Y 16.03% | 3Y 19.45% | 5Y 22.35% | Status CACHE_HIT
-SCHA | Allocation 4.13% | 1M 22.34% | 3M 21.13% | 6M 19.40% | 1Y 18.57% | 3Y 20.45% | 5Y 22.05% | Status CACHE_HIT
-ECO | Allocation 3.87% | 1M 43.09% | 3M 40.48% | 6M 44.68% | 1Y 40.79% | 3Y N/A | 5Y N/A | Status CACHE_HIT | Note Insufficient history for: 3Y, 5Y
-QMOM | Allocation 3.27% | 1M 32.27% | 3M 33.04% | 6M 30.07% | 1Y 24.52% | 3Y 23.53% | 5Y 24.42% | Status CACHE_HIT
-SPYM | Allocation 3.05% | 1M 15.40% | 3M 15.27% | 6M 13.77% | 1Y 12.30% | 3Y 14.88% | 5Y 16.89% | Status CACHE_HIT
-SCHF | Allocation 2.74% | 1M 23.50% | 3M 24.09% | 6M 20.67% | 1Y 16.73% | 3Y 15.51% | 5Y 16.58% | Status CACHE_HIT
-MSTR | Allocation 0.78% | 1M 71.70% | 3M 70.62% | 6M 82.15% | 1Y 71.45% | 3Y 87.89% | 5Y 90.56% | Status CACHE_HIT
+UNH | Allocation 41.55% | 1M 26.68% | 3M 33.30% | 6M 41.98% | 1Y 40.13% | 3Y 36.75% | 5Y 31.90% | Status CACHE_HIT
+SMCI | Allocation 23.65% | 1M 143.50% | 3M 128.15% | 6M 102.75% | 1Y 85.31% | 3Y 98.73% | 5Y 86.61% | Status CACHE_HIT
+IBIT | Allocation 8.51% | 1M 43.33% | 3M 37.59% | 6M 48.59% | 1Y 44.22% | 3Y N/A | 5Y N/A | Status CACHE_HIT | Note Insufficient history for: 3Y, 5Y
+VNOM | Allocation 5.80% | 1M 22.35% | 3M 27.76% | 6M 28.11% | 1Y 29.12% | 3Y 31.00% | 5Y 35.89% | Status CACHE_HIT
+SCHG | Allocation 3.90% | 1M 18.73% | 3M 19.21% | 6M 17.65% | 1Y 16.03% | 3Y 19.45% | 5Y 22.35% | Status CACHE_HIT
+SCHA | Allocation 3.83% | 1M 22.34% | 3M 21.13% | 6M 19.40% | 1Y 18.57% | 3Y 20.45% | 5Y 22.05% | Status CACHE_HIT
+ECO | Allocation 3.58% | 1M 43.09% | 3M 40.48% | 6M 44.68% | 1Y 40.79% | 3Y N/A | 5Y N/A | Status CACHE_HIT | Note Insufficient history for: 3Y, 5Y
+QMOM | Allocation 3.03% | 1M 32.27% | 3M 33.04% | 6M 30.07% | 1Y 24.52% | 3Y 23.53% | 5Y 24.42% | Status CACHE_HIT
+SPYM | Allocation 2.83% | 1M 15.40% | 3M 15.27% | 6M 13.77% | 1Y 12.30% | 3Y 14.88% | 5Y 16.89% | Status CACHE_HIT
+SCHF | Allocation 2.54% | 1M 23.50% | 3M 24.09% | 6M 20.67% | 1Y 16.73% | 3Y 15.51% | 5Y 16.58% | Status CACHE_HIT
+MSTR | Allocation 0.72% | 1M 71.70% | 3M 70.62% | 6M 82.15% | 1Y 71.45% | 3Y 87.89% | 5Y 90.56% | Status CACHE_HIT
 CASH0 | Status SKIPPED_CASH | Note Cash excluded from price-volatility calculation
 
 
@@ -1613,12 +1613,12 @@ MONTE CARLO V2 INPUT SUMMARY
 ----------------------------
 
 
-Portfolio Expected Return: 17.75%
-Portfolio Weighted Volatility: 41.77%
+Portfolio Expected Return: 18.46%
+Portfolio Weighted Volatility: 45.06%
 Weighted Average Correlation: 0.16
 
-Return Data Coverage: 98.5%
-Volatility Data Coverage: 98.5%
+Return Data Coverage: 100.0%
+Volatility Data Coverage: 100.0%
 Correlation Pair Coverage: 100.0%
 
 Overall Input Quality: HIGH
@@ -1631,18 +1631,18 @@ MONTE CARLO V2 INPUT DETAILS
 ----------------------------
 
 
-UNH | Allocation 44.86% | Return 2.42% REAL_5Y | Volatility 31.90% REAL_5Y | Input Quality HIGH
-SMCI | Allocation 19.11% | Return 52.77% REAL_5Y | Volatility 86.61% REAL_5Y | Input Quality HIGH
-VNOM | Allocation 6.26% | Return 25.65% REAL_5Y | Volatility 35.89% REAL_5Y | Input Quality HIGH
-IBIT | Allocation 6.20% | Return -39.67% REAL_1Y | Volatility 44.22% REAL_1Y | Input Quality HIGH
-SCHG | Allocation 4.21% | Return 14.76% REAL_5Y | Volatility 22.35% REAL_5Y | Input Quality HIGH
-SCHA | Allocation 4.13% | Return 7.53% REAL_5Y | Volatility 22.05% REAL_5Y | Input Quality HIGH
-ECO | Allocation 3.87% | Return 136.97% REAL_1Y | Volatility 40.79% REAL_1Y | Input Quality HIGH
-QMOM | Allocation 3.27% | Return 10.72% REAL_5Y | Volatility 24.42% REAL_5Y | Input Quality HIGH
-SPYM | Allocation 3.05% | Return 13.90% REAL_5Y | Volatility 16.89% REAL_5Y | Input Quality HIGH
-SCHF | Allocation 2.74% | Return 10.17% REAL_5Y | Volatility 16.58% REAL_5Y | Input Quality HIGH
-CASH0 | Allocation 1.52% | Return 2.50% STATIC_FALLBACK | Volatility 1.00% STATIC_FALLBACK | Input Quality LOW
-MSTR | Allocation 0.78% | Return 15.36% REAL_5Y | Volatility 90.56% REAL_5Y | Input Quality HIGH
+UNH | Allocation 41.55% | Return 2.42% REAL_5Y | Volatility 31.90% REAL_5Y | Input Quality HIGH
+SMCI | Allocation 23.65% | Return 52.77% REAL_5Y | Volatility 86.61% REAL_5Y | Input Quality HIGH
+IBIT | Allocation 8.51% | Return -39.67% REAL_1Y | Volatility 44.22% REAL_1Y | Input Quality HIGH
+VNOM | Allocation 5.80% | Return 25.65% REAL_5Y | Volatility 35.89% REAL_5Y | Input Quality HIGH
+SCHG | Allocation 3.90% | Return 14.76% REAL_5Y | Volatility 22.35% REAL_5Y | Input Quality HIGH
+SCHA | Allocation 3.83% | Return 7.53% REAL_5Y | Volatility 22.05% REAL_5Y | Input Quality HIGH
+ECO | Allocation 3.58% | Return 136.97% REAL_1Y | Volatility 40.79% REAL_1Y | Input Quality HIGH
+QMOM | Allocation 3.03% | Return 10.72% REAL_5Y | Volatility 24.42% REAL_5Y | Input Quality HIGH
+SPYM | Allocation 2.83% | Return 13.90% REAL_5Y | Volatility 16.89% REAL_5Y | Input Quality HIGH
+SCHF | Allocation 2.54% | Return 10.17% REAL_5Y | Volatility 16.58% REAL_5Y | Input Quality HIGH
+MSTR | Allocation 0.72% | Return 15.36% REAL_5Y | Volatility 90.56% REAL_5Y | Input Quality HIGH
+CASH0 | Allocation 0.04% | Return 2.50% STATIC_FALLBACK | Volatility 1.00% STATIC_FALLBACK | Input Quality LOW
 
 Correlation Input:
 Weighted Average Correlation 0.16 | Source STATIC_MIXED | Pair Coverage 100.0%
@@ -1652,10 +1652,10 @@ MONTE CARLO V2 COVARIANCE SUMMARY
 ---------------------------------
 
 
-Covariance Adjusted Portfolio Volatility: 25.54%
-Weighted Average Volatility: 41.77%
-Diversification Benefit: 16.22%
-Diversification Benefit Percent: 38.8%
+Covariance Adjusted Portfolio Volatility: 28.23%
+Weighted Average Volatility: 45.06%
+Diversification Benefit: 16.83%
+Diversification Benefit Percent: 37.4%
 Weighted Average Correlation: 0.16
 Covariance Matrix Pair Count: 66
 Covariance Input Quality: HIGH
@@ -1669,40 +1669,40 @@ MONTE CARLO V2 COVARIANCE DETAILS
 
 
 Top Variance Contributors
-IBIT/SMCI | Correlation 0.23 | Covariance 0.0867 | Variance Contribution 0.21% | Source REAL_5Y
-SCHG/SMCI | Correlation 0.41 | Covariance 0.0802 | Variance Contribution 0.13% | Source REAL_5Y
-SCHA/SMCI | Correlation 0.36 | Covariance 0.0682 | Variance Contribution 0.11% | Source REAL_5Y
-QMOM/SMCI | Correlation 0.40 | Covariance 0.0854 | Variance Contribution 0.11% | Source REAL_5Y
-SMCI/VNOM | Correlation 0.14 | Covariance 0.0420 | Variance Contribution 0.10% | Source REAL_5Y
-SMCI/SPYM | Correlation 0.40 | Covariance 0.0579 | Variance Contribution 0.07% | Source REAL_5Y
-MSTR/SMCI | Correlation 0.26 | Covariance 0.2063 | Variance Contribution 0.06% | Source REAL_5Y
-SCHF/SMCI | Correlation 0.34 | Covariance 0.0491 | Variance Contribution 0.05% | Source REAL_5Y
-SCHA/UNH | Correlation 0.20 | Covariance 0.0138 | Variance Contribution 0.05% | Source REAL_5Y
-SMCI/UNH | Correlation 0.01 | Covariance 0.0029 | Variance Contribution 0.05% | Source REAL_5Y
-SCHG/UNH | Correlation 0.18 | Covariance 0.0132 | Variance Contribution 0.05% | Source REAL_5Y
+IBIT/SMCI | Correlation 0.23 | Covariance 0.0867 | Variance Contribution 0.35% | Source REAL_5Y
+SCHG/SMCI | Correlation 0.41 | Covariance 0.0802 | Variance Contribution 0.15% | Source REAL_5Y
+SCHA/SMCI | Correlation 0.36 | Covariance 0.0682 | Variance Contribution 0.12% | Source REAL_5Y
+QMOM/SMCI | Correlation 0.40 | Covariance 0.0854 | Variance Contribution 0.12% | Source REAL_5Y
+SMCI/VNOM | Correlation 0.14 | Covariance 0.0420 | Variance Contribution 0.12% | Source REAL_5Y
+SMCI/SPYM | Correlation 0.40 | Covariance 0.0579 | Variance Contribution 0.08% | Source REAL_5Y
+MSTR/SMCI | Correlation 0.26 | Covariance 0.2063 | Variance Contribution 0.07% | Source REAL_5Y
+SCHF/SMCI | Correlation 0.34 | Covariance 0.0491 | Variance Contribution 0.06% | Source REAL_5Y
+SMCI/UNH | Correlation 0.01 | Covariance 0.0029 | Variance Contribution 0.06% | Source REAL_5Y
+ECO/SMCI | Correlation 0.08 | Covariance 0.0286 | Variance Contribution 0.05% | Source REAL_5Y
+SCHA/UNH | Correlation 0.20 | Covariance 0.0138 | Variance Contribution 0.04% | Source REAL_5Y
+SCHG/UNH | Correlation 0.18 | Covariance 0.0132 | Variance Contribution 0.04% | Source REAL_5Y
+IBIT/MSTR | Correlation 0.79 | Covariance 0.3176 | Variance Contribution 0.04% | Source REAL_5Y
 UNH/VNOM | Correlation 0.07 | Covariance 0.0077 | Variance Contribution 0.04% | Source REAL_5Y
-ECO/SMCI | Correlation 0.08 | Covariance 0.0286 | Variance Contribution 0.04% | Source REAL_5Y
+IBIT/UNH | Correlation 0.03 | Covariance 0.0046 | Variance Contribution 0.03% | Source REAL_5Y
 SPYM/UNH | Correlation 0.23 | Covariance 0.0124 | Variance Contribution 0.03% | Source REAL_5Y
 QMOM/UNH | Correlation 0.15 | Covariance 0.0114 | Variance Contribution 0.03% | Source REAL_5Y
-IBIT/MSTR | Correlation 0.79 | Covariance 0.3176 | Variance Contribution 0.03% | Source REAL_5Y
-IBIT/UNH | Correlation 0.03 | Covariance 0.0046 | Variance Contribution 0.03% | Source REAL_5Y
-SCHF/UNH | Correlation 0.17 | Covariance 0.0091 | Variance Contribution 0.02% | Source REAL_5Y
-IBIT/SCHA | Correlation 0.45 | Covariance 0.0438 | Variance Contribution 0.02% | Source REAL_5Y
-IBIT/SCHG | Correlation 0.42 | Covariance 0.0415 | Variance Contribution 0.02% | Source REAL_5Y
+IBIT/SCHA | Correlation 0.45 | Covariance 0.0438 | Variance Contribution 0.03% | Source REAL_5Y
+IBIT/SCHG | Correlation 0.42 | Covariance 0.0415 | Variance Contribution 0.03% | Source REAL_5Y
+IBIT/VNOM | Correlation 0.16 | Covariance 0.0249 | Variance Contribution 0.02% | Source REAL_5Y
 
 Position Risk Inputs
-UNH | Weight 44.86% | Volatility 31.90% | Return 2.42% | Input Quality HIGH
-SMCI | Weight 19.11% | Volatility 86.61% | Return 52.77% | Input Quality HIGH
-VNOM | Weight 6.26% | Volatility 35.89% | Return 25.65% | Input Quality HIGH
-IBIT | Weight 6.20% | Volatility 44.22% | Return -39.67% | Input Quality HIGH
-SCHG | Weight 4.21% | Volatility 22.35% | Return 14.76% | Input Quality HIGH
-SCHA | Weight 4.13% | Volatility 22.05% | Return 7.53% | Input Quality HIGH
-ECO | Weight 3.87% | Volatility 40.79% | Return 136.97% | Input Quality HIGH
-QMOM | Weight 3.27% | Volatility 24.42% | Return 10.72% | Input Quality HIGH
-SPYM | Weight 3.05% | Volatility 16.89% | Return 13.90% | Input Quality HIGH
-SCHF | Weight 2.74% | Volatility 16.58% | Return 10.17% | Input Quality HIGH
-CASH0 | Weight 1.52% | Volatility 1.00% | Return 2.50% | Input Quality LOW
-MSTR | Weight 0.78% | Volatility 90.56% | Return 15.36% | Input Quality HIGH
+UNH | Weight 41.55% | Volatility 31.90% | Return 2.42% | Input Quality HIGH
+SMCI | Weight 23.65% | Volatility 86.61% | Return 52.77% | Input Quality HIGH
+IBIT | Weight 8.51% | Volatility 44.22% | Return -39.67% | Input Quality HIGH
+VNOM | Weight 5.80% | Volatility 35.89% | Return 25.65% | Input Quality HIGH
+SCHG | Weight 3.90% | Volatility 22.35% | Return 14.76% | Input Quality HIGH
+SCHA | Weight 3.83% | Volatility 22.05% | Return 7.53% | Input Quality HIGH
+ECO | Weight 3.58% | Volatility 40.79% | Return 136.97% | Input Quality HIGH
+QMOM | Weight 3.03% | Volatility 24.42% | Return 10.72% | Input Quality HIGH
+SPYM | Weight 2.83% | Volatility 16.89% | Return 13.90% | Input Quality HIGH
+SCHF | Weight 2.54% | Volatility 16.58% | Return 10.17% | Input Quality HIGH
+MSTR | Weight 0.72% | Volatility 90.56% | Return 15.36% | Input Quality HIGH
+CASH0 | Weight 0.04% | Volatility 1.00% | Return 2.50% | Input Quality LOW
 
 
 MONTE CARLO V2 SUMMARY
@@ -1711,14 +1711,14 @@ MONTE CARLO V2 SUMMARY
 
 Simulation Count: 1000
 
-Expected Return Input: 17.75%
-Covariance Adjusted Volatility Input: 25.54%
+Expected Return Input: 18.46%
+Covariance Adjusted Volatility Input: 28.23%
 
-Mean Simulated Return: 17.16%
-Median Simulated Return: 16.59%
+Mean Simulated Return: 17.81%
+Median Simulated Return: 17.17%
 
-Probability Positive: 74.2%
-Probability Negative: 25.8%
+Probability Positive: 72.8%
+Probability Negative: 27.2%
 
 Monte Carlo V2 uses real historical data where available, static fallbacks where needed, and covariance-adjusted volatility.
 Monte Carlo V2 results are not forecasts.
@@ -1728,35 +1728,35 @@ MONTE CARLO V2 DETAILS
 ----------------------
 
 
-Best Outcome: 95.46%
-Worst Outcome: -71.10%
+Best Outcome: 104.34%
+Worst Outcome: -79.74%
 
-5th Percentile: -26.31%
-25th Percentile: -0.47%
-75th Percentile: 35.57%
-95th Percentile: 59.05%
+5th Percentile: -30.24%
+25th Percentile: -1.68%
+75th Percentile: 38.15%
+95th Percentile: 64.10%
 
-Probability Return > 10%: 61.5%
-Probability Return < -10%: 13.9%
-Probability Return < -20%: 7.8%
+Probability Return > 10%: 61.3%
+Probability Return < -10%: 16.8%
+Probability Return < -20%: 8.9%
 
 V1 vs V2 Comparison
 
-V1 Expected Return: 7.84%
-V2 Expected Return: 17.75%
-Expected Return Difference: +9.92%
+V1 Expected Return: 8.05%
+V2 Expected Return: 18.46%
+Expected Return Difference: +10.41%
 
-V1 Volatility: 24.47%
-V2 Volatility: 25.54%
-Volatility Difference: +1.07%
+V1 Volatility: 26.14%
+V2 Volatility: 28.23%
+Volatility Difference: +2.08%
 
-V1 Probability Negative: 39.2%
-V2 Probability Negative: 25.8%
-Probability Negative Difference: -13.4%
+V1 Probability Negative: 39.4%
+V2 Probability Negative: 27.2%
+Probability Negative Difference: -12.2%
 
-V1 Probability < -10%: 25.4%
-V2 Probability < -10%: 13.9%
-Probability < -10% Difference: -11.5%
+V1 Probability < -10%: 26.7%
+V2 Probability < -10%: 16.8%
+Probability < -10% Difference: -9.9%
 
 
 BUY LIST
@@ -1781,8 +1781,9 @@ SELL CANDIDATES
 ---------------
 
 
-MSTR | Account Brokerage | Conviction low | Thesis Status active | Reason Higher ranked candidate available.
-SMCI | Account Brokerage | Conviction low | Thesis Status active | Reason Higher ranked candidate available.
+MSTR | Account Individual ...082 | Conviction low | Thesis Status active | Reason Higher ranked candidate available.
+SMCI | Account Individual ...082 | Conviction low | Thesis Status active | Reason Higher ranked candidate available.
+SMCI | Account Roth_Contributory_IRA ...399 | Conviction low | Thesis Status active | Reason Higher ranked candidate available.
 
 
 REPLACEMENT PLAN
@@ -1791,6 +1792,7 @@ REPLACEMENT PLAN
 
 Sell: MSTR | Buy: AVUV | Reason: Higher ranked candidate available.
 Sell: SMCI | Buy: AVUV | Reason: Higher ranked candidate available.
+Sell: SMCI | Buy: AVUV | Reason: Higher ranked candidate available.
 
 
 RESEARCH HEALTH SUMMARY
@@ -1798,7 +1800,7 @@ RESEARCH HEALTH SUMMARY
 
 
 High Severity Issues: 0
-Medium Severity Issues: 4
+Medium Severity Issues: 6
 Low Severity Issues: 1
 
 
@@ -1809,6 +1811,8 @@ RESEARCH HEALTH
 MEDIUM | ECO | Low conviction holding | Reevaluate thesis
 MEDIUM | MSTR | Low conviction holding | Reevaluate thesis
 MEDIUM | SMCI | Low conviction holding | Reevaluate thesis
+MEDIUM | SMCI | Low conviction holding | Reevaluate thesis
+MEDIUM | SMCI | Overweight position with conviction not high | Review position size
 MEDIUM | SMCI | Overweight position with conviction not high | Review position size
 LOW | AVDV | High score candidate still in watch status | Complete research review
 
@@ -1836,74 +1840,79 @@ POSITIONS
 ---------
 
 
-Roth (Roth) | SCHF: International Equity ETF | Intl Large Blend | 14.0 shares | Price $28.26 | Value $395.64 | Cost Basis $346.71 | Gain/Loss $48.93 | Gain/Loss 14.11% | Thesis Status active | Conviction high
-Roth (Roth) | SPYM: State Street® SPDR® Portfolio S&P 500® ETF | US Large Blend | 5.0123 shares | Price $87.71 | Value $439.65 | Cost Basis $403.10 | Gain/Loss $36.55 | Gain/Loss 9.07% | Thesis Status active | Conviction high
-Roth (Roth) | QMOM: Alpha Architect U.S. Quantitative Momentum ETF | US Large Blend | 6.0 shares | Price $78.53 | Value $471.17 | Cost Basis $421.08 | Gain/Loss $50.09 | Gain/Loss 11.89% | Thesis Status active | Conviction medium
-Roth (Roth) | SCHA: U.S. Small-Cap ETF | US Small Blend | 17.0 shares | Price $35.06 | Value $595.94 | Cost Basis $500.23 | Gain/Loss $95.71 | Gain/Loss 19.13% | Thesis Status active | Conviction high
-Roth (Roth) | SCHG: U.S. Large-Cap Growth ETF | US Large Growth | 18.0 shares | Price $33.71 | Value $606.78 | Cost Basis $531.99 | Gain/Loss $74.79 | Gain/Loss 14.06% | Thesis Status active | Conviction high
-Roth (Roth) | CASH0: Cash | Cash | 183.76 shares | Price $1.00 | Value $183.76 | Cost Basis $183.76 | Gain/Loss $0.00 | Gain/Loss 0.00% | Thesis Status active | Conviction high
-Brokerage (Taxable) | MSTR: MicroStrategy | US Small Blend | 1.0 shares | Price $112.01 | Value $112.01 | Cost Basis $171.02 | Gain/Loss $-59.01 | Gain/Loss -34.50% | Thesis Status active | Conviction low
-Brokerage (Taxable) | ECO: Okeanis Eco Tankers Corp | Marine Shipping | 11.0 shares | Price $50.67 | Value $557.37 | Cost Basis $622.71 | Gain/Loss $-65.34 | Gain/Loss -10.49% | Thesis Status active | Conviction low
-Brokerage (Taxable) | VNOM: Viper Energy Partners LP Common Units | MLP | 21.0 shares | Price $42.98 | Value $902.58 | Cost Basis $994.88 | Gain/Loss $-92.30 | Gain/Loss -9.28% | Thesis Status active | Conviction medium
-Brokerage (Taxable) | SMCI: Super Micro Computer Inc | US Small Growth | 91.0 shares | Price $30.28 | Value $2755.93 | Cost Basis $3555.26 | Gain/Loss $-799.33 | Gain/Loss -22.48% | Thesis Status active | Conviction low
-Brokerage (Taxable) | UNH: UnitedHealth Group Inc | US Large Growth | 16.0 shares | Price $404.29 | Value $6468.64 | Cost Basis $4573.17 | Gain/Loss $1895.47 | Gain/Loss 41.45% | Thesis Status active | Conviction high
-Brokerage (Taxable) | IBIT: iShares Bitcoin Trust ETF | Non-Traditional | 25.0 shares | Price $35.77 | Value $894.25 | Cost Basis $1100.50 | Gain/Loss $-206.25 | Gain/Loss -18.74% | Thesis Status active | Conviction medium
-Brokerage (Taxable) | CASH0: Cash | Cash | 35.06 shares | Price $1.00 | Value $35.06 | Cost Basis $35.06 | Gain/Loss $0.00 | Gain/Loss 0.00% | Thesis Status active | Conviction high
+Individual ...082 (Unknown) | CASH0: Cash | Cash | 3.88 shares | Price $1.00 | Value $3.88 | Cost Basis $3.88 | Gain/Loss $0.00 | Gain/Loss 0.00% | Thesis Status active | Conviction high
+Individual ...082 (Unknown) | ECO: Okeanis Eco Tankers Corp | Marine Shipping | 11.0 shares | Price $50.67 | Value $557.35 | Cost Basis $622.71 | Gain/Loss $-65.36 | Gain/Loss -10.50% | Thesis Status active | Conviction low
+Individual ...082 (Unknown) | IBIT: iShares Bitcoin Trust ETF | Non-Traditional | 25.0 shares | Price $35.79 | Value $894.80 | Cost Basis $1100.50 | Gain/Loss $-205.70 | Gain/Loss -18.69% | Thesis Status active | Conviction medium
+Individual ...082 (Unknown) | MSTR: MicroStrategy | US Small Blend | 1.0 shares | Price $112.33 | Value $112.33 | Cost Basis $171.02 | Gain/Loss $-58.69 | Gain/Loss -34.32% | Thesis Status active | Conviction low
+Individual ...082 (Unknown) | SMCI: Super Micro Computer Inc | US Small Growth | 92.0 shares | Price $30.41 | Value $2797.26 | Cost Basis $3586.44 | Gain/Loss $-789.18 | Gain/Loss -22.00% | Thesis Status active | Conviction low
+Individual ...082 (Unknown) | UNH: UnitedHealth Group Inc | US Large Growth | 16.0 shares | Price $403.86 | Value $6461.73 | Cost Basis $4573.17 | Gain/Loss $1888.56 | Gain/Loss 41.30% | Thesis Status active | Conviction high
+Individual ...082 (Unknown) | VNOM: Viper Energy Partners LP Common Units | MLP | 21.0 shares | Price $42.98 | Value $902.58 | Cost Basis $994.88 | Gain/Loss $-92.30 | Gain/Loss -9.28% | Thesis Status active | Conviction medium
+Roth_Contributory_IRA ...399 (Roth) | CASH0: Cash | Cash | 2.43 shares | Price $1.00 | Value $2.43 | Cost Basis $2.43 | Gain/Loss $0.00 | Gain/Loss 0.00% | Thesis Status active | Conviction high
+Roth_Contributory_IRA ...399 (Roth) | IBIT: iShares Bitcoin Trust ETF | Non-Traditional | 12.0 shares | Price $35.79 | Value $429.51 | Cost Basis $456.00 | Gain/Loss $-26.49 | Gain/Loss -5.81% | Thesis Status active | Conviction medium
+Roth_Contributory_IRA ...399 (Roth) | QMOM: Alpha Architect U.S. Quantitative Momentum ETF | US Large Blend | 6.0 shares | Price $78.50 | Value $470.97 | Cost Basis $421.08 | Gain/Loss $49.89 | Gain/Loss 11.85% | Thesis Status active | Conviction medium
+Roth_Contributory_IRA ...399 (Roth) | SCHA: U.S. Small-Cap ETF | US Small Blend | 17.0 shares | Price $35.03 | Value $595.51 | Cost Basis $500.23 | Gain/Loss $95.28 | Gain/Loss 19.05% | Thesis Status active | Conviction high
+Roth_Contributory_IRA ...399 (Roth) | SCHF: International Equity ETF | Intl Large Blend | 14.0 shares | Price $28.26 | Value $395.64 | Cost Basis $346.71 | Gain/Loss $48.93 | Gain/Loss 14.11% | Thesis Status active | Conviction high
+Roth_Contributory_IRA ...399 (Roth) | SCHG: U.S. Large-Cap Growth ETF | US Large Growth | 18.0 shares | Price $33.71 | Value $606.69 | Cost Basis $531.99 | Gain/Loss $74.70 | Gain/Loss 14.04% | Thesis Status active | Conviction high
+Roth_Contributory_IRA ...399 (Roth) | SMCI: Super Micro Computer Inc | US Small Growth | 29.0 shares | Price $30.41 | Value $881.75 | Cost Basis $900.33 | Gain/Loss $-18.58 | Gain/Loss -2.06% | Thesis Status active | Conviction low
+Roth_Contributory_IRA ...399 (Roth) | SPYM: State Street® SPDR® Portfolio S&P 500® ETF | US Large Blend | 5.0258 shares | Price $87.73 | Value $440.91 | Cost Basis $404.30 | Gain/Loss $36.61 | Gain/Loss 9.06% | Thesis Status active | Conviction high
 
 
 TICKER ALLOCATION
 -----------------
 
 
-SCHF: Value $395.64 | Allocation 2.74% | Target 5.00% | Difference -2.26%
-SPYM: Value $439.65 | Allocation 3.05% | Target 10.00% | Difference -6.95%
-QMOM: Value $471.17 | Allocation 3.27% | Target 10.00% | Difference -6.73%
-SCHA: Value $595.94 | Allocation 4.13% | Target 10.00% | Difference -5.87%
-SCHG: Value $606.78 | Allocation 4.21% | Target 15.00% | Difference -10.79%
-CASH0: Value $218.82 | Allocation 1.52% | Target 7.00% | Difference -5.48%
-MSTR: Value $112.01 | Allocation 0.78% | Target 3.00% | Difference -2.22%
-ECO: Value $557.37 | Allocation 3.87% | Target 5.00% | Difference -1.13%
-VNOM: Value $902.58 | Allocation 6.26% | Target 5.00% | Difference 1.26%
-SMCI: Value $2755.93 | Allocation 19.11% | Target 10.00% | Difference 9.11%
-UNH: Value $6468.64 | Allocation 44.86% | Target 10.00% | Difference 34.86%
-IBIT: Value $894.25 | Allocation 6.20% | Target 10.00% | Difference -3.80%
+CASH0: Value $6.31 | Allocation 0.04% | Target 7.00% | Difference -6.96%
+ECO: Value $557.35 | Allocation 3.58% | Target 5.00% | Difference -1.42%
+IBIT: Value $1324.31 | Allocation 8.51% | Target 10.00% | Difference -1.49%
+MSTR: Value $112.33 | Allocation 0.72% | Target 3.00% | Difference -2.28%
+SMCI: Value $3679.01 | Allocation 23.65% | Target 10.00% | Difference 13.65%
+UNH: Value $6461.73 | Allocation 41.55% | Target 10.00% | Difference 31.55%
+VNOM: Value $902.58 | Allocation 5.80% | Target 5.00% | Difference 0.80%
+QMOM: Value $470.97 | Allocation 3.03% | Target 10.00% | Difference -6.97%
+SCHA: Value $595.51 | Allocation 3.83% | Target 10.00% | Difference -6.17%
+SCHF: Value $395.64 | Allocation 2.54% | Target 5.00% | Difference -2.46%
+SCHG: Value $606.69 | Allocation 3.90% | Target 15.00% | Difference -11.10%
+SPYM: Value $440.91 | Allocation 2.83% | Target 10.00% | Difference -7.17%
 
 
 REBALANCE ALERTS
 ----------------
 
 
-SPYM: UNDERWEIGHT by 6.95%
-QMOM: UNDERWEIGHT by 6.73%
-SCHA: UNDERWEIGHT by 5.87%
-SCHG: UNDERWEIGHT by 10.79%
-CASH0: UNDERWEIGHT by 5.48%
-SMCI: OVERWEIGHT by 9.11%
-UNH: OVERWEIGHT by 34.86%
+CASH0: UNDERWEIGHT by 6.96%
+SMCI: OVERWEIGHT by 13.65%
+UNH: OVERWEIGHT by 31.55%
+QMOM: UNDERWEIGHT by 6.97%
+SCHA: UNDERWEIGHT by 6.17%
+SCHG: UNDERWEIGHT by 11.10%
+SPYM: UNDERWEIGHT by 7.17%
 
 
 TAX IMPACT NOTES
 ----------------
 
 
-SCHF: Roth position. No current tax impact from selling.
-SPYM: Roth position. No current tax impact from selling.
+IBIT: Moderate unrealized loss ($205.70). Possible tax-loss harvesting candidate.
+SMCI: Large unrealized loss ($789.18). Strong tax-loss harvesting candidate.
+IBIT: Roth position. No current tax impact from selling.
 QMOM: Roth position. No current tax impact from selling.
 SCHA: Roth position. No current tax impact from selling.
+SCHF: Roth position. No current tax impact from selling.
 SCHG: Roth position. No current tax impact from selling.
-UNH: LARGE taxable gain ($1895.47). Significant tax impact if sold.
+SMCI: Roth position. No current tax impact from selling.
+SPYM: Roth position. No current tax impact from selling.
 
 
 RECOMMENDATIONS
 ---------------
 
 
-SPYM: Moderately underweight. Recommendation: Consider adding with new cash.
+SMCI: Overweight with low conviction. Recommendation: Consider reducing.
+UNH: Severely overweight. Recommendation: Consider trimming position.
 QMOM: Moderately underweight. Recommendation: Consider adding with new cash.
 SCHA: Moderately underweight. Recommendation: Consider adding with new cash.
 SCHG: Severely underweight. Recommendation: Prioritize future contributions here.
-SMCI: Overweight with low conviction. Recommendation: Consider reducing.
-UNH: Overweight with high conviction and a taxable gain. Recommendation: Hold and monitor.
+SPYM: Moderately underweight. Recommendation: Consider adding with new cash.
 
 
 WATCHLIST
@@ -1928,31 +1937,37 @@ CANDIDATE VS HOLDINGS
 ---------------------
 
 
-SGOV | Candidate Score 33 | Holding SCHF | Holding Comparable Score 30 | Action Not comparable asset objective
-SGOV | Candidate Score 33 | Holding SPYM | Holding Comparable Score 30 | Action Not comparable asset objective
-SGOV | Candidate Score 33 | Holding QMOM | Holding Comparable Score 20 | Action Not comparable asset objective
-SGOV | Candidate Score 33 | Holding SCHA | Holding Comparable Score 30 | Action Not comparable asset objective
-SGOV | Candidate Score 33 | Holding SCHG | Holding Comparable Score 30 | Action Not comparable asset objective
-SGOV | Candidate Score 33 | Holding MSTR | Holding Comparable Score 10 | Action Not comparable asset objective
 SGOV | Candidate Score 33 | Holding ECO | Holding Comparable Score 10 | Action Not comparable asset objective
-SGOV | Candidate Score 33 | Holding VNOM | Holding Comparable Score 20 | Action Not comparable asset objective
+SGOV | Candidate Score 33 | Holding IBIT | Holding Comparable Score 20 | Action Not comparable asset objective
+SGOV | Candidate Score 33 | Holding MSTR | Holding Comparable Score 10 | Action Not comparable asset objective
 SGOV | Candidate Score 33 | Holding SMCI | Holding Comparable Score 10 | Action Not comparable asset objective
 SGOV | Candidate Score 33 | Holding UNH | Holding Comparable Score 30 | Action Not comparable asset objective
+SGOV | Candidate Score 33 | Holding VNOM | Holding Comparable Score 20 | Action Not comparable asset objective
 SGOV | Candidate Score 33 | Holding IBIT | Holding Comparable Score 20 | Action Not comparable asset objective
+SGOV | Candidate Score 33 | Holding QMOM | Holding Comparable Score 20 | Action Not comparable asset objective
+SGOV | Candidate Score 33 | Holding SCHA | Holding Comparable Score 30 | Action Not comparable asset objective
+SGOV | Candidate Score 33 | Holding SCHF | Holding Comparable Score 30 | Action Not comparable asset objective
+SGOV | Candidate Score 33 | Holding SCHG | Holding Comparable Score 30 | Action Not comparable asset objective
+SGOV | Candidate Score 33 | Holding SMCI | Holding Comparable Score 10 | Action Not comparable asset objective
+SGOV | Candidate Score 33 | Holding SPYM | Holding Comparable Score 30 | Action Not comparable asset objective
 AVUV | Candidate Score 31 | Holding CASH0 | Holding Comparable Score 30 | Action Not comparable asset objective
-AVUV | Candidate Score 31 | Holding MSTR | Holding Comparable Score 10 | Action Candidate may be superior to low-conviction holding
 AVUV | Candidate Score 31 | Holding ECO | Holding Comparable Score 10 | Action Not comparable asset objective
-AVUV | Candidate Score 31 | Holding VNOM | Holding Comparable Score 20 | Action Not comparable asset objective
-AVUV | Candidate Score 31 | Holding SMCI | Holding Comparable Score 10 | Action Candidate may be superior to low-conviction holding
 AVUV | Candidate Score 31 | Holding IBIT | Holding Comparable Score 20 | Action Not comparable asset objective
+AVUV | Candidate Score 31 | Holding MSTR | Holding Comparable Score 10 | Action Candidate may be superior to low-conviction holding
+AVUV | Candidate Score 31 | Holding SMCI | Holding Comparable Score 10 | Action Candidate may be superior to low-conviction holding
+AVUV | Candidate Score 31 | Holding VNOM | Holding Comparable Score 20 | Action Not comparable asset objective
 AVUV | Candidate Score 31 | Holding CASH0 | Holding Comparable Score 30 | Action Not comparable asset objective
+AVUV | Candidate Score 31 | Holding IBIT | Holding Comparable Score 20 | Action Not comparable asset objective
+AVUV | Candidate Score 31 | Holding SMCI | Holding Comparable Score 10 | Action Candidate may be superior to low-conviction holding
 AVDV | Candidate Score 30 | Holding CASH0 | Holding Comparable Score 30 | Action Not comparable asset objective
-AVDV | Candidate Score 30 | Holding MSTR | Holding Comparable Score 10 | Action Candidate may be superior to low-conviction holding
 AVDV | Candidate Score 30 | Holding ECO | Holding Comparable Score 10 | Action Not comparable asset objective
-AVDV | Candidate Score 30 | Holding VNOM | Holding Comparable Score 20 | Action Not comparable asset objective
-AVDV | Candidate Score 30 | Holding SMCI | Holding Comparable Score 10 | Action Candidate may be superior to low-conviction holding
 AVDV | Candidate Score 30 | Holding IBIT | Holding Comparable Score 20 | Action Not comparable asset objective
+AVDV | Candidate Score 30 | Holding MSTR | Holding Comparable Score 10 | Action Candidate may be superior to low-conviction holding
+AVDV | Candidate Score 30 | Holding SMCI | Holding Comparable Score 10 | Action Candidate may be superior to low-conviction holding
+AVDV | Candidate Score 30 | Holding VNOM | Holding Comparable Score 20 | Action Not comparable asset objective
 AVDV | Candidate Score 30 | Holding CASH0 | Holding Comparable Score 30 | Action Not comparable asset objective
+AVDV | Candidate Score 30 | Holding IBIT | Holding Comparable Score 20 | Action Not comparable asset objective
+AVDV | Candidate Score 30 | Holding SMCI | Holding Comparable Score 10 | Action Candidate may be superior to low-conviction holding
 
 
 SECURITY CLASSIFICATION
@@ -1980,8 +1995,8 @@ ACCOUNT TOTALS
 --------------
 
 
-Roth: $2692.93
-Brokerage: $11725.85
+Individual ...082: $11729.93
+Roth_Contributory_IRA ...399: $3823.41
 
-Total Portfolio Value: $14418.78
+Total Portfolio Value: $15553.34
 

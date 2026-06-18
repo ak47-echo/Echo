@@ -2,12 +2,12 @@ ECHO STATE SUMMARY
 ==================
 
 Schema Version: 1.0
-Generated At: 2026-06-18T10:29:42
+Generated At: 2026-06-18T10:38:33
 
-Top Priority: UNH position concentration 44.9%
+Top Priority: UNH position concentration 41.5%
 Dominant Theme: Inflation/Energy Risk
-Portfolio Risk: UNH position concentration 44.9%
-Worst Stress Scenario: 2008_STYLE_CRISIS | Impact -50.09%
+Portfolio Risk: UNH position concentration 41.5%
+Worst Stress Scenario: 2008_STYLE_CRISIS | Impact -51.60%
 Top News Narrative: Middle East Energy Risk
 Macro Regime: Inflation Stress
 
@@ -19,6 +19,6 @@ Action Queue Items: 3
 Risk Register Items: 10
 
 Action Queue:
-1. Review UNH position concentration 44.9%
+1. Review UNH position concentration 41.5%
 2. Reevaluate SMCI: Low conviction holding
-3. Review SMCI position concentration 19.1%
+3. Review SMCI position concentration 23.7%

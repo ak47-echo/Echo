@@ -2,15 +2,15 @@
   "clusters": [
     {
       "id": "cluster:1",
-      "label": "UNH position concentration 44.9%",
+      "label": "UNH position concentration 41.5%",
       "node_ids": [
         "action:reevaluate_eco_low_conviction_holding",
         "action:reevaluate_mstr_low_conviction_holding",
         "action:reevaluate_smci_low_conviction_holding",
-        "action:review_smci_position_concentration_179",
         "action:review_smci_position_concentration_191",
+        "action:review_smci_position_concentration_237",
+        "action:review_unh_position_concentration_415",
         "action:review_unh_position_concentration_449",
-        "action:review_unh_position_concentration_453",
         "agent:echo",
         "agent:macro_agent",
         "agent:news_agent",
@@ -35,8 +35,7 @@
         "news_narrative:opec_chief_dismisses_iea_supply_glut_forecast_as_critical_strait_of_hormuz_reopens__source_cnbc_markets__relevance_score_84__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_world_event_energy",
         "news_narrative:portfolio_relevant_news",
         "news_narrative:trumps_iran_agreement_is_a_massive_buy_signal_for_stocks__source_marketwatch__relevance_score_84__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_market_world_event",
-        "portfolio_signal:unh_position_concentration_449",
-        "priority:unh_position_concentration_449",
+        "priority:unh_position_concentration_415",
         "research_signal:eco_reevaluate_thesis",
         "research_signal:mstr_reevaluate_thesis",
         "research_signal:smci_reevaluate_thesis",
@@ -55,16 +54,15 @@
         "risk:smci",
         "risk:smci_position_size_conflicts_with_research_conviction",
         "risk:unh",
-        "risk:unh_position_concentration_448",
+        "risk:unh_position_concentration_415",
         "risk:unh_position_concentration_449",
-        "risk:unh_position_concentration_453",
         "risk:yield_curve_flat",
         "risk:yield_curve_unknown",
-        "stress_scenario:2008_style_crisis__impact_-5009",
+        "stress_scenario:2008_style_crisis__impact_-5160",
         "theme:inflation_energy_risk"
       ],
-      "primary_node": "priority:unh_position_concentration_449",
-      "total_weight": 1790
+      "primary_node": "risk:unh_position_concentration_415",
+      "total_weight": 1710
     }
   ],
   "edges": [
@@ -127,7 +125,7 @@
     {
       "metadata": {},
       "relationship": "generated_by",
-      "source": "action:review_smci_position_concentration_179",
+      "source": "action:review_smci_position_concentration_191",
       "source_layer": "change_detection",
       "target": "agent:echo",
       "weight": 6
@@ -135,7 +133,7 @@
     {
       "metadata": {},
       "relationship": "generated_by",
-      "source": "action:review_smci_position_concentration_191",
+      "source": "action:review_smci_position_concentration_237",
       "source_layer": "change_detection",
       "target": "agent:echo",
       "weight": 12
@@ -143,7 +141,7 @@
     {
       "metadata": {},
       "relationship": "relates_to",
-      "source": "action:review_smci_position_concentration_191",
+      "source": "action:review_smci_position_concentration_237",
       "source_layer": "state",
       "target": "agent:echo",
       "weight": 5
@@ -151,7 +149,7 @@
     {
       "metadata": {},
       "relationship": "relates_to",
-      "source": "action:review_smci_position_concentration_191",
+      "source": "action:review_smci_position_concentration_237",
       "source_layer": "state",
       "target": "holding:smci",
       "weight": 8
@@ -159,7 +157,7 @@
     {
       "metadata": {},
       "relationship": "relates_to",
-      "source": "action:review_smci_position_concentration_191",
+      "source": "action:review_smci_position_concentration_237",
       "source_layer": "state",
       "target": "risk:smci",
       "weight": 8
@@ -167,7 +165,7 @@
     {
       "metadata": {},
       "relationship": "relates_to",
-      "source": "action:review_smci_position_concentration_191",
+      "source": "action:review_smci_position_concentration_237",
       "source_layer": "state",
       "target": "risk:smci_position_size_conflicts_with_research_conviction",
       "weight": 16
@@ -175,39 +173,15 @@
     {
       "metadata": {},
       "relationship": "relates_to",
-      "source": "action:review_smci_position_concentration_191",
+      "source": "action:review_smci_position_concentration_237",
       "source_layer": "state",
-      "target": "risk:unh_position_concentration_449",
+      "target": "risk:unh_position_concentration_415",
       "weight": 16
     },
     {
       "metadata": {},
-      "relationship": "escalates",
-      "source": "action:review_unh_position_concentration_449",
-      "source_layer": "change_detection",
-      "target": "action:review_smci_position_concentration_179",
-      "weight": 35
-    },
-    {
-      "metadata": {},
-      "relationship": "escalates",
-      "source": "action:review_unh_position_concentration_449",
-      "source_layer": "change_detection",
-      "target": "action:review_smci_position_concentration_191",
-      "weight": 35
-    },
-    {
-      "metadata": {},
-      "relationship": "escalates",
-      "source": "action:review_unh_position_concentration_449",
-      "source_layer": "change_detection",
-      "target": "action:review_unh_position_concentration_453",
-      "weight": 35
-    },
-    {
-      "metadata": {},
       "relationship": "generated_by",
-      "source": "action:review_unh_position_concentration_449",
+      "source": "action:review_unh_position_concentration_415",
       "source_layer": "change_detection",
       "target": "agent:echo",
       "weight": 12
@@ -215,7 +189,7 @@
     {
       "metadata": {},
       "relationship": "relates_to",
-      "source": "action:review_unh_position_concentration_449",
+      "source": "action:review_unh_position_concentration_415",
       "source_layer": "state",
       "target": "agent:echo",
       "weight": 5
@@ -223,79 +197,39 @@
     {
       "metadata": {},
       "relationship": "relates_to",
-      "source": "action:review_unh_position_concentration_449",
+      "source": "action:review_unh_position_concentration_415",
       "source_layer": "state",
       "target": "holding:unh",
       "weight": 8
     },
     {
       "metadata": {},
-      "relationship": "escalates",
-      "source": "action:review_unh_position_concentration_449",
-      "source_layer": "change_detection",
-      "target": "risk:smci_position_size_conflicts_with_research_conviction",
-      "weight": 35
-    },
-    {
-      "metadata": {},
       "relationship": "relates_to",
-      "source": "action:review_unh_position_concentration_449",
+      "source": "action:review_unh_position_concentration_415",
       "source_layer": "state",
       "target": "risk:smci_position_size_conflicts_with_research_conviction",
       "weight": 16
     },
     {
       "metadata": {},
-      "relationship": "escalates",
-      "source": "action:review_unh_position_concentration_449",
-      "source_layer": "change_detection",
-      "target": "risk:unh",
-      "weight": 35
-    },
-    {
-      "metadata": {},
       "relationship": "relates_to",
-      "source": "action:review_unh_position_concentration_449",
+      "source": "action:review_unh_position_concentration_415",
       "source_layer": "state",
       "target": "risk:unh",
       "weight": 8
     },
     {
       "metadata": {},
-      "relationship": "escalates",
-      "source": "action:review_unh_position_concentration_449",
-      "source_layer": "change_detection",
-      "target": "risk:unh_position_concentration_448",
-      "weight": 35
-    },
-    {
-      "metadata": {},
-      "relationship": "escalates",
-      "source": "action:review_unh_position_concentration_449",
-      "source_layer": "change_detection",
-      "target": "risk:unh_position_concentration_449",
-      "weight": 35
-    },
-    {
-      "metadata": {},
       "relationship": "relates_to",
-      "source": "action:review_unh_position_concentration_449",
+      "source": "action:review_unh_position_concentration_415",
       "source_layer": "state",
-      "target": "risk:unh_position_concentration_449",
+      "target": "risk:unh_position_concentration_415",
       "weight": 16
     },
     {
       "metadata": {},
-      "relationship": "escalates",
-      "source": "action:review_unh_position_concentration_449",
-      "source_layer": "change_detection",
-      "target": "risk:unh_position_concentration_453",
-      "weight": 35
-    },
-    {
-      "metadata": {},
       "relationship": "generated_by",
-      "source": "action:review_unh_position_concentration_453",
+      "source": "action:review_unh_position_concentration_449",
       "source_layer": "change_detection",
       "target": "agent:echo",
       "weight": 6
@@ -449,7 +383,7 @@
       "relationship": "influences",
       "source": "macro_regime:inflation_stress",
       "source_layer": "state",
-      "target": "risk:unh_position_concentration_449",
+      "target": "risk:unh_position_concentration_415",
       "weight": 10
     },
     {
@@ -542,176 +476,24 @@
     },
     {
       "metadata": {},
-      "relationship": "escalates",
-      "source": "portfolio_signal:unh_position_concentration_449",
-      "source_layer": "change_detection",
-      "target": "action:review_smci_position_concentration_179",
-      "weight": 35
-    },
-    {
-      "metadata": {},
-      "relationship": "escalates",
-      "source": "portfolio_signal:unh_position_concentration_449",
-      "source_layer": "change_detection",
-      "target": "action:review_smci_position_concentration_191",
-      "weight": 35
-    },
-    {
-      "metadata": {},
-      "relationship": "escalates",
-      "source": "portfolio_signal:unh_position_concentration_449",
-      "source_layer": "change_detection",
-      "target": "action:review_unh_position_concentration_449",
-      "weight": 35
-    },
-    {
-      "metadata": {},
-      "relationship": "escalates",
-      "source": "portfolio_signal:unh_position_concentration_449",
-      "source_layer": "change_detection",
-      "target": "action:review_unh_position_concentration_453",
-      "weight": 35
-    },
-    {
-      "metadata": {},
       "relationship": "generated_by",
-      "source": "portfolio_signal:unh_position_concentration_449",
+      "source": "priority:unh_position_concentration_415",
       "source_layer": "change_detection",
-      "target": "agent:portfolio_agent",
+      "target": "agent:echo",
       "weight": 6
     },
     {
       "metadata": {},
-      "relationship": "escalates",
-      "source": "portfolio_signal:unh_position_concentration_449",
-      "source_layer": "change_detection",
-      "target": "risk:smci_position_size_conflicts_with_research_conviction",
-      "weight": 35
-    },
-    {
-      "metadata": {},
-      "relationship": "escalates",
-      "source": "portfolio_signal:unh_position_concentration_449",
-      "source_layer": "change_detection",
-      "target": "risk:unh",
-      "weight": 35
-    },
-    {
-      "metadata": {},
-      "relationship": "escalates",
-      "source": "portfolio_signal:unh_position_concentration_449",
-      "source_layer": "change_detection",
-      "target": "risk:unh_position_concentration_448",
-      "weight": 35
-    },
-    {
-      "metadata": {},
-      "relationship": "escalates",
-      "source": "portfolio_signal:unh_position_concentration_449",
-      "source_layer": "change_detection",
-      "target": "risk:unh_position_concentration_449",
-      "weight": 35
-    },
-    {
-      "metadata": {},
-      "relationship": "escalates",
-      "source": "portfolio_signal:unh_position_concentration_449",
-      "source_layer": "change_detection",
-      "target": "risk:unh_position_concentration_453",
-      "weight": 35
-    },
-    {
-      "metadata": {},
-      "relationship": "escalates",
-      "source": "priority:unh_position_concentration_449",
-      "source_layer": "change_detection",
-      "target": "action:review_smci_position_concentration_179",
-      "weight": 70
-    },
-    {
-      "metadata": {},
-      "relationship": "escalates",
-      "source": "priority:unh_position_concentration_449",
-      "source_layer": "change_detection",
-      "target": "action:review_smci_position_concentration_191",
-      "weight": 70
-    },
-    {
-      "metadata": {},
-      "relationship": "escalates",
-      "source": "priority:unh_position_concentration_449",
-      "source_layer": "change_detection",
-      "target": "action:review_unh_position_concentration_449",
-      "weight": 70
-    },
-    {
-      "metadata": {},
-      "relationship": "escalates",
-      "source": "priority:unh_position_concentration_449",
-      "source_layer": "change_detection",
-      "target": "action:review_unh_position_concentration_453",
-      "weight": 70
-    },
-    {
-      "metadata": {},
-      "relationship": "generated_by",
-      "source": "priority:unh_position_concentration_449",
-      "source_layer": "change_detection",
-      "target": "agent:echo",
-      "weight": 12
-    },
-    {
-      "metadata": {},
-      "relationship": "escalates",
-      "source": "priority:unh_position_concentration_449",
-      "source_layer": "change_detection",
-      "target": "risk:smci_position_size_conflicts_with_research_conviction",
-      "weight": 70
-    },
-    {
-      "metadata": {},
-      "relationship": "escalates",
-      "source": "priority:unh_position_concentration_449",
-      "source_layer": "change_detection",
-      "target": "risk:unh",
-      "weight": 70
-    },
-    {
-      "metadata": {},
-      "relationship": "escalates",
-      "source": "priority:unh_position_concentration_449",
-      "source_layer": "change_detection",
-      "target": "risk:unh_position_concentration_448",
-      "weight": 70
-    },
-    {
-      "metadata": {},
-      "relationship": "escalates",
-      "source": "priority:unh_position_concentration_449",
-      "source_layer": "change_detection",
-      "target": "risk:unh_position_concentration_449",
-      "weight": 70
-    },
-    {
-      "metadata": {},
       "relationship": "relates_to",
-      "source": "priority:unh_position_concentration_449",
+      "source": "priority:unh_position_concentration_415",
       "source_layer": "state",
-      "target": "risk:unh_position_concentration_449",
+      "target": "risk:unh_position_concentration_415",
       "weight": 12
     },
     {
       "metadata": {},
-      "relationship": "escalates",
-      "source": "priority:unh_position_concentration_449",
-      "source_layer": "change_detection",
-      "target": "risk:unh_position_concentration_453",
-      "weight": 70
-    },
-    {
-      "metadata": {},
       "relationship": "relates_to",
-      "source": "priority:unh_position_concentration_449",
+      "source": "priority:unh_position_concentration_415",
       "source_layer": "state",
       "target": "theme:inflation_energy_risk",
       "weight": 12
@@ -1062,112 +844,8 @@
     },
     {
       "metadata": {},
-      "relationship": "deescalates",
-      "source": "risk:unh_position_concentration_448",
-      "source_layer": "change_detection",
-      "target": "action:review_smci_position_concentration_179",
-      "weight": 15
-    },
-    {
-      "metadata": {},
-      "relationship": "deescalates",
-      "source": "risk:unh_position_concentration_448",
-      "source_layer": "change_detection",
-      "target": "action:review_smci_position_concentration_191",
-      "weight": 15
-    },
-    {
-      "metadata": {},
-      "relationship": "deescalates",
-      "source": "risk:unh_position_concentration_448",
-      "source_layer": "change_detection",
-      "target": "action:review_unh_position_concentration_449",
-      "weight": 15
-    },
-    {
-      "metadata": {},
-      "relationship": "deescalates",
-      "source": "risk:unh_position_concentration_448",
-      "source_layer": "change_detection",
-      "target": "action:review_unh_position_concentration_453",
-      "weight": 15
-    },
-    {
-      "metadata": {},
       "relationship": "generated_by",
-      "source": "risk:unh_position_concentration_448",
-      "source_layer": "change_detection",
-      "target": "agent:portfolio_agent",
-      "weight": 6
-    },
-    {
-      "metadata": {},
-      "relationship": "deescalates",
-      "source": "risk:unh_position_concentration_448",
-      "source_layer": "change_detection",
-      "target": "risk:smci_position_size_conflicts_with_research_conviction",
-      "weight": 15
-    },
-    {
-      "metadata": {},
-      "relationship": "deescalates",
-      "source": "risk:unh_position_concentration_448",
-      "source_layer": "change_detection",
-      "target": "risk:unh",
-      "weight": 15
-    },
-    {
-      "metadata": {},
-      "relationship": "deescalates",
-      "source": "risk:unh_position_concentration_448",
-      "source_layer": "change_detection",
-      "target": "risk:unh_position_concentration_449",
-      "weight": 15
-    },
-    {
-      "metadata": {},
-      "relationship": "deescalates",
-      "source": "risk:unh_position_concentration_448",
-      "source_layer": "change_detection",
-      "target": "risk:unh_position_concentration_453",
-      "weight": 15
-    },
-    {
-      "metadata": {},
-      "relationship": "escalates",
-      "source": "risk:unh_position_concentration_449",
-      "source_layer": "change_detection",
-      "target": "action:review_smci_position_concentration_179",
-      "weight": 60
-    },
-    {
-      "metadata": {},
-      "relationship": "escalates",
-      "source": "risk:unh_position_concentration_449",
-      "source_layer": "change_detection",
-      "target": "action:review_smci_position_concentration_191",
-      "weight": 60
-    },
-    {
-      "metadata": {},
-      "relationship": "escalates",
-      "source": "risk:unh_position_concentration_449",
-      "source_layer": "change_detection",
-      "target": "action:review_unh_position_concentration_449",
-      "weight": 60
-    },
-    {
-      "metadata": {},
-      "relationship": "escalates",
-      "source": "risk:unh_position_concentration_449",
-      "source_layer": "change_detection",
-      "target": "action:review_unh_position_concentration_453",
-      "weight": 60
-    },
-    {
-      "metadata": {},
-      "relationship": "generated_by",
-      "source": "risk:unh_position_concentration_449",
+      "source": "risk:unh_position_concentration_415",
       "source_layer": "change_detection",
       "target": "agent:portfolio_agent",
       "weight": 12
@@ -1175,47 +853,23 @@
     {
       "metadata": {},
       "relationship": "relates_to",
-      "source": "risk:unh_position_concentration_449",
+      "source": "risk:unh_position_concentration_415",
       "source_layer": "state",
       "target": "agent:portfolio_agent",
       "weight": 12
     },
     {
       "metadata": {},
-      "relationship": "escalates",
-      "source": "risk:unh_position_concentration_449",
-      "source_layer": "change_detection",
-      "target": "risk:smci_position_size_conflicts_with_research_conviction",
-      "weight": 60
-    },
-    {
-      "metadata": {},
-      "relationship": "escalates",
-      "source": "risk:unh_position_concentration_449",
-      "source_layer": "change_detection",
-      "target": "risk:unh",
-      "weight": 60
-    },
-    {
-      "metadata": {},
-      "relationship": "escalates",
-      "source": "risk:unh_position_concentration_449",
-      "source_layer": "change_detection",
-      "target": "risk:unh_position_concentration_448",
-      "weight": 60
-    },
-    {
-      "metadata": {},
-      "relationship": "escalates",
-      "source": "risk:unh_position_concentration_449",
-      "source_layer": "change_detection",
-      "target": "risk:unh_position_concentration_453",
-      "weight": 60
+      "relationship": "appears_with",
+      "source": "risk:unh_position_concentration_415",
+      "source_layer": "history",
+      "target": "risk:unh_position_concentration_415",
+      "weight": 0
     },
     {
       "metadata": {},
       "relationship": "generated_by",
-      "source": "risk:unh_position_concentration_453",
+      "source": "risk:unh_position_concentration_449",
       "source_layer": "change_detection",
       "target": "agent:portfolio_agent",
       "weight": 6
@@ -1223,7 +877,7 @@
     {
       "metadata": {},
       "relationship": "appears_with",
-      "source": "risk:unh_position_concentration_453",
+      "source": "risk:unh_position_concentration_449",
       "source_layer": "history",
       "target": "holding:unh",
       "weight": 8
@@ -1231,7 +885,7 @@
     {
       "metadata": {},
       "relationship": "appears_with",
-      "source": "risk:unh_position_concentration_453",
+      "source": "risk:unh_position_concentration_449",
       "source_layer": "history",
       "target": "risk:smci_position_size_conflicts_with_research_conviction",
       "weight": 8
@@ -1239,7 +893,7 @@
     {
       "metadata": {},
       "relationship": "appears_with",
-      "source": "risk:unh_position_concentration_453",
+      "source": "risk:unh_position_concentration_449",
       "source_layer": "history",
       "target": "risk:unh",
       "weight": 8
@@ -1247,9 +901,9 @@
     {
       "metadata": {},
       "relationship": "appears_with",
-      "source": "risk:unh_position_concentration_453",
+      "source": "risk:unh_position_concentration_449",
       "source_layer": "history",
-      "target": "risk:unh_position_concentration_449",
+      "target": "risk:unh_position_concentration_415",
       "weight": 8
     },
     {
@@ -1303,15 +957,15 @@
     {
       "metadata": {},
       "relationship": "relates_to",
-      "source": "stress_scenario:2008_style_crisis__impact_-5009",
+      "source": "stress_scenario:2008_style_crisis__impact_-5160",
       "source_layer": "state",
       "target": "agent:portfolio_agent",
       "weight": 7
     }
   ],
   "entity_index": {
-    "2008_style_crisis__impact_-5009": [
-      "stress_scenario:2008_style_crisis__impact_-5009"
+    "2008_style_crisis__impact_-5160": [
+      "stress_scenario:2008_style_crisis__impact_-5160"
     ],
     "analysis_chairman_kevin_warshs_task_forces_are_the_key_to_understanding_the_new_fed__source_cnbc_markets__relevance_score_97__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_macro_central_bank_rates": [
       "news_narrative:analysis_chairman_kevin_warshs_task_forces_are_the_key_to_understanding_the_new_fed__source_cnbc_markets__relevance_score_97__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_macro_central_bank_rates"
@@ -1421,17 +1075,17 @@
     "research_agent": [
       "agent:research_agent"
     ],
-    "review_smci_position_concentration_179": [
-      "action:review_smci_position_concentration_179"
-    ],
     "review_smci_position_concentration_191": [
       "action:review_smci_position_concentration_191"
     ],
+    "review_smci_position_concentration_237": [
+      "action:review_smci_position_concentration_237"
+    ],
+    "review_unh_position_concentration_415": [
+      "action:review_unh_position_concentration_415"
+    ],
     "review_unh_position_concentration_449": [
       "action:review_unh_position_concentration_449"
-    ],
-    "review_unh_position_concentration_453": [
-      "action:review_unh_position_concentration_453"
     ],
     "smci": [
       "holding:smci",
@@ -1454,16 +1108,12 @@
       "research_signal:unh",
       "risk:unh"
     ],
-    "unh_position_concentration_448": [
-      "risk:unh_position_concentration_448"
+    "unh_position_concentration_415": [
+      "priority:unh_position_concentration_415",
+      "risk:unh_position_concentration_415"
     ],
     "unh_position_concentration_449": [
-      "portfolio_signal:unh_position_concentration_449",
-      "priority:unh_position_concentration_449",
       "risk:unh_position_concentration_449"
-    ],
-    "unh_position_concentration_453": [
-      "risk:unh_position_concentration_453"
     ],
     "vnom__thesis_status_active__conviction_medium__research_status_moderate": [
       "holding:vnom__thesis_status_active__conviction_medium__research_status_moderate"
@@ -1475,7 +1125,7 @@
       "risk:yield_curve_unknown"
     ]
   },
-  "generated_at": "2026-06-18T10:29:42",
+  "generated_at": "2026-06-18T10:38:33",
   "nodes": [
     {
       "id": "action:reevaluate_eco_low_conviction_holding",
@@ -1519,7 +1169,7 @@
       "metadata": {
         "action": "Reevaluate SMCI: Low conviction holding",
         "category": "action",
-        "count": 8,
+        "count": 10,
         "description": "Current action queue contains a review-class action.",
         "is_material": false,
         "name": "Reevaluate SMCI: Low conviction holding",
@@ -1532,15 +1182,15 @@
       "weight": 50
     },
     {
-      "id": "action:review_smci_position_concentration_179",
-      "label": "Review SMCI position concentration 17.9%",
+      "id": "action:review_smci_position_concentration_191",
+      "label": "Review SMCI position concentration 19.1%",
       "metadata": {
-        "action": "Review SMCI position concentration 17.9%",
+        "action": "Review SMCI position concentration 19.1%",
         "category": "action",
-        "count": 2,
-        "description": "Action appears in 2 state samples.",
+        "count": 3,
+        "description": "Action appears in 3 state samples.",
         "is_material": false,
-        "name": "Review SMCI position concentration 17.9%",
+        "name": "Review SMCI position concentration 19.1%",
         "score": 15,
         "source": "history",
         "type": "persistent_action"
@@ -1550,15 +1200,33 @@
       "weight": 30
     },
     {
-      "id": "action:review_smci_position_concentration_191",
-      "label": "Review SMCI position concentration 19.1%",
+      "id": "action:review_smci_position_concentration_237",
+      "label": "Review SMCI position concentration 23.7%",
       "metadata": {
-        "action": "Review SMCI position concentration 19.1%",
+        "action": "Review SMCI position concentration 23.7%",
         "category": "action",
         "count": 2,
         "description": "Current action queue contains a review-class action.",
         "is_material": false,
-        "name": "Review SMCI position concentration 19.1%",
+        "name": "Review SMCI position concentration 23.7%",
+        "score": 10,
+        "source": "state",
+        "type": "high_priority_action"
+      },
+      "source": "state",
+      "type": "action",
+      "weight": 50
+    },
+    {
+      "id": "action:review_unh_position_concentration_415",
+      "label": "Review UNH position concentration 41.5%",
+      "metadata": {
+        "action": "Review UNH position concentration 41.5%",
+        "category": "action",
+        "count": 2,
+        "description": "Current action queue contains a review-class action.",
+        "is_material": false,
+        "name": "Review UNH position concentration 41.5%",
         "score": 10,
         "source": "state",
         "type": "high_priority_action"
@@ -1571,28 +1239,12 @@
       "id": "action:review_unh_position_concentration_449",
       "label": "Review UNH position concentration 44.9%",
       "metadata": {
-        "category": "action",
-        "description": "Current action queue contains a review-class action.",
-        "is_material": false,
-        "name": "Review UNH position concentration 44.9%",
-        "score": 10,
-        "source": "state",
-        "type": "high_priority_action"
-      },
-      "source": "state",
-      "type": "action",
-      "weight": 45
-    },
-    {
-      "id": "action:review_unh_position_concentration_453",
-      "label": "Review UNH position concentration 45.3%",
-      "metadata": {
-        "action": "Review UNH position concentration 45.3%",
+        "action": "Review UNH position concentration 44.9%",
         "category": "action",
         "count": 2,
         "description": "Action appears in 2 state samples.",
         "is_material": false,
-        "name": "Review UNH position concentration 45.3%",
+        "name": "Review UNH position concentration 44.9%",
         "score": 15,
         "source": "history",
         "type": "persistent_action"
@@ -1687,7 +1339,7 @@
       "id": "holding:smci",
       "label": "SMCI",
       "metadata": {
-        "description": "Position concentration 19.1%",
+        "description": "Position concentration 23.7%",
         "severity": "MEDIUM",
         "ticker": "SMCI"
       },
@@ -1707,7 +1359,7 @@
       "id": "holding:unh",
       "label": "UNH",
       "metadata": {
-        "description": "Position concentration 44.9%",
+        "description": "Position concentration 41.5%",
         "severity": "HIGH",
         "ticker": "UNH"
       },
@@ -1878,41 +1530,25 @@
       "weight": 10
     },
     {
-      "id": "portfolio_signal:unh_position_concentration_449",
-      "label": "UNH position concentration 44.9%",
-      "metadata": {
-        "category": "portfolio",
-        "description": "Portfolio current risk changed from UNH position concentration 44.8% to UNH position concentration 44.9%.",
-        "is_material": true,
-        "name": "UNH position concentration 44.9%",
-        "score": 35,
-        "source": "delta",
-        "type": "portfolio_risk_changed"
-      },
-      "source": "change_detection",
-      "type": "portfolio_signal",
-      "weight": 35
-    },
-    {
-      "id": "priority:unh_position_concentration_449",
-      "label": "UNH position concentration 44.9%",
+      "id": "priority:unh_position_concentration_415",
+      "label": "UNH position concentration 41.5%",
       "metadata": {
         "category": "priority",
-        "description": "Top priority appears in risk frequency across 1 samples.",
+        "description": "Top priority appears in risk frequency across 2 samples.",
         "is_material": false,
-        "name": "UNH position concentration 44.9%",
-        "reason": "HIGH | UNH | Position concentration 44.9%",
+        "name": "UNH position concentration 41.5%",
+        "reason": "HIGH | UNH | Position concentration 41.5%",
         "risk_timeframe": "current",
         "score": 20,
         "severity": "HIGH",
         "source": "history",
         "source_agent": "Portfolio Manager",
-        "title": "UNH position concentration 44.9%",
+        "title": "UNH position concentration 41.5%",
         "type": "priority_in_risk_frequency"
       },
       "source": "state",
       "type": "priority",
-      "weight": 95
+      "weight": 45
     },
     {
       "id": "research_signal:eco_reevaluate_thesis",
@@ -1974,8 +1610,8 @@
       "label": "Energy: FALLING",
       "metadata": {
         "category": "risk",
-        "count": 2,
-        "description": "Risk appears in 2 state samples.",
+        "count": 5,
+        "description": "Risk appears in 5 state samples.",
         "evidence": [],
         "fields": {
           "Components": "Severity LOW | Market Impact MEDIUM | Portfolio Relevance MEDIUM | Directional Clarity HIGH",
@@ -2004,8 +1640,8 @@
       "label": "Energy: RISING",
       "metadata": {
         "category": "risk",
-        "count": 3,
-        "description": "Risk appears in 3 state samples.",
+        "count": 2,
+        "description": "Risk appears in 2 state samples.",
         "is_material": true,
         "name": "Energy: RISING",
         "reason": "Rising energy can pressure inflation, margins, energy holdings, and broad market risk appetite.",
@@ -2033,10 +1669,10 @@
         "conflict_severity": "HIGH",
         "conflict_title": "Growth exposure conflicts with inflation/rates theme",
         "conflict_type": "Growth Exposure vs Inflation/Rates Conflict",
-        "count": 5,
+        "count": 7,
         "description": "Current risk register contains a high-priority risk.",
         "evidence": [
-          "Growth factor exposure 68.2%",
+          "Growth factor exposure 69.1%",
           "Active themes: Fed/Rates Risk, Inflation/Energy Risk"
         ],
         "is_material": true,
@@ -2078,7 +1714,7 @@
       "label": "Inflation Trend: RISING",
       "metadata": {
         "category": "risk",
-        "count": 5,
+        "count": 7,
         "description": "Current risk register contains a high-priority risk.",
         "evidence": [],
         "fields": {
@@ -2153,7 +1789,7 @@
         "conflict_severity": "HIGH",
         "conflict_title": "Macro regime risk conflicts with portfolio regime posture",
         "conflict_type": "Macro/Portfolio Regime Conflict",
-        "count": 5,
+        "count": 7,
         "description": "Current risk register contains a high-priority risk.",
         "evidence": [
           "Macro risk regimes: Inflation Stress",
@@ -2205,12 +1841,12 @@
         "conflict_severity": "HIGH",
         "conflict_title": "Portfolio risk conflicts with defensive allocation gap",
         "conflict_type": "Defensive Need vs Cash/Bond Gap Conflict",
-        "count": 5,
+        "count": 7,
         "description": "Current risk register contains a high-priority risk.",
         "evidence": [
           "Portfolio health: ELEVATED_RISK",
-          "Cash allocation 1.52%",
-          "Cash target gap -5.48%",
+          "Cash allocation 0.04%",
+          "Cash target gap -6.96%",
           "Bond exposure 0%"
         ],
         "is_material": true,
@@ -2232,8 +1868,8 @@
       "label": "SMCI",
       "metadata": {
         "category": "risk",
-        "count": 5,
-        "description": "Risk appears in 5 state samples.",
+        "count": 7,
+        "description": "Risk appears in 7 state samples.",
         "is_material": false,
         "name": "SMCI",
         "reason": "Position concentration 18.4%",
@@ -2259,11 +1895,11 @@
         "conflict_severity": "HIGH",
         "conflict_title": "SMCI position size conflicts with research conviction",
         "conflict_type": "Research Conviction vs Position Size Conflict",
-        "count": 5,
+        "count": 7,
         "description": "Current risk register contains a high-priority risk.",
         "evidence": [
           "SMCI low conviction",
-          "SMCI allocation 19.11%",
+          "SMCI allocation 23.65%",
           "SMCI overweight flag present"
         ],
         "is_material": true,
@@ -2285,7 +1921,7 @@
       "label": "UNH",
       "metadata": {
         "category": "risk",
-        "count": 5,
+        "count": 7,
         "description": "Current risk register contains a high-priority risk.",
         "is_material": true,
         "name": "UNH",
@@ -2301,54 +1937,39 @@
       "weight": 80
     },
     {
-      "id": "risk:unh_position_concentration_448",
-      "label": "UNH position concentration 44.8%",
+      "id": "risk:unh_position_concentration_415",
+      "label": "UNH position concentration 41.5%",
       "metadata": {
         "category": "risk",
-        "description": "Risk resolved or disappeared with prior severity HIGH.",
-        "is_material": false,
-        "name": "UNH position concentration 44.8%",
-        "score": -15,
-        "source": "delta",
-        "type": "resolved_risk"
+        "count": 2,
+        "description": "Current risk register contains a high-priority risk.",
+        "is_material": true,
+        "name": "UNH position concentration 41.5%",
+        "reason": "HIGH | UNH | Position concentration 41.5%",
+        "score": 20,
+        "severity": "HIGH",
+        "source": "state",
+        "title": "UNH position concentration 41.5%",
+        "type": "high_priority_risk"
       },
-      "source": "change_detection",
+      "source": "state",
       "type": "risk",
-      "weight": 10
+      "weight": 90
     },
     {
       "id": "risk:unh_position_concentration_449",
       "label": "UNH position concentration 44.9%",
       "metadata": {
         "category": "risk",
-        "description": "Current risk register contains a high-priority risk.",
-        "is_material": true,
-        "name": "UNH position concentration 44.9%",
-        "reason": "HIGH | UNH | Position concentration 44.9%",
-        "score": 20,
-        "severity": "HIGH",
-        "source": "state",
-        "title": "UNH position concentration 44.9%",
-        "type": "high_priority_risk"
-      },
-      "source": "state",
-      "type": "risk",
-      "weight": 80
-    },
-    {
-      "id": "risk:unh_position_concentration_453",
-      "label": "UNH position concentration 45.3%",
-      "metadata": {
-        "category": "risk",
         "count": 2,
         "description": "Risk appears in 2 state samples.",
         "is_material": true,
-        "name": "UNH position concentration 45.3%",
-        "reason": "HIGH | UNH | Position concentration 45.3%",
+        "name": "UNH position concentration 44.9%",
+        "reason": "HIGH | UNH | Position concentration 44.9%",
         "score": 35,
         "severity": "HIGH",
         "source": "history",
-        "title": "UNH position concentration 45.3%",
+        "title": "UNH position concentration 44.9%",
         "type": "persistent_risk"
       },
       "source": "history",
@@ -2360,8 +1981,8 @@
       "label": "Yield Curve: FLAT",
       "metadata": {
         "category": "risk",
-        "count": 5,
-        "description": "Risk appears in 5 state samples.",
+        "count": 7,
+        "description": "Risk appears in 7 state samples.",
         "evidence": [],
         "fields": {
           "Components": "Severity MEDIUM | Market Impact MEDIUM | Portfolio Relevance MEDIUM | Directional Clarity MEDIUM",
@@ -2406,10 +2027,10 @@
       "weight": 40
     },
     {
-      "id": "stress_scenario:2008_style_crisis__impact_-5009",
-      "label": "2008_STYLE_CRISIS | Impact -50.09%",
+      "id": "stress_scenario:2008_style_crisis__impact_-5160",
+      "label": "2008_STYLE_CRISIS | Impact -51.60%",
       "metadata": {
-        "title": "2008_STYLE_CRISIS | Impact -50.09%"
+        "title": "2008_STYLE_CRISIS | Impact -51.60%"
       },
       "source": "state",
       "type": "stress_scenario",
@@ -2432,133 +2053,140 @@
   "relationship_index": {
     "appears_with": [
       {
-        "id": "edge:87",
+        "id": "edge:60",
         "source": "risk:eco_low_conviction_holding",
         "source_layer": "history",
         "target": "risk:smci_position_size_conflicts_with_research_conviction",
         "weight": 8
       },
       {
-        "id": "edge:91",
+        "id": "edge:64",
         "source": "risk:energy_falling",
         "source_layer": "history",
         "target": "risk:energy_falling",
         "weight": 0
       },
       {
-        "id": "edge:93",
+        "id": "edge:66",
         "source": "risk:energy_rising",
         "source_layer": "history",
         "target": "risk:energy_falling",
         "weight": 8
       },
       {
-        "id": "edge:94",
+        "id": "edge:67",
         "source": "risk:energy_rising",
         "source_layer": "history",
         "target": "risk:inflation_trend_rising",
         "weight": 8
       },
       {
-        "id": "edge:99",
+        "id": "edge:72",
         "source": "risk:growth_exposure_conflicts_with_inflation_rates_theme",
         "source_layer": "history",
         "target": "risk:growth_exposure_conflicts_with_inflation_rates_theme",
         "weight": 0
       },
       {
-        "id": "edge:103",
+        "id": "edge:76",
         "source": "risk:inflation_trend_rising",
         "source_layer": "history",
         "target": "risk:inflation_trend_rising",
         "weight": 0
       },
       {
-        "id": "edge:105",
+        "id": "edge:78",
         "source": "risk:inflation_trend_unknown",
         "source_layer": "history",
         "target": "risk:growth_exposure_conflicts_with_inflation_rates_theme",
         "weight": 8
       },
       {
-        "id": "edge:106",
+        "id": "edge:79",
         "source": "risk:inflation_trend_unknown",
         "source_layer": "history",
         "target": "risk:inflation_trend_rising",
         "weight": 8
       },
       {
-        "id": "edge:111",
+        "id": "edge:84",
         "source": "risk:macro_regime_risk_conflicts_with_portfolio_regime_posture",
         "source_layer": "history",
         "target": "risk:macro_regime_risk_conflicts_with_portfolio_regime_posture",
         "weight": 0
       },
       {
-        "id": "edge:115",
+        "id": "edge:88",
         "source": "risk:portfolio_risk_conflicts_with_defensive_allocation_gap",
         "source_layer": "history",
         "target": "risk:portfolio_risk_conflicts_with_defensive_allocation_gap",
         "weight": 0
       },
       {
-        "id": "edge:118",
+        "id": "edge:91",
         "source": "risk:smci",
         "source_layer": "history",
         "target": "risk:smci",
         "weight": 0
       },
       {
-        "id": "edge:121",
+        "id": "edge:94",
         "source": "risk:smci_position_size_conflicts_with_research_conviction",
         "source_layer": "history",
         "target": "risk:smci_position_size_conflicts_with_research_conviction",
         "weight": 0
       },
       {
-        "id": "edge:124",
+        "id": "edge:97",
         "source": "risk:unh",
         "source_layer": "history",
         "target": "risk:unh",
         "weight": 0
       },
       {
-        "id": "edge:145",
-        "source": "risk:unh_position_concentration_453",
+        "id": "edge:100",
+        "source": "risk:unh_position_concentration_415",
+        "source_layer": "history",
+        "target": "risk:unh_position_concentration_415",
+        "weight": 0
+      },
+      {
+        "id": "edge:102",
+        "source": "risk:unh_position_concentration_449",
         "source_layer": "history",
         "target": "holding:unh",
         "weight": 8
       },
       {
-        "id": "edge:146",
-        "source": "risk:unh_position_concentration_453",
+        "id": "edge:103",
+        "source": "risk:unh_position_concentration_449",
         "source_layer": "history",
         "target": "risk:smci_position_size_conflicts_with_research_conviction",
         "weight": 8
       },
       {
-        "id": "edge:147",
-        "source": "risk:unh_position_concentration_453",
+        "id": "edge:104",
+        "source": "risk:unh_position_concentration_449",
         "source_layer": "history",
         "target": "risk:unh",
         "weight": 8
       },
       {
-        "id": "edge:148",
-        "source": "risk:unh_position_concentration_453",
+        "id": "edge:105",
+        "source": "risk:unh_position_concentration_449",
         "source_layer": "history",
-        "target": "risk:unh_position_concentration_449",
+        "target": "risk:unh_position_concentration_415",
         "weight": 8
       },
       {
-        "id": "edge:152",
+        "id": "edge:109",
         "source": "risk:yield_curve_flat",
         "source_layer": "history",
         "target": "risk:yield_curve_flat",
         "weight": 0
       },
       {
-        "id": "edge:154",
+        "id": "edge:111",
         "source": "risk:yield_curve_unknown",
         "source_layer": "history",
         "target": "risk:yield_curve_flat",
@@ -2567,330 +2195,32 @@
     ],
     "belongs_to": [
       {
-        "id": "edge:34",
+        "id": "edge:26",
         "source": "agent:macro_agent",
         "source_layer": "state",
         "target": "agent:echo",
         "weight": 5
       },
       {
-        "id": "edge:35",
+        "id": "edge:27",
         "source": "agent:news_agent",
         "source_layer": "state",
         "target": "agent:echo",
         "weight": 5
       },
       {
-        "id": "edge:36",
+        "id": "edge:28",
         "source": "agent:portfolio_agent",
         "source_layer": "state",
         "target": "agent:echo",
         "weight": 5
       },
       {
-        "id": "edge:37",
+        "id": "edge:29",
         "source": "agent:research_agent",
         "source_layer": "state",
         "target": "agent:echo",
         "weight": 5
-      }
-    ],
-    "deescalates": [
-      {
-        "id": "edge:125",
-        "source": "risk:unh_position_concentration_448",
-        "source_layer": "change_detection",
-        "target": "action:review_smci_position_concentration_179",
-        "weight": 15
-      },
-      {
-        "id": "edge:126",
-        "source": "risk:unh_position_concentration_448",
-        "source_layer": "change_detection",
-        "target": "action:review_smci_position_concentration_191",
-        "weight": 15
-      },
-      {
-        "id": "edge:127",
-        "source": "risk:unh_position_concentration_448",
-        "source_layer": "change_detection",
-        "target": "action:review_unh_position_concentration_449",
-        "weight": 15
-      },
-      {
-        "id": "edge:128",
-        "source": "risk:unh_position_concentration_448",
-        "source_layer": "change_detection",
-        "target": "action:review_unh_position_concentration_453",
-        "weight": 15
-      },
-      {
-        "id": "edge:130",
-        "source": "risk:unh_position_concentration_448",
-        "source_layer": "change_detection",
-        "target": "risk:smci_position_size_conflicts_with_research_conviction",
-        "weight": 15
-      },
-      {
-        "id": "edge:131",
-        "source": "risk:unh_position_concentration_448",
-        "source_layer": "change_detection",
-        "target": "risk:unh",
-        "weight": 15
-      },
-      {
-        "id": "edge:132",
-        "source": "risk:unh_position_concentration_448",
-        "source_layer": "change_detection",
-        "target": "risk:unh_position_concentration_449",
-        "weight": 15
-      },
-      {
-        "id": "edge:133",
-        "source": "risk:unh_position_concentration_448",
-        "source_layer": "change_detection",
-        "target": "risk:unh_position_concentration_453",
-        "weight": 15
-      }
-    ],
-    "escalates": [
-      {
-        "id": "edge:15",
-        "source": "action:review_unh_position_concentration_449",
-        "source_layer": "change_detection",
-        "target": "action:review_smci_position_concentration_179",
-        "weight": 35
-      },
-      {
-        "id": "edge:16",
-        "source": "action:review_unh_position_concentration_449",
-        "source_layer": "change_detection",
-        "target": "action:review_smci_position_concentration_191",
-        "weight": 35
-      },
-      {
-        "id": "edge:17",
-        "source": "action:review_unh_position_concentration_449",
-        "source_layer": "change_detection",
-        "target": "action:review_unh_position_concentration_453",
-        "weight": 35
-      },
-      {
-        "id": "edge:21",
-        "source": "action:review_unh_position_concentration_449",
-        "source_layer": "change_detection",
-        "target": "risk:smci_position_size_conflicts_with_research_conviction",
-        "weight": 35
-      },
-      {
-        "id": "edge:23",
-        "source": "action:review_unh_position_concentration_449",
-        "source_layer": "change_detection",
-        "target": "risk:unh",
-        "weight": 35
-      },
-      {
-        "id": "edge:25",
-        "source": "action:review_unh_position_concentration_449",
-        "source_layer": "change_detection",
-        "target": "risk:unh_position_concentration_448",
-        "weight": 35
-      },
-      {
-        "id": "edge:26",
-        "source": "action:review_unh_position_concentration_449",
-        "source_layer": "change_detection",
-        "target": "risk:unh_position_concentration_449",
-        "weight": 35
-      },
-      {
-        "id": "edge:28",
-        "source": "action:review_unh_position_concentration_449",
-        "source_layer": "change_detection",
-        "target": "risk:unh_position_concentration_453",
-        "weight": 35
-      },
-      {
-        "id": "edge:60",
-        "source": "portfolio_signal:unh_position_concentration_449",
-        "source_layer": "change_detection",
-        "target": "action:review_smci_position_concentration_179",
-        "weight": 35
-      },
-      {
-        "id": "edge:61",
-        "source": "portfolio_signal:unh_position_concentration_449",
-        "source_layer": "change_detection",
-        "target": "action:review_smci_position_concentration_191",
-        "weight": 35
-      },
-      {
-        "id": "edge:62",
-        "source": "portfolio_signal:unh_position_concentration_449",
-        "source_layer": "change_detection",
-        "target": "action:review_unh_position_concentration_449",
-        "weight": 35
-      },
-      {
-        "id": "edge:63",
-        "source": "portfolio_signal:unh_position_concentration_449",
-        "source_layer": "change_detection",
-        "target": "action:review_unh_position_concentration_453",
-        "weight": 35
-      },
-      {
-        "id": "edge:65",
-        "source": "portfolio_signal:unh_position_concentration_449",
-        "source_layer": "change_detection",
-        "target": "risk:smci_position_size_conflicts_with_research_conviction",
-        "weight": 35
-      },
-      {
-        "id": "edge:66",
-        "source": "portfolio_signal:unh_position_concentration_449",
-        "source_layer": "change_detection",
-        "target": "risk:unh",
-        "weight": 35
-      },
-      {
-        "id": "edge:67",
-        "source": "portfolio_signal:unh_position_concentration_449",
-        "source_layer": "change_detection",
-        "target": "risk:unh_position_concentration_448",
-        "weight": 35
-      },
-      {
-        "id": "edge:68",
-        "source": "portfolio_signal:unh_position_concentration_449",
-        "source_layer": "change_detection",
-        "target": "risk:unh_position_concentration_449",
-        "weight": 35
-      },
-      {
-        "id": "edge:69",
-        "source": "portfolio_signal:unh_position_concentration_449",
-        "source_layer": "change_detection",
-        "target": "risk:unh_position_concentration_453",
-        "weight": 35
-      },
-      {
-        "id": "edge:70",
-        "source": "priority:unh_position_concentration_449",
-        "source_layer": "change_detection",
-        "target": "action:review_smci_position_concentration_179",
-        "weight": 70
-      },
-      {
-        "id": "edge:71",
-        "source": "priority:unh_position_concentration_449",
-        "source_layer": "change_detection",
-        "target": "action:review_smci_position_concentration_191",
-        "weight": 70
-      },
-      {
-        "id": "edge:72",
-        "source": "priority:unh_position_concentration_449",
-        "source_layer": "change_detection",
-        "target": "action:review_unh_position_concentration_449",
-        "weight": 70
-      },
-      {
-        "id": "edge:73",
-        "source": "priority:unh_position_concentration_449",
-        "source_layer": "change_detection",
-        "target": "action:review_unh_position_concentration_453",
-        "weight": 70
-      },
-      {
-        "id": "edge:75",
-        "source": "priority:unh_position_concentration_449",
-        "source_layer": "change_detection",
-        "target": "risk:smci_position_size_conflicts_with_research_conviction",
-        "weight": 70
-      },
-      {
-        "id": "edge:76",
-        "source": "priority:unh_position_concentration_449",
-        "source_layer": "change_detection",
-        "target": "risk:unh",
-        "weight": 70
-      },
-      {
-        "id": "edge:77",
-        "source": "priority:unh_position_concentration_449",
-        "source_layer": "change_detection",
-        "target": "risk:unh_position_concentration_448",
-        "weight": 70
-      },
-      {
-        "id": "edge:78",
-        "source": "priority:unh_position_concentration_449",
-        "source_layer": "change_detection",
-        "target": "risk:unh_position_concentration_449",
-        "weight": 70
-      },
-      {
-        "id": "edge:80",
-        "source": "priority:unh_position_concentration_449",
-        "source_layer": "change_detection",
-        "target": "risk:unh_position_concentration_453",
-        "weight": 70
-      },
-      {
-        "id": "edge:134",
-        "source": "risk:unh_position_concentration_449",
-        "source_layer": "change_detection",
-        "target": "action:review_smci_position_concentration_179",
-        "weight": 60
-      },
-      {
-        "id": "edge:135",
-        "source": "risk:unh_position_concentration_449",
-        "source_layer": "change_detection",
-        "target": "action:review_smci_position_concentration_191",
-        "weight": 60
-      },
-      {
-        "id": "edge:136",
-        "source": "risk:unh_position_concentration_449",
-        "source_layer": "change_detection",
-        "target": "action:review_unh_position_concentration_449",
-        "weight": 60
-      },
-      {
-        "id": "edge:137",
-        "source": "risk:unh_position_concentration_449",
-        "source_layer": "change_detection",
-        "target": "action:review_unh_position_concentration_453",
-        "weight": 60
-      },
-      {
-        "id": "edge:140",
-        "source": "risk:unh_position_concentration_449",
-        "source_layer": "change_detection",
-        "target": "risk:smci_position_size_conflicts_with_research_conviction",
-        "weight": 60
-      },
-      {
-        "id": "edge:141",
-        "source": "risk:unh_position_concentration_449",
-        "source_layer": "change_detection",
-        "target": "risk:unh",
-        "weight": 60
-      },
-      {
-        "id": "edge:142",
-        "source": "risk:unh_position_concentration_449",
-        "source_layer": "change_detection",
-        "target": "risk:unh_position_concentration_448",
-        "weight": 60
-      },
-      {
-        "id": "edge:143",
-        "source": "risk:unh_position_concentration_449",
-        "source_layer": "change_detection",
-        "target": "risk:unh_position_concentration_453",
-        "weight": 60
       }
     ],
     "generated_by": [
@@ -2917,188 +2247,174 @@
       },
       {
         "id": "edge:8",
-        "source": "action:review_smci_position_concentration_179",
+        "source": "action:review_smci_position_concentration_191",
         "source_layer": "change_detection",
         "target": "agent:echo",
         "weight": 6
       },
       {
         "id": "edge:9",
-        "source": "action:review_smci_position_concentration_191",
+        "source": "action:review_smci_position_concentration_237",
         "source_layer": "change_detection",
         "target": "agent:echo",
         "weight": 12
       },
       {
-        "id": "edge:18",
+        "id": "edge:15",
+        "source": "action:review_unh_position_concentration_415",
+        "source_layer": "change_detection",
+        "target": "agent:echo",
+        "weight": 12
+      },
+      {
+        "id": "edge:21",
         "source": "action:review_unh_position_concentration_449",
-        "source_layer": "change_detection",
-        "target": "agent:echo",
-        "weight": 12
-      },
-      {
-        "id": "edge:29",
-        "source": "action:review_unh_position_concentration_453",
         "source_layer": "change_detection",
         "target": "agent:echo",
         "weight": 6
       },
       {
-        "id": "edge:46",
+        "id": "edge:38",
         "source": "macro_regime:inflation_stress",
         "source_layer": "change_detection",
         "target": "agent:macro_agent",
         "weight": 6
       },
       {
-        "id": "edge:49",
+        "id": "edge:41",
         "source": "macro_regime:macro_regime_instability",
         "source_layer": "change_detection",
         "target": "agent:macro_agent",
         "weight": 6
       },
       {
-        "id": "edge:53",
+        "id": "edge:45",
         "source": "news_narrative:market_significant_news",
         "source_layer": "change_detection",
         "target": "agent:news_agent",
         "weight": 6
       },
       {
-        "id": "edge:58",
+        "id": "edge:50",
         "source": "news_narrative:portfolio_relevant_news",
         "source_layer": "change_detection",
         "target": "agent:news_agent",
         "weight": 6
       },
       {
-        "id": "edge:64",
-        "source": "portfolio_signal:unh_position_concentration_449",
+        "id": "edge:52",
+        "source": "priority:unh_position_concentration_415",
         "source_layer": "change_detection",
-        "target": "agent:portfolio_agent",
+        "target": "agent:echo",
         "weight": 6
       },
       {
-        "id": "edge:74",
-        "source": "priority:unh_position_concentration_449",
-        "source_layer": "change_detection",
-        "target": "agent:echo",
-        "weight": 12
-      },
-      {
-        "id": "edge:86",
+        "id": "edge:59",
         "source": "risk:eco_low_conviction_holding",
         "source_layer": "change_detection",
         "target": "agent:portfolio_agent",
         "weight": 6
       },
       {
-        "id": "edge:89",
+        "id": "edge:62",
         "source": "risk:energy_falling",
         "source_layer": "change_detection",
         "target": "agent:portfolio_agent",
         "weight": 6
       },
       {
-        "id": "edge:92",
+        "id": "edge:65",
         "source": "risk:energy_rising",
         "source_layer": "change_detection",
         "target": "agent:portfolio_agent",
         "weight": 6
       },
       {
-        "id": "edge:97",
+        "id": "edge:70",
         "source": "risk:growth_exposure_conflicts_with_inflation_rates_theme",
         "source_layer": "change_detection",
         "target": "agent:portfolio_agent",
         "weight": 12
       },
       {
-        "id": "edge:101",
+        "id": "edge:74",
         "source": "risk:inflation_trend_rising",
         "source_layer": "change_detection",
         "target": "agent:portfolio_agent",
         "weight": 12
       },
       {
-        "id": "edge:104",
+        "id": "edge:77",
         "source": "risk:inflation_trend_unknown",
         "source_layer": "change_detection",
         "target": "agent:portfolio_agent",
         "weight": 6
       },
       {
-        "id": "edge:109",
+        "id": "edge:82",
         "source": "risk:macro_regime_risk_conflicts_with_portfolio_regime_posture",
         "source_layer": "change_detection",
         "target": "agent:portfolio_agent",
         "weight": 12
       },
       {
-        "id": "edge:112",
+        "id": "edge:85",
         "source": "risk:policy_rate_unknown",
         "source_layer": "change_detection",
         "target": "agent:portfolio_agent",
         "weight": 6
       },
       {
-        "id": "edge:113",
+        "id": "edge:86",
         "source": "risk:portfolio_risk_conflicts_with_defensive_allocation_gap",
         "source_layer": "change_detection",
         "target": "agent:portfolio_agent",
         "weight": 12
       },
       {
-        "id": "edge:116",
+        "id": "edge:89",
         "source": "risk:smci",
         "source_layer": "change_detection",
         "target": "agent:portfolio_agent",
         "weight": 6
       },
       {
-        "id": "edge:119",
+        "id": "edge:92",
         "source": "risk:smci_position_size_conflicts_with_research_conviction",
         "source_layer": "change_detection",
         "target": "agent:portfolio_agent",
         "weight": 12
       },
       {
-        "id": "edge:122",
+        "id": "edge:95",
         "source": "risk:unh",
         "source_layer": "change_detection",
         "target": "agent:portfolio_agent",
         "weight": 12
       },
       {
-        "id": "edge:129",
-        "source": "risk:unh_position_concentration_448",
-        "source_layer": "change_detection",
-        "target": "agent:portfolio_agent",
-        "weight": 6
-      },
-      {
-        "id": "edge:138",
-        "source": "risk:unh_position_concentration_449",
+        "id": "edge:98",
+        "source": "risk:unh_position_concentration_415",
         "source_layer": "change_detection",
         "target": "agent:portfolio_agent",
         "weight": 12
       },
       {
-        "id": "edge:144",
-        "source": "risk:unh_position_concentration_453",
+        "id": "edge:101",
+        "source": "risk:unh_position_concentration_449",
         "source_layer": "change_detection",
         "target": "agent:portfolio_agent",
         "weight": 6
       },
       {
-        "id": "edge:150",
+        "id": "edge:107",
         "source": "risk:yield_curve_flat",
         "source_layer": "change_detection",
         "target": "agent:portfolio_agent",
         "weight": 6
       },
       {
-        "id": "edge:153",
+        "id": "edge:110",
         "source": "risk:yield_curve_unknown",
         "source_layer": "change_detection",
         "target": "agent:portfolio_agent",
@@ -3107,14 +2423,14 @@
     ],
     "influences": [
       {
-        "id": "edge:48",
+        "id": "edge:40",
         "source": "macro_regime:inflation_stress",
         "source_layer": "state",
-        "target": "risk:unh_position_concentration_449",
+        "target": "risk:unh_position_concentration_415",
         "weight": 10
       },
       {
-        "id": "edge:55",
+        "id": "edge:47",
         "source": "news_narrative:middle_east_energy_risk",
         "source_layer": "state",
         "target": "theme:inflation_energy_risk",
@@ -3152,378 +2468,378 @@
       },
       {
         "id": "edge:10",
-        "source": "action:review_smci_position_concentration_191",
+        "source": "action:review_smci_position_concentration_237",
         "source_layer": "state",
         "target": "agent:echo",
         "weight": 5
       },
       {
         "id": "edge:11",
-        "source": "action:review_smci_position_concentration_191",
+        "source": "action:review_smci_position_concentration_237",
         "source_layer": "state",
         "target": "holding:smci",
         "weight": 8
       },
       {
         "id": "edge:12",
-        "source": "action:review_smci_position_concentration_191",
+        "source": "action:review_smci_position_concentration_237",
         "source_layer": "state",
         "target": "risk:smci",
         "weight": 8
       },
       {
         "id": "edge:13",
-        "source": "action:review_smci_position_concentration_191",
+        "source": "action:review_smci_position_concentration_237",
         "source_layer": "state",
         "target": "risk:smci_position_size_conflicts_with_research_conviction",
         "weight": 16
       },
       {
         "id": "edge:14",
-        "source": "action:review_smci_position_concentration_191",
+        "source": "action:review_smci_position_concentration_237",
         "source_layer": "state",
-        "target": "risk:unh_position_concentration_449",
+        "target": "risk:unh_position_concentration_415",
         "weight": 16
       },
       {
-        "id": "edge:19",
-        "source": "action:review_unh_position_concentration_449",
+        "id": "edge:16",
+        "source": "action:review_unh_position_concentration_415",
         "source_layer": "state",
         "target": "agent:echo",
         "weight": 5
       },
       {
-        "id": "edge:20",
-        "source": "action:review_unh_position_concentration_449",
+        "id": "edge:17",
+        "source": "action:review_unh_position_concentration_415",
         "source_layer": "state",
         "target": "holding:unh",
         "weight": 8
       },
       {
-        "id": "edge:22",
-        "source": "action:review_unh_position_concentration_449",
+        "id": "edge:18",
+        "source": "action:review_unh_position_concentration_415",
         "source_layer": "state",
         "target": "risk:smci_position_size_conflicts_with_research_conviction",
         "weight": 16
       },
       {
-        "id": "edge:24",
-        "source": "action:review_unh_position_concentration_449",
+        "id": "edge:19",
+        "source": "action:review_unh_position_concentration_415",
         "source_layer": "state",
         "target": "risk:unh",
         "weight": 8
       },
       {
-        "id": "edge:27",
-        "source": "action:review_unh_position_concentration_449",
+        "id": "edge:20",
+        "source": "action:review_unh_position_concentration_415",
         "source_layer": "state",
-        "target": "risk:unh_position_concentration_449",
+        "target": "risk:unh_position_concentration_415",
         "weight": 16
       },
       {
-        "id": "edge:30",
+        "id": "edge:22",
         "source": "agent:echo",
         "source_layer": "state",
         "target": "agent:macro_agent",
         "weight": 5
       },
       {
-        "id": "edge:31",
+        "id": "edge:23",
         "source": "agent:echo",
         "source_layer": "state",
         "target": "agent:news_agent",
         "weight": 5
       },
       {
-        "id": "edge:32",
+        "id": "edge:24",
         "source": "agent:echo",
         "source_layer": "state",
         "target": "agent:portfolio_agent",
         "weight": 5
       },
       {
-        "id": "edge:33",
+        "id": "edge:25",
         "source": "agent:echo",
         "source_layer": "state",
         "target": "agent:research_agent",
         "weight": 5
       },
       {
-        "id": "edge:38",
+        "id": "edge:30",
         "source": "holding:eco__thesis_status_active__conviction_low__research_status_weak",
         "source_layer": "state",
         "target": "agent:portfolio_agent",
         "weight": 7
       },
       {
-        "id": "edge:39",
+        "id": "edge:31",
         "source": "holding:ibit__thesis_status_active__conviction_medium__research_status_moderate",
         "source_layer": "state",
         "target": "agent:portfolio_agent",
         "weight": 7
       },
       {
-        "id": "edge:40",
+        "id": "edge:32",
         "source": "holding:mstr__thesis_status_active__conviction_low__research_status_weak",
         "source_layer": "state",
         "target": "agent:portfolio_agent",
         "weight": 7
       },
       {
-        "id": "edge:41",
+        "id": "edge:33",
         "source": "holding:qmom__thesis_status_active__conviction_medium__research_status_moderate",
         "source_layer": "state",
         "target": "agent:portfolio_agent",
         "weight": 7
       },
       {
-        "id": "edge:42",
+        "id": "edge:34",
         "source": "holding:smci",
         "source_layer": "state",
         "target": "agent:portfolio_agent",
         "weight": 13
       },
       {
-        "id": "edge:43",
+        "id": "edge:35",
         "source": "holding:smci__thesis_status_active__conviction_low__research_status_weak",
         "source_layer": "state",
         "target": "agent:portfolio_agent",
         "weight": 7
       },
       {
-        "id": "edge:44",
+        "id": "edge:36",
         "source": "holding:unh",
         "source_layer": "state",
         "target": "agent:portfolio_agent",
         "weight": 13
       },
       {
-        "id": "edge:45",
+        "id": "edge:37",
         "source": "holding:vnom__thesis_status_active__conviction_medium__research_status_moderate",
         "source_layer": "state",
         "target": "agent:portfolio_agent",
         "weight": 7
       },
       {
-        "id": "edge:47",
+        "id": "edge:39",
         "source": "macro_regime:inflation_stress",
         "source_layer": "state",
         "target": "agent:macro_agent",
         "weight": 7
       },
       {
-        "id": "edge:50",
+        "id": "edge:42",
         "source": "news_narrative:analysis_chairman_kevin_warshs_task_forces_are_the_key_to_understanding_the_new_fed__source_cnbc_markets__relevance_score_97__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_macro_central_bank_rates",
         "source_layer": "state",
         "target": "agent:news_agent",
         "weight": 7
       },
       {
-        "id": "edge:51",
+        "id": "edge:43",
         "source": "news_narrative:hegseth_warns_nato_allies_that_some_nations_will_fail_us_defense_review__source_cnbc_markets__relevance_score_84__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_world_event",
         "source_layer": "state",
         "target": "agent:news_agent",
         "weight": 7
       },
       {
-        "id": "edge:52",
+        "id": "edge:44",
         "source": "news_narrative:here_are_the_five_big_takeaways_from_kevin_warshs_first_meeting_as_fed_chairman__source_cnbc_markets__relevance_score_95__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_macro_central_bank_rates",
         "source_layer": "state",
         "target": "agent:news_agent",
         "weight": 7
       },
       {
-        "id": "edge:54",
+        "id": "edge:46",
         "source": "news_narrative:middle_east_energy_risk",
         "source_layer": "state",
         "target": "agent:news_agent",
         "weight": 7
       },
       {
-        "id": "edge:56",
+        "id": "edge:48",
         "source": "news_narrative:none",
         "source_layer": "state",
         "target": "agent:news_agent",
         "weight": 7
       },
       {
-        "id": "edge:57",
+        "id": "edge:49",
         "source": "news_narrative:opec_chief_dismisses_iea_supply_glut_forecast_as_critical_strait_of_hormuz_reopens__source_cnbc_markets__relevance_score_84__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_world_event_energy",
         "source_layer": "state",
         "target": "agent:news_agent",
         "weight": 7
       },
       {
-        "id": "edge:59",
+        "id": "edge:51",
         "source": "news_narrative:trumps_iran_agreement_is_a_massive_buy_signal_for_stocks__source_marketwatch__relevance_score_84__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_market_world_event",
         "source_layer": "state",
         "target": "agent:news_agent",
         "weight": 7
       },
       {
-        "id": "edge:79",
-        "source": "priority:unh_position_concentration_449",
+        "id": "edge:53",
+        "source": "priority:unh_position_concentration_415",
         "source_layer": "state",
-        "target": "risk:unh_position_concentration_449",
+        "target": "risk:unh_position_concentration_415",
         "weight": 12
       },
       {
-        "id": "edge:81",
-        "source": "priority:unh_position_concentration_449",
+        "id": "edge:54",
+        "source": "priority:unh_position_concentration_415",
         "source_layer": "state",
         "target": "theme:inflation_energy_risk",
         "weight": 12
       },
       {
-        "id": "edge:82",
+        "id": "edge:55",
         "source": "research_signal:eco_reevaluate_thesis",
         "source_layer": "state",
         "target": "agent:research_agent",
         "weight": 7
       },
       {
-        "id": "edge:83",
+        "id": "edge:56",
         "source": "research_signal:mstr_reevaluate_thesis",
         "source_layer": "state",
         "target": "agent:research_agent",
         "weight": 7
       },
       {
-        "id": "edge:84",
+        "id": "edge:57",
         "source": "research_signal:smci_reevaluate_thesis",
         "source_layer": "state",
         "target": "agent:research_agent",
         "weight": 7
       },
       {
-        "id": "edge:85",
+        "id": "edge:58",
         "source": "research_signal:unh",
         "source_layer": "state",
         "target": "agent:research_agent",
         "weight": 7
       },
       {
-        "id": "edge:88",
+        "id": "edge:61",
         "source": "risk:energy_falling",
         "source_layer": "state",
         "target": "agent:macro_agent",
         "weight": 7
       },
       {
-        "id": "edge:90",
+        "id": "edge:63",
         "source": "risk:energy_falling",
         "source_layer": "state",
         "target": "agent:portfolio_agent",
         "weight": 12
       },
       {
-        "id": "edge:95",
+        "id": "edge:68",
         "source": "risk:growth_expanding",
         "source_layer": "state",
         "target": "agent:macro_agent",
         "weight": 7
       },
       {
-        "id": "edge:96",
+        "id": "edge:69",
         "source": "risk:growth_expanding",
         "source_layer": "state",
         "target": "agent:portfolio_agent",
         "weight": 6
       },
       {
-        "id": "edge:98",
+        "id": "edge:71",
         "source": "risk:growth_exposure_conflicts_with_inflation_rates_theme",
         "source_layer": "state",
         "target": "agent:portfolio_agent",
         "weight": 12
       },
       {
-        "id": "edge:100",
+        "id": "edge:73",
         "source": "risk:inflation_trend_rising",
         "source_layer": "state",
         "target": "agent:macro_agent",
         "weight": 7
       },
       {
-        "id": "edge:102",
+        "id": "edge:75",
         "source": "risk:inflation_trend_rising",
         "source_layer": "state",
         "target": "agent:portfolio_agent",
         "weight": 12
       },
       {
-        "id": "edge:107",
+        "id": "edge:80",
         "source": "risk:labor_market_strong",
         "source_layer": "state",
         "target": "agent:macro_agent",
         "weight": 7
       },
       {
-        "id": "edge:108",
+        "id": "edge:81",
         "source": "risk:labor_market_strong",
         "source_layer": "state",
         "target": "agent:portfolio_agent",
         "weight": 6
       },
       {
-        "id": "edge:110",
+        "id": "edge:83",
         "source": "risk:macro_regime_risk_conflicts_with_portfolio_regime_posture",
         "source_layer": "state",
         "target": "agent:portfolio_agent",
         "weight": 12
       },
       {
-        "id": "edge:114",
+        "id": "edge:87",
         "source": "risk:portfolio_risk_conflicts_with_defensive_allocation_gap",
         "source_layer": "state",
         "target": "agent:portfolio_agent",
         "weight": 12
       },
       {
-        "id": "edge:117",
+        "id": "edge:90",
         "source": "risk:smci",
         "source_layer": "state",
         "target": "agent:portfolio_agent",
         "weight": 6
       },
       {
-        "id": "edge:120",
+        "id": "edge:93",
         "source": "risk:smci_position_size_conflicts_with_research_conviction",
         "source_layer": "state",
         "target": "agent:portfolio_agent",
         "weight": 12
       },
       {
-        "id": "edge:123",
+        "id": "edge:96",
         "source": "risk:unh",
         "source_layer": "state",
         "target": "agent:portfolio_agent",
         "weight": 6
       },
       {
-        "id": "edge:139",
-        "source": "risk:unh_position_concentration_449",
+        "id": "edge:99",
+        "source": "risk:unh_position_concentration_415",
         "source_layer": "state",
         "target": "agent:portfolio_agent",
         "weight": 12
       },
       {
-        "id": "edge:149",
+        "id": "edge:106",
         "source": "risk:yield_curve_flat",
         "source_layer": "state",
         "target": "agent:macro_agent",
         "weight": 7
       },
       {
-        "id": "edge:151",
+        "id": "edge:108",
         "source": "risk:yield_curve_flat",
         "source_layer": "state",
         "target": "agent:portfolio_agent",
         "weight": 12
       },
       {
-        "id": "edge:155",
-        "source": "stress_scenario:2008_style_crisis__impact_-5009",
+        "id": "edge:112",
+        "source": "stress_scenario:2008_style_crisis__impact_-5160",
         "source_layer": "state",
         "target": "agent:portfolio_agent",
         "weight": 7
@@ -3533,22 +2849,15 @@
   "schema_version": "1.0",
   "summary": {
     "dominant_cluster": "cluster:1",
-    "edge_count": 155,
-    "node_count": 58,
+    "edge_count": 112,
+    "node_count": 56,
     "top_connected_nodes": [
       {
-        "degree": 41,
+        "degree": 39,
         "id": "agent:portfolio_agent",
         "label": "Portfolio Agent",
         "type": "agent",
         "weight": 5
-      },
-      {
-        "degree": 19,
-        "id": "risk:unh_position_concentration_449",
-        "label": "UNH position concentration 44.9%",
-        "type": "risk",
-        "weight": 80
       },
       {
         "degree": 19,
@@ -3558,53 +2867,60 @@
         "weight": 5
       },
       {
-        "degree": 18,
-        "id": "action:review_unh_position_concentration_449",
-        "label": "Review UNH position concentration 44.9%",
-        "type": "action",
-        "weight": 45
+        "degree": 11,
+        "id": "agent:news_agent",
+        "label": "News Agent",
+        "type": "agent",
+        "weight": 5
       },
       {
-        "degree": 14,
+        "degree": 10,
+        "id": "agent:macro_agent",
+        "label": "Macro Agent",
+        "type": "agent",
+        "weight": 5
+      },
+      {
+        "degree": 9,
         "id": "risk:smci_position_size_conflicts_with_research_conviction",
         "label": "SMCI position size conflicts with research conviction",
         "type": "risk",
         "weight": 90
       },
       {
-        "degree": 13,
-        "id": "risk:unh_position_concentration_448",
-        "label": "UNH position concentration 44.8%",
+        "degree": 9,
+        "id": "risk:unh_position_concentration_415",
+        "label": "UNH position concentration 41.5%",
         "type": "risk",
-        "weight": 10
+        "weight": 90
       },
       {
-        "degree": 12,
-        "id": "priority:unh_position_concentration_449",
-        "label": "UNH position concentration 44.9%",
-        "type": "priority",
-        "weight": 95
+        "degree": 7,
+        "id": "risk:inflation_trend_rising",
+        "label": "Inflation Trend: RISING",
+        "type": "risk",
+        "weight": 90
       },
       {
-        "degree": 11,
+        "degree": 6,
         "id": "risk:unh",
         "label": "UNH",
         "type": "risk",
         "weight": 80
       },
       {
-        "degree": 11,
-        "id": "action:review_smci_position_concentration_191",
-        "label": "Review SMCI position concentration 19.1%",
-        "type": "action",
-        "weight": 50
+        "degree": 6,
+        "id": "risk:energy_falling",
+        "label": "Energy: FALLING",
+        "type": "risk",
+        "weight": 60
       },
       {
-        "degree": 11,
-        "id": "agent:news_agent",
-        "label": "News Agent",
-        "type": "agent",
-        "weight": 5
+        "degree": 6,
+        "id": "risk:yield_curve_flat",
+        "label": "Yield Curve: FLAT",
+        "type": "risk",
+        "weight": 60
       }
     ]
   }
