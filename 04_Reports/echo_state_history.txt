@@ -2,39 +2,37 @@ ECHO STATE HISTORY
 ==================
 
 Schema Version: 1.0
-Generated At: 2026-06-18T10:38:33
-State Samples: 10
+Generated At: 2026-06-18T11:03:51
+State Samples: 11
 Archived Snapshots: 10
 
 Most Common Operating Picture:
-Priority: ECO: Low conviction holding
+Priority: UNH position concentration 41.5%
 Theme: Inflation/Energy Risk
 Macro Regime: Inflation Stress
-Portfolio Risk: ECO: Low conviction holding
+Portfolio Risk: UNH position concentration 41.5%
 
 Persistent Risks:
-- Growth exposure conflicts with inflation/rates theme (7 samples)
-- Inflation Trend: RISING (7 samples)
-- Macro regime risk conflicts with portfolio regime posture (7 samples)
-- Portfolio risk conflicts with defensive allocation gap (7 samples)
-- SMCI position size conflicts with research conviction (7 samples)
-- UNH (7 samples)
-- SMCI (7 samples)
-- Yield Curve: FLAT (7 samples)
-- Energy: FALLING (5 samples)
-- ECO: Low conviction holding (3 samples)
+- Growth exposure conflicts with inflation/rates theme (11 samples)
+- Inflation Trend: RISING (11 samples)
+- Macro regime risk conflicts with portfolio regime posture (11 samples)
+- Portfolio risk conflicts with defensive allocation gap (11 samples)
+- SMCI position size conflicts with research conviction (11 samples)
+- UNH (11 samples)
+- SMCI (11 samples)
+- Yield Curve: FLAT (11 samples)
+- Energy: FALLING (10 samples)
+- UNH position concentration 41.5% (7 samples)
 
 Persistent Actions:
-- Reevaluate SMCI: Low conviction holding (10 samples)
-- Reevaluate ECO: Low conviction holding (3 samples)
-- Reevaluate MSTR: Low conviction holding (3 samples)
+- Reevaluate SMCI: Low conviction holding (11 samples)
+- Review SMCI position concentration 23.7% (7 samples)
+- Review UNH position concentration 41.5% (7 samples)
 - Review SMCI position concentration 19.1% (3 samples)
-- Review SMCI position concentration 23.7% (2 samples)
-- Review UNH position concentration 41.5% (2 samples)
 - Review UNH position concentration 44.9% (2 samples)
 
 Operating Picture Stability:
-Priority Changes: 5
-Theme Changes: 2
-Macro Regime Changes: 2
-Portfolio Risk Changes: 5
+Priority Changes: 3
+Theme Changes: 0
+Macro Regime Changes: 0
+Portfolio Risk Changes: 3

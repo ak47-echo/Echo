@@ -74,9 +74,9 @@ def _report_text(report):
     return _safe_text(report)
 
 
-def _block(source, role, title, content, priority):
+def _block(source, role, title, content, priority, limit=1800):
 
-    text = _content(content)
+    text = _content(content, limit)
 
     if not text:
         return None
@@ -147,6 +147,11 @@ def _memory_graph(memory_context):
     }
 
 
+def _portfolio_change_report(reports):
+
+    return _dict(reports).get("portfolio_change_detection")
+
+
 def _assembly_mode(context_budget, agent_routing):
 
     budget_level = _dict(context_budget).get("budget_level") or "standard"
@@ -155,6 +160,9 @@ def _assembly_mode(context_budget, agent_routing):
 
     if budget_level == "minimal":
         return "minimal"
+
+    if query_class == "portfolio_change":
+        return "portfolio_change"
 
     if query_class == "memory" or routing_mode == "none":
         return "memory_only"
@@ -216,6 +224,24 @@ def assemble_echo_context(user_query, memory_context, context_budget,
     seen = set()
     excluded_sources = set()
 
+    if mode == "portfolio_change":
+        change_report = _portfolio_change_report(reports)
+        if change_report:
+            _add_block(
+                blocks,
+                _block(
+                    "portfolio_change_detection",
+                    "primary",
+                    "Portfolio Change Detection",
+                    change_report,
+                    120,
+                    12000
+                ),
+                seen
+            )
+        else:
+            excluded_sources.add("portfolio_change_detection")
+
     _add_block(
         blocks,
         _block(
@@ -228,7 +254,13 @@ def assemble_echo_context(user_query, memory_context, context_budget,
         seen
     )
 
-    if mode in {"memory_only", "agent_focused", "multi_agent", "full"}:
+    if mode in {
+        "memory_only",
+        "agent_focused",
+        "multi_agent",
+        "full",
+        "portfolio_change"
+    }:
         _add_block(
             blocks,
             _block(

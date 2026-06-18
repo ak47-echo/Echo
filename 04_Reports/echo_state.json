@@ -66,12 +66,12 @@
     }
   ],
   "dominant_theme": {
-    "theme_reason": "Inflation/Energy Risk links 4 signals across 2 agent(s): Macro Agent, News Agent.",
+    "theme_reason": "Inflation/Energy Risk links 3 signals across 2 agent(s): Macro Agent, News Agent.",
     "theme_score": 100,
     "theme_strength": "CRITICAL",
     "theme_title": "Inflation/Energy Risk"
   },
-  "generated_at": "2026-06-18T10:38:33",
+  "generated_at": "2026-06-18T11:03:51",
   "macro": {
     "regime": {
       "confidence": "HIGH",
@@ -166,19 +166,19 @@
         "evidence": [],
         "fields": {},
         "rank": 3,
-        "title": "OPEC chief dismisses IEA supply glut forecast as 'critical' Strait of Hormuz reopens | Source CNBC Markets | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags WORLD_EVENT, ENERGY"
+        "title": "Hegseth warns NATO allies that some nations will 'fail' U.S. defense review | Source CNBC Markets | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags WORLD_EVENT"
       },
       {
         "evidence": [],
         "fields": {},
         "rank": 4,
-        "title": "Trump\u2019s Iran agreement is a massive buy signal for stocks | Source MarketWatch | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags MARKET, WORLD_EVENT"
+        "title": "Oil prices fall after Vance says more than 12 million barrels exit Strait of Hormuz | Source CNBC Markets | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags WORLD_EVENT, ENERGY"
       },
       {
         "evidence": [],
         "fields": {},
         "rank": 5,
-        "title": "Hegseth warns NATO allies that some nations will 'fail' U.S. defense review | Source CNBC Markets | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags WORLD_EVENT"
+        "title": "OPEC chief dismisses IEA supply glut forecast as 'critical' Strait of Hormuz reopens | Source CNBC Markets | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags WORLD_EVENT, ENERGY"
       }
     ],
     "portfolio_relevant_items": [
@@ -186,7 +186,7 @@
     ],
     "top_narrative": {
       "reason": "6 related Iran, Hormuz, or oil headlines indicate an energy-linked geopolitical market narrative.",
-      "representative_headline": "OPEC chief dismisses IEA supply glut forecast as 'critical' Strait of Hormuz reopens",
+      "representative_headline": "Hegseth warns NATO allies that some nations will 'fail' U.S. defense review",
       "score": 100,
       "supporting_articles": 6,
       "title": "Middle East Energy Risk"

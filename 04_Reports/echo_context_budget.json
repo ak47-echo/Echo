@@ -1,23 +1,21 @@
 {
-  "budget_level": "expanded",
+  "budget_level": "standard",
   "excluded_context_sources": [
-    "unrelated_full_reports"
+    "generic_state_delta"
   ],
-  "generated_at": "2026-06-18T10:38:33",
-  "max_context_items": 40,
+  "generated_at": "2026-06-18T11:04:14",
+  "max_context_items": 20,
   "preferred_context_sources": [
-    "memory_context",
-    "change_detection",
-    "knowledge_graph",
-    "relevant_reports"
+    "portfolio_change_detection",
+    "portfolio_ingestion",
+    "portfolio_snapshot"
   ],
-  "query": "Echo daily run overall executive summary",
-  "query_class": "multi_agent",
-  "reason": "Broad synthesis query spans multiple agents or relationship layers.",
+  "query": "did my cash change",
+  "query_class": "portfolio_change",
+  "reason": "Query asks about holdings-level portfolio changes.",
   "schema_version": "1.0",
   "tool_hints": [
-    "echo_get_memory_context",
-    "echo_get_change_detection",
-    "echo_get_knowledge_graph"
+    "echo_get_portfolio_change_detection",
+    "echo_get_portfolio_ingestion"
   ]
 }

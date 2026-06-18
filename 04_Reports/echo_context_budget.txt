@@ -2,24 +2,22 @@ ECHO CONTEXT BUDGET
 ===================
 
 Schema Version: 1.0
-Generated At: 2026-06-18T10:38:33
-Query: Echo daily run overall executive summary
-Query Class: multi_agent
-Budget Level: expanded
-Max Context Items: 40
+Generated At: 2026-06-18T11:04:14
+Query: did my cash change
+Query Class: portfolio_change
+Budget Level: standard
+Max Context Items: 20
 
 Preferred Context Sources:
-- memory_context
-- change_detection
-- knowledge_graph
-- relevant_reports
+- portfolio_change_detection
+- portfolio_ingestion
+- portfolio_snapshot
 
 Excluded Context Sources:
-- unrelated_full_reports
+- generic_state_delta
 
 Tool Hints:
-- echo_get_memory_context
-- echo_get_change_detection
-- echo_get_knowledge_graph
+- echo_get_portfolio_change_detection
+- echo_get_portfolio_ingestion
 
-Reason: Broad synthesis query spans multiple agents or relationship layers.
+Reason: Query asks about holdings-level portfolio changes.

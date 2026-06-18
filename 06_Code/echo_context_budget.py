@@ -155,6 +155,31 @@ def _is_memory_query(query):
     ))
 
 
+def _is_portfolio_change_query(query):
+
+    return _has_any(query, (
+        "what changed in my portfolio",
+        "portfolio changed",
+        "portfolio changes",
+        "new positions",
+        "new position",
+        "removed positions",
+        "removed position",
+        "what did i buy",
+        "what did i sell",
+        "changed from last report",
+        "changes from last report",
+        "from last report",
+        "since last report",
+        "concentration change",
+        "concentration changed",
+        "did my concentration change",
+        "did cash change",
+        "cash change",
+        "cash changed"
+    ))
+
+
 def _is_multi_agent(query, agents):
 
     if len(set(agents)) >= 2:
@@ -219,6 +244,23 @@ def _base_budget(query, agents):
                 "echo_get_knowledge_graph"
             ],
             "Deep-dive wording requests detailed secondary context."
+        )
+
+    if _is_portfolio_change_query(query):
+        return (
+            "portfolio_change",
+            "standard",
+            [
+                "portfolio_change_detection",
+                "portfolio_ingestion",
+                "portfolio_snapshot"
+            ],
+            ["generic_state_delta"],
+            [
+                "echo_get_portfolio_change_detection",
+                "echo_get_portfolio_ingestion"
+            ],
+            "Query asks about holdings-level portfolio changes."
         )
 
     if _is_multi_agent(query, agents):

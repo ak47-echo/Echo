@@ -1,26 +1,22 @@
 {
   "answer_style": "brief",
-  "confidence": "high",
+  "confidence": "low",
   "detected_entities": [],
   "detected_horizon": null,
-  "generated_at": "2026-06-18T10:38:33",
-  "query": "Echo daily run overall executive summary",
-  "reason": "Retrieval/status wording detected.",
-  "reasoning_depth": "light",
+  "generated_at": "2026-06-18T11:04:14",
+  "query": "did my cash change",
+  "reason": "No deterministic reasoning intent matched.",
+  "reasoning_depth": "none",
   "reasoning_instructions": [
-    "Answer directly from Echo context.",
-    "Prioritize current state, latest priority, and relevant facts.",
-    "Do not over-explain unless the user asks why."
+    "Answer from available Echo context if possible.",
+    "Say what context is missing if the query cannot be answered."
   ],
-  "reasoning_intent": "retrieval",
+  "reasoning_intent": "unknown",
   "required_context": [
     "response_composer",
     "context_assembly",
-    "memory_context",
-    "portfolio_context",
-    "research_context",
-    "news_context",
-    "macro_context"
+    "portfolio_change_detection",
+    "portfolio_context"
   ],
   "schema_version": "1.0"
 }

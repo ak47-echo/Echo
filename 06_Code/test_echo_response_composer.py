@@ -110,6 +110,51 @@ def _assembly(source="memory_context"):
     }
 
 
+def _portfolio_change_assembly():
+
+    report = {
+        "summary": {
+            "change_count": 1,
+            "material_change_count": 1,
+            "total_market_value_change": 250.0,
+            "top_change": {
+                "account": "Brokerage",
+                "ticker": "AVUV",
+                "delta_market_value": 250.0
+            }
+        },
+        "new_positions": [
+            {
+                "account": "Brokerage",
+                "ticker": "AVUV",
+                "current_market_value": 250.0,
+                "material": True
+            }
+        ],
+        "removed_positions": [],
+        "quantity_changes": [],
+        "market_value_changes": [],
+        "concentration_changes": [],
+        "cash_changes": []
+    }
+
+    return {
+        "assembly_mode": "portfolio_change",
+        "context_blocks": [
+            {
+                "source": "portfolio_change_detection",
+                "role": "primary",
+                "title": "Portfolio Change Detection",
+                "content": json.dumps(report),
+                "priority": 120
+            }
+        ],
+        "context_summary": {
+            "full_reports_included": False,
+            "block_count": 1
+        }
+    }
+
 class EchoResponseComposerTests(unittest.TestCase):
 
     def _assert_no_tool_names(self, answer):
@@ -167,6 +212,20 @@ class EchoResponseComposerTests(unittest.TestCase):
 
         self.assertEqual("agent_summary", response["response_mode"])
         self.assertIn("Portfolio read", response["answer"])
+
+    def test_portfolio_change_query_uses_change_detection_context(self):
+
+        response = compose_echo_response(
+            "what are my new positions from last report",
+            _budget("portfolio_change", "standard"),
+            _routing(["portfolio"], "single_agent"),
+            _portfolio_change_assembly(),
+            _memory([])
+        )
+
+        self.assertEqual("memory", response["response_mode"])
+        self.assertIn("AVUV", response["answer"])
+        self.assertIn("Brokerage AVUV", response["supporting_points"])
 
     def test_macro_risk_query_returns_summary_mode(self):
 

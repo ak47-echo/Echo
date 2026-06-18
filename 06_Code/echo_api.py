@@ -52,6 +52,7 @@ from portfolio_ingestion import (
     write_portfolio_ingestion_json,
     write_portfolio_ingestion_text
 )
+from portfolio_change_detection import read_portfolio_change_report
 
 
 LOCALHOST_ORIGINS = [
@@ -233,6 +234,10 @@ def create_app():
     @app.get("/portfolio/ingestion")
     async def portfolio_ingestion():
         return read_portfolio_ingestion()
+
+    @app.get("/portfolio/changes")
+    async def portfolio_changes():
+        return read_portfolio_change_report()
 
     @app.post("/portfolio/ingest")
     async def portfolio_ingest():

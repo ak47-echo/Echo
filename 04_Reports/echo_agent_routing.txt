@@ -2,27 +2,23 @@ ECHO AGENT ROUTING
 ==================
 
 Schema Version: 1.0
-Generated At: 2026-06-18T10:38:33
-Query: Echo daily run overall executive summary
-Routing Mode: all_agents
+Generated At: 2026-06-18T11:04:14
+Query: did my cash change
+Routing Mode: single_agent
 Confidence: high
 
 Primary Agents:
 - portfolio
-- research
-- news
-- macro
 
 Secondary Agents:
 None
 
 Excluded Agents:
-None
+- research
+- news
+- macro
 
 Agent Context Plan:
-- portfolio | primary | Full Report: True | Sources: memory_context, portfolio_snapshot, portfolio_full_report
-- research | primary | Full Report: True | Sources: memory_context, research_snapshot, research_full_report
-- news | primary | Full Report: True | Sources: memory_context, news_snapshot, news_full_report
-- macro | primary | Full Report: True | Sources: memory_context, macro_snapshot, macro_full_report
+- portfolio | primary | Full Report: False | Sources: portfolio_change_detection, portfolio_ingestion, portfolio_snapshot
 
-Reason: Broad synthesis query needs all active agent contexts.
+Reason: Portfolio-change query should be answered from normalized holdings change detection.

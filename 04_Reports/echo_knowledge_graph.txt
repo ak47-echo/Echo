@@ -2,31 +2,29 @@ ECHO KNOWLEDGE GRAPH
 ====================
 
 Schema Version: 1.0
-Generated At: 2026-06-18T10:38:33
-Node Count: 56
-Edge Count: 112
+Generated At: 2026-06-18T11:03:51
+Node Count: 49
+Edge Count: 99
 
 Most Connected Entities:
-- Portfolio Agent (agent, degree 39, weight 5)
-- Echo (agent, degree 19, weight 5)
+- Portfolio Agent (agent, degree 35, weight 5)
+- Echo (agent, degree 17, weight 5)
 - News Agent (agent, degree 11, weight 5)
-- Macro Agent (agent, degree 10, weight 5)
-- SMCI position size conflicts with research conviction (risk, degree 9, weight 90)
 - UNH position concentration 41.5% (risk, degree 9, weight 90)
-- Inflation Trend: RISING (risk, degree 7, weight 90)
+- Macro Agent (agent, degree 9, weight 5)
+- SMCI position size conflicts with research conviction (risk, degree 8, weight 90)
 - UNH (risk, degree 6, weight 80)
-- Energy: FALLING (risk, degree 6, weight 60)
-- Yield Curve: FLAT (risk, degree 6, weight 60)
+- Review SMCI position concentration 23.7% (action, degree 6, weight 50)
+- Review UNH position concentration 41.5% (action, degree 6, weight 50)
+- SMCI (risk, degree 6, weight 50)
 
 Dominant Cluster:
 Cluster: UNH position concentration 41.5%
 Primary Node: UNH position concentration 41.5%
-Total Weight: 1710
-Node Count: 56
+Total Weight: 1450
+Node Count: 49
 
 Linked Risks, Themes, And Actions:
-- Reevaluate ECO: Low conviction holding generated_by Echo (weight 6)
-- Reevaluate MSTR: Low conviction holding generated_by Echo (weight 6)
 - Reevaluate SMCI: Low conviction holding generated_by Echo (weight 12)
 - Reevaluate SMCI: Low conviction holding relates_to Echo (weight 5)
 - Reevaluate SMCI: Low conviction holding relates_to SMCI (weight 8)
@@ -40,10 +38,12 @@ Linked Risks, Themes, And Actions:
 - Review SMCI position concentration 23.7% relates_to SMCI position size conflicts with research conviction (weight 16)
 - Review SMCI position concentration 23.7% relates_to UNH position concentration 41.5% (weight 16)
 - Review UNH position concentration 41.5% generated_by Echo (weight 12)
+- Review UNH position concentration 41.5% relates_to Echo (weight 5)
+- Review UNH position concentration 41.5% relates_to UNH (weight 8)
 
 Agent Connectivity:
-- Portfolio Agent: 39 connected edges
-- Echo: 19 connected edges
+- Portfolio Agent: 35 connected edges
+- Echo: 17 connected edges
 - News Agent: 11 connected edges
-- Macro Agent: 10 connected edges
+- Macro Agent: 9 connected edges
 - Research Agent: 6 connected edges

@@ -2,22 +2,20 @@ ECHO CHANGE DETECTION
 =====================
 
 Schema Version: 1.0
-Generated At: 2026-06-18T10:38:33
+Generated At: 2026-06-18T11:03:51
 Change Level: moderate
 Material Change Count: 0
 Novel Change Count: 0
-Persistent Issue Count: 26
+Persistent Issue Count: 20
 
 Most Important Signal:
-risk: ECO: Low conviction holding (score 35)
-Risk appears in 3 state samples.
+risk: Growth exposure conflicts with inflation/rates theme (score 35)
+Risk appears in 11 state samples.
 
 What Changed That Matters:
 None
 
 What Persists That Matters:
-- risk: ECO: Low conviction holding (score 35)
-- risk: Energy: RISING (score 35)
 - risk: Growth exposure conflicts with inflation/rates theme (score 35)
 - risk: Inflation Trend: RISING (score 35)
 - risk: Macro regime risk conflicts with portfolio regime posture (score 35)
@@ -26,6 +24,8 @@ What Persists That Matters:
 - risk: UNH (score 35)
 - risk: UNH position concentration 41.5% (score 35)
 - risk: UNH position concentration 44.9% (score 35)
+- risk: Energy: FALLING (score 25)
+- risk: SMCI (score 25)
 
 Escalations:
 None
@@ -34,8 +34,8 @@ Deescalations:
 None
 
 Recommended Attention:
-- risk: ECO: Low conviction holding (score 35)
-- risk: Energy: RISING (score 35)
 - risk: Growth exposure conflicts with inflation/rates theme (score 35)
 - risk: Inflation Trend: RISING (score 35)
 - risk: Macro regime risk conflicts with portfolio regime posture (score 35)
+- risk: Portfolio risk conflicts with defensive allocation gap (score 35)
+- risk: SMCI position size conflicts with research conviction (score 35)

@@ -320,6 +320,9 @@ def _required_context(intent, entities, context_budget=None, agent_routing=None)
     }:
         context.append("memory_context")
 
+    if query_class == "portfolio_change":
+        context.append("portfolio_change_detection")
+
     if intent in {"explanation", "scenario_analysis", "critique", "recommendation"}:
         context.extend(["memory_context", "agent_context", "current_state"])
 

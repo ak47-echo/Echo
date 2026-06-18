@@ -4,6 +4,12 @@ import shutil
 from datetime import datetime
 from pathlib import Path
 
+from portfolio_change_detection import (
+    DEFAULT_SNAPSHOT_DIR,
+    archive_normalized_snapshot,
+    build_and_write_portfolio_change_report
+)
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR / "02_Data"
@@ -512,10 +518,12 @@ def ingest_latest_portfolio_import(import_dir, output_path, archive_dir):
                 result["warnings"].append(
                     f"Empty normalized output setup failed: {error}"
                 )
+        build_and_write_portfolio_change_report(None, output_path)
         return result
 
     imported_at = result["generated_at"]
     previous_positions = _read_normalized_positions(output_path)
+    previous_snapshot_path = None
     result["source_file"] = str(source_file)
 
     try:
@@ -529,6 +537,11 @@ def ingest_latest_portfolio_import(import_dir, output_path, archive_dir):
     try:
         with source_file.open("r", newline="", encoding="utf-8-sig") as file:
             raw_rows = list(csv.reader(file))
+
+        previous_snapshot_path = archive_normalized_snapshot(
+            output_path,
+            DEFAULT_SNAPSHOT_DIR
+        )
 
         if _is_schwab_sectioned_rows(raw_rows):
             rows = _parse_schwab_sectioned_rows(
@@ -628,6 +641,18 @@ def ingest_latest_portfolio_import(import_dir, output_path, archive_dir):
         reverse=True
     )[:10]
     result["changes"] = _compare_positions(previous_positions, current_positions)
+    result["previous_normalized_snapshot_path"] = (
+        str(previous_snapshot_path) if previous_snapshot_path else None
+    )
+    change_result = build_and_write_portfolio_change_report(
+        previous_snapshot_path,
+        output_path
+    )
+    result["portfolio_change_detection_path"] = (
+        change_result["json_result"].get("path")
+        if change_result["json_result"].get("success")
+        else None
+    )
     result["status"] = "partial" if result["warnings"] else "success"
 
     return result

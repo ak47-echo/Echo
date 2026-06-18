@@ -88,6 +88,20 @@ class EchoAgentRouterTests(unittest.TestCase):
         self.assertEqual([], routing["primary_agents"])
         self.assertEqual("none", routing["routing_mode"])
 
+    def test_portfolio_change_query_routes_to_portfolio_change_context(self):
+
+        routing = route_query_to_agents(
+            "what are my new positions from last report",
+            _budget("standard", "portfolio_change")
+        )
+
+        self.assertEqual(["portfolio"], routing["primary_agents"])
+        self.assertEqual("single_agent", routing["routing_mode"])
+        self.assertIn(
+            "portfolio_change_detection",
+            routing["agent_context_plan"][0]["context_sources"]
+        )
+
     def test_broad_synthesis_routes_to_all_active_agents(self):
 
         routing = route_query_to_agents(

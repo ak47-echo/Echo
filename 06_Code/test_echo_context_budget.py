@@ -64,6 +64,24 @@ class EchoContextBudgetTests(unittest.TestCase):
         self.assertEqual("agent_specific", budget["query_class"])
         self.assertIn("portfolio_snapshot", budget["preferred_context_sources"])
 
+    def test_portfolio_change_query_uses_portfolio_change_context(self):
+
+        budget = build_context_budget(
+            "what are my new positions from last report",
+            _memory_context(),
+            ["echo_get_portfolio_change_detection"]
+        )
+
+        self.assertEqual("portfolio_change", budget["query_class"])
+        self.assertIn(
+            "portfolio_change_detection",
+            budget["preferred_context_sources"]
+        )
+        self.assertIn(
+            "echo_get_portfolio_change_detection",
+            budget["tool_hints"]
+        )
+
     def test_broad_synthesis_query_becomes_multi_agent(self):
 
         budget = build_context_budget(

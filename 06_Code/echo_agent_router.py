@@ -80,6 +80,28 @@ MEMORY_TERMS = (
     "persisted"
 )
 
+PORTFOLIO_CHANGE_TERMS = (
+    "what changed in my portfolio",
+    "portfolio changed",
+    "portfolio changes",
+    "new positions",
+    "new position",
+    "removed positions",
+    "removed position",
+    "what did i buy",
+    "what did i sell",
+    "changed from last report",
+    "changes from last report",
+    "from last report",
+    "since last report",
+    "concentration change",
+    "concentration changed",
+    "did my concentration change",
+    "did cash change",
+    "cash change",
+    "cash changed"
+)
+
 SYNTHESIS_TERMS = (
     "synthesis",
     "overall picture",
@@ -214,6 +236,21 @@ def _context_sources(agent, role, include_full_report):
     return sources
 
 
+def _portfolio_change_plan():
+
+    return [{
+        "agent": "portfolio",
+        "role": "primary",
+        "context_sources": [
+            "portfolio_change_detection",
+            "portfolio_ingestion",
+            "portfolio_snapshot"
+        ],
+        "include_full_report": False,
+        "reason": "Portfolio-change query needs holdings-level change context."
+    }]
+
+
 def _plan(primary_agents, secondary_agents, budget_level):
 
     plan = []
@@ -268,6 +305,25 @@ def route_query_to_agents(user_query, context_budget=None, memory_context=None,
             "confidence": "high",
             "agent_context_plan": [],
             "reason": "Conversational prompt; no agent report routing needed."
+        }
+
+    if _has_phrase(query, PORTFOLIO_CHANGE_TERMS) or query_class == "portfolio_change":
+        return {
+            "schema_version": "1.0",
+            "generated_at": _now(),
+            "query": query,
+            "primary_agents": ["portfolio"],
+            "secondary_agents": [],
+            "excluded_agents": [
+                agent for agent in agents if agent != "portfolio"
+            ],
+            "routing_mode": "single_agent",
+            "confidence": "high",
+            "agent_context_plan": _portfolio_change_plan(),
+            "reason": (
+                "Portfolio-change query should be answered from normalized "
+                "holdings change detection."
+            )
         }
 
     if _has_phrase(query, MEMORY_TERMS) or query_class == "memory":

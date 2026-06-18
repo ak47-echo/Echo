@@ -2,13 +2,13 @@ ECHO INTENT REASONING
 =====================
 
 Schema Version: 1.0
-Generated At: 2026-06-18T10:38:33
-Query: Echo daily run overall executive summary
-Reasoning Intent: retrieval
-Reasoning Depth: light
+Generated At: 2026-06-18T11:04:14
+Query: did my cash change
+Reasoning Intent: unknown
+Reasoning Depth: none
 Answer Style: brief
 Detected Horizon: None
-Confidence: high
+Confidence: low
 
 Detected Entities:
 None
@@ -16,15 +16,11 @@ None
 Required Context:
 - response_composer
 - context_assembly
-- memory_context
+- portfolio_change_detection
 - portfolio_context
-- research_context
-- news_context
-- macro_context
 
 Reasoning Instructions:
-- Answer directly from Echo context.
-- Prioritize current state, latest priority, and relevant facts.
-- Do not over-explain unless the user asks why.
+- Answer from available Echo context if possible.
+- Say what context is missing if the query cannot be answered.
 
-Reason: Retrieval/status wording detected.
+Reason: No deterministic reasoning intent matched.

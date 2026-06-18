@@ -1,0 +1,20 @@
+{
+  "cash_changes": [],
+  "concentration_changes": [],
+  "generated_at": "2026-06-18T11:03:47",
+  "has_previous_snapshot": true,
+  "market_value_changes": [],
+  "new_positions": [],
+  "quantity_changes": [],
+  "removed_positions": [],
+  "schema_version": "1.0",
+  "summary": {
+    "change_count": 0,
+    "material_change_count": 0,
+    "top_change": null,
+    "total_market_value_change": 0.0,
+    "total_market_value_current": 15553.34,
+    "total_market_value_previous": 15553.34
+  },
+  "warnings": []
+}

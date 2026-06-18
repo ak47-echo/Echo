@@ -3,60 +3,28 @@
     {
       "agent": "portfolio",
       "context_sources": [
-        "memory_context",
-        "portfolio_snapshot",
-        "portfolio_full_report"
+        "portfolio_change_detection",
+        "portfolio_ingestion",
+        "portfolio_snapshot"
       ],
-      "include_full_report": true,
-      "reason": "portfolio matched as primary context under expanded budget.",
-      "role": "primary"
-    },
-    {
-      "agent": "research",
-      "context_sources": [
-        "memory_context",
-        "research_snapshot",
-        "research_full_report"
-      ],
-      "include_full_report": true,
-      "reason": "research matched as primary context under expanded budget.",
-      "role": "primary"
-    },
-    {
-      "agent": "news",
-      "context_sources": [
-        "memory_context",
-        "news_snapshot",
-        "news_full_report"
-      ],
-      "include_full_report": true,
-      "reason": "news matched as primary context under expanded budget.",
-      "role": "primary"
-    },
-    {
-      "agent": "macro",
-      "context_sources": [
-        "memory_context",
-        "macro_snapshot",
-        "macro_full_report"
-      ],
-      "include_full_report": true,
-      "reason": "macro matched as primary context under expanded budget.",
+      "include_full_report": false,
+      "reason": "Portfolio-change query needs holdings-level change context.",
       "role": "primary"
     }
   ],
   "confidence": "high",
-  "excluded_agents": [],
-  "generated_at": "2026-06-18T10:38:33",
-  "primary_agents": [
-    "portfolio",
+  "excluded_agents": [
     "research",
     "news",
     "macro"
   ],
-  "query": "Echo daily run overall executive summary",
-  "reason": "Broad synthesis query needs all active agent contexts.",
-  "routing_mode": "all_agents",
+  "generated_at": "2026-06-18T11:04:14",
+  "primary_agents": [
+    "portfolio"
+  ],
+  "query": "did my cash change",
+  "reason": "Portfolio-change query should be answered from normalized holdings change detection.",
+  "routing_mode": "single_agent",
   "schema_version": "1.0",
   "secondary_agents": []
 }

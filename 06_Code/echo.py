@@ -74,6 +74,7 @@ from portfolio_ingestion import (
     write_portfolio_ingestion_json,
     write_portfolio_ingestion_text
 )
+from portfolio_change_detection import read_portfolio_change_report
 import json
 import os
 from pathlib import Path
@@ -5528,6 +5529,29 @@ def echo_get_portfolio_ingestion(context=None):
     )
 
 
+def echo_get_portfolio_change_detection(context=None):
+
+    changes = read_portfolio_change_report()
+    summary_data = changes.get("summary") or {}
+    top_change = summary_data.get("top_change") or {}
+    summary = (
+        "Portfolio changes: "
+        f"{summary_data.get('change_count') or 0}. "
+        "Material changes: "
+        f"{summary_data.get('material_change_count') or 0}. "
+        "Top change: "
+        f"{top_change.get('ticker') or top_change.get('account') or 'None'}."
+    )
+
+    return _echo_tool_response(
+        "echo_get_portfolio_change_detection",
+        {"portfolio_change_detection": changes},
+        summary,
+        "HIGH",
+        "Latest normalized-holdings portfolio change detection report."
+    )
+
+
 def echo_ask(question, context=None):
 
     result = answer_echo_multi_agent_query(question, _echo_tool_context(context))
@@ -5983,6 +6007,16 @@ ECHO_TOOL_REGISTRY = {
         "output_description": (
             "Dictionary with ingestion status, source file, normalized row "
             "counts, archive path, warnings, and portfolio change detection."
+        )
+    },
+    "echo_get_portfolio_change_detection": {
+        "function_name": "echo_get_portfolio_change_detection",
+        "description": "Return latest normalized-holdings portfolio changes.",
+        "expected_input_fields": {},
+        "output_description": (
+            "Dictionary with new positions, removed positions, quantity "
+            "changes, market value changes, concentration changes, cash "
+            "changes, and material-change summary."
         )
     },
     "echo_ask": {
@@ -6897,6 +6931,7 @@ def _context_assembly_reports(context):
     sections = _echo_tool_context(context)["sections"]
 
     return {
+        "portfolio_change_detection": read_portfolio_change_report(),
         "portfolio": sections.get("portfolio"),
         "research": sections.get("research"),
         "news": sections.get("news"),
@@ -6967,6 +7002,9 @@ def _echo_orchestrator_select_tools(message, context, context_budget=None,
     if isinstance(context_budget, dict):
         for tool_name in context_budget.get("tool_hints") or []:
             add_tools(tool_name)
+
+    if query_class == "portfolio_change":
+        add_tools("echo_get_portfolio_change_detection")
 
     if isinstance(agent_routing, dict):
         include_secondary = budget_level in {"expanded", "full"}
@@ -7039,6 +7077,23 @@ def _echo_orchestrator_select_tools(message, context, context_budget=None,
         )
     ):
         add_tools("echo_get_portfolio_ingestion")
+
+    if any(
+        term in text
+        for term in (
+            "what changed in my portfolio",
+            "new positions",
+            "what did i buy",
+            "what did i sell",
+            "changed from last report",
+            "concentration change",
+            "cash change",
+            "did cash change",
+            "portfolio changed",
+            "portfolio changes"
+        )
+    ):
+        add_tools("echo_get_portfolio_change_detection")
 
     if not isinstance(agent_routing, dict) and any(
         term in text
@@ -7125,6 +7180,9 @@ def _run_echo_orchestrator_tool(tool_name, message, context):
         "echo_get_response_composer": echo_get_response_composer,
         "echo_get_intent_reasoning": echo_get_intent_reasoning,
         "echo_get_portfolio_ingestion": echo_get_portfolio_ingestion,
+        "echo_get_portfolio_change_detection": (
+            echo_get_portfolio_change_detection
+        ),
         "echo_get_top_priority": echo_get_top_priority,
         "echo_get_themes": echo_get_themes,
         "echo_get_theme_impacts": echo_get_theme_impacts,

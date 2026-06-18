@@ -40,7 +40,7 @@ REPORT RETENTION SUMMARY
 ------------------------
 
 Archive Enabled: Yes
-Archive Folder: 04_Reports/archive/20260618_103833
+Archive Folder: 04_Reports/archive/20260618_110351
 Archive Keep Count: 10
 Archive Runs Retained: 10
 Archive Cleanup Deleted: 1
@@ -55,7 +55,7 @@ System Health: HEALTHY
 Top Priority: UNH position concentration 41.5%
 
 Dominant Cross-Agent Theme: Inflation/Energy Risk
-Theme Reason: Inflation/Energy Risk links 4 signals across 2 agent(s): Macro Agent, News Agent.
+Theme Reason: Inflation/Energy Risk links 3 signals across 2 agent(s): Macro Agent, News Agent.
 Theme Impact: Inflation/Energy Risk touches VNOM/ECO directly and Commodity 9.4%, Growth 69.1% indirectly.
 Key Conflict: Growth exposure conflicts with inflation/rates theme
 Conflict Reason: High growth exposure is sensitive to discount-rate pressure when inflation, energy, or rates themes are active.
@@ -89,7 +89,7 @@ Theme Count: 7
 Dominant Theme: Inflation/Energy Risk
 Dominant Theme Score: 100
 Dominant Theme Strength: CRITICAL
-Dominant Theme Reason: Inflation/Energy Risk links 4 signals across 2 agent(s): Macro Agent, News Agent.
+Dominant Theme Reason: Inflation/Energy Risk links 3 signals across 2 agent(s): Macro Agent, News Agent.
 
 Theme synthesis groups existing normalized signals and does not replace priority ranking.
 
@@ -100,12 +100,11 @@ CROSS-AGENT THEME DETAILS
    Theme Strength: CRITICAL
    Theme Score: 100
    Supporting Agents: Macro Agent, News Agent
-   Supporting Signal Count: 4
-   Theme Reason: Inflation/Energy Risk links 4 signals across 2 agent(s): Macro Agent, News Agent.
+   Supporting Signal Count: 3
+   Theme Reason: Inflation/Energy Risk links 3 signals across 2 agent(s): Macro Agent, News Agent.
    Supporting Signals:
    - Macro Agent | MACRO_REGIME | HIGH | Inflation Trend | Macro Regime Inflation Stress | Regime Score 100 | Priority Tier HIGH
    - Macro Agent | INFLATION_RISING | MEDIUM | Inflation trend: RISING
-   - News Agent | WORLD_EVENT | MEDIUM | OPEC chief dismisses IEA supply glut forecast as 'critical' Strait of Hormuz reopens
    - News Agent | NEWS_NARRATIVE | MEDIUM | Middle East Energy Risk
 
 2. Fed/Rates Risk
@@ -167,7 +166,7 @@ CROSS-AGENT THEME DETAILS
    Supporting Signal Count: 3
    Theme Reason: Market/Regulatory Event Theme links 3 signals across 1 agent(s): News Agent.
    Supporting Signals:
-   - News Agent | WORLD_EVENT | MEDIUM | OPEC chief dismisses IEA supply glut forecast as 'critical' Strait of Hormuz reopens
+   - News Agent | WORLD_EVENT | MEDIUM | Hegseth warns NATO allies that some nations will 'fail' U.S. defense review
    - News Agent | MACRO_NEWS | MEDIUM | Analysis: Chairman Kevin Warsh’s task forces are the key to understanding the new Fed
    - News Agent | NEWS_NARRATIVE | MEDIUM | Middle East Energy Risk
 
@@ -513,21 +512,21 @@ AGENT SIGNAL BUS DETAILS
    Category: Market Event
    Description: News Agent identified this as the top macro story.
 
-13. Middle East Energy Risk
-   Source: News Agent
-   Type: NEWS_NARRATIVE
-   Severity: MEDIUM
-   Confidence: MEDIUM
-   Category: Market Event
-   Description: 6 related Iran, Hormuz, or oil headlines indicate an energy-linked geopolitical market narrative.
-
-14. OPEC chief dismisses IEA supply glut forecast as 'critical' Strait of Hormuz reopens
+13. Hegseth warns NATO allies that some nations will 'fail' U.S. defense review
    Source: News Agent
    Type: WORLD_EVENT
    Severity: MEDIUM
    Confidence: MEDIUM
    Category: Market Event
    Description: News Agent identified this as the top world event story.
+
+14. Middle East Energy Risk
+   Source: News Agent
+   Type: NEWS_NARRATIVE
+   Severity: MEDIUM
+   Confidence: MEDIUM
+   Category: Market Event
+   Description: 6 related Iran, Hormuz, or oil headlines indicate an energy-linked geopolitical market narrative.
 
 15. AVDV: High score candidate still in watch status
    Source: Research Agent
@@ -607,10 +606,10 @@ Echo operates in report mode and supports deterministic backend queries for acti
 AGENT REGISTRY DETAILS
 ----------------------
 
-News Agent | Role Intelligence Officer | Status ACTIVE | Health HEALTHY | Report SUPPORTED | Query SUPPORTED | Last Run SUCCESS | Time 1.06s
-Macro Agent | Role Macro Strategist | Status ACTIVE | Health HEALTHY | Report SUPPORTED | Query SUPPORTED | Last Run SUCCESS | Time 0.28s
-Portfolio Manager | Role Chief Investment Officer | Status ACTIVE | Health HEALTHY | Report SUPPORTED | Query SUPPORTED | Last Run SUCCESS | Time 1.72s
-Research Agent | Role Research Analyst | Status ACTIVE | Health HEALTHY | Report SUPPORTED | Query SUPPORTED | Last Run SUCCESS | Time 0.05s
+News Agent | Role Intelligence Officer | Status ACTIVE | Health HEALTHY | Report SUPPORTED | Query SUPPORTED | Last Run SUCCESS | Time 1.12s
+Macro Agent | Role Macro Strategist | Status ACTIVE | Health HEALTHY | Report SUPPORTED | Query SUPPORTED | Last Run SUCCESS | Time 0.34s
+Portfolio Manager | Role Chief Investment Officer | Status ACTIVE | Health HEALTHY | Report SUPPORTED | Query SUPPORTED | Last Run SUCCESS | Time 2.03s
+Research Agent | Role Research Analyst | Status ACTIVE | Health HEALTHY | Report SUPPORTED | Query SUPPORTED | Last Run SUCCESS | Time 0.06s
 Calendar Agent | Role Scheduling Officer | Status PLACEHOLDER | Health UNKNOWN | Report NOT_SUPPORTED | Query PLANNED | Last Run NOT_RUN | Time N/A
 Email Agent | Role Communications Officer | Status PLACEHOLDER | Health UNKNOWN | Report NOT_SUPPORTED | Query PLANNED | Last Run NOT_RUN | Time N/A
 Project Manager Agent | Role Project Manager | Status PLACEHOLDER | Health UNKNOWN | Report NOT_SUPPORTED | Query PLANNED | Last Run NOT_RUN | Time N/A
@@ -662,12 +661,12 @@ News Agent Status: ACTIVE
 Top Market Narrative: Middle East Energy Risk
 Supporting Articles: 6
 Top Narrative Score: 100
-Representative Headline: OPEC chief dismisses IEA supply glut forecast as 'critical' Strait of Hormuz reopens
+Representative Headline: Hegseth warns NATO allies that some nations will 'fail' U.S. defense review
 Top Narrative Reason: 6 related Iran, Hormuz, or oil headlines indicate an energy-linked geopolitical market narrative.
 Top Portfolio Story: None
 Top Watchlist Story: None
 Top Macro Story: Analysis: Chairman Kevin Warsh’s task forces are the key to understanding the new Fed
-Top World Event Story: OPEC chief dismisses IEA supply glut forecast as 'critical' Strait of Hormuz reopens
+Top World Event Story: Hegseth warns NATO allies that some nations will 'fail' U.S. defense review
 High Relevance Stories: 18
 Portfolio-Relevant Stories: 0
 Watchlist-Relevant Stories: 0
@@ -693,15 +692,15 @@ Top Ranked Narratives:
    Narrative Score: 100
    Tier: CRITICAL
    Supporting Articles: 6
-   Representative Headline: OPEC chief dismisses IEA supply glut forecast as 'critical' Strait of Hormuz reopens
+   Representative Headline: Hegseth warns NATO allies that some nations will 'fail' U.S. defense review
    Narrative Reason: 6 related Iran, Hormuz, or oil headlines indicate an energy-linked geopolitical market narrative.
    Supporting Headlines:
+   - Hegseth warns NATO allies that some nations will 'fail' U.S. defense review
+   - Oil prices fall after Vance says more than 12 million barrels exit Strait of Hormuz
    - OPEC chief dismisses IEA supply glut forecast as 'critical' Strait of Hormuz reopens
    - Trump’s Iran agreement is a massive buy signal for stocks
-   - Hegseth warns NATO allies that some nations will 'fail' U.S. defense review
    - Trump hits back at critics as Iran peace deal fuels debate over U.S. concessions
    - Bank of England holds interest rates at 3.75% amid Iran war peace prospects
-   - Oil prices fall after Trump signs deal to end Iran war
 2. Federal Reserve Policy Outlook
    Narrative Score: 100
    Tier: CRITICAL
@@ -790,12 +789,12 @@ Top Ranked Narratives:
 Top Ranked Stories:
 1. Analysis: Chairman Kevin Warsh’s task forces are the key to understanding the new Fed | Source CNBC Markets | Relevance Score 97 | Impact Category Fed Policy | Impact Tier CRITICAL | Relevance HIGH | Reason Federal Reserve policy directly reprices rates, equities, and risk assets. | Tags MACRO, CENTRAL_BANK, RATES
 2. Here are the five big takeaways from Kevin Warsh's first meeting as Fed chairman | Source CNBC Markets | Relevance Score 95 | Impact Category Fed Policy | Impact Tier CRITICAL | Relevance HIGH | Reason Federal Reserve policy directly reprices rates, equities, and risk assets. | Tags MACRO, CENTRAL_BANK, RATES
-3. OPEC chief dismisses IEA supply glut forecast as 'critical' Strait of Hormuz reopens | Source CNBC Markets | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags WORLD_EVENT, ENERGY
-4. Trump’s Iran agreement is a massive buy signal for stocks | Source MarketWatch | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags MARKET, WORLD_EVENT
-5. Hegseth warns NATO allies that some nations will 'fail' U.S. defense review | Source CNBC Markets | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags WORLD_EVENT
-6. Trump hits back at critics as Iran peace deal fuels debate over U.S. concessions | Source CNBC Markets | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags WORLD_EVENT
-7. Bank of England holds interest rates at 3.75% amid Iran war peace prospects | Source CNBC Markets | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags MACRO, WORLD_EVENT, RATES
-8. Oil prices fall after Trump signs deal to end Iran war | Source CNBC Markets | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags WORLD_EVENT, ENERGY
+3. Hegseth warns NATO allies that some nations will 'fail' U.S. defense review | Source CNBC Markets | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags WORLD_EVENT
+4. Oil prices fall after Vance says more than 12 million barrels exit Strait of Hormuz | Source CNBC Markets | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags WORLD_EVENT, ENERGY
+5. OPEC chief dismisses IEA supply glut forecast as 'critical' Strait of Hormuz reopens | Source CNBC Markets | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags WORLD_EVENT, ENERGY
+6. Trump’s Iran agreement is a massive buy signal for stocks | Source MarketWatch | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags MARKET, WORLD_EVENT
+7. Trump hits back at critics as Iran peace deal fuels debate over U.S. concessions | Source CNBC Markets | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags WORLD_EVENT
+8. Bank of England holds interest rates at 3.75% amid Iran war peace prospects | Source CNBC Markets | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags MACRO, WORLD_EVENT, RATES
 9. SEC Proposes Rescission of Regulation NMS Rules 611 and 610(e) | Source SEC | Relevance Score 77 | Impact Category Major Regulatory Action | Impact Tier ELEVATED | Relevance HIGH | Reason Major regulatory action can alter sector economics or company risk. | Tags REGULATORY
 10. SEC Establishes Joint Data Standards as Required Under the Financial Data Transparency Act of 2022 | Source SEC | Relevance Score 77 | Impact Category Major Regulatory Action | Impact Tier ELEVATED | Relevance HIGH | Reason Major regulatory action can alter sector economics or company risk. | Tags REGULATORY
 
@@ -818,12 +817,12 @@ Outdoor Recreation Economic Statistics, U.S. and States, 2024 | Source BEA | Sco
 GDP (Advance Estimate), 4th Quarter and Year 2025 | Source BEA | Score 22 | Impact Category Generic Economic Data | Impact Tier LOW | Reason Routine economic data is monitored but lacks a clear market shock. | Matched Terms GDP | Link www.bea.gov/news/2026/gdp-advance-estimate-4th-quarter-and-year-2025
 
 World Event Stories:
+Hegseth warns NATO allies that some nations will 'fail' U.S. defense review | Source CNBC Markets | Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms Iran | Link https://www.cnbc.com/2026/06/18/hegseth-nato-defense-review-fail-europe.html
+Oil prices fall after Vance says more than 12 million barrels exit Strait of Hormuz | Source CNBC Markets | Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms Iran | Link https://www.cnbc.com/2026/06/18/oil-prices-today-wti-brent.html
 OPEC chief dismisses IEA supply glut forecast as 'critical' Strait of Hormuz reopens | Source CNBC Markets | Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms conflict | Link https://www.cnbc.com/2026/06/18/opec-iea-supply-glut-forecast-critical-strait-hormuz-reopens-oil.html
 Trump’s Iran agreement is a massive buy signal for stocks | Source MarketWatch | Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms war, conflict, Iran | Link https://www.marketwatch.com/story/trumps-iran-agreement-changes-the-game-for-investors-these-are-the-two-sectors-to-buy-right-now-0705bc62?mod=mw_rss_topstories
-Hegseth warns NATO allies that some nations will 'fail' U.S. defense review | Source CNBC Markets | Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms Iran | Link https://www.cnbc.com/2026/06/18/hegseth-nato-defense-review-fail-europe.html
 Trump hits back at critics as Iran peace deal fuels debate over U.S. concessions | Source CNBC Markets | Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms Iran | Link https://www.cnbc.com/2026/06/18/trump-iran-deal-mou-nuclear-hormuz.html
 Bank of England holds interest rates at 3.75% amid Iran war peace prospects | Source CNBC Markets | Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms war, Iran | Link https://www.cnbc.com/2026/06/18/inflation-interest-rates-uk-bank-of-england-iran-deal.html
-Oil prices fall after Trump signs deal to end Iran war | Source CNBC Markets | Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms war, Iran | Link https://www.cnbc.com/2026/06/18/oil-prices-today-wti-brent.html
 
 MACRO AGENT EXECUTIVE BRIEF
 ---------------------------

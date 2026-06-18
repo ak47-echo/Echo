@@ -2,7 +2,7 @@ ECHO MEMORY CONTEXT
 ===================
 
 Schema Version: 1.0
-Generated At: 2026-06-18T10:38:33
+Generated At: 2026-06-18T11:03:51
 Context Mode: memory_first
 
 What Echo Currently Needs To Know:
@@ -21,13 +21,13 @@ What Has Persisted:
 
 Connected Entities That Matter:
 - cluster:1 (summary, score n/a)
-- Portfolio Agent (connected_entity, score 39)
-- UNH position concentration 41.5% (dominant_cluster, score 1710)
+- Portfolio Agent (connected_entity, score 35)
+- UNH position concentration 41.5% (dominant_cluster, score 1450)
 
 What Echo Should Pay Attention To First:
-- ECO: Low conviction holding (score 35)
-- Energy: RISING (score 35)
 - Growth exposure conflicts with inflation/rates theme (score 35)
+- Inflation Trend: RISING (score 35)
+- Macro regime risk conflicts with portfolio regime posture (score 35)
 
 Context Budget:
 Max Items: 20

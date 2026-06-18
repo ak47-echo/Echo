@@ -15,7 +15,8 @@ RAW_TOOL_NAMES = (
     "echo_get_context_assembly",
     "echo_get_change_detection",
     "echo_get_state_delta",
-    "echo_get_state_history"
+    "echo_get_state_history",
+    "echo_get_portfolio_change_detection"
 )
 
 def _now():
@@ -198,6 +199,20 @@ def _block_texts(context_assembly, source):
     return texts
 
 
+def _block_json(context_assembly, source):
+
+    for text in _block_texts(context_assembly, source):
+        try:
+            value = json.loads(text)
+        except (TypeError, ValueError, json.JSONDecodeError):
+            continue
+
+        if isinstance(value, dict):
+            return value
+
+    return {}
+
+
 def _clean_answer(answer):
 
     clean = _safe_text(answer)
@@ -217,6 +232,29 @@ def _intent(user_query, context_budget, agent_routing):
 
     if query_class == "conversational":
         return "conversational"
+
+    if query_class == "portfolio_change" or _has_any(query, (
+        "what changed in my portfolio",
+        "portfolio changed",
+        "portfolio changes",
+        "new positions",
+        "new position",
+        "removed positions",
+        "removed position",
+        "what did i buy",
+        "what did i sell",
+        "changed from last report",
+        "changes from last report",
+        "since last report",
+        "from last report",
+        "concentration change",
+        "concentration changed",
+        "did my concentration change",
+        "did cash change",
+        "cash change",
+        "cash changed"
+    )):
+        return "portfolio_change_status"
 
     if _has_any(query, (
         "changed",
@@ -314,6 +352,7 @@ def _response_mode(intent, agent_routing):
     if intent in {
         "priority_status",
         "change_status",
+        "portfolio_change_status",
         "persistence_status",
         "attention_status"
     }:
@@ -430,6 +469,117 @@ def _change_response(memory_context):
 
     if top_signal:
         answer = f"{answer} Top signal: {top_signal}."
+
+    return answer, labels, []
+
+
+def _change_label(change):
+
+    account = _safe_text(change.get("account"))
+    ticker = _safe_text(change.get("ticker"))
+
+    if account and ticker:
+        return f"{account} {ticker}"
+
+    return ticker or account or _safe_text(change)
+
+
+def _portfolio_change_response(user_query, context_assembly):
+
+    report = _block_json(context_assembly, "portfolio_change_detection")
+
+    if not report:
+        return (
+            "I do not have a portfolio change detection report available.",
+            [],
+            ["Run Echo after importing a portfolio CSV to populate this report."]
+        )
+
+    query = _safe_text(user_query).casefold()
+    summary = _dict(report.get("summary"))
+    material_count = int(summary.get("material_change_count") or 0)
+    change_count = int(summary.get("change_count") or 0)
+    total_delta = float(summary.get("total_market_value_change") or 0)
+    new_positions = _list(report.get("new_positions"))
+    removed_positions = _list(report.get("removed_positions"))
+    quantity_changes = _list(report.get("quantity_changes"))
+    value_changes = _list(report.get("market_value_changes"))
+    concentration_changes = _list(report.get("concentration_changes"))
+    cash_changes = _list(report.get("cash_changes"))
+
+    if "new position" in query or "what did i buy" in query:
+        labels = [_change_label(change) for change in new_positions]
+        label_text = _join_labels(labels).rstrip(".")
+        answer = (
+            f"New positions since the previous normalized snapshot: "
+            f"{label_text}."
+        )
+        return answer, labels, []
+
+    if "removed position" in query or "what did i sell" in query:
+        labels = [_change_label(change) for change in removed_positions]
+        label_text = _join_labels(labels).rstrip(".")
+        answer = (
+            f"Removed positions since the previous normalized snapshot: "
+            f"{label_text}."
+        )
+        return answer, labels, []
+
+    if "cash" in query:
+        labels = [
+            (
+                f"{_change_label(change)} cash "
+                f"{float(change.get('delta_cash') or 0):+.2f}"
+            )
+            for change in cash_changes
+        ]
+        answer = f"Cash changes: {_join_labels(labels).rstrip('.')}."
+        return answer, labels, []
+
+    if "concentration" in query:
+        labels = [
+            (
+                f"{_change_label(change)} weight "
+                f"{float(change.get('delta_weight') or 0):+.2f} pts"
+            )
+            for change in concentration_changes[:5]
+        ]
+        answer = f"Concentration changes: {_join_labels(labels).rstrip('.')}."
+        return answer, labels, []
+
+    top_change = _dict(summary.get("top_change"))
+    labels = []
+
+    for group in (
+        new_positions,
+        removed_positions,
+        quantity_changes,
+        value_changes,
+        concentration_changes,
+        cash_changes
+    ):
+        for change in group:
+            label = _change_label(change)
+            if label and label not in labels:
+                labels.append(label)
+            if len(labels) >= 5:
+                break
+        if len(labels) >= 5:
+            break
+
+    if change_count == 0:
+        answer = (
+            "No holdings-level portfolio changes were detected between the "
+            "current normalized holdings and the previous normalized snapshot."
+        )
+    else:
+        top_label = _change_label(top_change) if top_change else "None"
+        answer = (
+            f"Portfolio change detection found {change_count} holdings-level "
+            f"change(s), including {material_count} material change(s). "
+            f"Total market value changed ${total_delta:+.2f}. "
+            f"Top change: {top_label}."
+        )
 
     return answer, labels, []
 
@@ -711,6 +861,11 @@ def compose_echo_response(user_query, context_budget, agent_routing,
         answer, supporting_points, caveats = _conversational_response(query)
     elif intent == "change_status":
         answer, supporting_points, caveats = _change_response(memory_context)
+    elif intent == "portfolio_change_status":
+        answer, supporting_points, caveats = _portfolio_change_response(
+            query,
+            context_assembly
+        )
     elif intent == "persistence_status":
         answer, supporting_points, caveats = _persistence_response(
             memory_context
