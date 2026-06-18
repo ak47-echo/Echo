@@ -1,5 +1,6 @@
 import os
 import unittest
+from contextlib import ExitStack
 from unittest.mock import patch
 
 import echo
@@ -56,6 +57,28 @@ class IntentAwareProvider(FakeAnsweredProvider):
             "live_call_attempted": True,
             "confidence": "HIGH",
             "notes": tool_context
+        }
+
+
+class ScenarioAwareProvider(FakeAnsweredProvider):
+
+    def generate_response(self, messages, tools=None, context=None):
+
+        intent = (tools or {}).get("intent_reasoning", {})
+        reasoning_intent = intent.get("reasoning_intent")
+
+        return {
+            "status": "ANSWERED",
+            "provider": self.provider_name,
+            "model": self.model_name(),
+            "answer": f"Scenario LLM answer using {reasoning_intent}.",
+            "tool_context_used": True,
+            "tool_context_char_count": len(
+                echo.format_tool_context_for_llm(tools)
+            ),
+            "live_call_attempted": True,
+            "confidence": "HIGH",
+            "notes": "Scenario provider received reasoning payload."
         }
 
 
@@ -137,6 +160,20 @@ class EchoLLMProviderTests(unittest.TestCase):
         finally:
             for item in reversed(patches):
                 item.stop()
+
+    def _api_post_with_provider(self, path, provider, message):
+
+        from fastapi.testclient import TestClient
+
+        with ExitStack() as stack:
+            for item in _no_write_patches():
+                stack.enter_context(item)
+
+            stack.enter_context(
+                patch.object(echo, "get_llm_provider", return_value=provider)
+            )
+            client = TestClient(echo_api.create_app())
+            return client.post(path, json={"message": message})
 
     def test_anthropic_missing_api_key_does_not_crash(self):
 
@@ -473,6 +510,73 @@ class EchoLLMProviderTests(unittest.TestCase):
         payload = response.json()
         self.assertEqual("LLM conversational answer.", payload["answer"])
         self.assertEqual("llm", payload["response_source"])
+
+    def test_chat_uses_provider_success_for_scenario_analysis(self):
+
+        response = self._api_post_with_provider(
+            "/chat",
+            ScenarioAwareProvider(),
+            "If UNH fell 40% tomorrow, how would that affect me?"
+        )
+
+        self.assertEqual(200, response.status_code)
+        payload = response.json()
+        self.assertEqual("ANSWERED", payload["status"])
+        self.assertEqual("llm", payload["response_source"])
+        self.assertEqual("ANSWERED", payload["provider_status"])
+        self.assertTrue(payload["live_call_attempted"])
+        self.assertFalse(payload["fallback_used"])
+        self.assertEqual("scenario_analysis", payload["reasoning_intent"])
+        self.assertEqual(
+            "Scenario LLM answer using scenario_analysis.",
+            payload["answer"]
+        )
+        self.assertNotIn(
+            "This requires reasoning beyond deterministic fallback",
+            payload["answer"]
+        )
+
+    def test_ask_uses_provider_success_for_scenario_analysis(self):
+
+        response = self._api_post_with_provider(
+            "/ask",
+            ScenarioAwareProvider(),
+            "If UNH fell 40% tomorrow, how would that affect me?"
+        )
+
+        self.assertEqual(200, response.status_code)
+        payload = response.json()
+        self.assertEqual("ANSWERED", payload["status"])
+        self.assertEqual("llm", payload["response_source"])
+        self.assertEqual("ANSWERED", payload["provider_status"])
+        self.assertFalse(payload["fallback_used"])
+        self.assertEqual("scenario_analysis", payload["reasoning_intent"])
+        self.assertEqual(
+            "Scenario LLM answer using scenario_analysis.",
+            payload["answer"]
+        )
+
+    def test_chat_scenario_falls_back_when_provider_fails(self):
+
+        response = self._api_post_with_provider(
+            "/chat",
+            FakeFailedProvider(),
+            "If UNH fell 40% tomorrow, how would that affect me?"
+        )
+
+        self.assertEqual(200, response.status_code)
+        payload = response.json()
+        self.assertEqual("DETERMINISTIC_FALLBACK", payload["status"])
+        self.assertEqual("deterministic", payload["response_source"])
+        self.assertEqual("ERROR", payload["provider_status"])
+        self.assertTrue(payload["live_call_attempted"])
+        self.assertTrue(payload["fallback_used"])
+        self.assertEqual("scenario_analysis", payload["reasoning_intent"])
+        self.assertIn(
+            "requires reasoning beyond deterministic fallback",
+            payload["answer"]
+        )
+        self.assertNotIn("TEST_SECRET_VALUE", str(payload))
 
     def test_chat_falls_back_to_composer_answer_when_provider_fails(self):
 

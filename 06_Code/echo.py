@@ -6549,6 +6549,28 @@ def format_tool_context_for_llm(orchestrator_result, max_chars=12000):
     return text
 
 
+def _llm_provider_payload(orchestrator_result):
+
+    if not isinstance(orchestrator_result, dict):
+        return {}
+
+    return {
+        "selected_tools": orchestrator_result.get("selected_tools", []),
+        "context_budget": orchestrator_result.get("context_budget", {}),
+        "agent_routing": orchestrator_result.get("agent_routing", {}),
+        "context_assembly": orchestrator_result.get(
+            "context_assembly",
+            {}
+        ),
+        "intent_reasoning": orchestrator_result.get("intent_reasoning", {}),
+        "response_composer": orchestrator_result.get(
+            "response_composer",
+            {}
+        ),
+        "tool_results": orchestrator_result.get("tool_results", {})
+    }
+
+
 _UNSUPPORTED_LLM_PHRASES = (
     "guaranteed",
     "risk-free",
@@ -6700,8 +6722,8 @@ def _build_anthropic_prompt_message(messages, tool_context):
 
 
 def _response_metadata(provider_name, provider_model, live_call_attempted,
-                       fallback_used, response_source, context_budget,
-                       agent_routing, context_assembly,
+                       fallback_used, response_source, provider_status,
+                       context_budget, agent_routing, context_assembly,
                        intent_reasoning=None):
 
     intent_reasoning = (
@@ -6716,6 +6738,7 @@ def _response_metadata(provider_name, provider_model, live_call_attempted,
         "live_call_attempted": bool(live_call_attempted),
         "fallback_used": bool(fallback_used),
         "response_source": response_source,
+        "provider_status": provider_status,
         "query_class": (
             context_budget.get("query_class")
             if isinstance(context_budget, dict)
@@ -7225,10 +7248,11 @@ def echo_generate_llm_answer(message, context=None):
         query_context
     )
     provider = get_llm_provider()
-    tool_context = format_tool_context_for_llm(orchestrator_result)
+    provider_payload = _llm_provider_payload(orchestrator_result)
+    tool_context = format_tool_context_for_llm(provider_payload)
     provider_result = provider.generate_response(
         [{"role": "user", "content": normalized_message}],
-        tools=orchestrator_result,
+        tools=provider_payload,
         context=query_context
     )
     selected_tools = orchestrator_result.get("selected_tools", [])
@@ -7271,6 +7295,7 @@ def echo_generate_llm_answer(message, context=None):
                 if validation["fallback_required"]
                 else "llm"
             ),
+            provider_status,
             context_budget,
             agent_routing,
             context_assembly,
@@ -7348,6 +7373,7 @@ def echo_generate_llm_answer(message, context=None):
         live_call_attempted,
         True,
         "deterministic",
+        provider_status,
         context_budget,
         agent_routing,
         context_assembly,

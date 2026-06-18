@@ -8,6 +8,7 @@ ECHO_LLM_PROVIDER, ECHO_LLM_LIVE, OPENAI_API_KEY, and ECHO_OPENAI_MODEL.
 """
 
 import os
+from pathlib import Path
 
 try:
     from dotenv import load_dotenv
@@ -61,7 +62,8 @@ LOCALHOST_ORIGINS = [
 def _load_local_env():
 
     if load_dotenv is not None:
-        load_dotenv()
+        env_path = Path(__file__).resolve().parent.parent / ".env"
+        load_dotenv(env_path, override=False)
 
 
 def _error_response(message, status_code=400, code="BAD_REQUEST"):
