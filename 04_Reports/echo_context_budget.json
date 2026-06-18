@@ -1,18 +1,23 @@
 {
-  "budget_level": "standard",
+  "budget_level": "expanded",
   "excluded_context_sources": [
-    "full_reports_unless_needed"
+    "unrelated_full_reports"
   ],
-  "generated_at": "2026-06-17T15:06:06",
-  "max_context_items": 20,
+  "generated_at": "2026-06-18T10:29:42",
+  "max_context_items": 40,
   "preferred_context_sources": [
-    "memory_context"
+    "memory_context",
+    "change_detection",
+    "knowledge_graph",
+    "relevant_reports"
   ],
-  "query": "Echo daily run",
-  "query_class": "unknown",
-  "reason": "No specific routing pattern matched; use standard memory-first context.",
+  "query": "Echo daily run overall executive summary",
+  "query_class": "multi_agent",
+  "reason": "Broad synthesis query spans multiple agents or relationship layers.",
   "schema_version": "1.0",
   "tool_hints": [
-    "echo_get_memory_context"
+    "echo_get_memory_context",
+    "echo_get_change_detection",
+    "echo_get_knowledge_graph"
   ]
 }

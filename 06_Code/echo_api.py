@@ -46,6 +46,12 @@ from echo_agent_router import read_agent_routing
 from echo_context_assembler import read_context_assembly
 from echo_response_composer import read_response_composer
 from echo_intent_reasoning import read_intent_reasoning
+from portfolio_ingestion import (
+    ingest_default_portfolio_import,
+    read_portfolio_ingestion,
+    write_portfolio_ingestion_json,
+    write_portfolio_ingestion_text
+)
 
 
 LOCALHOST_ORIGINS = [
@@ -223,6 +229,17 @@ def create_app():
     @app.get("/intent-reasoning")
     async def intent_reasoning():
         return read_intent_reasoning()
+
+    @app.get("/portfolio/ingestion")
+    async def portfolio_ingestion():
+        return read_portfolio_ingestion()
+
+    @app.post("/portfolio/ingest")
+    async def portfolio_ingest():
+        ingestion = ingest_default_portfolio_import()
+        write_portfolio_ingestion_json(ingestion)
+        write_portfolio_ingestion_text(ingestion)
+        return ingestion
 
     @app.get("/status")
     async def status():

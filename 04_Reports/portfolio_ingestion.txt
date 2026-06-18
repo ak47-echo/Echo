@@ -1,0 +1,35 @@
+PORTFOLIO INGESTION
+
+Status: no_imports
+Generated At: 2026-06-18T10:29:35
+Source File: None
+Output Path: C:\Users\PC\OneDrive\Desktop\Echo\02_Data\portfolio_current\holdings_normalized.csv
+Archive Path: None
+Rows Read: 0
+Rows Normalized: 0
+Rows Skipped: 0
+Position Count: 0
+Total Market Value: $0.00
+
+CHANGE DETECTION
+
+New Positions: 0
+Removed Positions: 0
+Quantity Changes: 0
+Market Value Changes: 0
+Total Market Value Change: $+0.00
+
+New Positions
+None
+
+Removed Positions
+None
+
+Quantity Changes
+None
+
+Market Value Changes
+None
+
+Warnings
+None

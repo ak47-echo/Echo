@@ -2,20 +2,24 @@ ECHO CHANGE DETECTION
 =====================
 
 Schema Version: 1.0
-Generated At: 2026-06-17T10:32:48
-Change Level: moderate
-Material Change Count: 0
-Novel Change Count: 0
-Persistent Issue Count: 17
+Generated At: 2026-06-18T10:29:42
+Change Level: critical
+Material Change Count: 5
+Novel Change Count: 4
+Persistent Issue Count: 24
 
 Most Important Signal:
-risk: Energy: RISING (score 35)
-Risk appears in 2 state samples.
+priority: UNH position concentration 44.9% (score 50)
+Top priority changed from UNH position concentration 44.8% to UNH position concentration 44.9%.
 
 What Changed That Matters:
-None
+- priority: UNH position concentration 44.9% (score 50)
+- risk: UNH position concentration 44.9% (score 40)
+- portfolio: UNH position concentration 44.9% (score 35)
+- action: Review UNH position concentration 44.9% (score 25)
 
 What Persists That Matters:
+- risk: ECO: Low conviction holding (score 35)
 - risk: Energy: RISING (score 35)
 - risk: Growth exposure conflicts with inflation/rates theme (score 35)
 - risk: Inflation Trend: RISING (score 35)
@@ -23,19 +27,21 @@ What Persists That Matters:
 - risk: Portfolio risk conflicts with defensive allocation gap (score 35)
 - risk: SMCI position size conflicts with research conviction (score 35)
 - risk: UNH (score 35)
-- risk: UNH position concentration 45.1% (score 35)
-- risk: SMCI (score 25)
-- risk: Yield Curve: FLAT (score 25)
+- risk: UNH position concentration 45.3% (score 35)
+- risk: Energy: FALLING (score 25)
 
 Escalations:
-None
+- priority: UNH position concentration 44.9% (score 50)
+- risk: UNH position concentration 44.9% (score 40)
+- portfolio: UNH position concentration 44.9% (score 35)
+- action: Review UNH position concentration 44.9% (score 25)
 
 Deescalations:
-None
+- risk: UNH position concentration 44.8% (score -15)
 
 Recommended Attention:
+- priority: UNH position concentration 44.9% (score 50)
+- risk: UNH position concentration 44.9% (score 40)
+- portfolio: UNH position concentration 44.9% (score 35)
+- risk: ECO: Low conviction holding (score 35)
 - risk: Energy: RISING (score 35)
-- risk: Growth exposure conflicts with inflation/rates theme (score 35)
-- risk: Inflation Trend: RISING (score 35)
-- risk: Macro regime risk conflicts with portfolio regime posture (score 35)
-- risk: Portfolio risk conflicts with defensive allocation gap (score 35)

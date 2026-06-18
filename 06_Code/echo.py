@@ -68,6 +68,12 @@ from echo_intent_reasoning import (
     write_intent_reasoning_json,
     write_intent_reasoning_text
 )
+from portfolio_ingestion import (
+    ingest_default_portfolio_import,
+    read_portfolio_ingestion,
+    write_portfolio_ingestion_json,
+    write_portfolio_ingestion_text
+)
 import json
 import os
 from pathlib import Path
@@ -5502,6 +5508,26 @@ def echo_get_intent_reasoning(context=None):
     )
 
 
+def echo_get_portfolio_ingestion(context=None):
+
+    ingestion = read_portfolio_ingestion()
+    summary = (
+        f"Ingestion status: {ingestion.get('status') or 'unknown'}. "
+        f"Source file: {ingestion.get('source_file') or 'None'}. "
+        f"Positions: {ingestion.get('position_count') or 0}. "
+        "Total market value: "
+        f"${float(ingestion.get('total_market_value') or 0):.2f}."
+    )
+
+    return _echo_tool_response(
+        "echo_get_portfolio_ingestion",
+        {"portfolio_ingestion": ingestion},
+        summary,
+        "HIGH",
+        "Latest local CSV portfolio ingestion and change detection report."
+    )
+
+
 def echo_ask(question, context=None):
 
     result = answer_echo_multi_agent_query(question, _echo_tool_context(context))
@@ -5948,6 +5974,15 @@ ECHO_TOOL_REGISTRY = {
         "output_description": (
             "Dictionary with reasoning intent, depth, answer style, "
             "required context, detected entities, horizon, and instructions."
+        )
+    },
+    "echo_get_portfolio_ingestion": {
+        "function_name": "echo_get_portfolio_ingestion",
+        "description": "Return latest local CSV portfolio ingestion status.",
+        "expected_input_fields": {},
+        "output_description": (
+            "Dictionary with ingestion status, source file, normalized row "
+            "counts, archive path, warnings, and portfolio change detection."
         )
     },
     "echo_ask": {
@@ -6987,9 +7022,23 @@ def _echo_orchestrator_select_tools(message, context, context_budget=None,
     ):
         add_tools(
             "echo_get_portfolio_snapshot",
+            "echo_get_portfolio_ingestion",
             "echo_get_conflicts",
             "echo_get_theme_impacts"
         )
+
+    if any(
+        term in text
+        for term in (
+            "portfolio import",
+            "portfolio ingestion",
+            "holdings source",
+            "holdings csv",
+            "normalized holdings",
+            "dropped csv"
+        )
+    ):
+        add_tools("echo_get_portfolio_ingestion")
 
     if not isinstance(agent_routing, dict) and any(
         term in text
@@ -7075,6 +7124,7 @@ def _run_echo_orchestrator_tool(tool_name, message, context):
         "echo_get_context_assembly": echo_get_context_assembly,
         "echo_get_response_composer": echo_get_response_composer,
         "echo_get_intent_reasoning": echo_get_intent_reasoning,
+        "echo_get_portfolio_ingestion": echo_get_portfolio_ingestion,
         "echo_get_top_priority": echo_get_top_priority,
         "echo_get_themes": echo_get_themes,
         "echo_get_theme_impacts": echo_get_theme_impacts,
@@ -8127,6 +8177,13 @@ def save_report(brief):
 
 
 if __name__ == "__main__":
+    portfolio_ingestion = ingest_default_portfolio_import()
+    portfolio_ingestion_json_result = write_portfolio_ingestion_json(
+        portfolio_ingestion
+    )
+    portfolio_ingestion_text_result = write_portfolio_ingestion_text(
+        portfolio_ingestion
+    )
     report_bundle = build_morning_brief(return_bundle=True)
     retention = apply_report_retention(report_bundle)
     report_bundle = _assemble_report_bundle(
@@ -8249,6 +8306,18 @@ if __name__ == "__main__":
     intent_reasoning_text_result = write_intent_reasoning_text(
         intent_reasoning
     )
+
+    if not portfolio_ingestion_json_result["success"]:
+        print(
+            "Portfolio ingestion JSON write failed: "
+            f"{portfolio_ingestion_json_result['error']}"
+        )
+
+    if not portfolio_ingestion_text_result["success"]:
+        print(
+            "Portfolio ingestion text write failed: "
+            f"{portfolio_ingestion_text_result['error']}"
+        )
 
     if not state_result["success"]:
         print(f"Echo state write failed: {state_result['error']}")

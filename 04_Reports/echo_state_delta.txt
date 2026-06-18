@@ -2,21 +2,27 @@ ECHO STATE DELTA
 ================
 
 Schema Version: 1.0
-Generated At: 2026-06-17T10:08:01
+Generated At: 2026-06-18T10:29:42
 Has Previous State: Yes
 
-Material Change: No
-Change Count: 0
-Material Change Count: 0
+Material Change: Yes
+Change Count: 6
+Material Change Count: 5
 
 Most Important Change:
-None
+top_priority: UNH position concentration 44.8% -> UNH position concentration 44.9%
+Reason: Top priority changed.
 
 What Changed:
-None
+- top_priority: UNH position concentration 44.8% -> UNH position concentration 44.9%
+- portfolio.current_risk: UNH position concentration 44.8% -> UNH position concentration 44.9%
+- risk_register: None -> UNH position concentration 44.9%
+- risk_register: UNH position concentration 44.8% -> None
+- action_queue: None -> Review UNH position concentration 44.9%
+- action_queue: Review UNH position concentration 44.8% -> None
 
 Risks Appeared:
-None
+- HIGH | UNH position concentration 44.9%
 
 Risks Resolved:
-None
+- HIGH | UNH position concentration 44.8%

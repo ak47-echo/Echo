@@ -1,0 +1,26 @@
+{
+  "answer_style": "brief",
+  "confidence": "high",
+  "detected_entities": [],
+  "detected_horizon": null,
+  "generated_at": "2026-06-18T10:29:42",
+  "query": "Echo daily run overall executive summary",
+  "reason": "Retrieval/status wording detected.",
+  "reasoning_depth": "light",
+  "reasoning_instructions": [
+    "Answer directly from Echo context.",
+    "Prioritize current state, latest priority, and relevant facts.",
+    "Do not over-explain unless the user asks why."
+  ],
+  "reasoning_intent": "retrieval",
+  "required_context": [
+    "response_composer",
+    "context_assembly",
+    "memory_context",
+    "portfolio_context",
+    "research_context",
+    "news_context",
+    "macro_context"
+  ],
+  "schema_version": "1.0"
+}

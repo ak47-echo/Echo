@@ -1,8 +1,8 @@
 {
   "action_queue": [
-    "Review UNH position concentration 45.1%",
+    "Review UNH position concentration 44.9%",
     "Reevaluate SMCI: Low conviction holding",
-    "Review SMCI position concentration 18.4%"
+    "Review SMCI position concentration 19.1%"
   ],
   "conflicts": [
     {
@@ -16,7 +16,7 @@
       "conflict_title": "Growth exposure conflicts with inflation/rates theme",
       "conflict_type": "Growth Exposure vs Inflation/Rates Conflict",
       "evidence": [
-        "Growth factor exposure 67.7%",
+        "Growth factor exposure 68.2%",
         "Active themes: Fed/Rates Risk, Inflation/Energy Risk"
       ],
       "suggested_review_area": "Review growth and rates-sensitive exposure."
@@ -28,7 +28,7 @@
       "conflict_title": "Macro regime risk conflicts with portfolio regime posture",
       "conflict_type": "Macro/Portfolio Regime Conflict",
       "evidence": [
-        "Macro risk regimes: Inflation Stress, Energy Shock",
+        "Macro risk regimes: Inflation Stress",
         "Portfolio regime: EXPANSION"
       ],
       "suggested_review_area": "Review macro regime assumptions against portfolio positioning."
@@ -59,19 +59,19 @@
       "conflict_type": "Research Conviction vs Position Size Conflict",
       "evidence": [
         "SMCI low conviction",
-        "SMCI allocation 18.39%",
+        "SMCI allocation 19.11%",
         "SMCI overweight flag present"
       ],
       "suggested_review_area": "Review SMCI thesis quality against position size."
     }
   ],
   "dominant_theme": {
-    "theme_reason": "Inflation/Energy Risk links 5 signals across 2 agent(s): Macro Agent, News Agent.",
+    "theme_reason": "Inflation/Energy Risk links 4 signals across 2 agent(s): Macro Agent, News Agent.",
     "theme_score": 100,
     "theme_strength": "CRITICAL",
     "theme_title": "Inflation/Energy Risk"
   },
-  "generated_at": "2026-06-17T10:01:31",
+  "generated_at": "2026-06-18T10:29:42",
   "macro": {
     "regime": {
       "confidence": "HIGH",
@@ -97,28 +97,28 @@
       {
         "evidence": [],
         "fields": {
-          "Components": "Severity HIGH | Market Impact HIGH | Portfolio Relevance HIGH | Directional Clarity HIGH",
-          "Detail": "WTI 3-month change +13.49%.",
-          "Macro Regime": "Energy Shock",
-          "Priority Tier": "HIGH",
-          "Reason": "Rising energy can pressure inflation, margins, energy holdings, and broad market risk appetite.",
-          "Regime Score": "100"
-        },
-        "rank": 2,
-        "title": "Energy: RISING"
-      },
-      {
-        "evidence": [],
-        "fields": {
           "Components": "Severity MEDIUM | Market Impact MEDIUM | Portfolio Relevance MEDIUM | Directional Clarity MEDIUM",
-          "Detail": "T10Y2Y spread 0.38 percentage points.",
+          "Detail": "T10Y2Y spread 0.29 percentage points.",
           "Macro Regime": "Growth Slowdown",
           "Priority Tier": "MEDIUM",
           "Reason": "A flat curve can indicate slower growth expectations and less favorable risk appetite.",
           "Regime Score": "76"
         },
-        "rank": 3,
+        "rank": 2,
         "title": "Yield Curve: FLAT"
+      },
+      {
+        "evidence": [],
+        "fields": {
+          "Components": "Severity LOW | Market Impact MEDIUM | Portfolio Relevance MEDIUM | Directional Clarity HIGH",
+          "Detail": "WTI 3-month change -11.83%.",
+          "Macro Regime": "Disinflation / Soft Landing",
+          "Priority Tier": "LOW",
+          "Reason": "Falling energy prices can reduce inflation pressure.",
+          "Regime Score": "59"
+        },
+        "rank": 3,
+        "title": "Energy: FALLING"
       },
       {
         "evidence": [],
@@ -154,60 +154,60 @@
         "evidence": [],
         "fields": {},
         "rank": 1,
-        "title": "BMW stock slumps to 5-year low as Iran war and China slowdown spark profit warning | Source CNBC Markets | Relevance Score 86 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags MARKET, WORLD_EVENT, EARNINGS"
+        "title": "Analysis: Chairman Kevin Warsh\u2019s task forces are the key to understanding the new Fed | Source CNBC Markets | Relevance Score 97 | Impact Category Fed Policy | Impact Tier CRITICAL | Relevance HIGH | Reason Federal Reserve policy directly reprices rates, equities, and risk assets. | Tags MACRO, CENTRAL_BANK, RATES"
       },
       {
         "evidence": [],
         "fields": {},
         "rank": 2,
-        "title": "High gas prices soak up more retail-sales dollars \u2014 and restaurants are paying the bill | Source MarketWatch | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags WORLD_EVENT"
+        "title": "Here are the five big takeaways from Kevin Warsh's first meeting as Fed chairman | Source CNBC Markets | Relevance Score 95 | Impact Category Fed Policy | Impact Tier CRITICAL | Relevance HIGH | Reason Federal Reserve policy directly reprices rates, equities, and risk assets. | Tags MACRO, CENTRAL_BANK, RATES"
       },
       {
         "evidence": [],
         "fields": {},
         "rank": 3,
-        "title": "Trump says U.S. will 'go right back to dropping bombs' if he doesn't like Iran deal | Source CNBC Markets | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags WORLD_EVENT"
+        "title": "OPEC chief dismisses IEA supply glut forecast as 'critical' Strait of Hormuz reopens | Source CNBC Markets | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags WORLD_EVENT, ENERGY"
       },
       {
         "evidence": [],
         "fields": {},
         "rank": 4,
-        "title": "Three Iranian tankers exit U.S. blockade for first time in months as shipowners eye Hormuz in 'wary disbelief' | Source CNBC Markets | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags ENERGY"
+        "title": "Trump\u2019s Iran agreement is a massive buy signal for stocks | Source MarketWatch | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags MARKET, WORLD_EVENT"
       },
       {
         "evidence": [],
         "fields": {},
         "rank": 5,
-        "title": "SEC Proposes Rescission of Regulation NMS Rules 611 and 610(e) | Source SEC | Relevance Score 77 | Impact Category Major Regulatory Action | Impact Tier ELEVATED | Relevance HIGH | Reason Major regulatory action can alter sector economics or company risk. | Tags REGULATORY"
+        "title": "Hegseth warns NATO allies that some nations will 'fail' U.S. defense review | Source CNBC Markets | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags WORLD_EVENT"
       }
     ],
     "portfolio_relevant_items": [
       "None"
     ],
     "top_narrative": {
-      "reason": "4 related Iran, Hormuz, or oil headlines indicate an energy-linked geopolitical market narrative.",
-      "representative_headline": "BMW stock slumps to 5-year low as Iran war and China slowdown spark profit warning",
+      "reason": "6 related Iran, Hormuz, or oil headlines indicate an energy-linked geopolitical market narrative.",
+      "representative_headline": "OPEC chief dismisses IEA supply glut forecast as 'critical' Strait of Hormuz reopens",
       "score": 100,
-      "supporting_articles": 4,
+      "supporting_articles": 6,
       "title": "Middle East Energy Risk"
     }
   },
   "portfolio": {
     "concentration_flags": [
       {
-        "description": "Position concentration 45.1%",
+        "description": "Position concentration 44.9%",
         "severity": "HIGH",
         "ticker": "UNH"
       },
       {
-        "description": "Position concentration 18.4%",
+        "description": "Position concentration 19.1%",
         "severity": "MEDIUM",
         "ticker": "SMCI"
       }
     ],
     "current_risk": {
       "source": "Echo executive summary",
-      "title": "UNH position concentration 45.1%"
+      "title": "UNH position concentration 44.9%"
     },
     "weak_holdings": [
       "ECO | Thesis Status active | Conviction low | Research Status WEAK",
@@ -218,7 +218,7 @@
       "VNOM | Thesis Status active | Conviction medium | Research Status MODERATE"
     ],
     "worst_stress_scenario": {
-      "title": "2008_STYLE_CRISIS | Impact -50.12%"
+      "title": "2008_STYLE_CRISIS | Impact -50.09%"
     }
   },
   "research": {
@@ -237,19 +237,19 @@
   },
   "risk_register": [
     {
-      "reason": "HIGH | UNH | Position concentration 45.1%",
+      "reason": "HIGH | UNH | Position concentration 44.9%",
       "severity": "HIGH",
       "source": "top_priority",
-      "title": "UNH position concentration 45.1%"
+      "title": "UNH position concentration 44.9%"
     },
     {
-      "reason": "Position concentration 45.1%",
+      "reason": "Position concentration 44.9%",
       "severity": "HIGH",
       "source": "portfolio_concentration",
       "title": "UNH"
     },
     {
-      "reason": "Position concentration 18.4%",
+      "reason": "Position concentration 19.1%",
       "severity": "MEDIUM",
       "source": "portfolio_concentration",
       "title": "SMCI"
@@ -285,25 +285,25 @@
       "title": "Inflation Trend: RISING"
     },
     {
-      "reason": "Rising energy can pressure inflation, margins, energy holdings, and broad market risk appetite.",
-      "severity": "HIGH",
-      "source": "macro",
-      "title": "Energy: RISING"
-    },
-    {
       "reason": "A flat curve can indicate slower growth expectations and less favorable risk appetite.",
       "severity": "MEDIUM",
       "source": "macro",
       "title": "Yield Curve: FLAT"
+    },
+    {
+      "reason": "Falling energy prices can reduce inflation pressure.",
+      "severity": "LOW",
+      "source": "macro",
+      "title": "Energy: FALLING"
     }
   ],
   "schema_version": "1.0",
   "top_priority": {
     "category": "Portfolio Risk",
-    "reason": "HIGH | UNH | Position concentration 45.1%",
+    "reason": "HIGH | UNH | Position concentration 44.9%",
     "risk_timeframe": "current",
     "severity": "HIGH",
     "source_agent": "Portfolio Manager",
-    "title": "UNH position concentration 45.1%"
+    "title": "UNH position concentration 44.9%"
   }
 }

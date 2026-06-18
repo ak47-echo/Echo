@@ -2,48 +2,48 @@ ECHO KNOWLEDGE GRAPH
 ====================
 
 Schema Version: 1.0
-Generated At: 2026-06-17T14:53:50
-Node Count: 48
-Edge Count: 126
+Generated At: 2026-06-18T10:29:42
+Node Count: 58
+Edge Count: 155
 
 Most Connected Entities:
-- Portfolio Agent (agent, degree 36, weight 5)
-- Review SMCI position concentration 17.9% (action, degree 17, weight 45)
-- UNH position concentration 45.3% (risk, degree 16, weight 80)
-- Review UNH position concentration 45.3% (action, degree 16, weight 45)
-- Echo (agent, degree 15, weight 5)
-- SMCI position size conflicts with research conviction (risk, degree 13, weight 90)
-- UNH position concentration 45.1% (risk, degree 11, weight 10)
+- Portfolio Agent (agent, degree 41, weight 5)
+- UNH position concentration 44.9% (risk, degree 19, weight 80)
+- Echo (agent, degree 19, weight 5)
+- Review UNH position concentration 44.9% (action, degree 18, weight 45)
+- SMCI position size conflicts with research conviction (risk, degree 14, weight 90)
+- UNH position concentration 44.8% (risk, degree 13, weight 10)
+- UNH position concentration 44.9% (priority, degree 12, weight 95)
+- UNH (risk, degree 11, weight 80)
+- Review SMCI position concentration 19.1% (action, degree 11, weight 50)
 - News Agent (agent, degree 11, weight 5)
-- UNH (risk, degree 10, weight 80)
-- UNH position concentration 45.3% (priority, degree 9, weight 95)
 
 Dominant Cluster:
-Cluster: UNH position concentration 45.3%
-Primary Node: UNH position concentration 45.3%
-Total Weight: 1425
-Node Count: 48
+Cluster: UNH position concentration 44.9%
+Primary Node: UNH position concentration 44.9%
+Total Weight: 1790
+Node Count: 58
 
 Linked Risks, Themes, And Actions:
+- Reevaluate ECO: Low conviction holding generated_by Echo (weight 6)
+- Reevaluate MSTR: Low conviction holding generated_by Echo (weight 6)
 - Reevaluate SMCI: Low conviction holding generated_by Echo (weight 12)
 - Reevaluate SMCI: Low conviction holding relates_to Echo (weight 5)
 - Reevaluate SMCI: Low conviction holding relates_to SMCI (weight 8)
 - Reevaluate SMCI: Low conviction holding relates_to SMCI (weight 8)
 - Reevaluate SMCI: Low conviction holding relates_to SMCI position size conflicts with research conviction (weight 16)
-- Review SMCI position concentration 17.9% escalates Reevaluate SMCI: Low conviction holding (weight 35)
-- Review SMCI position concentration 17.9% escalates Review UNH position concentration 45.3% (weight 35)
-- Review SMCI position concentration 17.9% generated_by Echo (weight 12)
-- Review SMCI position concentration 17.9% relates_to Echo (weight 5)
-- Review SMCI position concentration 17.9% relates_to SMCI (weight 8)
-- Review SMCI position concentration 17.9% escalates SMCI (weight 35)
-- Review SMCI position concentration 17.9% relates_to SMCI (weight 8)
-- Review SMCI position concentration 17.9% escalates SMCI position size conflicts with research conviction (weight 35)
-- Review SMCI position concentration 17.9% relates_to SMCI position size conflicts with research conviction (weight 16)
-- Review SMCI position concentration 17.9% escalates UNH position concentration 45.1% (weight 35)
+- Review SMCI position concentration 17.9% generated_by Echo (weight 6)
+- Review SMCI position concentration 19.1% generated_by Echo (weight 12)
+- Review SMCI position concentration 19.1% relates_to Echo (weight 5)
+- Review SMCI position concentration 19.1% relates_to SMCI (weight 8)
+- Review SMCI position concentration 19.1% relates_to SMCI (weight 8)
+- Review SMCI position concentration 19.1% relates_to SMCI position size conflicts with research conviction (weight 16)
+- Review SMCI position concentration 19.1% relates_to UNH position concentration 44.9% (weight 16)
+- Review UNH position concentration 44.9% escalates Review SMCI position concentration 17.9% (weight 35)
 
 Agent Connectivity:
-- Portfolio Agent: 36 connected edges
-- Echo: 15 connected edges
+- Portfolio Agent: 41 connected edges
+- Echo: 19 connected edges
 - News Agent: 11 connected edges
-- Macro Agent: 9 connected edges
+- Macro Agent: 10 connected edges
 - Research Agent: 6 connected edges

@@ -1,17 +1,62 @@
 {
-  "agent_context_plan": [],
-  "confidence": "low",
-  "excluded_agents": [
+  "agent_context_plan": [
+    {
+      "agent": "portfolio",
+      "context_sources": [
+        "memory_context",
+        "portfolio_snapshot",
+        "portfolio_full_report"
+      ],
+      "include_full_report": true,
+      "reason": "portfolio matched as primary context under expanded budget.",
+      "role": "primary"
+    },
+    {
+      "agent": "research",
+      "context_sources": [
+        "memory_context",
+        "research_snapshot",
+        "research_full_report"
+      ],
+      "include_full_report": true,
+      "reason": "research matched as primary context under expanded budget.",
+      "role": "primary"
+    },
+    {
+      "agent": "news",
+      "context_sources": [
+        "memory_context",
+        "news_snapshot",
+        "news_full_report"
+      ],
+      "include_full_report": true,
+      "reason": "news matched as primary context under expanded budget.",
+      "role": "primary"
+    },
+    {
+      "agent": "macro",
+      "context_sources": [
+        "memory_context",
+        "macro_snapshot",
+        "macro_full_report"
+      ],
+      "include_full_report": true,
+      "reason": "macro matched as primary context under expanded budget.",
+      "role": "primary"
+    }
+  ],
+  "confidence": "high",
+  "excluded_agents": [],
+  "generated_at": "2026-06-18T10:29:42",
+  "primary_agents": [
     "portfolio",
     "research",
     "news",
     "macro"
   ],
-  "generated_at": "2026-06-17T15:11:38",
-  "primary_agents": [],
-  "query": "Echo daily run",
-  "reason": "No active agent keyword matched; use Echo memory first.",
-  "routing_mode": "none",
+  "query": "Echo daily run overall executive summary",
+  "reason": "Broad synthesis query needs all active agent contexts.",
+  "routing_mode": "all_agents",
   "schema_version": "1.0",
   "secondary_agents": []
 }

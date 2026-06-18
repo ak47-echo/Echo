@@ -2,24 +2,27 @@ ECHO AGENT ROUTING
 ==================
 
 Schema Version: 1.0
-Generated At: 2026-06-17T15:11:38
-Query: Echo daily run
-Routing Mode: none
-Confidence: low
+Generated At: 2026-06-18T10:29:42
+Query: Echo daily run overall executive summary
+Routing Mode: all_agents
+Confidence: high
 
 Primary Agents:
-None
-
-Secondary Agents:
-None
-
-Excluded Agents:
 - portfolio
 - research
 - news
 - macro
 
-Agent Context Plan:
+Secondary Agents:
 None
 
-Reason: No active agent keyword matched; use Echo memory first.
+Excluded Agents:
+None
+
+Agent Context Plan:
+- portfolio | primary | Full Report: True | Sources: memory_context, portfolio_snapshot, portfolio_full_report
+- research | primary | Full Report: True | Sources: memory_context, research_snapshot, research_full_report
+- news | primary | Full Report: True | Sources: memory_context, news_snapshot, news_full_report
+- macro | primary | Full Report: True | Sources: memory_context, macro_snapshot, macro_full_report
+
+Reason: Broad synthesis query needs all active agent contexts.

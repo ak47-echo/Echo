@@ -2,21 +2,49 @@
   "action_frequency": [
     {
       "action": "Reevaluate SMCI: Low conviction holding",
+      "count": 8
+    },
+    {
+      "action": "Reevaluate ECO: Low conviction holding",
+      "count": 3
+    },
+    {
+      "action": "Reevaluate MSTR: Low conviction holding",
+      "count": 3
+    },
+    {
+      "action": "Review SMCI position concentration 17.9%",
+      "count": 2
+    },
+    {
+      "action": "Review SMCI position concentration 19.1%",
+      "count": 2
+    },
+    {
+      "action": "Review UNH position concentration 45.3%",
       "count": 2
     },
     {
       "action": "Review SMCI position concentration 18.4%",
-      "count": 2
+      "count": 1
+    },
+    {
+      "action": "Review UNH position concentration 44.8%",
+      "count": 1
+    },
+    {
+      "action": "Review UNH position concentration 44.9%",
+      "count": 1
     },
     {
       "action": "Review UNH position concentration 45.1%",
-      "count": 2
+      "count": 1
     }
   ],
-  "generated_at": "2026-06-17T10:21:08",
+  "generated_at": "2026-06-18T10:29:42",
   "lookback": {
-    "available_snapshots": 2,
-    "newest_snapshot": "2026-06-17T10:21:08",
+    "available_snapshots": 10,
+    "newest_snapshot": "2026-06-18T10:29:42",
     "oldest_snapshot": "2026-06-17T10:01:31"
   },
   "macro_regime_history": [
@@ -25,7 +53,31 @@
       "macro_regime": "Inflation Stress"
     },
     {
-      "generated_at": "2026-06-17T10:21:08",
+      "generated_at": "2026-06-17T15:20:13",
+      "macro_regime": "Inflation Stress"
+    },
+    {
+      "generated_at": "2026-06-17T15:22:29",
+      "macro_regime": "Inflation Stress"
+    },
+    {
+      "generated_at": "2026-06-17T15:39:18",
+      "macro_regime": "Neutral / Mixed"
+    },
+    {
+      "generated_at": "2026-06-17T15:40:11",
+      "macro_regime": "Neutral / Mixed"
+    },
+    {
+      "generated_at": "2026-06-17T15:40:56",
+      "macro_regime": "Neutral / Mixed"
+    },
+    {
+      "generated_at": "2026-06-18T10:28:19",
+      "macro_regime": "Inflation Stress"
+    },
+    {
+      "generated_at": "2026-06-18T10:29:42",
       "macro_regime": "Inflation Stress"
     }
   ],
@@ -35,94 +87,165 @@
       "news_narrative": "Middle East Energy Risk"
     },
     {
-      "generated_at": "2026-06-17T10:21:08",
+      "generated_at": "2026-06-17T15:20:13",
+      "news_narrative": "Federal Reserve Policy Outlook"
+    },
+    {
+      "generated_at": "2026-06-17T15:22:29",
+      "news_narrative": "Federal Reserve Policy Outlook"
+    },
+    {
+      "generated_at": "2026-06-17T15:39:18",
+      "news_narrative": null
+    },
+    {
+      "generated_at": "2026-06-17T15:40:11",
+      "news_narrative": null
+    },
+    {
+      "generated_at": "2026-06-17T15:40:56",
+      "news_narrative": null
+    },
+    {
+      "generated_at": "2026-06-18T10:28:19",
+      "news_narrative": "Middle East Energy Risk"
+    },
+    {
+      "generated_at": "2026-06-18T10:29:42",
       "news_narrative": "Middle East Energy Risk"
     }
   ],
   "persistent_actions": [
     {
       "action": "Reevaluate SMCI: Low conviction holding",
+      "count": 8
+    },
+    {
+      "action": "Reevaluate ECO: Low conviction holding",
+      "count": 3
+    },
+    {
+      "action": "Reevaluate MSTR: Low conviction holding",
+      "count": 3
+    },
+    {
+      "action": "Review SMCI position concentration 17.9%",
       "count": 2
     },
     {
-      "action": "Review SMCI position concentration 18.4%",
+      "action": "Review SMCI position concentration 19.1%",
       "count": 2
     },
     {
-      "action": "Review UNH position concentration 45.1%",
+      "action": "Review UNH position concentration 45.3%",
       "count": 2
     }
   ],
   "persistent_risks": [
     {
-      "count": 2,
-      "reason": "Rising energy can pressure inflation, margins, energy holdings, and broad market risk appetite.",
-      "severity": "HIGH",
-      "source": "macro",
-      "title": "Energy: RISING"
-    },
-    {
-      "count": 2,
+      "count": 5,
       "reason": "High growth exposure is sensitive to discount-rate pressure when inflation, energy, or rates themes are active.",
       "severity": "HIGH",
       "source": "conflict",
       "title": "Growth exposure conflicts with inflation/rates theme"
     },
     {
-      "count": 2,
+      "count": 5,
       "reason": "Rising inflation can reprice Fed expectations, broad equities, long-duration growth assets, and drawdown risk.",
       "severity": "HIGH",
       "source": "macro",
       "title": "Inflation Trend: RISING"
     },
     {
-      "count": 2,
+      "count": 5,
       "reason": "Macro signals point to a risk regime while portfolio classification remains aligned with expansion or disinflation.",
       "severity": "HIGH",
       "source": "conflict",
       "title": "Macro regime risk conflicts with portfolio regime posture"
     },
     {
-      "count": 2,
+      "count": 5,
       "reason": "Portfolio risk is elevated while cash or bond exposure is below defensive allocation targets.",
       "severity": "HIGH",
       "source": "conflict",
       "title": "Portfolio risk conflicts with defensive allocation gap"
     },
     {
-      "count": 2,
+      "count": 5,
       "reason": "SMCI has weak research conviction while the position size or overweight status is material.",
       "severity": "HIGH",
       "source": "conflict",
       "title": "SMCI position size conflicts with research conviction"
     },
     {
-      "count": 2,
+      "count": 5,
       "reason": "Position concentration 45.1%",
       "severity": "HIGH",
       "source": "portfolio_concentration",
       "title": "UNH"
     },
     {
-      "count": 2,
-      "reason": "HIGH | UNH | Position concentration 45.1%",
-      "severity": "HIGH",
-      "source": "top_priority",
-      "title": "UNH position concentration 45.1%"
-    },
-    {
-      "count": 2,
+      "count": 5,
       "reason": "Position concentration 18.4%",
       "severity": "MEDIUM",
       "source": "portfolio_concentration",
       "title": "SMCI"
     },
     {
-      "count": 2,
+      "count": 5,
       "reason": "A flat curve can indicate slower growth expectations and less favorable risk appetite.",
       "severity": "MEDIUM",
       "source": "macro",
       "title": "Yield Curve: FLAT"
+    },
+    {
+      "count": 3,
+      "reason": "Reevaluate thesis",
+      "severity": "HIGH",
+      "source": "top_priority",
+      "title": "ECO: Low conviction holding"
+    },
+    {
+      "count": 3,
+      "reason": "Rising energy can pressure inflation, margins, energy holdings, and broad market risk appetite.",
+      "severity": "HIGH",
+      "source": "macro",
+      "title": "Energy: RISING"
+    },
+    {
+      "count": 3,
+      "reason": "Inflation does not show a clear market-moving directional shock.",
+      "severity": "LOW",
+      "source": "macro",
+      "title": "Inflation Trend: UNKNOWN"
+    },
+    {
+      "count": 3,
+      "reason": "Policy rate is not showing a clear shock signal.",
+      "severity": "LOW",
+      "source": "macro",
+      "title": "Policy Rate: UNKNOWN"
+    },
+    {
+      "count": 3,
+      "reason": "Yield curve does not show acute stress.",
+      "severity": "LOW",
+      "source": "macro",
+      "title": "Yield Curve: UNKNOWN"
+    },
+    {
+      "count": 2,
+      "reason": "HIGH | UNH | Position concentration 45.3%",
+      "severity": "HIGH",
+      "source": "top_priority",
+      "title": "UNH position concentration 45.3%"
+    },
+    {
+      "count": 2,
+      "reason": "Falling energy prices can reduce inflation pressure.",
+      "severity": "LOW",
+      "source": "macro",
+      "title": "Energy: FALLING"
     }
   ],
   "portfolio_risk_history": [
@@ -131,8 +254,32 @@
       "portfolio_risk": "UNH position concentration 45.1%"
     },
     {
-      "generated_at": "2026-06-17T10:21:08",
-      "portfolio_risk": "UNH position concentration 45.1%"
+      "generated_at": "2026-06-17T15:20:13",
+      "portfolio_risk": "UNH position concentration 45.3%"
+    },
+    {
+      "generated_at": "2026-06-17T15:22:29",
+      "portfolio_risk": "UNH position concentration 45.3%"
+    },
+    {
+      "generated_at": "2026-06-17T15:39:18",
+      "portfolio_risk": "ECO: Low conviction holding"
+    },
+    {
+      "generated_at": "2026-06-17T15:40:11",
+      "portfolio_risk": "ECO: Low conviction holding"
+    },
+    {
+      "generated_at": "2026-06-17T15:40:56",
+      "portfolio_risk": "ECO: Low conviction holding"
+    },
+    {
+      "generated_at": "2026-06-18T10:28:19",
+      "portfolio_risk": "UNH position concentration 44.8%"
+    },
+    {
+      "generated_at": "2026-06-18T10:29:42",
+      "portfolio_risk": "UNH position concentration 44.9%"
     }
   ],
   "priority_history": [
@@ -141,89 +288,169 @@
       "top_priority": "UNH position concentration 45.1%"
     },
     {
-      "generated_at": "2026-06-17T10:21:08",
-      "top_priority": "UNH position concentration 45.1%"
+      "generated_at": "2026-06-17T15:20:13",
+      "top_priority": "UNH position concentration 45.3%"
+    },
+    {
+      "generated_at": "2026-06-17T15:22:29",
+      "top_priority": "UNH position concentration 45.3%"
+    },
+    {
+      "generated_at": "2026-06-17T15:39:18",
+      "top_priority": "ECO: Low conviction holding"
+    },
+    {
+      "generated_at": "2026-06-17T15:40:11",
+      "top_priority": "ECO: Low conviction holding"
+    },
+    {
+      "generated_at": "2026-06-17T15:40:56",
+      "top_priority": "ECO: Low conviction holding"
+    },
+    {
+      "generated_at": "2026-06-18T10:28:19",
+      "top_priority": "UNH position concentration 44.8%"
+    },
+    {
+      "generated_at": "2026-06-18T10:29:42",
+      "top_priority": "UNH position concentration 44.9%"
     }
   ],
   "risk_frequency": [
     {
-      "count": 2,
-      "reason": "Rising energy can pressure inflation, margins, energy holdings, and broad market risk appetite.",
-      "severity": "HIGH",
-      "source": "macro",
-      "title": "Energy: RISING"
-    },
-    {
-      "count": 2,
+      "count": 5,
       "reason": "High growth exposure is sensitive to discount-rate pressure when inflation, energy, or rates themes are active.",
       "severity": "HIGH",
       "source": "conflict",
       "title": "Growth exposure conflicts with inflation/rates theme"
     },
     {
-      "count": 2,
+      "count": 5,
       "reason": "Rising inflation can reprice Fed expectations, broad equities, long-duration growth assets, and drawdown risk.",
       "severity": "HIGH",
       "source": "macro",
       "title": "Inflation Trend: RISING"
     },
     {
-      "count": 2,
+      "count": 5,
       "reason": "Macro signals point to a risk regime while portfolio classification remains aligned with expansion or disinflation.",
       "severity": "HIGH",
       "source": "conflict",
       "title": "Macro regime risk conflicts with portfolio regime posture"
     },
     {
-      "count": 2,
+      "count": 5,
       "reason": "Portfolio risk is elevated while cash or bond exposure is below defensive allocation targets.",
       "severity": "HIGH",
       "source": "conflict",
       "title": "Portfolio risk conflicts with defensive allocation gap"
     },
     {
-      "count": 2,
+      "count": 5,
       "reason": "SMCI has weak research conviction while the position size or overweight status is material.",
       "severity": "HIGH",
       "source": "conflict",
       "title": "SMCI position size conflicts with research conviction"
     },
     {
-      "count": 2,
+      "count": 5,
       "reason": "Position concentration 45.1%",
       "severity": "HIGH",
       "source": "portfolio_concentration",
       "title": "UNH"
     },
     {
-      "count": 2,
-      "reason": "HIGH | UNH | Position concentration 45.1%",
-      "severity": "HIGH",
-      "source": "top_priority",
-      "title": "UNH position concentration 45.1%"
-    },
-    {
-      "count": 2,
+      "count": 5,
       "reason": "Position concentration 18.4%",
       "severity": "MEDIUM",
       "source": "portfolio_concentration",
       "title": "SMCI"
     },
     {
-      "count": 2,
+      "count": 5,
       "reason": "A flat curve can indicate slower growth expectations and less favorable risk appetite.",
       "severity": "MEDIUM",
       "source": "macro",
       "title": "Yield Curve: FLAT"
+    },
+    {
+      "count": 3,
+      "reason": "Reevaluate thesis",
+      "severity": "HIGH",
+      "source": "top_priority",
+      "title": "ECO: Low conviction holding"
+    },
+    {
+      "count": 3,
+      "reason": "Rising energy can pressure inflation, margins, energy holdings, and broad market risk appetite.",
+      "severity": "HIGH",
+      "source": "macro",
+      "title": "Energy: RISING"
+    },
+    {
+      "count": 3,
+      "reason": "Inflation does not show a clear market-moving directional shock.",
+      "severity": "LOW",
+      "source": "macro",
+      "title": "Inflation Trend: UNKNOWN"
+    },
+    {
+      "count": 3,
+      "reason": "Policy rate is not showing a clear shock signal.",
+      "severity": "LOW",
+      "source": "macro",
+      "title": "Policy Rate: UNKNOWN"
+    },
+    {
+      "count": 3,
+      "reason": "Yield curve does not show acute stress.",
+      "severity": "LOW",
+      "source": "macro",
+      "title": "Yield Curve: UNKNOWN"
+    },
+    {
+      "count": 2,
+      "reason": "HIGH | UNH | Position concentration 45.3%",
+      "severity": "HIGH",
+      "source": "top_priority",
+      "title": "UNH position concentration 45.3%"
+    },
+    {
+      "count": 2,
+      "reason": "Falling energy prices can reduce inflation pressure.",
+      "severity": "LOW",
+      "source": "macro",
+      "title": "Energy: FALLING"
+    },
+    {
+      "count": 1,
+      "reason": "HIGH | UNH | Position concentration 44.8%",
+      "severity": "HIGH",
+      "source": "top_priority",
+      "title": "UNH position concentration 44.8%"
+    },
+    {
+      "count": 1,
+      "reason": "HIGH | UNH | Position concentration 44.9%",
+      "severity": "HIGH",
+      "source": "top_priority",
+      "title": "UNH position concentration 44.9%"
+    },
+    {
+      "count": 1,
+      "reason": "HIGH | UNH | Position concentration 45.1%",
+      "severity": "HIGH",
+      "source": "top_priority",
+      "title": "UNH position concentration 45.1%"
     }
   ],
-  "sample_count": 2,
+  "sample_count": 8,
   "schema_version": "1.0",
   "state_stability": {
-    "macro_regime_changed_count": 0,
-    "portfolio_risk_changed_count": 0,
-    "priority_changed_count": 0,
-    "theme_changed_count": 0
+    "macro_regime_changed_count": 2,
+    "portfolio_risk_changed_count": 4,
+    "priority_changed_count": 4,
+    "theme_changed_count": 2
   },
   "stress_scenario_history": [
     {
@@ -231,25 +458,49 @@
       "stress_scenario": "2008_STYLE_CRISIS | Impact -50.12%"
     },
     {
-      "generated_at": "2026-06-17T10:21:08",
-      "stress_scenario": "2008_STYLE_CRISIS | Impact -50.13%"
+      "generated_at": "2026-06-17T15:20:13",
+      "stress_scenario": "2008_STYLE_CRISIS | Impact -50.11%"
+    },
+    {
+      "generated_at": "2026-06-17T15:22:29",
+      "stress_scenario": "2008_STYLE_CRISIS | Impact -50.11%"
+    },
+    {
+      "generated_at": "2026-06-17T15:39:18",
+      "stress_scenario": "2008_STYLE_CRISIS | Impact 0.00%"
+    },
+    {
+      "generated_at": "2026-06-17T15:40:11",
+      "stress_scenario": "2008_STYLE_CRISIS | Impact 0.00%"
+    },
+    {
+      "generated_at": "2026-06-17T15:40:56",
+      "stress_scenario": "2008_STYLE_CRISIS | Impact 0.00%"
+    },
+    {
+      "generated_at": "2026-06-18T10:28:19",
+      "stress_scenario": "2008_STYLE_CRISIS | Impact -50.09%"
+    },
+    {
+      "generated_at": "2026-06-18T10:29:42",
+      "stress_scenario": "2008_STYLE_CRISIS | Impact -50.09%"
     }
   ],
   "summary": {
     "dominant_persistent_action": {
       "action": "Reevaluate SMCI: Low conviction holding",
-      "count": 2
+      "count": 8
     },
     "dominant_persistent_risk": {
-      "count": 2,
-      "reason": "Rising energy can pressure inflation, margins, energy holdings, and broad market risk appetite.",
+      "count": 5,
+      "reason": "High growth exposure is sensitive to discount-rate pressure when inflation, energy, or rates themes are active.",
       "severity": "HIGH",
-      "source": "macro",
-      "title": "Energy: RISING"
+      "source": "conflict",
+      "title": "Growth exposure conflicts with inflation/rates theme"
     },
     "most_common_macro_regime": "Inflation Stress",
-    "most_common_portfolio_risk": "UNH position concentration 45.1%",
-    "most_common_priority": "UNH position concentration 45.1%",
+    "most_common_portfolio_risk": "ECO: Low conviction holding",
+    "most_common_priority": "ECO: Low conviction holding",
     "most_common_theme": "Inflation/Energy Risk"
   },
   "theme_history": [
@@ -259,7 +510,31 @@
     },
     {
       "dominant_theme": "Inflation/Energy Risk",
-      "generated_at": "2026-06-17T10:21:08"
+      "generated_at": "2026-06-17T15:20:13"
+    },
+    {
+      "dominant_theme": "Inflation/Energy Risk",
+      "generated_at": "2026-06-17T15:22:29"
+    },
+    {
+      "dominant_theme": "Recession/Growth Slowdown Risk",
+      "generated_at": "2026-06-17T15:39:18"
+    },
+    {
+      "dominant_theme": "Recession/Growth Slowdown Risk",
+      "generated_at": "2026-06-17T15:40:11"
+    },
+    {
+      "dominant_theme": "Recession/Growth Slowdown Risk",
+      "generated_at": "2026-06-17T15:40:56"
+    },
+    {
+      "dominant_theme": "Inflation/Energy Risk",
+      "generated_at": "2026-06-18T10:28:19"
+    },
+    {
+      "dominant_theme": "Inflation/Energy Risk",
+      "generated_at": "2026-06-18T10:29:42"
     }
   ]
 }

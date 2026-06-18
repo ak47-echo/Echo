@@ -1,4 +1,5 @@
 import csv
+from pathlib import Path
 import yfinance as yf
 from agents.policy_agent import get_policy
 from agents.research_agent import (
@@ -42,6 +43,11 @@ from agents.research_agent import (
 
 
 DEPLOYMENT_AMOUNTS = (100, 500, 1000)
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+LEGACY_HOLDINGS_PATH = BASE_DIR / "02_Data" / "holdings.csv"
+NORMALIZED_HOLDINGS_PATH = (
+    BASE_DIR / "02_Data" / "portfolio_current" / "holdings_normalized.csv"
+)
 
 PORTFOLIO_REPORT_SECTION_ORDER = (
     "PORTFOLIO MANAGER EXECUTIVE BRIEF",
@@ -271,24 +277,99 @@ def load_targets(report):
     return targets
 
 
-def get_portfolio_report():
+def _load_normalized_holdings(report):
 
-    report = []
     holdings = []
-    positions = []
 
-    total_value = 0
-    account_totals = {}
-    ticker_totals = {}
-    allocation_differences = {}
+    if not NORMALIZED_HOLDINGS_PATH.exists():
+        return None
 
-    report.append("Portfolio Manager operational.")
-    report.append("")
+    try:
+        with NORMALIZED_HOLDINGS_PATH.open(
+            "r",
+            newline="",
+            encoding="utf-8-sig"
+        ) as file:
+            reader = csv.DictReader(file)
+            required_columns = {
+                "account",
+                "ticker",
+                "quantity",
+                "cost_basis",
+                "market_value"
+            }
+            missing_columns = required_columns - set(reader.fieldnames or [])
 
-    targets = load_targets(report)
-    policy = get_policy()
+            if missing_columns:
+                report.append(
+                    "WARNING: holdings_normalized.csv missing required "
+                    f"columns: {', '.join(sorted(missing_columns))}"
+                )
+                return None
 
-    with open("../02_Data/holdings.csv", "r") as file:
+            for line_number, row in enumerate(reader, start=2):
+                ticker = str(row.get("ticker") or "").strip().upper()
+
+                if not ticker:
+                    report.append(
+                        "WARNING: holdings_normalized.csv line "
+                        f"{line_number}: ticker is required."
+                    )
+                    continue
+
+                try:
+                    shares = float(row["quantity"])
+                    cost_basis = float(row["cost_basis"])
+                    market_value = float(row["market_value"])
+                except (TypeError, ValueError):
+                    report.append(
+                        "WARNING: holdings_normalized.csv line "
+                        f"{line_number}: numeric fields must be valid."
+                    )
+                    continue
+
+                if shares < 0 or cost_basis < 0 or market_value < 0:
+                    report.append(
+                        "WARNING: holdings_normalized.csv line "
+                        f"{line_number}: numeric fields must be >= 0."
+                    )
+                    continue
+
+                security_info = None
+                thesis_info = get_thesis(ticker)
+
+                if ticker != "CASH0":
+                    security_info = get_security_info(ticker)
+
+                    if not security_info:
+                        report.append(
+                            f"WARNING: {ticker}: Security metadata missing."
+                        )
+
+                holdings.append({
+                    "account": row["account"],
+                    "ticker": ticker,
+                    "shares": shares,
+                    "cost_basis": cost_basis,
+                    "market_value": market_value,
+                    "security_info": security_info,
+                    "thesis_info": thesis_info
+                })
+    except (OSError, csv.Error, UnicodeDecodeError) as error:
+        report.append(
+            "WARNING: holdings_normalized.csv could not be read; "
+            f"falling back to holdings.csv. Error: {error}"
+        )
+        return None
+
+    return holdings
+
+
+def _load_legacy_holdings(report):
+
+    holdings = []
+
+    with LEGACY_HOLDINGS_PATH.open("r", newline="", encoding="utf-8-sig") as file:
 
         reader = csv.DictReader(file)
         required_columns = {"account", "ticker", "shares", "cost_basis"}
@@ -345,9 +426,42 @@ def get_portfolio_report():
                     "ticker": ticker,
                     "shares": shares,
                     "cost_basis": cost_basis,
+                    "market_value": None,
                     "security_info": security_info,
                     "thesis_info": thesis_info
                 })
+
+    return holdings
+
+
+def load_holdings(report):
+
+    normalized_holdings = _load_normalized_holdings(report)
+
+    if normalized_holdings is not None and normalized_holdings:
+        return normalized_holdings, "normalized_import"
+
+    return _load_legacy_holdings(report), "legacy_csv"
+
+
+def get_portfolio_report():
+
+    report = []
+    holdings = []
+    positions = []
+
+    total_value = 0
+    account_totals = {}
+    ticker_totals = {}
+    allocation_differences = {}
+
+    report.append("Portfolio Manager operational.")
+    holdings, holdings_source = load_holdings(report)
+    report.append(f"holdings_source: {holdings_source}")
+    report.append("")
+
+    targets = load_targets(report)
+    policy = get_policy()
 
     for holding in holdings:
 
@@ -361,11 +475,17 @@ def get_portfolio_report():
 
             if ticker == "CASH0":
                 price = 1
+            elif holding["market_value"] is not None and shares > 0:
+                price = holding["market_value"] / shares
             else:
                 stock = yf.Ticker(ticker)
                 price = stock.fast_info["last_price"]
 
-            position_value = shares * price
+            position_value = (
+                holding["market_value"]
+                if holding["market_value"] is not None
+                else shares * price
+            )
 
             if ticker == "CASH0":
                 gain_loss = 0

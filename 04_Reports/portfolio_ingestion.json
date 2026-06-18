@@ -1,0 +1,22 @@
+{
+  "archive_path": null,
+  "changes": {
+    "market_value_changes": [],
+    "new_positions": [],
+    "quantity_changes": [],
+    "removed_positions": [],
+    "total_market_value_change": 0.0
+  },
+  "generated_at": "2026-06-18T10:29:35",
+  "output_path": "C:\\Users\\PC\\OneDrive\\Desktop\\Echo\\02_Data\\portfolio_current\\holdings_normalized.csv",
+  "position_count": 0,
+  "rows_normalized": 0,
+  "rows_read": 0,
+  "rows_skipped": 0,
+  "schema_version": "1.0",
+  "source_file": null,
+  "status": "no_imports",
+  "top_positions": [],
+  "total_market_value": 0.0,
+  "warnings": []
+}

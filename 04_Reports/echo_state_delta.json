@@ -1,20 +1,145 @@
 {
-  "changes": [],
-  "generated_at": "2026-06-17T10:08:01",
+  "changes": [
+    {
+      "change_type": "changed",
+      "current": "UNH position concentration 44.9%",
+      "field": "top_priority",
+      "material": true,
+      "previous": "UNH position concentration 44.8%",
+      "reason": "Top priority changed."
+    },
+    {
+      "change_type": "changed",
+      "current": "UNH position concentration 44.9%",
+      "field": "portfolio.current_risk",
+      "material": true,
+      "previous": "UNH position concentration 44.8%",
+      "reason": "Portfolio current risk changed."
+    },
+    {
+      "change_type": "added",
+      "current": "UNH position concentration 44.9%",
+      "field": "risk_register",
+      "material": true,
+      "previous": null,
+      "reason": "New high-priority risk appeared."
+    },
+    {
+      "change_type": "removed",
+      "current": null,
+      "field": "risk_register",
+      "material": true,
+      "previous": "UNH position concentration 44.8%",
+      "reason": "Prior high-priority risk disappeared."
+    },
+    {
+      "change_type": "added",
+      "current": "Review UNH position concentration 44.9%",
+      "field": "action_queue",
+      "material": true,
+      "previous": null,
+      "reason": "Action queue gained a new high-priority action."
+    },
+    {
+      "change_type": "removed",
+      "current": null,
+      "field": "action_queue",
+      "material": false,
+      "previous": "Review UNH position concentration 44.8%",
+      "reason": "Action queue item no longer present."
+    }
+  ],
+  "generated_at": "2026-06-18T10:29:42",
   "has_previous_state": true,
   "macro_regime_change": null,
-  "material_changes": [],
-  "new_risks": [],
+  "material_changes": [
+    {
+      "change_type": "changed",
+      "current": "UNH position concentration 44.9%",
+      "field": "top_priority",
+      "material": true,
+      "previous": "UNH position concentration 44.8%",
+      "reason": "Top priority changed."
+    },
+    {
+      "change_type": "changed",
+      "current": "UNH position concentration 44.9%",
+      "field": "portfolio.current_risk",
+      "material": true,
+      "previous": "UNH position concentration 44.8%",
+      "reason": "Portfolio current risk changed."
+    },
+    {
+      "change_type": "added",
+      "current": "UNH position concentration 44.9%",
+      "field": "risk_register",
+      "material": true,
+      "previous": null,
+      "reason": "New high-priority risk appeared."
+    },
+    {
+      "change_type": "removed",
+      "current": null,
+      "field": "risk_register",
+      "material": true,
+      "previous": "UNH position concentration 44.8%",
+      "reason": "Prior high-priority risk disappeared."
+    },
+    {
+      "change_type": "added",
+      "current": "Review UNH position concentration 44.9%",
+      "field": "action_queue",
+      "material": true,
+      "previous": null,
+      "reason": "Action queue gained a new high-priority action."
+    }
+  ],
+  "new_risks": [
+    {
+      "reason": "HIGH | UNH | Position concentration 44.9%",
+      "severity": "HIGH",
+      "source": "top_priority",
+      "title": "UNH position concentration 44.9%"
+    }
+  ],
   "news_narrative_change": null,
-  "portfolio_risk_change": null,
-  "priority_change": null,
-  "resolved_risks": [],
+  "portfolio_risk_change": {
+    "change_type": "changed",
+    "current": "UNH position concentration 44.9%",
+    "field": "portfolio.current_risk",
+    "material": true,
+    "previous": "UNH position concentration 44.8%",
+    "reason": "Portfolio current risk changed."
+  },
+  "priority_change": {
+    "change_type": "changed",
+    "current": "UNH position concentration 44.9%",
+    "field": "top_priority",
+    "material": true,
+    "previous": "UNH position concentration 44.8%",
+    "reason": "Top priority changed."
+  },
+  "resolved_risks": [
+    {
+      "reason": "HIGH | UNH | Position concentration 44.8%",
+      "severity": "HIGH",
+      "source": "top_priority",
+      "title": "UNH position concentration 44.8%"
+    }
+  ],
   "schema_version": "1.0",
   "stress_scenario_change": null,
   "summary": {
-    "change_count": 0,
-    "material_change_count": 0,
-    "top_change": null
+    "change_count": 6,
+    "material_change_count": 5,
+    "top_change": {
+      "change_type": "changed",
+      "current": "UNH position concentration 44.9%",
+      "field": "top_priority",
+      "material": true,
+      "previous": "UNH position concentration 44.8%",
+      "reason": "Top priority changed."
+    }
   },
   "theme_change": null
 }

@@ -2,18 +2,18 @@ ECHO RESPONSE COMPOSER
 ======================
 
 Schema Version: 1.0
-Generated At: 2026-06-17T15:42:25
+Generated At: 2026-06-18T10:29:42
 Query: Echo daily run overall executive summary
 Response Mode: multi_agent_summary
 
 Answer:
-Overall picture: start with UNH position concentration 45.1%. Change level is moderate; dominant theme is Inflation/Energy Risk. Portfolio: UNH position concentration 45.1%. Macro: Inflation Stress. News: Middle East Energy Risk. Watch next: Energy: RISING; Growth exposure conflicts with inflation/rates theme; Inflation Trend: RISING.
+Overall picture: start with UNH position concentration 44.9%. Change level is critical; dominant theme is Inflation/Energy Risk. Portfolio: UNH position concentration 44.9%. Macro: Inflation Stress. News: Middle East Energy Risk. Watch next: UNH position concentration 44.9%.
 
 Supporting Points:
-- UNH position concentration 45.1%
-- Energy: RISING
+- UNH position concentration 44.9%
+- UNH position concentration 44.9%
 - Inflation/Energy Risk
-- UNH position concentration 45.1%
+- UNH position concentration 44.9%
 - Inflation Stress
 - Middle East Energy Risk
 
@@ -24,10 +24,14 @@ Used Sources:
 - memory_context
 - change_detection
 - knowledge_graph
+- macro_report
+- news_report
+- portfolio_report
+- research_report
 
 Debug Summary:
 - Query Class: multi_agent
 - Budget Level: expanded
 - Routing Mode: all_agents
 - Assembly Mode: multi_agent
-- Full Reports Included: False
+- Full Reports Included: True
