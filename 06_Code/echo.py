@@ -6610,12 +6610,17 @@ def build_echo_llm_system_prompt():
 
     return "\n".join([
         "You are Echo, a personal chief-of-staff interface over deterministic tools.",
+        "Claude is the final reasoning and communication layer only after Echo has gathered, routed, assembled, and validated context.",
         "Ground operating, portfolio, macro, news, and research answers in the provided Echo tool context.",
         "For casual conversation, greetings, thanks, or harmless creative prompts, respond naturally and do not force an agent report.",
         "Use reasoning intent to decide whether to retrieve, explain, analyze a scenario, critique, prioritize, recommend, or converse.",
-        "Treat the deterministic response composer answer as a reference draft, not the final answer.",
+        "Treat the deterministic response composer answer as a grounding draft and safety baseline only, not the final answer.",
+        "Before answering, review whether the deterministic draft actually answers the user's question. If it is incomplete, off-target, or template-like, correct it using the assembled Echo context.",
+        "Answer the user's actual question directly; do not merely restate the deterministic draft.",
         "Clearly separate known tool facts from inference or judgment.",
         "Do not invent portfolio holdings, news, macro data, prices, or research conclusions.",
+        "Do not claim current or live facts unless Echo supplied them in the context.",
+        "If Echo lacks live/news data for a ticker or event, say that local data is insufficient and identify what data is missing.",
         "If the tool context is insufficient, say what is missing.",
         "Do not provide personalized financial advice as a directive.",
         "You may frame risks, tradeoffs, exposures, and review areas.",
@@ -6777,6 +6782,21 @@ def _llm_provider_payload(orchestrator_result):
             "response_composer",
             {}
         ),
+        "llm_policy": {
+            "final_answer_policy": "llm_first_when_live_provider_succeeds",
+            "deterministic_composer_role": (
+                "grounding_draft_safety_baseline_not_final_answer"
+            ),
+            "draft_review_instruction": (
+                "Check whether response_composer.answer actually answers the "
+                "user question. If incomplete or off-target, correct it using "
+                "assembled Echo context."
+            ),
+            "live_data_discipline": (
+                "Do not claim current/live facts unless Echo supplied them; "
+                "state missing ticker, news, macro, or portfolio data."
+            )
+        },
         "tool_results": orchestrator_result.get("tool_results", {})
     }
 
@@ -6901,12 +6921,16 @@ def _build_openai_prompt_messages(messages, tool_context):
     user_message = (
         f"User question:\n{_message_content(messages)}\n\n"
         f"Echo reasoning/context package:\n{tool_context_text}\n\n"
-        "Answer the user's actual question using reasoning_intent, "
-        "reasoning_depth, answer_style, reasoning_instructions, assembled "
-        "context, and tool summaries. The response_composer answer is a "
-        "grounding reference only, not the final answer. Use risk, exposure, "
-        "monitor, review, and tradeoff framing. Do not issue unsupported buy "
-        "or sell directives."
+        "Answer the user's actual question using investment_intent if present, "
+        "reasoning_intent, reasoning_depth, answer_style, reasoning_instructions, "
+        "assembled context, relevant agent outputs, and tool summaries. The "
+        "response_composer answer is a deterministic grounding draft and safety "
+        "baseline only, not the final answer. Review whether that draft actually "
+        "answers the question; if it does not, correct it using available Echo "
+        "context. Do not claim current/live facts unless Echo supplied them. If "
+        "ticker, news, macro, or portfolio data is missing, state what is missing. "
+        "Use risk, exposure, monitor, review, and tradeoff framing. Do not issue "
+        "unsupported buy or sell directives."
     )
 
     return [
@@ -6919,22 +6943,25 @@ def _build_anthropic_prompt_message(messages, tool_context):
 
     return (
         f"User question:\n{_message_content(messages)}\n\n"
-        "Echo reasoning intent, assembled context, and deterministic "
-        "response composer reference:\n"
+        "Echo investment intent, reasoning intent, assembled context, relevant "
+        "agent outputs, and deterministic response composer grounding draft:\n"
         f"{str(tool_context or '')}\n\n"
-        "Answer the user's actual question using reasoning_intent, "
-        "reasoning_depth, answer_style, and reasoning_instructions. Treat "
-        "response_composer.answer as a grounding aid only, not the final "
-        "answer. Do not introduce facts, holdings, prices, recommendations, "
-        "or conclusions outside the provided Echo context. Preserve caveats "
-        "where context is incomplete."
+        "Answer the user's actual question using investment_intent if present, "
+        "reasoning_intent, reasoning_depth, answer_style, and reasoning_instructions. "
+        "Treat response_composer.answer as a grounding draft and safety baseline "
+        "only, not the final answer. Review whether the deterministic draft "
+        "actually answers the question; if it is incomplete, off-target, or "
+        "template-like, correct it using available Echo context. Do not introduce "
+        "facts, holdings, prices, recommendations, current news, or conclusions "
+        "outside the provided Echo context. Do not claim live facts unless Echo "
+        "supplied them. If local data is insufficient, say what data is missing."
     )
 
 
 def _response_metadata(provider_name, provider_model, live_call_attempted,
                        fallback_used, response_source, provider_status,
                        context_budget, agent_routing, context_assembly,
-                       intent_reasoning=None):
+                       intent_reasoning=None, validation=None):
 
     intent_reasoning = (
         intent_reasoning
@@ -6942,13 +6969,21 @@ def _response_metadata(provider_name, provider_model, live_call_attempted,
         else {}
     )
 
+    validation = validation if isinstance(validation, dict) else {}
     return {
         "llm_provider": provider_name,
         "model": provider_model,
         "live_call_attempted": bool(live_call_attempted),
         "fallback_used": bool(fallback_used),
         "response_source": response_source,
+        "llm_reviewed": response_source == "llm",
         "provider_status": provider_status,
+        "context_sources_used": _context_sources_used(context_assembly),
+        "missing_data_notes": _missing_data_notes(
+            context_budget,
+            context_assembly,
+            validation
+        ),
         "query_class": (
             context_budget.get("query_class")
             if isinstance(context_budget, dict)
@@ -6968,6 +7003,73 @@ def _response_metadata(provider_name, provider_model, live_call_attempted,
         "reasoning_depth": intent_reasoning.get("reasoning_depth"),
         "answer_style": intent_reasoning.get("answer_style")
     }
+
+
+def _context_sources_used(context_assembly):
+
+    if not isinstance(context_assembly, dict):
+        return []
+
+    sources = context_assembly.get("included_sources")
+    if isinstance(sources, list):
+        return [str(source) for source in sources if str(source)]
+
+    blocks = context_assembly.get("context_blocks") or []
+    result = []
+    for block in blocks:
+        if not isinstance(block, dict):
+            continue
+        source = str(block.get("source") or "")
+        if source and source not in result:
+            result.append(source)
+    return result
+
+
+def _missing_data_notes(context_budget, context_assembly, validation=None):
+
+    notes = []
+    context_budget = context_budget if isinstance(context_budget, dict) else {}
+    context_assembly = (
+        context_assembly if isinstance(context_assembly, dict) else {}
+    )
+    validation = validation if isinstance(validation, dict) else {}
+    intent = context_budget.get("investment_intent")
+    query_class = context_budget.get("query_class")
+    excluded = set(context_assembly.get("excluded_sources") or [])
+    included = set(_context_sources_used(context_assembly))
+
+    if isinstance(intent, dict):
+        if (
+            intent.get("requires_news_context")
+            and "news_snapshot" not in included
+            and "news_report" not in included
+        ):
+            notes.append("No direct local news context was included.")
+
+        if (
+            intent.get("requires_security_master_context")
+            and "security_master_search" not in included
+        ):
+            notes.append("Local security master search context was not included.")
+
+        if intent.get("requires_external_ticker_context"):
+            notes.append("External ticker data was requested but is not available locally.")
+
+    if excluded:
+        notes.append(
+            "Some requested context was unavailable or excluded: "
+            + ", ".join(sorted(str(item) for item in excluded)[:6])
+        )
+
+    for warning in validation.get("warnings") or []:
+        notes.append(str(warning))
+
+    if query_class in {"ticker_question", "ticker_news"} and not notes:
+        notes.append(
+            "Ticker answer is limited to local Echo holdings, research, news, and security master context."
+        )
+
+    return notes[:8]
 
 
 def _reasoning_fallback_answer(fallback_answer, intent_reasoning,
@@ -7022,7 +7124,7 @@ def _normalize_llm_provider_name(provider_name=None):
         os.getenv("LLM_PROVIDER")
         or os.getenv("ECHO_LLM_PROVIDER")
     )
-    provider = provider_name or configured_provider or "openai"
+    provider = provider_name or configured_provider or "anthropic"
     return " ".join(str(provider or "").split()).casefold() or "openai"
 
 
@@ -7586,50 +7688,15 @@ def echo_generate_llm_answer(message, context=None):
             provider_name,
             provider_model,
             live_call_attempted,
-            validation["fallback_required"],
-            (
-                "deterministic"
-                if validation["fallback_required"]
-                else "llm"
-            ),
+            False,
+            "llm",
             provider_status,
             context_budget,
             agent_routing,
             context_assembly,
-            intent_reasoning
+            intent_reasoning,
+            validation
         )
-
-        if validation["fallback_required"]:
-            return {
-                "status": "DETERMINISTIC_FALLBACK",
-                "mode": "DETERMINISTIC_FALLBACK",
-                "provider": provider_name,
-                "model": provider_model,
-                **llm_metadata,
-                "message": normalized_message,
-                "answer": fallback_answer,
-                "selected_tools": selected_tools,
-                "context_budget": context_budget,
-                "agent_routing": agent_routing,
-                "context_assembly": context_assembly,
-                "response_composer": response_composer,
-                "intent_reasoning": intent_reasoning,
-                "tool_results": tool_results,
-                "confidence": orchestrator_result.get(
-                    "confidence",
-                    "MEDIUM"
-                ),
-                "validation": validation,
-                "tool_context_char_count": tool_context_char_count,
-                "live_call_attempted": live_call_attempted,
-                "fallback_used": True,
-                "response_source": "deterministic",
-                "notes": (
-                    "Deterministic fallback used because LLM response "
-                    "validation failed: "
-                    f"{'; '.join(validation['warnings'])}"
-                )
-            }
 
         return {
             "status": "ANSWERED",
@@ -7652,6 +7719,7 @@ def echo_generate_llm_answer(message, context=None):
             "live_call_attempted": live_call_attempted,
             "fallback_used": False,
             "response_source": "llm",
+            "llm_reviewed": True,
             "notes": _redact_secret_text(provider_result.get("notes", ""))
         }
 
@@ -7674,7 +7742,8 @@ def echo_generate_llm_answer(message, context=None):
         context_budget,
         agent_routing,
         context_assembly,
-        intent_reasoning
+        intent_reasoning,
+        fallback_validation
     )
 
     return {
@@ -7698,6 +7767,7 @@ def echo_generate_llm_answer(message, context=None):
         "live_call_attempted": live_call_attempted,
         "fallback_used": True,
         "response_source": "deterministic",
+        "llm_reviewed": False,
         "notes": (
             f"Deterministic fallback used. {fallback_reason} "
             f"{_redact_secret_text(provider_result.get('notes', ''))}"

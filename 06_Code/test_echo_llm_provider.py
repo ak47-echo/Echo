@@ -120,6 +120,33 @@ class FakeDisabledProvider(FakeAnsweredProvider):
         }
 
 
+class CapturingProvider(FakeAnsweredProvider):
+
+    def __init__(self, answer="Captured LLM answer."):
+
+        self.answer = answer
+        self.messages = None
+        self.tools = None
+        self.context = None
+
+    def generate_response(self, messages, tools=None, context=None):
+
+        self.messages = messages
+        self.tools = tools
+        self.context = context
+        return {
+            "status": "ANSWERED",
+            "provider": self.provider_name,
+            "model": self.model_name(),
+            "answer": self.answer,
+            "tool_context_used": True,
+            "tool_context_char_count": len(echo.format_tool_context_for_llm(tools)),
+            "live_call_attempted": True,
+            "confidence": "HIGH",
+            "notes": "Captured provider response."
+        }
+
+
 def _minimal_context():
 
     return {"sections": {}}
@@ -215,6 +242,13 @@ class EchoLLMProviderTests(unittest.TestCase):
         self.assertEqual("anthropic", status["active_provider"])
         self.assertFalse(status["configured"])
 
+    def test_default_provider_is_anthropic(self):
+
+        with patch.dict(os.environ, {}, clear=True):
+            provider = echo.get_llm_provider()
+
+        self.assertIsInstance(provider, echo.AnthropicProvider)
+
     def test_anthropic_missing_key_falls_back_to_composer_answer(self):
 
         orchestrator_result = {
@@ -265,11 +299,13 @@ class EchoLLMProviderTests(unittest.TestCase):
             )
         )
 
-        self.assertIn("Echo reasoning intent", prompt)
+        self.assertIn("Echo investment intent", prompt)
         self.assertIn("response_composer", prompt)
         self.assertIn("Review UNH risk.", prompt)
         self.assertIn("Do not introduce facts", prompt)
-        self.assertIn("grounding aid only", prompt)
+        self.assertIn("grounding draft", prompt)
+        self.assertIn("if it is incomplete", prompt)
+        self.assertIn("Do not claim live facts", prompt)
 
     def test_llm_context_includes_reasoning_intent(self):
 
@@ -285,6 +321,7 @@ class EchoLLMProviderTests(unittest.TestCase):
             )
 
         self.assertEqual("llm", result["response_source"])
+        self.assertTrue(result["llm_reviewed"])
         self.assertEqual("explanation", result["reasoning_intent"])
         self.assertIn('"reasoning_intent": "explanation"', result["notes"])
         self.assertIn("response_composer", result["notes"])
@@ -349,8 +386,102 @@ class EchoLLMProviderTests(unittest.TestCase):
         self.assertEqual("anthropic", result["llm_provider"])
         self.assertTrue(result["live_call_attempted"])
         self.assertFalse(result["fallback_used"])
+        self.assertTrue(result["llm_reviewed"])
+        self.assertEqual("ANSWERED", result["provider_status"])
+        self.assertIsInstance(result["context_sources_used"], list)
+        self.assertIsInstance(result["missing_data_notes"], list)
         self.assertEqual("conversational", result["query_class"])
         self.assertEqual("conversation", result["reasoning_intent"])
+
+    def test_investment_query_uses_llm_when_provider_succeeds(self):
+
+        provider = CapturingProvider("Claude investment answer.")
+        with patch.object(echo, "get_llm_provider", return_value=provider):
+            result = self._run_with_no_writes(
+                echo.echo_generate_llm_answer,
+                "what do you think about NVDA",
+                _minimal_context()
+            )
+
+        self.assertEqual("ANSWERED", result["status"])
+        self.assertEqual("llm", result["response_source"])
+        self.assertEqual("Claude investment answer.", result["answer"])
+        self.assertFalse(result["fallback_used"])
+        self.assertTrue(result["llm_reviewed"])
+        self.assertEqual("ticker_question", result["query_class"])
+        self.assertIn("investment_intent", provider.tools["context_budget"])
+        self.assertIn("response_composer", provider.tools)
+        self.assertIn("llm_policy", provider.tools)
+
+    def test_portfolio_change_query_uses_llm_when_provider_succeeds(self):
+
+        provider = CapturingProvider("Claude portfolio change answer.")
+        with patch.object(echo, "get_llm_provider", return_value=provider):
+            result = self._run_with_no_writes(
+                echo.echo_generate_llm_answer,
+                "what changed in my portfolio",
+                _minimal_context()
+            )
+
+        self.assertEqual("portfolio_change", result["query_class"])
+        self.assertEqual("llm", result["response_source"])
+        self.assertEqual("Claude portfolio change answer.", result["answer"])
+        self.assertIn(
+            "portfolio_change_detection",
+            result["context_assembly"].get("included_sources", [])
+        )
+
+    def test_llm_policy_payload_marks_draft_as_reference_only(self):
+
+        provider = CapturingProvider()
+        with patch.object(echo, "get_llm_provider", return_value=provider):
+            self._run_with_no_writes(
+                echo.echo_generate_llm_answer,
+                "why did my portfolio move",
+                _minimal_context()
+            )
+
+        policy = provider.tools["llm_policy"]
+        self.assertEqual(
+            "llm_first_when_live_provider_succeeds",
+            policy["final_answer_policy"]
+        )
+        self.assertIn(
+            "not_final_answer",
+            policy["deterministic_composer_role"]
+        )
+        self.assertIn(
+            "correct it",
+            policy["draft_review_instruction"]
+        )
+
+    def test_llm_prompt_includes_correction_instruction(self):
+
+        prompt = echo._build_anthropic_prompt_message(
+            [{"role": "user", "content": "what changed?"}],
+            '{"response_composer":{"answer":"No material changes."}}'
+        )
+
+        self.assertIn("Review whether the deterministic draft", prompt)
+        self.assertIn("correct it using available Echo context", prompt)
+        self.assertIn("Do not claim live facts", prompt)
+
+    def test_successful_provider_answer_not_replaced_by_validation_warning(self):
+
+        provider = CapturingProvider("You should buy XYZ.")
+        with patch.object(echo, "get_llm_provider", return_value=provider):
+            result = self._run_with_no_writes(
+                echo.echo_generate_llm_answer,
+                "what do you think about NVDA",
+                _minimal_context()
+            )
+
+        self.assertEqual("ANSWERED", result["status"])
+        self.assertEqual("llm", result["response_source"])
+        self.assertEqual("You should buy XYZ.", result["answer"])
+        self.assertFalse(result["fallback_used"])
+        self.assertTrue(result["validation"]["fallback_required"])
+        self.assertTrue(result["missing_data_notes"])
 
     def test_hi_returns_clean_fallback_when_live_mode_disabled(self):
 
@@ -367,6 +498,7 @@ class EchoLLMProviderTests(unittest.TestCase):
 
         self.assertEqual("DETERMINISTIC_FALLBACK", result["status"])
         self.assertEqual("deterministic", result["response_source"])
+        self.assertFalse(result["llm_reviewed"])
         self.assertIn("I'm here.", result["answer"])
         self.assertNotIn("deterministic answer", result["answer"].casefold())
         self.assertNotIn("compact memory context", result["answer"].casefold())
@@ -424,6 +556,7 @@ class EchoLLMProviderTests(unittest.TestCase):
         serialized = str(result)
         self.assertEqual("deterministic", result["response_source"])
         self.assertTrue(result["fallback_used"])
+        self.assertFalse(result["llm_reviewed"])
         self.assertNotIn("TEST_SECRET_VALUE", serialized)
         self.assertIn("[REDACTED]", result["notes"])
 

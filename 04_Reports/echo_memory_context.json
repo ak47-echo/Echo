@@ -5,7 +5,7 @@
     "max_items": 20
   },
   "context_mode": "memory_first",
-  "generated_at": "2026-06-18T11:45:00",
+  "generated_at": "2026-06-18T13:47:19",
   "operating_context": {
     "connected_entities": [
       {
@@ -58,10 +58,10 @@
         "top_priority": "Inflation Trend | Macro Regime Inflation Stress | Regime Score 100 | Priority Tier HIGH"
       },
       "news_top_narrative": {
-        "reason": "6 related Iran, Hormuz, or oil headlines indicate an energy-linked geopolitical market narrative.",
-        "representative_headline": "Oil prices fall after Vance says more than 12 million barrels exit Strait of Hormuz",
+        "reason": "7 related Iran, Hormuz, or oil headlines indicate an energy-linked geopolitical market narrative.",
+        "representative_headline": "U.S. Navy ends blockade of Iran's ports and coastal areas",
         "score": 100,
-        "supporting_articles": 6,
+        "supporting_articles": 7,
         "title": "Middle East Energy Risk"
       },
       "portfolio_current_risk": {

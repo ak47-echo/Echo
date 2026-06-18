@@ -2,7 +2,7 @@ ECHO KNOWLEDGE GRAPH
 ====================
 
 Schema Version: 1.0
-Generated At: 2026-06-18T11:45:00
+Generated At: 2026-06-18T13:47:19
 Node Count: 47
 Edge Count: 93
 

@@ -71,7 +71,7 @@
     "theme_strength": "CRITICAL",
     "theme_title": "Inflation/Energy Risk"
   },
-  "generated_at": "2026-06-18T11:45:00",
+  "generated_at": "2026-06-18T13:47:19",
   "macro": {
     "regime": {
       "confidence": "HIGH",
@@ -154,7 +154,7 @@
         "evidence": [],
         "fields": {},
         "rank": 1,
-        "title": "Fed Chair Kevin Warsh wants to get inflation under control. That could be bad news for home buyers seeking lower mortgage rates. | Source MarketWatch | Relevance Score 97 | Impact Category Fed Policy | Impact Tier CRITICAL | Relevance HIGH | Reason Federal Reserve policy directly reprices rates, equities, and risk assets. | Tags MACRO, CENTRAL_BANK"
+        "title": "Kalshi traders see greater than 50% odds the Fed will hike rates this year | Source CNBC Markets | Relevance Score 97 | Impact Category Fed Policy | Impact Tier CRITICAL | Relevance HIGH | Reason Federal Reserve policy directly reprices rates, equities, and risk assets. | Tags MACRO, CENTRAL_BANK"
       },
       {
         "evidence": [],
@@ -172,7 +172,7 @@
         "evidence": [],
         "fields": {},
         "rank": 4,
-        "title": "Oil prices fall after Vance says more than 12 million barrels exit Strait of Hormuz | Source CNBC Markets | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags WORLD_EVENT, ENERGY"
+        "title": "U.S. Navy ends blockade of Iran's ports and coastal areas | Source CNBC Markets | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags WORLD_EVENT"
       },
       {
         "evidence": [],
@@ -185,10 +185,10 @@
       "None"
     ],
     "top_narrative": {
-      "reason": "6 related Iran, Hormuz, or oil headlines indicate an energy-linked geopolitical market narrative.",
-      "representative_headline": "Oil prices fall after Vance says more than 12 million barrels exit Strait of Hormuz",
+      "reason": "7 related Iran, Hormuz, or oil headlines indicate an energy-linked geopolitical market narrative.",
+      "representative_headline": "U.S. Navy ends blockade of Iran's ports and coastal areas",
       "score": 100,
-      "supporting_articles": 6,
+      "supporting_articles": 7,
       "title": "Middle East Energy Risk"
     }
   },

@@ -23,13 +23,13 @@
         "holding:vnom__thesis_status_active__conviction_medium__research_status_moderate",
         "macro_regime:inflation_stress",
         "news_narrative:analysis_chairman_kevin_warshs_task_forces_are_the_key_to_understanding_the_new_fed__source_cnbc_markets__relevance_score_97__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_macro_central_bank_rates",
-        "news_narrative:fed_chair_kevin_warsh_wants_to_get_inflation_under_control_that_could_be_bad_news_for_home_buyers_seeking_lower_mortgage_rates__source_marketwatch__relevance_score_97__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_macro_central_bank",
         "news_narrative:here_are_the_five_big_takeaways_from_kevin_warshs_first_meeting_as_fed_chairman__source_cnbc_markets__relevance_score_95__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_macro_central_bank_rates",
+        "news_narrative:kalshi_traders_see_greater_than_50_odds_the_fed_will_hike_rates_this_year__source_cnbc_markets__relevance_score_97__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_macro_central_bank",
         "news_narrative:market_significant_news",
         "news_narrative:middle_east_energy_risk",
         "news_narrative:none",
-        "news_narrative:oil_prices_fall_after_vance_says_more_than_12_million_barrels_exit_strait_of_hormuz__source_cnbc_markets__relevance_score_84__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_world_event_energy",
         "news_narrative:portfolio_relevant_news",
+        "news_narrative:us_navy_ends_blockade_of_irans_ports_and_coastal_areas__source_cnbc_markets__relevance_score_84__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_world_event",
         "news_narrative:vance_says_us_isnt_giving_iran_a_cent_as_he_defends_trump_peace_deal__source_cnbc_markets__relevance_score_84__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_world_event",
         "portfolio_signal:unh_position_concentration_415",
         "priority:unh_position_concentration_415",
@@ -364,7 +364,7 @@
     {
       "metadata": {},
       "relationship": "relates_to",
-      "source": "news_narrative:fed_chair_kevin_warsh_wants_to_get_inflation_under_control_that_could_be_bad_news_for_home_buyers_seeking_lower_mortgage_rates__source_marketwatch__relevance_score_97__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_macro_central_bank",
+      "source": "news_narrative:here_are_the_five_big_takeaways_from_kevin_warshs_first_meeting_as_fed_chairman__source_cnbc_markets__relevance_score_95__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_macro_central_bank_rates",
       "source_layer": "state",
       "target": "agent:news_agent",
       "weight": 7
@@ -372,7 +372,7 @@
     {
       "metadata": {},
       "relationship": "relates_to",
-      "source": "news_narrative:here_are_the_five_big_takeaways_from_kevin_warshs_first_meeting_as_fed_chairman__source_cnbc_markets__relevance_score_95__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_macro_central_bank_rates",
+      "source": "news_narrative:kalshi_traders_see_greater_than_50_odds_the_fed_will_hike_rates_this_year__source_cnbc_markets__relevance_score_97__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_macro_central_bank",
       "source_layer": "state",
       "target": "agent:news_agent",
       "weight": 7
@@ -411,19 +411,19 @@
     },
     {
       "metadata": {},
-      "relationship": "relates_to",
-      "source": "news_narrative:oil_prices_fall_after_vance_says_more_than_12_million_barrels_exit_strait_of_hormuz__source_cnbc_markets__relevance_score_84__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_world_event_energy",
-      "source_layer": "state",
-      "target": "agent:news_agent",
-      "weight": 7
-    },
-    {
-      "metadata": {},
       "relationship": "generated_by",
       "source": "news_narrative:portfolio_relevant_news",
       "source_layer": "change_detection",
       "target": "agent:news_agent",
       "weight": 6
+    },
+    {
+      "metadata": {},
+      "relationship": "relates_to",
+      "source": "news_narrative:us_navy_ends_blockade_of_irans_ports_and_coastal_areas__source_cnbc_markets__relevance_score_84__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_world_event",
+      "source_layer": "state",
+      "target": "agent:news_agent",
+      "weight": 7
     },
     {
       "metadata": {},
@@ -821,9 +821,6 @@
     "energy_falling": [
       "risk:energy_falling"
     ],
-    "fed_chair_kevin_warsh_wants_to_get_inflation_under_control_that_could_be_bad_news_for_home_buyers_seeking_lower_mortgage_rates__source_marketwatch__relevance_score_97__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_macro_central_bank": [
-      "news_narrative:fed_chair_kevin_warsh_wants_to_get_inflation_under_control_that_could_be_bad_news_for_home_buyers_seeking_lower_mortgage_rates__source_marketwatch__relevance_score_97__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_macro_central_bank"
-    ],
     "growth_expanding": [
       "risk:growth_expanding"
     ],
@@ -844,6 +841,9 @@
     ],
     "inflation_trend_rising": [
       "risk:inflation_trend_rising"
+    ],
+    "kalshi_traders_see_greater_than_50_odds_the_fed_will_hike_rates_this_year__source_cnbc_markets__relevance_score_97__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_macro_central_bank": [
+      "news_narrative:kalshi_traders_see_greater_than_50_odds_the_fed_will_hike_rates_this_year__source_cnbc_markets__relevance_score_97__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_macro_central_bank"
     ],
     "labor_market_strong": [
       "risk:labor_market_strong"
@@ -871,9 +871,6 @@
     ],
     "none": [
       "news_narrative:none"
-    ],
-    "oil_prices_fall_after_vance_says_more_than_12_million_barrels_exit_strait_of_hormuz__source_cnbc_markets__relevance_score_84__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_world_event_energy": [
-      "news_narrative:oil_prices_fall_after_vance_says_more_than_12_million_barrels_exit_strait_of_hormuz__source_cnbc_markets__relevance_score_84__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_world_event_energy"
     ],
     "portfolio_agent": [
       "agent:portfolio_agent"
@@ -925,6 +922,9 @@
       "priority:unh_position_concentration_415",
       "risk:unh_position_concentration_415"
     ],
+    "us_navy_ends_blockade_of_irans_ports_and_coastal_areas__source_cnbc_markets__relevance_score_84__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_world_event": [
+      "news_narrative:us_navy_ends_blockade_of_irans_ports_and_coastal_areas__source_cnbc_markets__relevance_score_84__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_world_event"
+    ],
     "vance_says_us_isnt_giving_iran_a_cent_as_he_defends_trump_peace_deal__source_cnbc_markets__relevance_score_84__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_world_event": [
       "news_narrative:vance_says_us_isnt_giving_iran_a_cent_as_he_defends_trump_peace_deal__source_cnbc_markets__relevance_score_84__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_world_event"
     ],
@@ -935,7 +935,7 @@
       "risk:yield_curve_flat"
     ]
   },
-  "generated_at": "2026-06-18T11:45:00",
+  "generated_at": "2026-06-18T13:47:19",
   "nodes": [
     {
       "id": "action:reevaluate_smci_low_conviction_holding",
@@ -961,7 +961,7 @@
       "metadata": {
         "action": "Review SMCI position concentration 23.6%",
         "category": "action",
-        "count": 4,
+        "count": 5,
         "description": "Current action queue contains a review-class action.",
         "is_material": false,
         "name": "Review SMCI position concentration 23.6%",
@@ -979,8 +979,8 @@
       "metadata": {
         "action": "Review SMCI position concentration 23.7%",
         "category": "action",
-        "count": 7,
-        "description": "Action appears in 7 state samples.",
+        "count": 6,
+        "description": "Action appears in 6 state samples.",
         "is_material": false,
         "name": "Review SMCI position concentration 23.7%",
         "score": 15,
@@ -1164,19 +1164,6 @@
       "weight": 10
     },
     {
-      "id": "news_narrative:fed_chair_kevin_warsh_wants_to_get_inflation_under_control_that_could_be_bad_news_for_home_buyers_seeking_lower_mortgage_rates__source_marketwatch__relevance_score_97__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_macro_central_bank",
-      "label": "Fed Chair Kevin Warsh wants to get inflation under control. That could be bad news for home buyers seeking lower mortgage rates. | Source MarketWatch | Relevance Score 97 | Impact Category Fed Policy | Impact Tier CRITICAL | Relevance HIGH | Reason Federal Reserve policy directly reprices rates, equities, and risk assets. | Tags MACRO, CENTRAL_BANK",
-      "metadata": {
-        "evidence": [],
-        "fields": {},
-        "rank": 1,
-        "title": "Fed Chair Kevin Warsh wants to get inflation under control. That could be bad news for home buyers seeking lower mortgage rates. | Source MarketWatch | Relevance Score 97 | Impact Category Fed Policy | Impact Tier CRITICAL | Relevance HIGH | Reason Federal Reserve policy directly reprices rates, equities, and risk assets. | Tags MACRO, CENTRAL_BANK"
-      },
-      "source": "state",
-      "type": "news_narrative",
-      "weight": 10
-    },
-    {
       "id": "news_narrative:here_are_the_five_big_takeaways_from_kevin_warshs_first_meeting_as_fed_chairman__source_cnbc_markets__relevance_score_95__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_macro_central_bank_rates",
       "label": "Here are the five big takeaways from Kevin Warsh's first meeting as Fed chairman | Source CNBC Markets | Relevance Score 95 | Impact Category Fed Policy | Impact Tier CRITICAL | Relevance HIGH | Reason Federal Reserve policy directly reprices rates, equities, and risk assets. | Tags MACRO, CENTRAL_BANK, RATES",
       "metadata": {
@@ -1184,6 +1171,19 @@
         "fields": {},
         "rank": 3,
         "title": "Here are the five big takeaways from Kevin Warsh's first meeting as Fed chairman | Source CNBC Markets | Relevance Score 95 | Impact Category Fed Policy | Impact Tier CRITICAL | Relevance HIGH | Reason Federal Reserve policy directly reprices rates, equities, and risk assets. | Tags MACRO, CENTRAL_BANK, RATES"
+      },
+      "source": "state",
+      "type": "news_narrative",
+      "weight": 10
+    },
+    {
+      "id": "news_narrative:kalshi_traders_see_greater_than_50_odds_the_fed_will_hike_rates_this_year__source_cnbc_markets__relevance_score_97__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_macro_central_bank",
+      "label": "Kalshi traders see greater than 50% odds the Fed will hike rates this year | Source CNBC Markets | Relevance Score 97 | Impact Category Fed Policy | Impact Tier CRITICAL | Relevance HIGH | Reason Federal Reserve policy directly reprices rates, equities, and risk assets. | Tags MACRO, CENTRAL_BANK",
+      "metadata": {
+        "evidence": [],
+        "fields": {},
+        "rank": 1,
+        "title": "Kalshi traders see greater than 50% odds the Fed will hike rates this year | Source CNBC Markets | Relevance Score 97 | Impact Category Fed Policy | Impact Tier CRITICAL | Relevance HIGH | Reason Federal Reserve policy directly reprices rates, equities, and risk assets. | Tags MACRO, CENTRAL_BANK"
       },
       "source": "state",
       "type": "news_narrative",
@@ -1209,10 +1209,10 @@
       "id": "news_narrative:middle_east_energy_risk",
       "label": "Middle East Energy Risk",
       "metadata": {
-        "reason": "6 related Iran, Hormuz, or oil headlines indicate an energy-linked geopolitical market narrative.",
-        "representative_headline": "Oil prices fall after Vance says more than 12 million barrels exit Strait of Hormuz",
+        "reason": "7 related Iran, Hormuz, or oil headlines indicate an energy-linked geopolitical market narrative.",
+        "representative_headline": "U.S. Navy ends blockade of Iran's ports and coastal areas",
         "score": 100,
-        "supporting_articles": 6,
+        "supporting_articles": 7,
         "title": "Middle East Energy Risk"
       },
       "source": "state",
@@ -1223,19 +1223,6 @@
       "id": "news_narrative:none",
       "label": "None",
       "metadata": {},
-      "source": "state",
-      "type": "news_narrative",
-      "weight": 10
-    },
-    {
-      "id": "news_narrative:oil_prices_fall_after_vance_says_more_than_12_million_barrels_exit_strait_of_hormuz__source_cnbc_markets__relevance_score_84__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_world_event_energy",
-      "label": "Oil prices fall after Vance says more than 12 million barrels exit Strait of Hormuz | Source CNBC Markets | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags WORLD_EVENT, ENERGY",
-      "metadata": {
-        "evidence": [],
-        "fields": {},
-        "rank": 4,
-        "title": "Oil prices fall after Vance says more than 12 million barrels exit Strait of Hormuz | Source CNBC Markets | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags WORLD_EVENT, ENERGY"
-      },
       "source": "state",
       "type": "news_narrative",
       "weight": 10
@@ -1253,6 +1240,19 @@
         "type": "portfolio_relevant_news"
       },
       "source": "change_detection",
+      "type": "news_narrative",
+      "weight": 10
+    },
+    {
+      "id": "news_narrative:us_navy_ends_blockade_of_irans_ports_and_coastal_areas__source_cnbc_markets__relevance_score_84__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_world_event",
+      "label": "U.S. Navy ends blockade of Iran's ports and coastal areas | Source CNBC Markets | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags WORLD_EVENT",
+      "metadata": {
+        "evidence": [],
+        "fields": {},
+        "rank": 4,
+        "title": "U.S. Navy ends blockade of Iran's ports and coastal areas | Source CNBC Markets | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags WORLD_EVENT"
+      },
+      "source": "state",
       "type": "news_narrative",
       "weight": 10
     },
@@ -1833,7 +1833,7 @@
         "weight": 6
       },
       {
-        "id": "edge:46",
+        "id": "edge:45",
         "source": "news_narrative:portfolio_relevant_news",
         "source_layer": "change_detection",
         "target": "agent:news_agent",
@@ -2139,14 +2139,14 @@
       },
       {
         "id": "edge:39",
-        "source": "news_narrative:fed_chair_kevin_warsh_wants_to_get_inflation_under_control_that_could_be_bad_news_for_home_buyers_seeking_lower_mortgage_rates__source_marketwatch__relevance_score_97__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_macro_central_bank",
+        "source": "news_narrative:here_are_the_five_big_takeaways_from_kevin_warshs_first_meeting_as_fed_chairman__source_cnbc_markets__relevance_score_95__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_macro_central_bank_rates",
         "source_layer": "state",
         "target": "agent:news_agent",
         "weight": 7
       },
       {
         "id": "edge:40",
-        "source": "news_narrative:here_are_the_five_big_takeaways_from_kevin_warshs_first_meeting_as_fed_chairman__source_cnbc_markets__relevance_score_95__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_macro_central_bank_rates",
+        "source": "news_narrative:kalshi_traders_see_greater_than_50_odds_the_fed_will_hike_rates_this_year__source_cnbc_markets__relevance_score_97__impact_category_fed_policy__impact_tier_critical__relevance_high__reason_federal_reserve_policy_directly_reprices_rates_equities_and_risk_assets__tags_macro_central_bank",
         "source_layer": "state",
         "target": "agent:news_agent",
         "weight": 7
@@ -2166,8 +2166,8 @@
         "weight": 7
       },
       {
-        "id": "edge:45",
-        "source": "news_narrative:oil_prices_fall_after_vance_says_more_than_12_million_barrels_exit_strait_of_hormuz__source_cnbc_markets__relevance_score_84__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_world_event_energy",
+        "id": "edge:46",
+        "source": "news_narrative:us_navy_ends_blockade_of_irans_ports_and_coastal_areas__source_cnbc_markets__relevance_score_84__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_world_event",
         "source_layer": "state",
         "target": "agent:news_agent",
         "weight": 7

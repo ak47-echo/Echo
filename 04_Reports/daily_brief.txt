@@ -40,7 +40,7 @@ REPORT RETENTION SUMMARY
 ------------------------
 
 Archive Enabled: Yes
-Archive Folder: 04_Reports/archive/20260618_114500
+Archive Folder: 04_Reports/archive/20260618_134719
 Archive Keep Count: 10
 Archive Runs Retained: 10
 Archive Cleanup Deleted: 1
@@ -105,7 +105,7 @@ CROSS-AGENT THEME DETAILS
    Supporting Signals:
    - Macro Agent | MACRO_REGIME | HIGH | Inflation Trend | Macro Regime Inflation Stress | Regime Score 100 | Priority Tier HIGH
    - Macro Agent | INFLATION_RISING | MEDIUM | Inflation trend: RISING
-   - News Agent | WORLD_EVENT | MEDIUM | Oil prices fall after Vance says more than 12 million barrels exit Strait of Hormuz
+   - News Agent | WORLD_EVENT | MEDIUM | U.S. Navy ends blockade of Iran's ports and coastal areas
    - News Agent | NEWS_NARRATIVE | MEDIUM | Middle East Energy Risk
 
 2. Fed/Rates Risk
@@ -116,7 +116,7 @@ CROSS-AGENT THEME DETAILS
    Theme Reason: Fed/Rates Risk links 2 signals across 2 agent(s): Macro Agent, News Agent.
    Supporting Signals:
    - Macro Agent | MACRO_REGIME | HIGH | Inflation Trend | Macro Regime Inflation Stress | Regime Score 100 | Priority Tier HIGH
-   - News Agent | MACRO_NEWS | MEDIUM | Fed Chair Kevin Warsh wants to get inflation under control. That could be bad news for home buyers seeking lower mortgage rates.
+   - News Agent | MACRO_NEWS | MEDIUM | Kalshi traders see greater than 50% odds the Fed will hike rates this year
 
 3. Recession/Growth Slowdown Risk
    Theme Strength: CRITICAL
@@ -151,15 +151,14 @@ CROSS-AGENT THEME DETAILS
    - Research Agent | RESEARCH_HEALTH_ISSUE | LOW | AVDV: High score candidate still in watch status
 
 6. Tax/Capital Deployment Theme
-   Theme Strength: CRITICAL
-   Theme Score: 100
-   Supporting Agents: News Agent, Portfolio Manager
-   Supporting Signal Count: 3
-   Theme Reason: Tax/Capital Deployment Theme links 3 signals across 2 agent(s): News Agent, Portfolio Manager.
+   Theme Strength: HIGH
+   Theme Score: 96
+   Supporting Agents: Portfolio Manager
+   Supporting Signal Count: 2
+   Theme Reason: Tax/Capital Deployment Theme links 2 signals across 1 agent(s): Portfolio Manager.
    Supporting Signals:
    - Portfolio Manager | DEPLOYMENT_OPPORTUNITY | MEDIUM | Next $1000 | SGOV $351 | AVUV $330 | AVDV $319
    - Portfolio Manager | REPLACEMENT_CANDIDATE | MEDIUM | Sell MSTR / Buy AVUV | Reason Higher ranked candidate available.
-   - News Agent | MACRO_NEWS | MEDIUM | Fed Chair Kevin Warsh wants to get inflation under control. That could be bad news for home buyers seeking lower mortgage rates.
 
 7. Market/Regulatory Event Theme
    Theme Strength: HIGH
@@ -168,8 +167,8 @@ CROSS-AGENT THEME DETAILS
    Supporting Signal Count: 3
    Theme Reason: Market/Regulatory Event Theme links 3 signals across 1 agent(s): News Agent.
    Supporting Signals:
-   - News Agent | WORLD_EVENT | MEDIUM | Oil prices fall after Vance says more than 12 million barrels exit Strait of Hormuz
-   - News Agent | MACRO_NEWS | MEDIUM | Fed Chair Kevin Warsh wants to get inflation under control. That could be bad news for home buyers seeking lower mortgage rates.
+   - News Agent | WORLD_EVENT | MEDIUM | U.S. Navy ends blockade of Iran's ports and coastal areas
+   - News Agent | MACRO_NEWS | MEDIUM | Kalshi traders see greater than 50% odds the Fed will hike rates this year
    - News Agent | NEWS_NARRATIVE | MEDIUM | Middle East Energy Risk
 
 
@@ -232,7 +231,7 @@ THEME IMPACT DETAILS
    Impact Reason: Research Quality Risk maps to ECO/MSTR/SMCI; exposure link: Low-conviction holdings; factor link: Growth 69%, Commodity 9.5%, Bitcoin 8.5%.
 
 6. Tax/Capital Deployment Theme
-   Theme Score: 100
+   Theme Score: 96
    Impact Tier: CRITICAL
    Impacted Holdings: MSTR
    Impacted Exposures: Taxable account, Available cash
@@ -506,7 +505,7 @@ AGENT SIGNAL BUS DETAILS
    Category: Macro Risk
    Description: Macro Agent identified rising inflation.
 
-12. Fed Chair Kevin Warsh wants to get inflation under control. That could be bad news for home buyers seeking lower mortgage rates.
+12. Kalshi traders see greater than 50% odds the Fed will hike rates this year
    Source: News Agent
    Type: MACRO_NEWS
    Severity: MEDIUM
@@ -520,9 +519,9 @@ AGENT SIGNAL BUS DETAILS
    Severity: MEDIUM
    Confidence: MEDIUM
    Category: Market Event
-   Description: 6 related Iran, Hormuz, or oil headlines indicate an energy-linked geopolitical market narrative.
+   Description: 7 related Iran, Hormuz, or oil headlines indicate an energy-linked geopolitical market narrative.
 
-14. Oil prices fall after Vance says more than 12 million barrels exit Strait of Hormuz
+14. U.S. Navy ends blockade of Iran's ports and coastal areas
    Source: News Agent
    Type: WORLD_EVENT
    Severity: MEDIUM
@@ -608,9 +607,9 @@ Echo operates in report mode and supports deterministic backend queries for acti
 AGENT REGISTRY DETAILS
 ----------------------
 
-News Agent | Role Intelligence Officer | Status ACTIVE | Health HEALTHY | Report SUPPORTED | Query SUPPORTED | Last Run SUCCESS | Time 0.97s
-Macro Agent | Role Macro Strategist | Status ACTIVE | Health HEALTHY | Report SUPPORTED | Query SUPPORTED | Last Run SUCCESS | Time 0.31s
-Portfolio Manager | Role Chief Investment Officer | Status ACTIVE | Health HEALTHY | Report SUPPORTED | Query SUPPORTED | Last Run SUCCESS | Time 1.98s
+News Agent | Role Intelligence Officer | Status ACTIVE | Health HEALTHY | Report SUPPORTED | Query SUPPORTED | Last Run SUCCESS | Time 1.10s
+Macro Agent | Role Macro Strategist | Status ACTIVE | Health HEALTHY | Report SUPPORTED | Query SUPPORTED | Last Run SUCCESS | Time 1.93s
+Portfolio Manager | Role Chief Investment Officer | Status ACTIVE | Health HEALTHY | Report SUPPORTED | Query SUPPORTED | Last Run SUCCESS | Time 1.78s
 Research Agent | Role Research Analyst | Status ACTIVE | Health HEALTHY | Report SUPPORTED | Query SUPPORTED | Last Run SUCCESS | Time 0.05s
 Calendar Agent | Role Scheduling Officer | Status PLACEHOLDER | Health UNKNOWN | Report NOT_SUPPORTED | Query PLANNED | Last Run NOT_RUN | Time N/A
 Email Agent | Role Communications Officer | Status PLACEHOLDER | Health UNKNOWN | Report NOT_SUPPORTED | Query PLANNED | Last Run NOT_RUN | Time N/A
@@ -632,7 +631,7 @@ Empty Query Handling: ENABLED
 Echo Multi-Agent Response Engine: ACTIVE
 Echo Multi-Agent Routing: DETERMINISTIC
 LLM Orchestrator Stub: ACTIVE | LLM Enabled: No
-LLM Provider Layer: ACTIVE | Provider: openai | Live Calls: Disabled
+LLM Provider Layer: ACTIVE | Provider: anthropic | Live Calls: Disabled
 LLM Response Safety Contract: ACTIVE
 Deterministic Only: YES
 AI Integration: NONE
@@ -659,22 +658,22 @@ Deal Flow Agent | Query Mode PLANNED | Supported Types None | Planned Types basi
 NEWS AGENT EXECUTIVE BRIEF
 --------------------------
 
-News Agent Status: DEGRADED
+News Agent Status: ACTIVE
 Top Market Narrative: Middle East Energy Risk
-Supporting Articles: 6
+Supporting Articles: 7
 Top Narrative Score: 100
-Representative Headline: Oil prices fall after Vance says more than 12 million barrels exit Strait of Hormuz
-Top Narrative Reason: 6 related Iran, Hormuz, or oil headlines indicate an energy-linked geopolitical market narrative.
+Representative Headline: U.S. Navy ends blockade of Iran's ports and coastal areas
+Top Narrative Reason: 7 related Iran, Hormuz, or oil headlines indicate an energy-linked geopolitical market narrative.
 Top Portfolio Story: None
 Top Watchlist Story: None
-Top Macro Story: Fed Chair Kevin Warsh wants to get inflation under control. That could be bad news for home buyers seeking lower mortgage rates.
-Top World Event Story: Oil prices fall after Vance says more than 12 million barrels exit Strait of Hormuz
-High Relevance Stories: 9
+Top Macro Story: Kalshi traders see greater than 50% odds the Fed will hike rates this year
+Top World Event Story: U.S. Navy ends blockade of Iran's ports and coastal areas
+High Relevance Stories: 20
 Portfolio-Relevant Stories: 0
 Watchlist-Relevant Stories: 0
 Macro-Relevant Stories: 18
 World Event Stories: 6
-Failed Sources: 1
+Failed Sources: 0
 
 News Agent is observational only and does not generate investment recommendations.
 
@@ -683,7 +682,7 @@ NEWS AGENT FULL REPORT
 
 Source Health:
 Federal Reserve | Status OK | Articles 20 | Error None
-SEC | Status FAILED | Articles 0 | Error HTTP Error 503: Service Unavailable
+SEC | Status OK | Articles 25 | Error None
 BLS | Status OK | Articles 1 | Error None
 BEA | Status OK | Articles 45 | Error None
 CNBC Markets | Status OK | Articles 30 | Error None
@@ -693,27 +692,59 @@ Top Ranked Narratives:
 1. Middle East Energy Risk
    Narrative Score: 100
    Tier: CRITICAL
-   Supporting Articles: 6
-   Representative Headline: Oil prices fall after Vance says more than 12 million barrels exit Strait of Hormuz
-   Narrative Reason: 6 related Iran, Hormuz, or oil headlines indicate an energy-linked geopolitical market narrative.
+   Supporting Articles: 7
+   Representative Headline: U.S. Navy ends blockade of Iran's ports and coastal areas
+   Narrative Reason: 7 related Iran, Hormuz, or oil headlines indicate an energy-linked geopolitical market narrative.
    Supporting Headlines:
-   - Oil prices fall after Vance says more than 12 million barrels exit Strait of Hormuz
+   - U.S. Navy ends blockade of Iran's ports and coastal areas
    - Vance says U.S. isn’t giving Iran ‘a cent’ as he defends Trump peace deal
-   - Hegseth warns NATO allies that some nations will 'fail' U.S. defense review
-   - OPEC chief dismisses IEA supply glut forecast as 'critical' Strait of Hormuz reopens
    - Trump’s Iran agreement is a massive buy signal for stocks
-   - Bank of England holds interest rates at 3.75% amid Iran war peace prospects
+   - Three Saudi oil tankers carrying 6 million barrels cross Strait of Hormuz
+   - Hegseth warns NATO allies that some nations will 'fail' U.S. defense review
+   - Gas prices fall below $4 per gallon as oil supply fears ease after Iran deal
+   - OPEC chief dismisses IEA supply glut forecast as 'critical' Strait of Hormuz reopens
 2. Federal Reserve Policy Outlook
    Narrative Score: 100
    Tier: CRITICAL
    Supporting Articles: 3
-   Representative Headline: Fed Chair Kevin Warsh wants to get inflation under control. That could be bad news for home buyers seeking lower mortgage rates.
+   Representative Headline: Kalshi traders see greater than 50% odds the Fed will hike rates this year
    Narrative Reason: 3 related Fed-policy stories point to rates as the dominant market narrative.
    Supporting Headlines:
-   - Fed Chair Kevin Warsh wants to get inflation under control. That could be bad news for home buyers seeking lower mortgage rates.
+   - Kalshi traders see greater than 50% odds the Fed will hike rates this year
    - Analysis: Chairman Kevin Warsh’s task forces are the key to understanding the new Fed
    - Here are the five big takeaways from Kevin Warsh's first meeting as Fed chairman
-3. AI and Semiconductor Cycle
+3. Regulatory Action
+   Narrative Score: 92
+   Tier: HIGH
+   Supporting Articles: 9
+   Representative Headline: SEC Proposes Rescission of Regulation NMS Rules 611 and 610(e)
+   Narrative Reason: 9 related stories share impact category Major Regulatory Action and common market tags.
+   Supporting Headlines:
+   - SEC Proposes Rescission of Regulation NMS Rules 611 and 610(e)
+   - SEC Establishes Joint Data Standards as Required Under the Financial Data Transparency Act of 2022
+   - SEC Rescinds Policy Regarding Denials of Settlements in Enforcement Actions
+   - SEC Charges 21 Individuals With Alleged Wide-Reaching Insider Trading Scheme
+   - SEC Proposes Amendments to Permit Optional Semiannual Reporting by Public Companies
+   - Deputy Director of Enforcement Jason Burt to Conclude His Tenure at the SEC
+   - SEC Appoints David Woodcock as Director of the Division of Enforcement
+   - SEC Announces Enforcement Results for Fiscal Year 2025
+4. Regulatory Action
+   Narrative Score: 82
+   Tier: HIGH
+   Supporting Articles: 1
+   Representative Headline: SEC Approves Exemptive Order and Proposed Rule Change to Permit Customer Cross-Margining in the U.S. Treasury Market
+   Narrative Reason: Major regulatory action can alter sector economics or company risk.
+   Supporting Headlines:
+   - SEC Approves Exemptive Order and Proposed Rule Change to Permit Customer Cross-Margining in the U.S. Treasury Market
+5. AI and Semiconductor Cycle
+   Narrative Score: 57
+   Tier: MODERATE
+   Supporting Articles: 1
+   Representative Headline: Wall Street recovers from Fed slump, and the next step for Amazon's AI chip ambitions
+   Narrative Reason: AI and semiconductor developments can affect growth leadership.
+   Supporting Headlines:
+   - Wall Street recovers from Fed slump, and the next step for Amazon's AI chip ambitions
+6. AI and Semiconductor Cycle
    Narrative Score: 57
    Tier: MODERATE
    Supporting Articles: 1
@@ -721,7 +752,7 @@ Top Ranked Narratives:
    Narrative Reason: AI and semiconductor developments can affect growth leadership.
    Supporting Headlines:
    - Nearly 80% of data center capacity is at elevated risk to climate hazards like flooding and fire, study says
-4. General Economic Data
+7. General Economic Data
    Narrative Score: 26
    Tier: LOW
    Supporting Articles: 2
@@ -730,7 +761,7 @@ Top Ranked Narratives:
    Supporting Headlines:
    - Federal Reserve Board and Federal Open Market Committee release economic projections from the June 16-17 FOMC meeting
    - Federal Reserve Board releases results from two surveys of senior financial officers at banks about their views on discount window operating days and their strategies and practices for managing reserve balances
-5. General Economic Data
+8. General Economic Data
    Narrative Score: 26
    Tier: LOW
    Supporting Articles: 2
@@ -739,7 +770,7 @@ Top Ranked Narratives:
    Supporting Headlines:
    - New Foreign Direct Investment in the United States, 2025
    - Foreign Direct Investment by Country and Industry, 2017
-6. General Economic Data
+9. General Economic Data
    Narrative Score: 26
    Tier: LOW
    Supporting Articles: 2
@@ -748,7 +779,7 @@ Top Ranked Narratives:
    Supporting Headlines:
    - U.S. International Transactions and Investment Position, 4th Quarter and Year 2025
    - U.S. International Transactions, 3rd Quarter 2025
-7. General Economic Data
+10. General Economic Data
    Narrative Score: 26
    Tier: LOW
    Supporting Articles: 2
@@ -757,42 +788,18 @@ Top Ranked Narratives:
    Supporting Headlines:
    - Outdoor Recreation Economic Statistics, U.S. and States, 2024
    - Outdoor Recreation Satellite Account, U.S. and States, 2023
-8. General Economic Data
-   Narrative Score: 23
-   Tier: LOW
-   Supporting Articles: 1
-   Representative Headline: Major Economic Indicators Latest Numbers
-   Narrative Reason: Routine indicator headline is capped below market-moving catalysts.
-   Supporting Headlines:
-   - Major Economic Indicators Latest Numbers
-9. General Economic Data
-   Narrative Score: 23
-   Tier: LOW
-   Supporting Articles: 1
-   Representative Headline: GDP (Second Estimate) and Corporate Profits, 1st Quarter 2026
-   Narrative Reason: Routine economic data is monitored but lacks a clear market shock.
-   Supporting Headlines:
-   - GDP (Second Estimate) and Corporate Profits, 1st Quarter 2026
-10. General Economic Data
-   Narrative Score: 23
-   Tier: LOW
-   Supporting Articles: 1
-   Representative Headline: GDP (Advance Estimate), 4th Quarter and Year 2025
-   Narrative Reason: Routine economic data is monitored but lacks a clear market shock.
-   Supporting Headlines:
-   - GDP (Advance Estimate), 4th Quarter and Year 2025
 
 Top Ranked Stories:
-1. Fed Chair Kevin Warsh wants to get inflation under control. That could be bad news for home buyers seeking lower mortgage rates. | Source MarketWatch | Relevance Score 97 | Impact Category Fed Policy | Impact Tier CRITICAL | Relevance HIGH | Reason Federal Reserve policy directly reprices rates, equities, and risk assets. | Tags MACRO, CENTRAL_BANK
+1. Kalshi traders see greater than 50% odds the Fed will hike rates this year | Source CNBC Markets | Relevance Score 97 | Impact Category Fed Policy | Impact Tier CRITICAL | Relevance HIGH | Reason Federal Reserve policy directly reprices rates, equities, and risk assets. | Tags MACRO, CENTRAL_BANK
 2. Analysis: Chairman Kevin Warsh’s task forces are the key to understanding the new Fed | Source CNBC Markets | Relevance Score 97 | Impact Category Fed Policy | Impact Tier CRITICAL | Relevance HIGH | Reason Federal Reserve policy directly reprices rates, equities, and risk assets. | Tags MACRO, CENTRAL_BANK, RATES
 3. Here are the five big takeaways from Kevin Warsh's first meeting as Fed chairman | Source CNBC Markets | Relevance Score 95 | Impact Category Fed Policy | Impact Tier CRITICAL | Relevance HIGH | Reason Federal Reserve policy directly reprices rates, equities, and risk assets. | Tags MACRO, CENTRAL_BANK, RATES
-4. Oil prices fall after Vance says more than 12 million barrels exit Strait of Hormuz | Source CNBC Markets | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags WORLD_EVENT, ENERGY
+4. U.S. Navy ends blockade of Iran's ports and coastal areas | Source CNBC Markets | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags WORLD_EVENT
 5. Vance says U.S. isn’t giving Iran ‘a cent’ as he defends Trump peace deal | Source CNBC Markets | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags WORLD_EVENT
-6. Hegseth warns NATO allies that some nations will 'fail' U.S. defense review | Source CNBC Markets | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags WORLD_EVENT
-7. OPEC chief dismisses IEA supply glut forecast as 'critical' Strait of Hormuz reopens | Source CNBC Markets | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags WORLD_EVENT, ENERGY
-8. Trump’s Iran agreement is a massive buy signal for stocks | Source MarketWatch | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags MARKET, WORLD_EVENT
-9. Bank of England holds interest rates at 3.75% amid Iran war peace prospects | Source CNBC Markets | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags MACRO, WORLD_EVENT, RATES
-10. Nearly 80% of data center capacity is at elevated risk to climate hazards like flooding and fire, study says | Source CNBC Markets | Relevance Score 54 | Impact Category AI and Semiconductor Cycle | Impact Tier MODERATE | Relevance MEDIUM | Reason AI and semiconductor developments can affect growth leadership. | Tags AI_SEMICONDUCTOR
+6. Trump’s Iran agreement is a massive buy signal for stocks | Source MarketWatch | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags MARKET, WORLD_EVENT
+7. Three Saudi oil tankers carrying 6 million barrels cross Strait of Hormuz | Source CNBC Markets | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags ENERGY
+8. Hegseth warns NATO allies that some nations will 'fail' U.S. defense review | Source CNBC Markets | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags WORLD_EVENT
+9. Gas prices fall below $4 per gallon as oil supply fears ease after Iran deal | Source CNBC Markets | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags WORLD_EVENT, ENERGY
+10. OPEC chief dismisses IEA supply glut forecast as 'critical' Strait of Hormuz reopens | Source CNBC Markets | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags WORLD_EVENT, ENERGY
 
 Portfolio-Relevant Stories:
 None
@@ -801,10 +808,10 @@ Watchlist-Relevant Stories:
 None
 
 Macro-Relevant Stories:
-Fed Chair Kevin Warsh wants to get inflation under control. That could be bad news for home buyers seeking lower mortgage rates. | Source MarketWatch | Score 97 | Impact Category Fed Policy | Impact Tier CRITICAL | Reason Federal Reserve policy directly reprices rates, equities, and risk assets. | Matched Terms Fed, Federal Reserve, inflation | Link https://www.marketwatch.com/story/fed-chair-kevin-warsh-wants-to-get-inflation-under-control-that-could-be-bad-news-for-home-buyers-seeking-lower-mortgage-rates-99fb4aad?mod=mw_rss_topstories
+Kalshi traders see greater than 50% odds the Fed will hike rates this year | Source CNBC Markets | Score 97 | Impact Category Fed Policy | Impact Tier CRITICAL | Reason Federal Reserve policy directly reprices rates, equities, and risk assets. | Matched Terms Fed, Federal Reserve | Link https://www.cnbc.com/2026/06/18/kalshi-traders-see-greater-than-50percent-odds-the-fed-will-hike-rates-this-year.html
 Analysis: Chairman Kevin Warsh’s task forces are the key to understanding the new Fed | Source CNBC Markets | Score 97 | Impact Category Fed Policy | Impact Tier CRITICAL | Reason Federal Reserve policy directly reprices rates, equities, and risk assets. | Matched Terms Fed, interest rates | Link https://www.cnbc.com/2026/06/17/kevin-warsh-fed-interest-rates-risk-analysis.html
 Here are the five big takeaways from Kevin Warsh's first meeting as Fed chairman | Source CNBC Markets | Score 95 | Impact Category Fed Policy | Impact Tier CRITICAL | Reason Federal Reserve policy directly reprices rates, equities, and risk assets. | Matched Terms Fed, Federal Reserve, interest rates | Link https://www.cnbc.com/2026/06/17/here-are-the-five-big-takeaways-from-kevin-warshs-first-meeting-as-fed-chairman.html
-Bank of England holds interest rates at 3.75% amid Iran war peace prospects | Source CNBC Markets | Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms interest rates | Link https://www.cnbc.com/2026/06/18/inflation-interest-rates-uk-bank-of-england-iran-deal.html
+Wall Street recovers from Fed slump, and the next step for Amazon's AI chip ambitions | Source CNBC Markets | Score 54 | Impact Category AI and Semiconductor Cycle | Impact Tier MODERATE | Reason AI and semiconductor developments can affect growth leadership. | Matched Terms Fed | Link https://www.cnbc.com/2026/06/18/cramer-investing-club-stock-market-amazon-chips.html
 Federal Reserve Board and Federal Open Market Committee release economic projections from the June 16-17 FOMC meeting | Source Federal Reserve | Score 22 | Impact Category Generic Economic Data | Impact Tier LOW | Reason Routine indicator headline is capped below market-moving catalysts. | Matched Terms Federal Reserve, FOMC | Link https://www.federalreserve.gov/newsevents/pressreleases/monetary20260617b.htm
 Major Economic Indicators Latest Numbers | Source BLS | Score 22 | Impact Category Generic Economic Data | Impact Tier LOW | Reason Routine indicator headline is capped below market-moving catalysts. | Matched Terms CPI, unemployment | Link https://www.bls.gov/bls/
 GDP (Second Estimate) and Corporate Profits, 1st Quarter 2026 | Source BEA | Score 22 | Impact Category Generic Economic Data | Impact Tier LOW | Reason Routine economic data is monitored but lacks a clear market shock. | Matched Terms GDP | Link https://www.bea.gov/news/2026/gdp-second-estimate-and-corporate-profits-1st-quarter-2026
@@ -813,12 +820,12 @@ U.S. International Transactions and Investment Position, 4th Quarter and Year 20
 Outdoor Recreation Economic Statistics, U.S. and States, 2024 | Source BEA | Score 22 | Impact Category Generic Economic Data | Impact Tier LOW | Reason Routine indicator headline is capped below market-moving catalysts. | Matched Terms GDP, dollar | Link https://www.bea.gov/news/2026/outdoor-recreation-economic-statistics-us-and-states-2024
 
 World Event Stories:
-Oil prices fall after Vance says more than 12 million barrels exit Strait of Hormuz | Source CNBC Markets | Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms Iran | Link https://www.cnbc.com/2026/06/18/oil-prices-today-wti-brent.html
+U.S. Navy ends blockade of Iran's ports and coastal areas | Source CNBC Markets | Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms Iran | Link https://www.cnbc.com/2026/06/18/us-navy-blockade-iran-trump-oil.html
 Vance says U.S. isn’t giving Iran ‘a cent’ as he defends Trump peace deal | Source CNBC Markets | Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms Iran | Link https://www.cnbc.com/2026/06/18/vance-iran-war-memo-oil-gas.html
-Hegseth warns NATO allies that some nations will 'fail' U.S. defense review | Source CNBC Markets | Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms Iran | Link https://www.cnbc.com/2026/06/18/hegseth-nato-defense-review-fail-europe.html
-OPEC chief dismisses IEA supply glut forecast as 'critical' Strait of Hormuz reopens | Source CNBC Markets | Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms conflict | Link https://www.cnbc.com/2026/06/18/opec-iea-supply-glut-forecast-critical-strait-hormuz-reopens-oil.html
 Trump’s Iran agreement is a massive buy signal for stocks | Source MarketWatch | Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms war, conflict, Iran | Link https://www.marketwatch.com/story/trumps-iran-agreement-changes-the-game-for-investors-these-are-the-two-sectors-to-buy-right-now-0705bc62?mod=mw_rss_topstories
-Bank of England holds interest rates at 3.75% amid Iran war peace prospects | Source CNBC Markets | Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms war, Iran | Link https://www.cnbc.com/2026/06/18/inflation-interest-rates-uk-bank-of-england-iran-deal.html
+Hegseth warns NATO allies that some nations will 'fail' U.S. defense review | Source CNBC Markets | Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms Iran | Link https://www.cnbc.com/2026/06/18/hegseth-nato-defense-review-fail-europe.html
+Gas prices fall below $4 per gallon as oil supply fears ease after Iran deal | Source CNBC Markets | Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms Israel, Iran | Link https://www.cnbc.com/2026/06/18/iran-war-gasoline-price-strait-hormuz-oil.html
+OPEC chief dismisses IEA supply glut forecast as 'critical' Strait of Hormuz reopens | Source CNBC Markets | Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms conflict | Link https://www.cnbc.com/2026/06/18/opec-iea-supply-glut-forecast-critical-strait-hormuz-reopens-oil.html
 
 MACRO AGENT EXECUTIVE BRIEF
 ---------------------------

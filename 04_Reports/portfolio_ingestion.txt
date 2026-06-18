@@ -1,10 +1,10 @@
 PORTFOLIO INGESTION
 
 Status: success
-Generated At: 2026-06-18T11:44:57
+Generated At: 2026-06-18T13:47:14
 Source File: C:\Users\PC\OneDrive\Desktop\Echo\02_Data\portfolio_imports\All-Accounts-Positions-2026-06-18-120550.csv
 Output Path: C:\Users\PC\OneDrive\Desktop\Echo\02_Data\portfolio_current\holdings_normalized.csv
-Archive Path: C:\Users\PC\OneDrive\Desktop\Echo\02_Data\portfolio_archive\20260618_114457_All-Accounts-Positions-2026-06-18-120550.csv
+Archive Path: C:\Users\PC\OneDrive\Desktop\Echo\02_Data\portfolio_archive\20260618_134714_All-Accounts-Positions-2026-06-18-120550.csv
 Rows Read: 15
 Rows Normalized: 15
 Rows Skipped: 0

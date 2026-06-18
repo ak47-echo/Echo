@@ -2,7 +2,7 @@ ECHO STATE HISTORY
 ==================
 
 Schema Version: 1.0
-Generated At: 2026-06-18T11:45:00
+Generated At: 2026-06-18T13:47:19
 State Samples: 11
 Archived Snapshots: 10
 
@@ -27,8 +27,8 @@ Persistent Risks:
 Persistent Actions:
 - Reevaluate SMCI: Low conviction holding (11 samples)
 - Review UNH position concentration 41.5% (11 samples)
-- Review SMCI position concentration 23.7% (7 samples)
-- Review SMCI position concentration 23.6% (4 samples)
+- Review SMCI position concentration 23.7% (6 samples)
+- Review SMCI position concentration 23.6% (5 samples)
 
 Operating Picture Stability:
 Priority Changes: 0

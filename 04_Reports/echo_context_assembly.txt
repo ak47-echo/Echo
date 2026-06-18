@@ -2,16 +2,15 @@ ECHO CONTEXT ASSEMBLY
 =====================
 
 Schema Version: 1.0
-Generated At: 2026-06-18T11:45:15
-Query: what stocks could go down based on recent news
+Generated At: 2026-06-18T13:47:33
+Query: if UNH fell 40 percent tomorrow, what happens?
 Assembly Mode: investment_query
-Block Count: 4
-Estimated Size: 11970
+Block Count: 3
+Estimated Size: 9188
 Full Reports Included: No
 
 Included Sources:
 - security_master_search
-- market_opportunity_scan
 - memory_context
 
 Excluded Sources:
@@ -21,9 +20,8 @@ Excluded Sources:
 - research_report
 
 Context Blocks:
-- security_master_search | secondary | Security Master Search | priority 125
-- market_opportunity_scan | primary | Market Opportunity Scan | priority 115
+- security_master_search | primary | Security Master Search | priority 125
 - memory_context | primary | Memory Summary | priority 100
 - memory_context | primary | Recommended Attention And Persistence | priority 90
 
-Reason: Assembled investment_query context from memory, budget expanded, and routed agent plan.
+Reason: Assembled investment_query context from memory, budget standard, and routed agent plan.

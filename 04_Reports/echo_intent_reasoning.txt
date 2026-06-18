@@ -2,29 +2,32 @@ ECHO INTENT REASONING
 =====================
 
 Schema Version: 1.0
-Generated At: 2026-06-18T11:45:15
-Query: what stocks could go down based on recent news
-Reasoning Intent: unknown
-Reasoning Depth: none
-Answer Style: brief
-Detected Horizon: None
-Confidence: low
+Generated At: 2026-06-18T13:47:33
+Query: if UNH fell 40 percent tomorrow, what happens?
+Reasoning Intent: scenario_analysis
+Reasoning Depth: deep
+Answer Style: scenario
+Detected Horizon: tomorrow
+Confidence: high
 
 Detected Entities:
-None
+- UNH
 
 Required Context:
 - response_composer
 - context_assembly
-- market_opportunity_scan
-- news_context
-- macro_context
-- research_context
 - security_master_search
+- research_context
+- memory_context
+- agent_context
+- current_state
 - portfolio_context
 
 Reasoning Instructions:
-- Answer from available Echo context if possible.
-- Say what context is missing if the query cannot be answered.
+- Estimate first-order impact using available portfolio concentration data.
+- Discuss second-order consequences.
+- Identify assumptions explicitly.
+- Avoid pretending to know exact future outcomes.
+- Tie scenario back to current risks and priorities.
 
-Reason: No deterministic reasoning intent matched.
+Reason: Scenario or consequence wording detected.

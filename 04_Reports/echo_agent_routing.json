@@ -1,48 +1,29 @@
 {
   "agent_context_plan": [
     {
-      "agent": "portfolio",
+      "agent": "research",
       "context_sources": [
-        "market_opportunity_scan",
-        "portfolio_snapshot"
+        "security_master_search",
+        "research_snapshot"
       ],
       "include_full_report": false,
-      "reason": "Risk query should include held-position risk candidates.",
+      "reason": "Ticker question needs local security and research context.",
       "role": "primary"
-    },
-    {
-      "agent": "news",
-      "context_sources": [
-        "news_snapshot"
-      ],
-      "include_full_report": false,
-      "reason": "News narratives provide downside signals.",
-      "role": "secondary"
-    },
-    {
-      "agent": "macro",
-      "context_sources": [
-        "macro_snapshot"
-      ],
-      "include_full_report": false,
-      "reason": "Macro regime provides downside signals.",
-      "role": "secondary"
     }
   ],
   "confidence": "high",
   "excluded_agents": [
-    "research"
-  ],
-  "generated_at": "2026-06-18T11:45:15",
-  "primary_agents": [
-    "portfolio"
-  ],
-  "query": "what stocks could go down based on recent news",
-  "reason": "Universal investment query routed by investment intent market_risks.",
-  "routing_mode": "investment_query",
-  "schema_version": "1.0",
-  "secondary_agents": [
+    "portfolio",
     "news",
     "macro"
-  ]
+  ],
+  "generated_at": "2026-06-18T13:47:32",
+  "primary_agents": [
+    "research"
+  ],
+  "query": "if UNH fell 40 percent tomorrow, what happens?",
+  "reason": "Universal investment query routed by investment intent ticker_question.",
+  "routing_mode": "investment_query",
+  "schema_version": "1.0",
+  "secondary_agents": []
 }
