@@ -1,0 +1,442 @@
+{
+  "evidence_policy": "Generated evidence may use local news, macro, portfolio, security master, and historical market data. Previous recommendations are not evidence.",
+  "generated_at": "2026-06-18T15:34:19",
+  "profile_count": 5,
+  "profiles": [
+    {
+      "bear_case": [
+        "Security classification risk bucket is speculative."
+      ],
+      "bull_case": [
+        "Thesis support: Environmental services demand can benefit from infrastructure investment and tighter waste standards",
+        "Classified as commodity stock; factors: commodity."
+      ],
+      "business_model": "Local data identifies the security category as Marine Shipping.",
+      "company_summary": "ECO is OKEANIS ECO TANKERS CO F in Marine Shipping.",
+      "competitive_position": [
+        "No local competitive-position evidence was supplied."
+      ],
+      "confidence": "MEDIUM",
+      "evidence": [
+        {
+          "as_of": "2026-06-18T15:34:18",
+          "claim": "ECO identity resolved as OKEANIS ECO TANKERS CO F in Marine Shipping.",
+          "confidence": "HIGH",
+          "source": "security_master.csv / market coverage",
+          "source_type": "security_master"
+        },
+        {
+          "as_of": "2026-06-18T15:34:18",
+          "claim": "ECO is a current holding with portfolio weight 3.616.",
+          "confidence": "HIGH",
+          "source": "holdings_normalized.csv",
+          "source_type": "portfolio"
+        },
+        {
+          "as_of": "2026-06-18T15:34:18",
+          "claim": "Direct local News Agent mention found for: TANKERS.",
+          "confidence": "MEDIUM",
+          "source": "News Agent local report",
+          "source_type": "news_agent"
+        },
+        {
+          "as_of": "2026-06-18T15:34:18",
+          "claim": "Cached market data available through 2026-06-16.",
+          "confidence": "MEDIUM",
+          "source": "Research Agent cached market data",
+          "source_type": "historical_market_data"
+        }
+      ],
+      "generated_at": "2026-06-18T15:34:18",
+      "key_drivers": [
+        "Thesis support: Environmental services demand can benefit from infrastructure investment and tighter waste standards",
+        "Classified as commodity stock; factors: commodity."
+      ],
+      "key_risks": [
+        "Security classification risk bucket is speculative."
+      ],
+      "macro_sensitivity": [],
+      "missing_data": [
+        "theses.csv is available only as manual_legacy_thesis, not current truth",
+        "Live research is disabled by LIVE_RESEARCH_ENABLED.",
+        "Missing live web evidence: ANTHROPIC_WEB_SEARCH_ENABLED is false."
+      ],
+      "name": "OKEANIS ECO TANKERS CO F",
+      "portfolio_implications": [
+        "ECO is currently held; thesis implications are informational and require user approval before any action.",
+        "Current portfolio weight is 3.616%."
+      ],
+      "recent_developments": [
+        "Direct local News Agent mention found for: TANKERS."
+      ],
+      "source_mode": "local_only",
+      "thesis_invalidation_signals": [
+        "Security classification risk bucket is speculative.",
+        "Refresh the thesis if direct news, fundamentals, valuation, or portfolio fit contradicts the current evidence."
+      ],
+      "ticker": "ECO",
+      "valuation_notes": [
+        "Cached trailing return: 168.37%."
+      ]
+    },
+    {
+      "bear_case": [
+        "Security classification risk bucket is speculative."
+      ],
+      "bull_case": [
+        "Thesis on file: Direct bitcoin exposure provides asymmetric return potential within a deliberately limited allocation",
+        "Classified as bitcoin ETF; factors: bitcoin."
+      ],
+      "business_model": "Local data identifies the security category as Non-Traditional.",
+      "company_summary": "IBIT is ISHARES BITCOIN TRUST ETF in Non-Traditional.",
+      "competitive_position": [
+        "No local competitive-position evidence was supplied."
+      ],
+      "confidence": "MEDIUM",
+      "evidence": [
+        {
+          "as_of": "2026-06-18T15:34:18",
+          "claim": "IBIT identity resolved as ISHARES BITCOIN TRUST ETF in Non-Traditional.",
+          "confidence": "HIGH",
+          "source": "security_master.csv / market coverage",
+          "source_type": "security_master"
+        },
+        {
+          "as_of": "2026-06-18T15:34:18",
+          "claim": "IBIT is a current holding with portfolio weight 8.4613.",
+          "confidence": "HIGH",
+          "source": "holdings_normalized.csv",
+          "source_type": "portfolio"
+        },
+        {
+          "as_of": "2026-06-18T15:34:18",
+          "claim": "Crypto/liquidity exposure: sensitive to rates, liquidity, and risk appetite.",
+          "confidence": "MEDIUM",
+          "source": "Macro Agent / category mapping",
+          "source_type": "macro_agent"
+        },
+        {
+          "as_of": "2026-06-18T15:34:18",
+          "claim": "Cached market data available through 2026-06-16.",
+          "confidence": "MEDIUM",
+          "source": "Research Agent cached market data",
+          "source_type": "historical_market_data"
+        }
+      ],
+      "generated_at": "2026-06-18T15:34:18",
+      "key_drivers": [
+        "Thesis on file: Direct bitcoin exposure provides asymmetric return potential within a deliberately limited allocation",
+        "Classified as bitcoin ETF; factors: bitcoin.",
+        "Crypto/liquidity exposure: sensitive to rates, liquidity, and risk appetite."
+      ],
+      "key_risks": [
+        "Security classification risk bucket is speculative."
+      ],
+      "macro_sensitivity": [
+        "Crypto/liquidity exposure: sensitive to rates, liquidity, and risk appetite."
+      ],
+      "missing_data": [
+        "theses.csv is available only as manual_legacy_thesis, not current truth",
+        "No direct local news was found for this ticker.",
+        "Live research is disabled by LIVE_RESEARCH_ENABLED.",
+        "Missing live web evidence: ANTHROPIC_WEB_SEARCH_ENABLED is false."
+      ],
+      "name": "ISHARES BITCOIN TRUST ETF",
+      "portfolio_implications": [
+        "IBIT is currently held; thesis implications are informational and require user approval before any action.",
+        "Current portfolio weight is 8.4613%."
+      ],
+      "recent_developments": [
+        "No direct local news was found for this ticker."
+      ],
+      "source_mode": "local_only",
+      "thesis_invalidation_signals": [
+        "Security classification risk bucket is speculative.",
+        "Refresh the thesis if direct news, fundamentals, valuation, or portfolio fit contradicts the current evidence."
+      ],
+      "ticker": "IBIT",
+      "valuation_notes": [
+        "Cached trailing return: 40.01%."
+      ]
+    },
+    {
+      "bear_case": [
+        "Thesis risk: Bitcoin treasury exposure offers amplified upside but carries substantial leverage and concentration risk",
+        "Security classification risk bucket is high."
+      ],
+      "bull_case": [
+        "Thesis support: Bitcoin treasury exposure offers amplified upside but carries substantial leverage and concentration risk",
+        "Classified as equity stock; factors: blend, small."
+      ],
+      "business_model": "Local data identifies the security category as US Small Blend.",
+      "company_summary": "MSTR is STRATEGY INC CLASS A in US Small Blend.",
+      "competitive_position": [
+        "No local competitive-position evidence was supplied."
+      ],
+      "confidence": "MEDIUM",
+      "evidence": [
+        {
+          "as_of": "2026-06-18T15:34:18",
+          "claim": "MSTR identity resolved as STRATEGY INC CLASS A in US Small Blend.",
+          "confidence": "HIGH",
+          "source": "security_master.csv / market coverage",
+          "source_type": "security_master"
+        },
+        {
+          "as_of": "2026-06-18T15:34:18",
+          "claim": "MSTR is a current holding with portfolio weight 0.7217.",
+          "confidence": "HIGH",
+          "source": "holdings_normalized.csv",
+          "source_type": "portfolio"
+        },
+        {
+          "as_of": "2026-06-18T15:34:18",
+          "claim": "Small-cap exposure: sensitive to credit conditions, rates, and growth expectations.",
+          "confidence": "MEDIUM",
+          "source": "Macro Agent / category mapping",
+          "source_type": "macro_agent"
+        },
+        {
+          "as_of": "2026-06-18T15:34:18",
+          "claim": "Cached market data available through 2026-06-16.",
+          "confidence": "MEDIUM",
+          "source": "Research Agent cached market data",
+          "source_type": "historical_market_data"
+        }
+      ],
+      "generated_at": "2026-06-18T15:34:18",
+      "key_drivers": [
+        "Thesis support: Bitcoin treasury exposure offers amplified upside but carries substantial leverage and concentration risk",
+        "Classified as equity stock; factors: blend, small.",
+        "Small-cap exposure: sensitive to credit conditions, rates, and growth expectations."
+      ],
+      "key_risks": [
+        "Thesis risk: Bitcoin treasury exposure offers amplified upside but carries substantial leverage and concentration risk",
+        "Security classification risk bucket is high."
+      ],
+      "macro_sensitivity": [
+        "Small-cap exposure: sensitive to credit conditions, rates, and growth expectations."
+      ],
+      "missing_data": [
+        "theses.csv is available only as manual_legacy_thesis, not current truth",
+        "No direct local news was found for this ticker.",
+        "Live research is disabled by LIVE_RESEARCH_ENABLED.",
+        "Missing live web evidence: ANTHROPIC_WEB_SEARCH_ENABLED is false."
+      ],
+      "name": "STRATEGY INC CLASS A",
+      "portfolio_implications": [
+        "MSTR is currently held; thesis implications are informational and require user approval before any action.",
+        "Current portfolio weight is 0.7217%."
+      ],
+      "recent_developments": [
+        "No direct local news was found for this ticker."
+      ],
+      "source_mode": "local_only",
+      "thesis_invalidation_signals": [
+        "Thesis risk: Bitcoin treasury exposure offers amplified upside but carries substantial leverage and concentration risk",
+        "Security classification risk bucket is high.",
+        "Refresh the thesis if direct news, fundamentals, valuation, or portfolio fit contradicts the current evidence."
+      ],
+      "ticker": "MSTR",
+      "valuation_notes": [
+        "Cached trailing return: 104.27%."
+      ]
+    },
+    {
+      "bear_case": [
+        "Thesis risk: AI infrastructure demand can support server growth but competition and execution risk remain elevated",
+        "Security classification risk bucket is high."
+      ],
+      "bull_case": [
+        "Thesis support: AI infrastructure demand can support server growth but competition and execution risk remain elevated",
+        "Classified as equity stock; factors: growth, small."
+      ],
+      "business_model": "Local data identifies the security category as US Small Growth.",
+      "company_summary": "SMCI is SUPER MICRO COMPUTER INC in US Small Growth.",
+      "competitive_position": [
+        "No local competitive-position evidence was supplied."
+      ],
+      "confidence": "MEDIUM",
+      "evidence": [
+        {
+          "as_of": "2026-06-18T15:34:19",
+          "claim": "SMCI identity resolved as SUPER MICRO COMPUTER INC in US Small Growth.",
+          "confidence": "HIGH",
+          "source": "security_master.csv / market coverage",
+          "source_type": "security_master"
+        },
+        {
+          "as_of": "2026-06-18T15:34:19",
+          "claim": "SMCI is a current holding with portfolio weight 23.5861.",
+          "confidence": "HIGH",
+          "source": "holdings_normalized.csv",
+          "source_type": "portfolio"
+        },
+        {
+          "as_of": "2026-06-18T15:34:19",
+          "claim": "Growth/rates exposure: sensitive to inflation, rates, and discount-rate changes.",
+          "confidence": "MEDIUM",
+          "source": "Macro Agent / category mapping",
+          "source_type": "macro_agent"
+        },
+        {
+          "as_of": "2026-06-18T15:34:19",
+          "claim": "Small-cap exposure: sensitive to credit conditions, rates, and growth expectations.",
+          "confidence": "MEDIUM",
+          "source": "Macro Agent / category mapping",
+          "source_type": "macro_agent"
+        },
+        {
+          "as_of": "2026-06-18T15:34:19",
+          "claim": "Cached market data available through 2026-06-16.",
+          "confidence": "MEDIUM",
+          "source": "Research Agent cached market data",
+          "source_type": "historical_market_data"
+        }
+      ],
+      "generated_at": "2026-06-18T15:34:19",
+      "key_drivers": [
+        "Thesis support: AI infrastructure demand can support server growth but competition and execution risk remain elevated",
+        "Classified as equity stock; factors: growth, small.",
+        "Growth/rates exposure: sensitive to inflation, rates, and discount-rate changes.",
+        "Small-cap exposure: sensitive to credit conditions, rates, and growth expectations."
+      ],
+      "key_risks": [
+        "Thesis risk: AI infrastructure demand can support server growth but competition and execution risk remain elevated",
+        "Security classification risk bucket is high."
+      ],
+      "macro_sensitivity": [
+        "Growth/rates exposure: sensitive to inflation, rates, and discount-rate changes.",
+        "Small-cap exposure: sensitive to credit conditions, rates, and growth expectations."
+      ],
+      "missing_data": [
+        "theses.csv is available only as manual_legacy_thesis, not current truth",
+        "No direct local news was found for this ticker.",
+        "Live research is disabled by LIVE_RESEARCH_ENABLED.",
+        "Missing live web evidence: ANTHROPIC_WEB_SEARCH_ENABLED is false."
+      ],
+      "name": "SUPER MICRO COMPUTER INC",
+      "portfolio_implications": [
+        "SMCI is currently held; thesis implications are informational and require user approval before any action.",
+        "Current portfolio weight is 23.5861%."
+      ],
+      "recent_developments": [
+        "No direct local news was found for this ticker."
+      ],
+      "source_mode": "local_only",
+      "thesis_invalidation_signals": [
+        "Thesis risk: AI infrastructure demand can support server growth but competition and execution risk remain elevated",
+        "Security classification risk bucket is high.",
+        "Refresh the thesis if direct news, fundamentals, valuation, or portfolio fit contradicts the current evidence."
+      ],
+      "ticker": "SMCI",
+      "valuation_notes": [
+        "Cached trailing return: 732.21%."
+      ]
+    },
+    {
+      "bear_case": [
+        "Thesis risk: Scale and vertical integration support long term health care earnings despite regulatory risk",
+        "Security classification risk bucket is high."
+      ],
+      "bull_case": [
+        "Thesis on file: Scale and vertical integration support long term health care earnings despite regulatory risk",
+        "Classified as equity stock; factors: growth, large."
+      ],
+      "business_model": "Local data identifies the security category as US Large Growth.",
+      "company_summary": "UNH is UNITEDHEALTH GROUP INC in US Large Growth.",
+      "competitive_position": [
+        "No local competitive-position evidence was supplied."
+      ],
+      "confidence": "MEDIUM",
+      "evidence": [
+        {
+          "as_of": "2026-06-18T15:34:19",
+          "claim": "UNH identity resolved as UNITEDHEALTH GROUP INC in US Large Growth.",
+          "confidence": "HIGH",
+          "source": "security_master.csv / market coverage",
+          "source_type": "security_master"
+        },
+        {
+          "as_of": "2026-06-18T15:34:19",
+          "claim": "UNH is a current holding with portfolio weight 41.5176.",
+          "confidence": "HIGH",
+          "source": "holdings_normalized.csv",
+          "source_type": "portfolio"
+        },
+        {
+          "as_of": "2026-06-18T15:34:19",
+          "claim": "Growth/rates exposure: sensitive to inflation, rates, and discount-rate changes.",
+          "confidence": "MEDIUM",
+          "source": "Macro Agent / category mapping",
+          "source_type": "macro_agent"
+        },
+        {
+          "as_of": "2026-06-18T15:34:19",
+          "claim": "Healthcare exposure: sensitive to regulation, reimbursement, and policy risk.",
+          "confidence": "MEDIUM",
+          "source": "Macro Agent / category mapping",
+          "source_type": "macro_agent"
+        },
+        {
+          "as_of": "2026-06-18T15:34:19",
+          "claim": "Cached market data available through 2026-06-16.",
+          "confidence": "MEDIUM",
+          "source": "Research Agent cached market data",
+          "source_type": "historical_market_data"
+        }
+      ],
+      "generated_at": "2026-06-18T15:34:19",
+      "key_drivers": [
+        "Thesis on file: Scale and vertical integration support long term health care earnings despite regulatory risk",
+        "Classified as equity stock; factors: growth, large.",
+        "Growth/rates exposure: sensitive to inflation, rates, and discount-rate changes.",
+        "Healthcare exposure: sensitive to regulation, reimbursement, and policy risk."
+      ],
+      "key_risks": [
+        "Thesis risk: Scale and vertical integration support long term health care earnings despite regulatory risk",
+        "Security classification risk bucket is high."
+      ],
+      "macro_sensitivity": [
+        "Growth/rates exposure: sensitive to inflation, rates, and discount-rate changes.",
+        "Healthcare exposure: sensitive to regulation, reimbursement, and policy risk."
+      ],
+      "missing_data": [
+        "theses.csv is available only as manual_legacy_thesis, not current truth",
+        "No direct local news was found for this ticker.",
+        "Live research is disabled by LIVE_RESEARCH_ENABLED.",
+        "Missing live web evidence: ANTHROPIC_WEB_SEARCH_ENABLED is false."
+      ],
+      "name": "UNITEDHEALTH GROUP INC",
+      "portfolio_implications": [
+        "UNH is currently held; thesis implications are informational and require user approval before any action.",
+        "Current portfolio weight is 41.5176%."
+      ],
+      "recent_developments": [
+        "No direct local news was found for this ticker."
+      ],
+      "source_mode": "local_only",
+      "thesis_invalidation_signals": [
+        "Thesis risk: Scale and vertical integration support long term health care earnings despite regulatory risk",
+        "Security classification risk bucket is high.",
+        "Refresh the thesis if direct news, fundamentals, valuation, or portfolio fit contradicts the current evidence."
+      ],
+      "ticker": "UNH",
+      "valuation_notes": [
+        "Cached trailing return: 12.68%."
+      ]
+    }
+  ],
+  "schema_version": "1.0",
+  "source_mode": "local_only",
+  "tickers": [
+    "ECO",
+    "IBIT",
+    "MSTR",
+    "SMCI",
+    "UNH"
+  ],
+  "warnings": [
+    "Live web research evidence is unavailable; research is local-only."
+  ]
+}

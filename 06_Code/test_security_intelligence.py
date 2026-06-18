@@ -3,6 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+import security_intelligence
 from security_intelligence import (
     build_security_intelligence_report,
     build_security_profile,
@@ -13,6 +14,26 @@ from security_intelligence import (
 
 
 class SecurityIntelligenceTests(unittest.TestCase):
+
+    def _without_generated_research(self):
+
+        temp_dir = tempfile.TemporaryDirectory()
+        old_refresh = security_intelligence.THESIS_REFRESH_PATH
+        old_evidence = security_intelligence.RESEARCH_EVIDENCE_STORE_PATH
+        security_intelligence.THESIS_REFRESH_PATH = (
+            Path(temp_dir.name) / "missing_refresh.json"
+        )
+        security_intelligence.RESEARCH_EVIDENCE_STORE_PATH = (
+            Path(temp_dir.name) / "missing_evidence.json"
+        )
+        return temp_dir, old_refresh, old_evidence
+
+    def _restore_generated_research(self, state):
+
+        temp_dir, old_refresh, old_evidence = state
+        security_intelligence.THESIS_REFRESH_PATH = old_refresh
+        security_intelligence.RESEARCH_EVIDENCE_STORE_PATH = old_evidence
+        temp_dir.cleanup()
 
     def test_smci_profile_generated(self):
 
@@ -44,23 +65,32 @@ class SecurityIntelligenceTests(unittest.TestCase):
 
     def test_thesis_integration_works(self):
 
-        profile = build_security_profile("SMCI")
+        state = self._without_generated_research()
+        try:
+            profile = build_security_profile("SMCI")
+        finally:
+            self._restore_generated_research(state)
 
         self.assertIn("AI infrastructure", profile["thesis_summary"])
         self.assertEqual("active", profile["thesis_status"])
+        self.assertEqual("manual_legacy_thesis", profile["thesis_source"])
 
     def test_missing_thesis_handled(self):
 
         profile = build_security_profile("NVDA")
 
-        self.assertIn("thesis text", profile["missing_data"])
+        self.assertIn("current generated thesis", profile["missing_data"])
         self.assertTrue(
             any("Missing thesis" in flag for flag in profile["research_quality_flags"])
         )
 
     def test_low_conviction_quality_flag_only(self):
 
-        profile = build_security_profile("SMCI")
+        state = self._without_generated_research()
+        try:
+            profile = build_security_profile("SMCI")
+        finally:
+            self._restore_generated_research(state)
 
         self.assertTrue(
             any("Low conviction" in flag for flag in profile["research_quality_flags"])

@@ -31,8 +31,8 @@
         "news_narrative:the_iran_oil_shock_taught_traders_these_key_lessons_about_demand_and_china__source_marketwatch__score_89__impact_category_energy_supply_shock__impact_tier_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__matched_terms_commodity_us__link_https_wwwmarketwatchcom_story_the-iran-oil-shock-taught-traders-these-key-lessons-about-demand-and-china-b03ad6a3modmw_rss_topstories",
         "news_narrative:three_saudi_oil_tankers_carrying_6_million_barrels_cross_strait_of_hormuz__source_cnbc_markets__relevance_score_89__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_portfolio_watchlist_energy",
         "news_narrative:three_saudi_oil_tankers_carrying_6_million_barrels_cross_strait_of_hormuz__source_cnbc_markets__score_89__impact_category_energy_supply_shock__impact_tier_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__matched_terms_tankers__link_https_wwwcnbccom_2026_06_18_iran-deal-strait-hormuz-oil-tanker-saudi-arabia-traffichtml",
-        "news_narrative:us_navy_ends_blockade_of_irans_ports_and_coastal_areas__source_cnbc_markets__relevance_score_89__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_portfolio_watchlist_world_event",
         "news_narrative:us_navy_ends_blockade_of_irans_ports_and_coastal_areas__source_cnbc_markets__score_89__impact_category_energy_supply_shock__impact_tier_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__matched_terms_us__link_https_wwwcnbccom_2026_06_18_us-navy-blockade-iran-trump-oilhtml",
+        "news_narrative:vance_says_us_isnt_giving_iran_a_cent_as_he_defends_trump_peace_deal__source_cnbc_markets__relevance_score_89__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_portfolio_world_event",
         "news_narrative:vance_says_us_isnt_giving_iran_a_cent_as_he_defends_trump_peace_deal__source_cnbc_markets__score_89__impact_category_energy_supply_shock__impact_tier_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__matched_terms_us__link_https_wwwcnbccom_2026_06_18_vance-iran-war-memo-oil-gashtml",
         "portfolio_signal:unh_position_concentration_415",
         "priority:unh_position_concentration_415",
@@ -439,7 +439,7 @@
     {
       "metadata": {},
       "relationship": "relates_to",
-      "source": "news_narrative:us_navy_ends_blockade_of_irans_ports_and_coastal_areas__source_cnbc_markets__relevance_score_89__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_portfolio_watchlist_world_event",
+      "source": "news_narrative:us_navy_ends_blockade_of_irans_ports_and_coastal_areas__source_cnbc_markets__score_89__impact_category_energy_supply_shock__impact_tier_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__matched_terms_us__link_https_wwwcnbccom_2026_06_18_us-navy-blockade-iran-trump-oilhtml",
       "source_layer": "state",
       "target": "agent:news_agent",
       "weight": 7
@@ -447,7 +447,7 @@
     {
       "metadata": {},
       "relationship": "relates_to",
-      "source": "news_narrative:us_navy_ends_blockade_of_irans_ports_and_coastal_areas__source_cnbc_markets__score_89__impact_category_energy_supply_shock__impact_tier_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__matched_terms_us__link_https_wwwcnbccom_2026_06_18_us-navy-blockade-iran-trump-oilhtml",
+      "source": "news_narrative:vance_says_us_isnt_giving_iran_a_cent_as_he_defends_trump_peace_deal__source_cnbc_markets__relevance_score_89__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_portfolio_world_event",
       "source_layer": "state",
       "target": "agent:news_agent",
       "weight": 7
@@ -955,11 +955,11 @@
       "priority:unh_position_concentration_415",
       "risk:unh_position_concentration_415"
     ],
-    "us_navy_ends_blockade_of_irans_ports_and_coastal_areas__source_cnbc_markets__relevance_score_89__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_portfolio_watchlist_world_event": [
-      "news_narrative:us_navy_ends_blockade_of_irans_ports_and_coastal_areas__source_cnbc_markets__relevance_score_89__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_portfolio_watchlist_world_event"
-    ],
     "us_navy_ends_blockade_of_irans_ports_and_coastal_areas__source_cnbc_markets__score_89__impact_category_energy_supply_shock__impact_tier_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__matched_terms_us__link_https_wwwcnbccom_2026_06_18_us-navy-blockade-iran-trump-oilhtml": [
       "news_narrative:us_navy_ends_blockade_of_irans_ports_and_coastal_areas__source_cnbc_markets__score_89__impact_category_energy_supply_shock__impact_tier_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__matched_terms_us__link_https_wwwcnbccom_2026_06_18_us-navy-blockade-iran-trump-oilhtml"
+    ],
+    "vance_says_us_isnt_giving_iran_a_cent_as_he_defends_trump_peace_deal__source_cnbc_markets__relevance_score_89__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_portfolio_world_event": [
+      "news_narrative:vance_says_us_isnt_giving_iran_a_cent_as_he_defends_trump_peace_deal__source_cnbc_markets__relevance_score_89__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_portfolio_world_event"
     ],
     "vance_says_us_isnt_giving_iran_a_cent_as_he_defends_trump_peace_deal__source_cnbc_markets__score_89__impact_category_energy_supply_shock__impact_tier_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__matched_terms_us__link_https_wwwcnbccom_2026_06_18_vance-iran-war-memo-oil-gashtml": [
       "news_narrative:vance_says_us_isnt_giving_iran_a_cent_as_he_defends_trump_peace_deal__source_cnbc_markets__score_89__impact_category_energy_supply_shock__impact_tier_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__matched_terms_us__link_https_wwwcnbccom_2026_06_18_vance-iran-war-memo-oil-gashtml"
@@ -971,7 +971,7 @@
       "risk:yield_curve_flat"
     ]
   },
-  "generated_at": "2026-06-18T14:49:34",
+  "generated_at": "2026-06-18T15:34:17",
   "nodes": [
     {
       "id": "action:reevaluate_smci_low_conviction_holding",
@@ -1222,10 +1222,10 @@
       "id": "news_narrative:middle_east_energy_risk",
       "label": "Middle East Energy Risk",
       "metadata": {
-        "reason": "8 related Iran, Hormuz, or oil headlines indicate an energy-linked geopolitical market narrative.",
-        "representative_headline": "The Iran oil shock taught traders these key lessons about demand and China",
+        "reason": "7 related Iran, Hormuz, or oil headlines indicate an energy-linked geopolitical market narrative.",
+        "representative_headline": "Vance says U.S. isn\u2019t giving Iran \u2018a cent\u2019 as he defends Trump peace deal",
         "score": 100,
-        "supporting_articles": 8,
+        "supporting_articles": 7,
         "title": "Middle East Energy Risk"
       },
       "source": "state",
@@ -1254,7 +1254,7 @@
       "metadata": {
         "evidence": [],
         "fields": {},
-        "rank": 3,
+        "rank": 4,
         "title": "The Iran oil shock taught traders these key lessons about demand and China | Source MarketWatch | Relevance Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags PORTFOLIO, WATCHLIST, WORLD_EVENT, ENERGY"
       },
       "source": "state",
@@ -1275,7 +1275,7 @@
       "metadata": {
         "evidence": [],
         "fields": {},
-        "rank": 4,
+        "rank": 5,
         "title": "Three Saudi oil tankers carrying 6 million barrels cross Strait of Hormuz | Source CNBC Markets | Relevance Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags PORTFOLIO, WATCHLIST, ENERGY"
       },
       "source": "state",
@@ -1291,22 +1291,22 @@
       "weight": 10
     },
     {
-      "id": "news_narrative:us_navy_ends_blockade_of_irans_ports_and_coastal_areas__source_cnbc_markets__relevance_score_89__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_portfolio_watchlist_world_event",
-      "label": "U.S. Navy ends blockade of Iran's ports and coastal areas | Source CNBC Markets | Relevance Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags PORTFOLIO, WATCHLIST, WORLD_EVENT",
-      "metadata": {
-        "evidence": [],
-        "fields": {},
-        "rank": 5,
-        "title": "U.S. Navy ends blockade of Iran's ports and coastal areas | Source CNBC Markets | Relevance Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags PORTFOLIO, WATCHLIST, WORLD_EVENT"
-      },
+      "id": "news_narrative:us_navy_ends_blockade_of_irans_ports_and_coastal_areas__source_cnbc_markets__score_89__impact_category_energy_supply_shock__impact_tier_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__matched_terms_us__link_https_wwwcnbccom_2026_06_18_us-navy-blockade-iran-trump-oilhtml",
+      "label": "U.S. Navy ends blockade of Iran's ports and coastal areas | Source CNBC Markets | Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms U.S. | Link https://www.cnbc.com/2026/06/18/us-navy-blockade-iran-trump-oil.html",
+      "metadata": {},
       "source": "state",
       "type": "news_narrative",
       "weight": 10
     },
     {
-      "id": "news_narrative:us_navy_ends_blockade_of_irans_ports_and_coastal_areas__source_cnbc_markets__score_89__impact_category_energy_supply_shock__impact_tier_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__matched_terms_us__link_https_wwwcnbccom_2026_06_18_us-navy-blockade-iran-trump-oilhtml",
-      "label": "U.S. Navy ends blockade of Iran's ports and coastal areas | Source CNBC Markets | Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms U.S. | Link https://www.cnbc.com/2026/06/18/us-navy-blockade-iran-trump-oil.html",
-      "metadata": {},
+      "id": "news_narrative:vance_says_us_isnt_giving_iran_a_cent_as_he_defends_trump_peace_deal__source_cnbc_markets__relevance_score_89__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_portfolio_world_event",
+      "label": "Vance says U.S. isn\u2019t giving Iran \u2018a cent\u2019 as he defends Trump peace deal | Source CNBC Markets | Relevance Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags PORTFOLIO, WORLD_EVENT",
+      "metadata": {
+        "evidence": [],
+        "fields": {},
+        "rank": 3,
+        "title": "Vance says U.S. isn\u2019t giving Iran \u2018a cent\u2019 as he defends Trump peace deal | Source CNBC Markets | Relevance Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags PORTFOLIO, WORLD_EVENT"
+      },
       "source": "state",
       "type": "news_narrative",
       "weight": 10
@@ -2231,14 +2231,14 @@
       },
       {
         "id": "edge:48",
-        "source": "news_narrative:us_navy_ends_blockade_of_irans_ports_and_coastal_areas__source_cnbc_markets__relevance_score_89__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_portfolio_watchlist_world_event",
+        "source": "news_narrative:us_navy_ends_blockade_of_irans_ports_and_coastal_areas__source_cnbc_markets__score_89__impact_category_energy_supply_shock__impact_tier_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__matched_terms_us__link_https_wwwcnbccom_2026_06_18_us-navy-blockade-iran-trump-oilhtml",
         "source_layer": "state",
         "target": "agent:news_agent",
         "weight": 7
       },
       {
         "id": "edge:49",
-        "source": "news_narrative:us_navy_ends_blockade_of_irans_ports_and_coastal_areas__source_cnbc_markets__score_89__impact_category_energy_supply_shock__impact_tier_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__matched_terms_us__link_https_wwwcnbccom_2026_06_18_us-navy-blockade-iran-trump-oilhtml",
+        "source": "news_narrative:vance_says_us_isnt_giving_iran_a_cent_as_he_defends_trump_peace_deal__source_cnbc_markets__relevance_score_89__impact_category_energy_supply_shock__impact_tier_high__relevance_high__reason_energy_supply_disruptions_can_quickly_affect_inflation_and_margins__tags_portfolio_world_event",
         "source_layer": "state",
         "target": "agent:news_agent",
         "weight": 7

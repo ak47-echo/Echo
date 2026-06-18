@@ -44,6 +44,10 @@ class EchoInvestmentIntentTests(unittest.TestCase):
             "market_risks",
             self._intent("what stocks could go down")
         )
+        self.assertEqual(
+            "market_risks",
+            self._intent("what am I missing about my current holdings")
+        )
 
     def test_ticker_queries(self):
 

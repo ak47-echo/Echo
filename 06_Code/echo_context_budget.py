@@ -360,6 +360,8 @@ def _base_budget(query, agents):
     if intent in {"ticker_question", "ticker_news"}:
         ticker_sources = [
             "security_intelligence",
+            "research_evidence_store",
+            "thesis_refresh",
             "security_master_search",
             "market_coverage",
             "dynamic_news_coverage",
@@ -376,6 +378,8 @@ def _base_budget(query, agents):
             ["generic_state_delta"],
             [
                 "echo_get_security_intelligence",
+                "echo_get_live_research",
+                "echo_get_thesis_refresh",
                 "echo_compare_securities",
                 "echo_search_security_master",
                 "echo_get_market_coverage",
@@ -393,6 +397,8 @@ def _base_budget(query, agents):
             [
                 "market_opportunity_scan",
                 "security_intelligence",
+                "research_evidence_store",
+                "thesis_refresh",
                 "market_coverage",
                 "dynamic_news_coverage",
                 "news_snapshot",
@@ -404,6 +410,8 @@ def _base_budget(query, agents):
             [
                 "echo_get_market_opportunity_scan",
                 "echo_get_security_intelligence",
+                "echo_get_live_research",
+                "echo_get_thesis_refresh",
                 "echo_get_market_coverage",
                 "echo_get_dynamic_news_coverage",
                 "echo_search_security_master",
@@ -418,10 +426,18 @@ def _base_budget(query, agents):
         return (
             "security_master_search",
             "standard",
-            ["security_master_search", "market_coverage"],
+            [
+                "security_master_search",
+                "security_intelligence",
+                "research_evidence_store",
+                "thesis_refresh",
+                "market_coverage"
+            ],
             ["generic_state_delta", "full_reports"],
             [
                 "echo_get_security_intelligence",
+                "echo_get_live_research",
+                "echo_get_thesis_refresh",
                 "echo_search_security_master",
                 "echo_get_market_coverage"
             ],

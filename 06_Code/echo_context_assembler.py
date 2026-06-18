@@ -18,6 +18,8 @@ SPECIAL_REPORT_SOURCES = {
     "portfolio_change_detection": "Portfolio Change Detection",
     "portfolio_ingestion": "Portfolio Ingestion",
     "security_intelligence": "Security Intelligence",
+    "research_evidence_store": "Research Evidence Store",
+    "thesis_refresh": "Thesis Refresh",
     "security_comparison": "Security Comparison",
     "security_master_search": "Security Master Search",
     "market_coverage": "Market Coverage",

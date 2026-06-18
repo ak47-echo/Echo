@@ -302,6 +302,8 @@ def _investment_plan(query_class):
                 "primary",
                 [
                     "security_intelligence",
+                    "research_evidence_store",
+                    "thesis_refresh",
                     "security_comparison",
                     "security_master_search",
                     "market_coverage",
@@ -317,6 +319,8 @@ def _investment_plan(query_class):
                 "primary",
                 [
                     "security_intelligence",
+                    "research_evidence_store",
+                    "thesis_refresh",
                     "security_comparison",
                     "security_master_search",
                     "market_coverage",
@@ -341,6 +345,8 @@ def _investment_plan(query_class):
                 [
                     "market_opportunity_scan",
                     "security_intelligence",
+                    "research_evidence_store",
+                    "thesis_refresh",
                     "market_coverage",
                     "dynamic_news_coverage",
                     "research_snapshot",
@@ -371,6 +377,8 @@ def _investment_plan(query_class):
                 [
                     "market_opportunity_scan",
                     "security_intelligence",
+                    "research_evidence_store",
+                    "thesis_refresh",
                     "market_coverage",
                     "portfolio_snapshot"
                 ],
@@ -409,7 +417,13 @@ def _investment_plan(query_class):
         "security_master_search": [(
             "research",
             "primary",
-            ["security_master_search", "market_coverage"],
+            [
+                "security_master_search",
+                "security_intelligence",
+                "research_evidence_store",
+                "thesis_refresh",
+                "market_coverage"
+            ],
             False,
             "Security master search uses the broad local security universe."
         )],

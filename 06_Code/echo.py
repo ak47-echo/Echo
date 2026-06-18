@@ -93,6 +93,15 @@ from security_intelligence import (
     compare_security_profiles,
     read_security_intelligence
 )
+from live_research import (
+    build_and_write_live_research,
+    build_research_evidence_store,
+    build_thesis_refresh,
+    get_anthropic_web_search_tools,
+    live_research_provider_policy,
+    read_research_evidence_store,
+    read_thesis_refresh
+)
 from portfolio_auto_import import (
     read_portfolio_auto_import,
     run_and_write_portfolio_auto_import
@@ -5785,6 +5794,65 @@ def echo_get_security_intelligence(context=None):
     )
 
 
+def echo_get_live_research(context=None):
+
+    tickers = _query_security_tickers(context)
+    query = ""
+    if isinstance(context, dict):
+        query = context.get("message") or context.get("query") or ""
+
+    if tickers or query:
+        store = build_research_evidence_store(tickers or None, query)
+    else:
+        store = read_research_evidence_store()
+
+    profiles = store.get("profiles") or []
+    summary = (
+        f"Live research profiles: {len(profiles)}. "
+        f"Source mode: {store.get('source_mode') or 'unknown'}."
+    )
+    return _echo_tool_response(
+        "echo_get_live_research",
+        {"research_evidence_store": store},
+        summary,
+        "MEDIUM" if profiles else "LOW",
+        (
+            "Generated research evidence layer. Previous recommendations are "
+            "not evidence; local-only mode marks missing live web evidence."
+        )
+    )
+
+
+def echo_get_thesis_refresh(context=None):
+
+    tickers = _query_security_tickers(context)
+    query = ""
+    if isinstance(context, dict):
+        query = context.get("message") or context.get("query") or ""
+
+    if tickers or query:
+        store = build_research_evidence_store(tickers or None, query)
+        report = build_thesis_refresh(tickers or None, query, store)
+    else:
+        report = read_thesis_refresh()
+
+    refreshes = report.get("thesis_refreshes") or []
+    summary = (
+        f"Thesis refreshes: {len(refreshes)}. "
+        f"Source mode: {report.get('source_mode') or 'unknown'}."
+    )
+    return _echo_tool_response(
+        "echo_get_thesis_refresh",
+        {"thesis_refresh": report},
+        summary,
+        "MEDIUM" if refreshes else "LOW",
+        (
+            "Current generated thesis refreshes are informational and do not "
+            "overwrite theses.csv or automate trades."
+        )
+    )
+
+
 def echo_compare_securities(context=None):
 
     tickers = _query_security_tickers(context)
@@ -6342,6 +6410,28 @@ ECHO_TOOL_REGISTRY = {
             "known data, missing data, and confidence."
         )
     },
+    "echo_get_live_research": {
+        "function_name": "echo_get_live_research",
+        "description": "Return generated security research evidence profiles.",
+        "expected_input_fields": {},
+        "output_description": (
+            "Dictionary with current generated research profiles, source "
+            "mode, local evidence, missing live web evidence notes, bull and "
+            "bear cases, key risks, macro sensitivity, and portfolio "
+            "implications. Does not overwrite theses.csv."
+        )
+    },
+    "echo_get_thesis_refresh": {
+        "function_name": "echo_get_thesis_refresh",
+        "description": "Return generated current thesis refreshes.",
+        "expected_input_fields": {},
+        "output_description": (
+            "Dictionary with current generated thesis text, bull and bear "
+            "summaries, conviction direction, research status, next review, "
+            "and informational portfolio action implications requiring user "
+            "approval."
+        )
+    },
     "echo_compare_securities": {
         "function_name": "echo_compare_securities",
         "description": "Compare normalized security intelligence profiles.",
@@ -6623,10 +6713,15 @@ class AnthropicProvider(BaseLLMProvider):
 
         return bool(os.getenv("ANTHROPIC_API_KEY"))
 
+    def web_search_tools(self):
+
+        return get_anthropic_web_search_tools()
+
     def generate_response(self, messages, tools=None, context=None):
 
         model = self.model_name()
         tool_context = format_tool_context_for_llm(tools)
+        web_tools = self.web_search_tools()
 
         if not self.is_configured():
             return {
@@ -6637,6 +6732,7 @@ class AnthropicProvider(BaseLLMProvider):
                 "tool_context_used": bool(tool_context),
                 "tool_context_char_count": len(tool_context),
                 "live_call_attempted": False,
+                "anthropic_web_search_enabled": bool(web_tools),
                 "confidence": "LOW",
                 "notes": (
                     "ANTHROPIC_API_KEY is not configured. No Anthropic API "
@@ -6653,6 +6749,7 @@ class AnthropicProvider(BaseLLMProvider):
                 "tool_context_used": bool(tool_context),
                 "tool_context_char_count": len(tool_context),
                 "live_call_attempted": False,
+                "anthropic_web_search_enabled": bool(web_tools),
                 "confidence": "LOW",
                 "notes": (
                     "Anthropic provider is configured but LLM live mode is "
@@ -6671,6 +6768,7 @@ class AnthropicProvider(BaseLLMProvider):
                 "tool_context_used": bool(tool_context),
                 "tool_context_char_count": len(tool_context),
                 "live_call_attempted": False,
+                "anthropic_web_search_enabled": bool(web_tools),
                 "confidence": "LOW",
                 "notes": (
                     "Anthropic package not installed. Run: pip install "
@@ -6682,11 +6780,16 @@ class AnthropicProvider(BaseLLMProvider):
 
         try:
             client = Anthropic()
+            request = {
+                "model": model,
+                "max_tokens": 800,
+                "system": build_echo_llm_system_prompt(),
+                "messages": [{"role": "user", "content": prompt_message}]
+            }
+            if web_tools:
+                request["tools"] = web_tools
             response = client.messages.create(
-                model=model,
-                max_tokens=800,
-                system=build_echo_llm_system_prompt(),
-                messages=[{"role": "user", "content": prompt_message}]
+                **request
             )
             answer_parts = []
 
@@ -6706,6 +6809,7 @@ class AnthropicProvider(BaseLLMProvider):
                 "tool_context_used": bool(tool_context),
                 "tool_context_char_count": len(tool_context),
                 "live_call_attempted": True,
+                "anthropic_web_search_enabled": bool(web_tools),
                 "confidence": "HIGH" if tool_context else "MEDIUM",
                 "notes": (
                     "Anthropic live response generated from Echo assembled "
@@ -6722,6 +6826,7 @@ class AnthropicProvider(BaseLLMProvider):
                 "tool_context_used": bool(tool_context),
                 "tool_context_char_count": len(tool_context),
                 "live_call_attempted": True,
+                "anthropic_web_search_enabled": bool(web_tools),
                 "confidence": "LOW",
                 "notes": (
                     "Anthropic provider rate limited the request without "
@@ -6738,6 +6843,7 @@ class AnthropicProvider(BaseLLMProvider):
                 "tool_context_used": bool(tool_context),
                 "tool_context_char_count": len(tool_context),
                 "live_call_attempted": True,
+                "anthropic_web_search_enabled": bool(web_tools),
                 "confidence": "LOW",
                 "notes": (
                     "Anthropic provider call failed without exposing "
@@ -6821,6 +6927,9 @@ def build_echo_llm_system_prompt():
         "Clearly separate known tool facts from inference or judgment.",
         "Do not invent portfolio holdings, news, macro data, prices, or research conclusions.",
         "When security_intelligence exists, reason from the security profile first.",
+        "When live_research, research_evidence_store, or thesis_refresh exists, use generated evidence and thesis refresh ahead of legacy manual theses.",
+        "Treat theses.csv content as manual_legacy_thesis only, not current truth.",
+        "Research quality flags and previous recommendations are not evidence.",
         "Do not treat prior recommendations, low conviction labels, reevaluate text, buy/sell text, or top-priority text as investment evidence.",
         "Security Intelligence research_quality_flags are quality-control signals only; separate them from evidence.",
         "Do not fabricate fundamentals, valuation, or news for securities.",
@@ -7008,7 +7117,8 @@ def _llm_provider_payload(orchestrator_result):
                 "are quality-control signals only, not investment evidence. "
                 "Identify missing data and do not fabricate fundamentals, "
                 "valuation, or news."
-            )
+            ),
+            "live_research_policy": live_research_provider_policy()
         },
         "tool_results": orchestrator_result.get("tool_results", {})
     }
@@ -7167,7 +7277,11 @@ def _build_anthropic_prompt_message(messages, tool_context):
         "template-like, correct it using available Echo context. Do not introduce "
         "facts, holdings, prices, recommendations, current news, or conclusions "
         "outside the provided Echo context. Do not claim live facts unless Echo "
-        "supplied them. If local data is insufficient, say what data is missing."
+        "supplied them. When research_evidence_store or thesis_refresh is "
+        "present, use generated evidence ahead of manual_legacy_thesis, but do "
+        "not treat previous recommendations or research quality flags as "
+        "evidence. If local or live data is insufficient, say what data is "
+        "missing."
     )
 
 
@@ -7368,6 +7482,7 @@ def get_llm_provider_status(provider_name=None):
         "configured": provider.is_configured(),
         "live_calls_enabled": live_enabled,
         "model": provider.model_name(),
+        "live_research_policy": live_research_provider_policy(),
         "available_providers": ["openai", "anthropic"],
         "notes": (
             "LLM provider layer is active. Live calls require provider "
@@ -7391,6 +7506,23 @@ def _context_assembly_reports(context, user_query=None):
     query = " ".join(str(user_query or "").split())
     investment_intent = classify_investment_intent(query)
     market_coverage = build_market_coverage(query)
+    research_evidence_store = (
+        build_research_evidence_store(
+            investment_intent.get("tickers") or None,
+            query
+        )
+        if query
+        else read_research_evidence_store()
+    )
+    thesis_refresh = (
+        build_thesis_refresh(
+            investment_intent.get("tickers") or None,
+            query,
+            research_evidence_store
+        )
+        if query
+        else read_thesis_refresh()
+    )
 
     return {
         "portfolio_change_detection": read_portfolio_change_report(),
@@ -7404,6 +7536,8 @@ def _context_assembly_reports(context, user_query=None):
         "security_intelligence": build_security_intelligence_report(
             investment_intent.get("tickers") or None
         ),
+        "research_evidence_store": research_evidence_store,
+        "thesis_refresh": thesis_refresh,
         "security_comparison": compare_security_profiles(
             investment_intent.get("tickers") or []
         ) if len(investment_intent.get("tickers") or []) >= 2 else {},
@@ -7509,6 +7643,8 @@ def _echo_orchestrator_select_tools(message, context, context_budget=None,
     if query_class in {"ticker_question", "ticker_news", "security_master_search"}:
         add_tools(
             "echo_get_security_intelligence",
+            "echo_get_live_research",
+            "echo_get_thesis_refresh",
             "echo_search_security_master",
             "echo_get_market_coverage"
         )
@@ -7526,6 +7662,8 @@ def _echo_orchestrator_select_tools(message, context, context_budget=None,
     if query_class in {"market_opportunities", "market_risks", "watchlist_management"}:
         add_tools(
             "echo_get_security_intelligence",
+            "echo_get_live_research",
+            "echo_get_thesis_refresh",
             "echo_get_market_coverage",
             "echo_get_dynamic_news_coverage",
             "echo_get_market_opportunity_scan",
@@ -7653,9 +7791,14 @@ def _echo_orchestrator_select_tools(message, context, context_budget=None,
 
     if not isinstance(agent_routing, dict) and any(
         term in text
-        for term in ("research", "conviction", "thesis", "weak holding")
+        for term in ("research", "conviction", "thesis", "weak holding", "bull case", "bear case", "what am i missing")
     ):
-        add_tools("echo_get_research_snapshot", "echo_get_conflicts")
+        add_tools(
+            "echo_get_live_research",
+            "echo_get_thesis_refresh",
+            "echo_get_research_snapshot",
+            "echo_get_conflicts"
+        )
 
     if selected_tools == [
         "echo_get_context_budget",
@@ -7723,6 +7866,8 @@ def _run_echo_orchestrator_tool(tool_name, message, context):
         "echo_get_market_coverage": echo_get_market_coverage,
         "echo_get_dynamic_news_coverage": echo_get_dynamic_news_coverage,
         "echo_get_security_intelligence": echo_get_security_intelligence,
+        "echo_get_live_research": echo_get_live_research,
+        "echo_get_thesis_refresh": echo_get_thesis_refresh,
         "echo_compare_securities": echo_compare_securities,
         "echo_get_portfolio_auto_import": echo_get_portfolio_auto_import,
         "echo_get_top_priority": echo_get_top_priority,
@@ -8757,6 +8902,7 @@ if __name__ == "__main__":
     portfolio_ingestion_text_result = write_portfolio_ingestion_text(
         portfolio_ingestion
     )
+    build_and_write_live_research()
     report_bundle = build_morning_brief(return_bundle=True)
     retention = apply_report_retention(report_bundle)
     report_bundle = _assemble_report_bundle(
@@ -8825,6 +8971,7 @@ if __name__ == "__main__":
     memory_context_json_result = write_memory_context_json(memory_context)
     memory_context_text_result = write_memory_context_text(memory_context)
     market_scan_result = build_and_write_market_opportunity_scan()
+    live_research_result = build_and_write_live_research()
     security_intelligence_result = build_and_write_security_intelligence_report()
     daily_orchestration_query = "Echo daily run overall executive summary"
     context_budget = build_context_budget(
@@ -8949,6 +9096,30 @@ if __name__ == "__main__":
         print(
             "Echo memory context text write failed: "
             f"{memory_context_text_result['error']}"
+        )
+
+    if not live_research_result["evidence_json_result"]["success"]:
+        print(
+            "Research evidence JSON write failed: "
+            f"{live_research_result['evidence_json_result']['error']}"
+        )
+
+    if not live_research_result["evidence_text_result"]["success"]:
+        print(
+            "Research evidence text write failed: "
+            f"{live_research_result['evidence_text_result']['error']}"
+        )
+
+    if not live_research_result["thesis_json_result"]["success"]:
+        print(
+            "Thesis refresh JSON write failed: "
+            f"{live_research_result['thesis_json_result']['error']}"
+        )
+
+    if not live_research_result["thesis_text_result"]["success"]:
+        print(
+            "Thesis refresh text write failed: "
+            f"{live_research_result['thesis_text_result']['error']}"
         )
 
     if not context_budget_json_result["success"]:

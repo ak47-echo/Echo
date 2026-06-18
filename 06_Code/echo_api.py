@@ -70,6 +70,11 @@ from portfolio_auto_import import (
     read_portfolio_auto_import,
     run_and_write_portfolio_auto_import
 )
+from live_research import (
+    build_and_write_live_research,
+    read_research_evidence_store,
+    read_thesis_refresh
+)
 
 
 LOCALHOST_ORIGINS = [
@@ -304,6 +309,24 @@ def create_app():
     @app.get("/security/intelligence")
     async def security_intelligence():
         return read_security_intelligence()
+
+    @app.get("/research/evidence")
+    async def research_evidence():
+        return read_research_evidence_store()
+
+    @app.get("/research/thesis-refresh")
+    async def thesis_refresh():
+        return read_thesis_refresh()
+
+    @app.post("/research/run")
+    async def research_run(request: Request):
+        raw = request.query_params.get("tickers") or ""
+        tickers = [
+            item.strip().upper()
+            for item in raw.split(",")
+            if item.strip()
+        ]
+        return build_and_write_live_research(tickers or None)
 
     @app.get("/security/compare")
     async def security_compare(request: Request):

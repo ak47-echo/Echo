@@ -3,13 +3,13 @@
   "excluded_context_sources": [
     "unrelated_full_reports"
   ],
-  "generated_at": "2026-06-18T14:49:39",
+  "generated_at": "2026-06-18T15:34:23",
   "investment_intent": {
     "answer_mode": "general",
     "categories": [],
     "confidence": "low",
     "entities": [],
-    "generated_at": "2026-06-18T14:49:39",
+    "generated_at": "2026-06-18T15:34:23",
     "investment_intent": "unknown",
     "portfolio_relevance": "unknown",
     "query": "Echo daily run overall executive summary",

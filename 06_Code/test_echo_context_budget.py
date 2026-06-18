@@ -102,10 +102,16 @@ class EchoContextBudgetTests(unittest.TestCase):
 
         self.assertEqual("security_master_search", budget["query_class"])
         self.assertEqual(
-            ["security_master_search", "market_coverage"],
+            "security_master_search",
+            budget["preferred_context_sources"][0]
+        )
+        self.assertIn(
+            "research_evidence_store",
             budget["preferred_context_sources"]
         )
+        self.assertIn("thesis_refresh", budget["preferred_context_sources"])
         self.assertIn("echo_get_security_intelligence", budget["tool_hints"])
+        self.assertIn("echo_get_live_research", budget["tool_hints"])
 
     def test_ticker_question_includes_security_intelligence(self):
 

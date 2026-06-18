@@ -290,7 +290,9 @@ def classify_investment_intent(user_query, portfolio_state=None,
         "negative news",
         "weakening",
         "risks",
-        "risk candidates"
+        "risk candidates",
+        "what am i missing",
+        "what am i missing about"
     )):
         set_intent(
             "market_risks",

@@ -3,7 +3,7 @@
   "confidence": "high",
   "detected_entities": [],
   "detected_horizon": null,
-  "generated_at": "2026-06-18T14:49:43",
+  "generated_at": "2026-06-18T15:34:29",
   "query": "Echo daily run overall executive summary",
   "reason": "Retrieval/status wording detected.",
   "reasoning_depth": "light",

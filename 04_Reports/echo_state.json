@@ -71,7 +71,7 @@
     "theme_strength": "CRITICAL",
     "theme_title": "Inflation/Energy Risk"
   },
-  "generated_at": "2026-06-18T14:49:34",
+  "generated_at": "2026-06-18T15:34:17",
   "macro": {
     "regime": {
       "confidence": "HIGH",
@@ -166,33 +166,33 @@
         "evidence": [],
         "fields": {},
         "rank": 3,
-        "title": "The Iran oil shock taught traders these key lessons about demand and China | Source MarketWatch | Relevance Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags PORTFOLIO, WATCHLIST, WORLD_EVENT, ENERGY"
+        "title": "Vance says U.S. isn\u2019t giving Iran \u2018a cent\u2019 as he defends Trump peace deal | Source CNBC Markets | Relevance Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags PORTFOLIO, WORLD_EVENT"
       },
       {
         "evidence": [],
         "fields": {},
         "rank": 4,
-        "title": "Three Saudi oil tankers carrying 6 million barrels cross Strait of Hormuz | Source CNBC Markets | Relevance Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags PORTFOLIO, WATCHLIST, ENERGY"
+        "title": "The Iran oil shock taught traders these key lessons about demand and China | Source MarketWatch | Relevance Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags PORTFOLIO, WATCHLIST, WORLD_EVENT, ENERGY"
       },
       {
         "evidence": [],
         "fields": {},
         "rank": 5,
-        "title": "U.S. Navy ends blockade of Iran's ports and coastal areas | Source CNBC Markets | Relevance Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags PORTFOLIO, WATCHLIST, WORLD_EVENT"
+        "title": "Three Saudi oil tankers carrying 6 million barrels cross Strait of Hormuz | Source CNBC Markets | Relevance Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags PORTFOLIO, WATCHLIST, ENERGY"
       }
     ],
     "portfolio_relevant_items": [
       "Analysis: Chairman Kevin Warsh\u2019s task forces are the key to understanding the new Fed | Source CNBC Markets | Score 100 | Impact Category Fed Policy | Impact Tier CRITICAL | Reason Federal Reserve policy directly reprices rates, equities, and risk assets. | Matched Terms to | Link https://www.cnbc.com/2026/06/17/kevin-warsh-fed-interest-rates-risk-analysis.html",
+      "Vance says U.S. isn\u2019t giving Iran \u2018a cent\u2019 as he defends Trump peace deal | Source CNBC Markets | Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms U.S. | Link https://www.cnbc.com/2026/06/18/vance-iran-war-memo-oil-gas.html",
       "The Iran oil shock taught traders these key lessons about demand and China | Source MarketWatch | Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms commodity, U.S. | Link https://www.marketwatch.com/story/the-iran-oil-shock-taught-traders-these-key-lessons-about-demand-and-china-b03ad6a3?mod=mw_rss_topstories",
       "Three Saudi oil tankers carrying 6 million barrels cross Strait of Hormuz | Source CNBC Markets | Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms TANKERS | Link https://www.cnbc.com/2026/06/18/iran-deal-strait-hormuz-oil-tanker-saudi-arabia-traffic.html",
-      "U.S. Navy ends blockade of Iran's ports and coastal areas | Source CNBC Markets | Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms U.S. | Link https://www.cnbc.com/2026/06/18/us-navy-blockade-iran-trump-oil.html",
-      "Vance says U.S. isn\u2019t giving Iran \u2018a cent\u2019 as he defends Trump peace deal | Source CNBC Markets | Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms U.S. | Link https://www.cnbc.com/2026/06/18/vance-iran-war-memo-oil-gas.html"
+      "U.S. Navy ends blockade of Iran's ports and coastal areas | Source CNBC Markets | Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms U.S. | Link https://www.cnbc.com/2026/06/18/us-navy-blockade-iran-trump-oil.html"
     ],
     "top_narrative": {
-      "reason": "8 related Iran, Hormuz, or oil headlines indicate an energy-linked geopolitical market narrative.",
-      "representative_headline": "The Iran oil shock taught traders these key lessons about demand and China",
+      "reason": "7 related Iran, Hormuz, or oil headlines indicate an energy-linked geopolitical market narrative.",
+      "representative_headline": "Vance says U.S. isn\u2019t giving Iran \u2018a cent\u2019 as he defends Trump peace deal",
       "score": 100,
-      "supporting_articles": 8,
+      "supporting_articles": 7,
       "title": "Middle East Energy Risk"
     }
   },

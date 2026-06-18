@@ -40,7 +40,7 @@ REPORT RETENTION SUMMARY
 ------------------------
 
 Archive Enabled: Yes
-Archive Folder: 04_Reports/archive/20260618_144934
+Archive Folder: 04_Reports/archive/20260618_153417
 Archive Keep Count: 10
 Archive Runs Retained: 10
 Archive Cleanup Deleted: 1
@@ -105,7 +105,7 @@ CROSS-AGENT THEME DETAILS
    Supporting Signals:
    - Macro Agent | MACRO_REGIME | HIGH | Inflation Trend | Macro Regime Inflation Stress | Regime Score 100 | Priority Tier HIGH
    - Macro Agent | INFLATION_RISING | MEDIUM | Inflation trend: RISING
-   - News Agent | WORLD_EVENT | MEDIUM | The Iran oil shock taught traders these key lessons about demand and China
+   - News Agent | WORLD_EVENT | MEDIUM | Vance says U.S. isn’t giving Iran ‘a cent’ as he defends Trump peace deal
    - News Agent | NEWS_NARRATIVE | MEDIUM | Middle East Energy Risk
 
 2. Fed/Rates Risk
@@ -168,7 +168,7 @@ CROSS-AGENT THEME DETAILS
    Supporting Signal Count: 4
    Theme Reason: Market/Regulatory Event Theme links 4 signals across 1 agent(s): News Agent.
    Supporting Signals:
-   - News Agent | WORLD_EVENT | MEDIUM | The Iran oil shock taught traders these key lessons about demand and China
+   - News Agent | WORLD_EVENT | MEDIUM | Vance says U.S. isn’t giving Iran ‘a cent’ as he defends Trump peace deal
    - News Agent | PORTFOLIO_NEWS | MEDIUM | Analysis: Chairman Kevin Warsh’s task forces are the key to understanding the new Fed
    - News Agent | MACRO_NEWS | MEDIUM | Kalshi traders see greater than 50% odds the Fed will hike rates this year
    - News Agent | NEWS_NARRATIVE | MEDIUM | Middle East Energy Risk
@@ -529,9 +529,9 @@ AGENT SIGNAL BUS DETAILS
    Severity: MEDIUM
    Confidence: MEDIUM
    Category: Market Event
-   Description: 8 related Iran, Hormuz, or oil headlines indicate an energy-linked geopolitical market narrative.
+   Description: 7 related Iran, Hormuz, or oil headlines indicate an energy-linked geopolitical market narrative.
 
-15. The Iran oil shock taught traders these key lessons about demand and China
+15. Vance says U.S. isn’t giving Iran ‘a cent’ as he defends Trump peace deal
    Source: News Agent
    Type: WORLD_EVENT
    Severity: MEDIUM
@@ -609,10 +609,10 @@ Echo operates in report mode and supports deterministic backend queries for acti
 AGENT REGISTRY DETAILS
 ----------------------
 
-News Agent | Role Intelligence Officer | Status ACTIVE | Health HEALTHY | Report SUPPORTED | Query SUPPORTED | Last Run SUCCESS | Time 1.85s
-Macro Agent | Role Macro Strategist | Status ACTIVE | Health HEALTHY | Report SUPPORTED | Query SUPPORTED | Last Run SUCCESS | Time 2.15s
-Portfolio Manager | Role Chief Investment Officer | Status ACTIVE | Health HEALTHY | Report SUPPORTED | Query SUPPORTED | Last Run SUCCESS | Time 2.03s
-Research Agent | Role Research Analyst | Status ACTIVE | Health HEALTHY | Report SUPPORTED | Query SUPPORTED | Last Run SUCCESS | Time 0.06s
+News Agent | Role Intelligence Officer | Status ACTIVE | Health HEALTHY | Report SUPPORTED | Query SUPPORTED | Last Run SUCCESS | Time 1.83s
+Macro Agent | Role Macro Strategist | Status ACTIVE | Health HEALTHY | Report SUPPORTED | Query SUPPORTED | Last Run SUCCESS | Time 2.39s
+Portfolio Manager | Role Chief Investment Officer | Status ACTIVE | Health HEALTHY | Report SUPPORTED | Query SUPPORTED | Last Run SUCCESS | Time 1.86s
+Research Agent | Role Research Analyst | Status ACTIVE | Health HEALTHY | Report SUPPORTED | Query SUPPORTED | Last Run SUCCESS | Time 0.05s
 Calendar Agent | Role Scheduling Officer | Status PLACEHOLDER | Health UNKNOWN | Report NOT_SUPPORTED | Query PLANNED | Last Run NOT_RUN | Time N/A
 Email Agent | Role Communications Officer | Status PLACEHOLDER | Health UNKNOWN | Report NOT_SUPPORTED | Query PLANNED | Last Run NOT_RUN | Time N/A
 Project Manager Agent | Role Project Manager | Status PLACEHOLDER | Health UNKNOWN | Report NOT_SUPPORTED | Query PLANNED | Last Run NOT_RUN | Time N/A
@@ -663,19 +663,19 @@ NEWS AGENT EXECUTIVE BRIEF
 News Agent Status: ACTIVE
 Dynamic Coverage Universe: 14
 Top Market Narrative: Middle East Energy Risk
-Supporting Articles: 8
+Supporting Articles: 7
 Top Narrative Score: 100
-Representative Headline: The Iran oil shock taught traders these key lessons about demand and China
-Top Narrative Reason: 8 related Iran, Hormuz, or oil headlines indicate an energy-linked geopolitical market narrative.
+Representative Headline: Vance says U.S. isn’t giving Iran ‘a cent’ as he defends Trump peace deal
+Top Narrative Reason: 7 related Iran, Hormuz, or oil headlines indicate an energy-linked geopolitical market narrative.
 Top Portfolio Story: Analysis: Chairman Kevin Warsh’s task forces are the key to understanding the new Fed
 Top Watchlist Story: Kalshi traders see greater than 50% odds the Fed will hike rates this year
 Top Macro Story: Kalshi traders see greater than 50% odds the Fed will hike rates this year
-Top World Event Story: The Iran oil shock taught traders these key lessons about demand and China
-High Relevance Stories: 25
-Portfolio-Relevant Stories: 40
-Watchlist-Relevant Stories: 20
+Top World Event Story: Vance says U.S. isn’t giving Iran ‘a cent’ as he defends Trump peace deal
+High Relevance Stories: 24
+Portfolio-Relevant Stories: 39
+Watchlist-Relevant Stories: 21
 Macro-Relevant Stories: 16
-World Event Stories: 8
+World Event Stories: 7
 Failed Sources: 0
 
 News Agent is observational only and does not generate investment recommendations.
@@ -698,15 +698,14 @@ Top Ranked Narratives:
 1. Middle East Energy Risk
    Narrative Score: 100
    Tier: CRITICAL
-   Supporting Articles: 8
-   Representative Headline: The Iran oil shock taught traders these key lessons about demand and China
-   Narrative Reason: 8 related Iran, Hormuz, or oil headlines indicate an energy-linked geopolitical market narrative.
+   Supporting Articles: 7
+   Representative Headline: Vance says U.S. isn’t giving Iran ‘a cent’ as he defends Trump peace deal
+   Narrative Reason: 7 related Iran, Hormuz, or oil headlines indicate an energy-linked geopolitical market narrative.
    Supporting Headlines:
+   - Vance says U.S. isn’t giving Iran ‘a cent’ as he defends Trump peace deal
    - The Iran oil shock taught traders these key lessons about demand and China
    - Three Saudi oil tankers carrying 6 million barrels cross Strait of Hormuz
    - U.S. Navy ends blockade of Iran's ports and coastal areas
-   - Vance says U.S. isn’t giving Iran ‘a cent’ as he defends Trump peace deal
-   - Hegseth warns NATO allies that some nations will 'fail' U.S. defense review
    - Gas prices fall below $4 per gallon as oil supply fears ease after Iran deal
    - OPEC chief dismisses IEA supply glut forecast as 'critical' Strait of Hormuz reopens
    - Trump’s Iran agreement is a massive buy signal for stocks
@@ -773,18 +772,18 @@ Top Ranked Narratives:
    Narrative Score: 62
    Tier: ELEVATED
    Supporting Articles: 1
-   Representative Headline: Wall Street recovers from Fed slump, and the next step for Amazon's AI chip ambitions
+   Representative Headline: Amazon investigating engineers who criticized AI data center expansion
    Narrative Reason: AI and semiconductor developments can affect growth leadership.
    Supporting Headlines:
-   - Wall Street recovers from Fed slump, and the next step for Amazon's AI chip ambitions
+   - Amazon investigating engineers who criticized AI data center expansion
 9. AI and Semiconductor Cycle
    Narrative Score: 62
    Tier: ELEVATED
    Supporting Articles: 1
-   Representative Headline: Nearly 80% of data center capacity is at elevated risk to climate hazards like flooding and fire, study says
+   Representative Headline: Wall Street recovers from Fed slump, and the next step for Amazon's AI chip ambitions
    Narrative Reason: AI and semiconductor developments can affect growth leadership.
    Supporting Headlines:
-   - Nearly 80% of data center capacity is at elevated risk to climate hazards like flooding and fire, study says
+   - Wall Street recovers from Fed slump, and the next step for Amazon's AI chip ambitions
 10. General Economic Data
    Narrative Score: 31
    Tier: LOW
@@ -798,26 +797,26 @@ Top Ranked Narratives:
 Top Ranked Stories:
 1. Kalshi traders see greater than 50% odds the Fed will hike rates this year | Source CNBC Markets | Relevance Score 100 | Impact Category Fed Policy | Impact Tier CRITICAL | Relevance HIGH | Reason Federal Reserve policy directly reprices rates, equities, and risk assets. | Tags WATCHLIST, MACRO, CENTRAL_BANK
 2. Analysis: Chairman Kevin Warsh’s task forces are the key to understanding the new Fed | Source CNBC Markets | Relevance Score 100 | Impact Category Fed Policy | Impact Tier CRITICAL | Relevance HIGH | Reason Federal Reserve policy directly reprices rates, equities, and risk assets. | Tags PORTFOLIO, MACRO, CENTRAL_BANK, RATES
-3. The Iran oil shock taught traders these key lessons about demand and China | Source MarketWatch | Relevance Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags PORTFOLIO, WATCHLIST, WORLD_EVENT, ENERGY
-4. Three Saudi oil tankers carrying 6 million barrels cross Strait of Hormuz | Source CNBC Markets | Relevance Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags PORTFOLIO, WATCHLIST, ENERGY
-5. U.S. Navy ends blockade of Iran's ports and coastal areas | Source CNBC Markets | Relevance Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags PORTFOLIO, WATCHLIST, WORLD_EVENT
-6. Vance says U.S. isn’t giving Iran ‘a cent’ as he defends Trump peace deal | Source CNBC Markets | Relevance Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags PORTFOLIO, WORLD_EVENT
-7. Hegseth warns NATO allies that some nations will 'fail' U.S. defense review | Source CNBC Markets | Relevance Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags PORTFOLIO, WORLD_EVENT
-8. Gas prices fall below $4 per gallon as oil supply fears ease after Iran deal | Source CNBC Markets | Relevance Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags PORTFOLIO, WATCHLIST, WORLD_EVENT, ENERGY
-9. OPEC chief dismisses IEA supply glut forecast as 'critical' Strait of Hormuz reopens | Source CNBC Markets | Relevance Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags PORTFOLIO, WATCHLIST, WORLD_EVENT, ENERGY
-10. Trump’s Iran agreement is a massive buy signal for stocks | Source MarketWatch | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags MARKET, WORLD_EVENT
+3. Vance says U.S. isn’t giving Iran ‘a cent’ as he defends Trump peace deal | Source CNBC Markets | Relevance Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags PORTFOLIO, WORLD_EVENT
+4. The Iran oil shock taught traders these key lessons about demand and China | Source MarketWatch | Relevance Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags PORTFOLIO, WATCHLIST, WORLD_EVENT, ENERGY
+5. Three Saudi oil tankers carrying 6 million barrels cross Strait of Hormuz | Source CNBC Markets | Relevance Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags PORTFOLIO, WATCHLIST, ENERGY
+6. U.S. Navy ends blockade of Iran's ports and coastal areas | Source CNBC Markets | Relevance Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags PORTFOLIO, WATCHLIST, WORLD_EVENT
+7. Gas prices fall below $4 per gallon as oil supply fears ease after Iran deal | Source CNBC Markets | Relevance Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags PORTFOLIO, WATCHLIST, WORLD_EVENT, ENERGY
+8. OPEC chief dismisses IEA supply glut forecast as 'critical' Strait of Hormuz reopens | Source CNBC Markets | Relevance Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags PORTFOLIO, WATCHLIST, WORLD_EVENT, ENERGY
+9. Trump’s Iran agreement is a massive buy signal for stocks | Source MarketWatch | Relevance Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Relevance HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Tags MARKET, WORLD_EVENT
+10. SEC Divisions of Investment Management and Corporation Finance Issue Staff Guidance Supporting Retirement Plans for Small Businesses | Source SEC | Relevance Score 84 | Impact Category Mega-Cap Earnings | Impact Tier ELEVATED | Relevance HIGH | Reason Mega-cap or portfolio earnings can move indexes and portfolio holdings. | Tags PORTFOLIO, WATCHLIST, MARKET, REGULATORY, EARNINGS
 
 Portfolio-Relevant Stories:
 Analysis: Chairman Kevin Warsh’s task forces are the key to understanding the new Fed | Source CNBC Markets | Score 100 | Impact Category Fed Policy | Impact Tier CRITICAL | Reason Federal Reserve policy directly reprices rates, equities, and risk assets. | Matched Terms to | Link https://www.cnbc.com/2026/06/17/kevin-warsh-fed-interest-rates-risk-analysis.html
+Vance says U.S. isn’t giving Iran ‘a cent’ as he defends Trump peace deal | Source CNBC Markets | Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms U.S. | Link https://www.cnbc.com/2026/06/18/vance-iran-war-memo-oil-gas.html
 The Iran oil shock taught traders these key lessons about demand and China | Source MarketWatch | Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms commodity, U.S. | Link https://www.marketwatch.com/story/the-iran-oil-shock-taught-traders-these-key-lessons-about-demand-and-china-b03ad6a3?mod=mw_rss_topstories
 Three Saudi oil tankers carrying 6 million barrels cross Strait of Hormuz | Source CNBC Markets | Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms TANKERS | Link https://www.cnbc.com/2026/06/18/iran-deal-strait-hormuz-oil-tanker-saudi-arabia-traffic.html
 U.S. Navy ends blockade of Iran's ports and coastal areas | Source CNBC Markets | Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms U.S. | Link https://www.cnbc.com/2026/06/18/us-navy-blockade-iran-trump-oil.html
-Vance says U.S. isn’t giving Iran ‘a cent’ as he defends Trump peace deal | Source CNBC Markets | Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms U.S. | Link https://www.cnbc.com/2026/06/18/vance-iran-war-memo-oil-gas.html
-Hegseth warns NATO allies that some nations will 'fail' U.S. defense review | Source CNBC Markets | Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms U.S., to | Link https://www.cnbc.com/2026/06/18/hegseth-nato-defense-review-fail-europe.html
 Gas prices fall below $4 per gallon as oil supply fears ease after Iran deal | Source CNBC Markets | Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms U.S. | Link https://www.cnbc.com/2026/06/18/iran-war-gasoline-price-strait-hormuz-oil.html
 OPEC chief dismisses IEA supply glut forecast as 'critical' Strait of Hormuz reopens | Source CNBC Markets | Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms to | Link https://www.cnbc.com/2026/06/18/opec-iea-supply-glut-forecast-critical-strait-hormuz-reopens-oil.html
 SEC Divisions of Investment Management and Corporation Finance Issue Staff Guidance Supporting Retirement Plans for Small Businesses | Source SEC | Score 84 | Impact Category Mega-Cap Earnings | Impact Tier ELEVATED | Reason Mega-cap or portfolio earnings can move indexes and portfolio holdings. | Matched Terms investment, Small, to | Link https://www.sec.gov/newsroom/press-releases/2026-43-sec-divisions-investment-management-corporation-finance-issue-staff-guidance-supporting-retirement
 Women have better retirement savings habits but lower 401(k) balances than men, Vanguard finds | Source CNBC Markets | Score 83 | Impact Category Mega-Cap Earnings | Impact Tier ELEVATED | Reason Mega-cap or portfolio earnings can move indexes and portfolio holdings. | Matched Terms to | Link https://www.cnbc.com/2026/06/18/retirement-savings-habits-of-women-vs-men-vanguard.html
+SEC Proposes Rescission of Regulation NMS Rules 611 and 610(e) | Source SEC | Score 82 | Impact Category Major Regulatory Action | Impact Tier ELEVATED | Reason Major regulatory action can alter sector economics or company risk. | Matched Terms to | Link https://www.sec.gov/newsroom/press-releases/2026-54-sec-proposes-rescission-regulation-nms-rules-611-610e
 
 Watchlist-Relevant Stories:
 Kalshi traders see greater than 50% odds the Fed will hike rates this year | Source CNBC Markets | Score 100 | Impact Category Fed Policy | Impact Tier CRITICAL | Reason Federal Reserve policy directly reprices rates, equities, and risk assets. | Matched Terms on | Link https://www.cnbc.com/2026/06/18/kalshi-traders-see-greater-than-50percent-odds-the-fed-will-hike-rates-this-year.html
@@ -844,10 +843,9 @@ U.S. International Transactions, 3rd Quarter 2025 | Source BEA | Score 27 | Impa
 Marine Economy Satellite Account, 2023 | Source BEA | Score 27 | Impact Category Generic Economic Data | Impact Tier LOW | Reason Routine economic data is monitored but lacks a clear market shock. | Matched Terms dollar | Link https://www.bea.gov/news/2025/marine-economy-satellite-account-2023
 
 World Event Stories:
+Vance says U.S. isn’t giving Iran ‘a cent’ as he defends Trump peace deal | Source CNBC Markets | Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms Iran | Link https://www.cnbc.com/2026/06/18/vance-iran-war-memo-oil-gas.html
 The Iran oil shock taught traders these key lessons about demand and China | Source MarketWatch | Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms war, oil shock, China, Iran | Link https://www.marketwatch.com/story/the-iran-oil-shock-taught-traders-these-key-lessons-about-demand-and-china-b03ad6a3?mod=mw_rss_topstories
 U.S. Navy ends blockade of Iran's ports and coastal areas | Source CNBC Markets | Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms Iran | Link https://www.cnbc.com/2026/06/18/us-navy-blockade-iran-trump-oil.html
-Vance says U.S. isn’t giving Iran ‘a cent’ as he defends Trump peace deal | Source CNBC Markets | Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms Iran | Link https://www.cnbc.com/2026/06/18/vance-iran-war-memo-oil-gas.html
-Hegseth warns NATO allies that some nations will 'fail' U.S. defense review | Source CNBC Markets | Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms Iran | Link https://www.cnbc.com/2026/06/18/hegseth-nato-defense-review-fail-europe.html
 Gas prices fall below $4 per gallon as oil supply fears ease after Iran deal | Source CNBC Markets | Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms Israel, Iran | Link https://www.cnbc.com/2026/06/18/iran-war-gasoline-price-strait-hormuz-oil.html
 OPEC chief dismisses IEA supply glut forecast as 'critical' Strait of Hormuz reopens | Source CNBC Markets | Score 89 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms conflict | Link https://www.cnbc.com/2026/06/18/opec-iea-supply-glut-forecast-critical-strait-hormuz-reopens-oil.html
 Trump’s Iran agreement is a massive buy signal for stocks | Source MarketWatch | Score 84 | Impact Category Energy Supply Shock | Impact Tier HIGH | Reason Energy supply disruptions can quickly affect inflation and margins. | Matched Terms war, conflict, Iran | Link https://www.marketwatch.com/story/trumps-iran-agreement-changes-the-game-for-investors-these-are-the-two-sectors-to-buy-right-now-0705bc62?mod=mw_rss_topstories
@@ -878,8 +876,8 @@ Series Health:
 CPIAUCSL | Name Consumer Price Index | Status OK | Latest 2026-05-01 333.979 | Error None
 UNRATE | Name Unemployment Rate | Status OK | Latest 2026-05-01 4.3 | Error None
 FEDFUNDS | Name Effective Federal Funds Rate | Status OK | Latest 2026-05-01 3.63 | Error None
-DGS10 | Name 10-Year Treasury Yield | Status OK | Latest 2026-06-16 4.43 | Error None
-DGS2 | Name 2-Year Treasury Yield | Status OK | Latest 2026-06-16 4.05 | Error None
+DGS10 | Name 10-Year Treasury Yield | Status OK | Latest 2026-06-17 4.49 | Error None
+DGS2 | Name 2-Year Treasury Yield | Status OK | Latest 2026-06-17 4.2 | Error None
 T10Y2Y | Name 10Y Minus 2Y Treasury Spread | Status OK | Latest 2026-06-17 0.29 | Error None
 GDP | Name Gross Domestic Product | Status OK | Latest 2026-01-01 31819.464 | Error None
 DCOILWTICO | Name WTI Crude Oil Price | Status OK | Latest 2026-06-15 84.65 | Error None
@@ -1862,6 +1860,17 @@ RESEARCH GAPS
 
 
 No research coverage gaps detected.
+
+
+THESIS REFRESH IMPLICATIONS
+---------------------------
+
+
+ECO: Research review needed. Refresh status insufficient; direction unknown; implication research_more. Informational only; no trades or holding changes are automated.
+IBIT: Research review needed. Refresh status insufficient; direction unknown; implication research_more. Informational only; no trades or holding changes are automated.
+MSTR: Research review needed. Refresh status insufficient; direction unknown; implication research_more. Informational only; no trades or holding changes are automated.
+SMCI: Research review needed. Refresh status insufficient; direction unknown; implication research_more. Informational only; no trades or holding changes are automated.
+UNH: Research review needed. Refresh status insufficient; direction unknown; implication research_more. Informational only; no trades or holding changes are automated.
 
 
 POSITIONS

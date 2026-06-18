@@ -24,6 +24,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 REPORTS_DIR = BASE_DIR / "04_Reports"
 DEFAULT_JSON_PATH = REPORTS_DIR / "security_intelligence.json"
 DEFAULT_TEXT_PATH = REPORTS_DIR / "security_intelligence.txt"
+THESIS_REFRESH_PATH = REPORTS_DIR / "thesis_refresh.json"
+RESEARCH_EVIDENCE_STORE_PATH = REPORTS_DIR / "research_evidence_store.json"
 NEWS_REPORT_PATH = REPORTS_DIR / "agents" / "news_full_report.txt"
 ECHO_STATE_PATH = REPORTS_DIR / "echo_state.json"
 
@@ -344,10 +346,54 @@ def _historical_market_data(ticker):
     }, []
 
 
+def _refresh_map(path=None):
+
+    data = _read_json(path or THESIS_REFRESH_PATH)
+    refreshes = data.get("thesis_refreshes") or data.get("refreshes") or []
+    result = {}
+    for item in refreshes:
+        if not isinstance(item, dict):
+            continue
+        ticker = _safe_text(item.get("ticker")).upper()
+        if ticker:
+            result[ticker] = item
+    return result
+
+
+def _evidence_profile_map(path=None):
+
+    data = _read_json(path or RESEARCH_EVIDENCE_STORE_PATH)
+    profiles = data.get("profiles") or []
+    result = {}
+    for item in profiles:
+        if not isinstance(item, dict):
+            continue
+        ticker = _safe_text(item.get("ticker")).upper()
+        if ticker:
+            result[ticker] = item
+    return result
+
+
+def _fresh_thesis_refresh(ticker):
+
+    refresh = _refresh_map().get(_safe_text(ticker).upper())
+    if not refresh:
+        return {}
+    if _safe_text(refresh.get("research_status")).casefold() == "fresh":
+        return refresh
+    return {}
+
+
+def _research_evidence_profile(ticker):
+
+    return _evidence_profile_map().get(_safe_text(ticker).upper()) or {}
+
+
 def _quality_flags(thesis, profile):
 
     flags = []
-    if not thesis:
+    thesis_source = _safe_text(profile.get("thesis_source"))
+    if not thesis and thesis_source != "thesis_refresh":
         flags.append("Missing thesis: quality-control signal only, not investment evidence.")
     conviction = _safe_text(profile.get("conviction")).casefold()
     status = _safe_text(profile.get("thesis_status")).casefold()
@@ -379,6 +425,8 @@ def build_security_profile(ticker_or_query):
     master = _security_master_record(ticker)
     coverage = _coverage_item(ticker, ticker_or_query)
     thesis = get_thesis(ticker)
+    refreshed_thesis = _fresh_thesis_refresh(ticker)
+    evidence_profile = _research_evidence_profile(ticker)
 
     name = (
         _safe_text((holding or {}).get("name"))
@@ -397,11 +445,41 @@ def build_security_profile(ticker_or_query):
         if watchlist and (watchlist or {}).get("expense_ratio") is not None
         else (master or {}).get("expense_ratio")
     )
-    thesis_summary = _safe_text((thesis or {}).get("thesis"))
+    legacy_thesis_summary = _safe_text((thesis or {}).get("thesis"))
+    thesis_source = "manual_legacy_thesis" if legacy_thesis_summary else "none"
+    thesis_summary = legacy_thesis_summary
     thesis_status = _safe_text((thesis or {}).get("thesis_status"))
     conviction = _safe_text((thesis or {}).get("conviction"))
 
+    if evidence_profile:
+        thesis_source = "research_evidence_store"
+        if not thesis_summary:
+            thesis_summary = _safe_text(evidence_profile.get("company_summary"))
+        if evidence_profile.get("confidence"):
+            conviction = _safe_text(evidence_profile.get("confidence"))
+        if not thesis_status:
+            thesis_status = "generated_evidence"
+
+    if refreshed_thesis:
+        thesis_source = "thesis_refresh"
+        thesis_summary = _safe_text(refreshed_thesis.get("current_thesis"))
+        thesis_status = _safe_text(refreshed_thesis.get("research_status"))
+        conviction = _safe_text(refreshed_thesis.get("conviction_direction"))
+
     bull_factors, thesis_bears = _thesis_factors(thesis_summary)
+    if refreshed_thesis:
+        bull_factors = _unique([
+            _safe_text(refreshed_thesis.get("bull_case_summary")),
+            *bull_factors
+        ])
+        thesis_bears = _unique([
+            _safe_text(refreshed_thesis.get("bear_case_summary")),
+            *thesis_bears
+        ])
+    elif evidence_profile:
+        bull_factors = _unique((evidence_profile.get("bull_case") or []) + bull_factors)
+        thesis_bears = _unique((evidence_profile.get("bear_case") or []) + thesis_bears)
+
     category_bulls, category_bears, classification, factors = _category_factors(
         ticker,
         category,
@@ -424,10 +502,18 @@ def build_security_profile(ticker_or_query):
         known_data.append("portfolio holding data")
     if watchlist:
         known_data.append("watchlist data")
-    if thesis:
-        known_data.append("thesis text")
+    if refreshed_thesis:
+        known_data.append("fresh thesis_refresh")
+    elif evidence_profile:
+        known_data.append("generated research_evidence_store")
+    elif thesis:
+        known_data.append("manual_legacy_thesis")
     else:
-        missing_data.append("thesis text")
+        missing_data.append("current generated thesis")
+    if thesis and not refreshed_thesis:
+        missing_data.append(
+            "theses.csv is available only as manual_legacy_thesis, not current truth"
+        )
     if news_exposures:
         known_data.append("local news exposure")
     missing_data.extend(news_missing)
@@ -452,6 +538,10 @@ def build_security_profile(ticker_or_query):
         "thesis_summary": thesis_summary,
         "thesis_status": thesis_status,
         "conviction": conviction,
+        "thesis_source": thesis_source,
+        "manual_legacy_thesis": legacy_thesis_summary,
+        "thesis_refresh": refreshed_thesis,
+        "research_evidence_profile": evidence_profile,
         "bull_factors": _unique(bull_factors + category_bulls),
         "bear_factors": _unique(thesis_bears + category_bears),
         "macro_exposures": _unique(macro_exposures),

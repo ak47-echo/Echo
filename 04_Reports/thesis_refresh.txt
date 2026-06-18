@@ -1,0 +1,32 @@
+THESIS REFRESH
+
+Generated At: 2026-06-18T15:34:19
+Source Mode: local_only
+Refresh Count: 5
+Policy: Generated thesis refreshes are informational. They do not place trades, alter holdings, or overwrite theses.csv.
+
+- ECO | status insufficient | direction unknown
+  Thesis: Current generated research view for ECO: Thesis support: Environmental services demand can benefit from infrastructure investment and tighter waste standards Classified as commodity stock; factors: commodity. Primary risks: Security classification risk bucket is speculative.
+  Bull: Thesis support: Environmental services demand can benefit from infrastructure investment and tighter waste standards Classified as commodity stock; factors: commodity.
+  Bear: Security classification risk bucket is speculative.
+  Implication: research_more | user approval True
+- IBIT | status insufficient | direction unknown
+  Thesis: Current generated research view for IBIT: Thesis on file: Direct bitcoin exposure provides asymmetric return potential within a deliberately limited allocation Classified as bitcoin ETF; factors: bitcoin. Primary risks: Security classification risk bucket is speculative.
+  Bull: Thesis on file: Direct bitcoin exposure provides asymmetric return potential within a deliberately limited allocation Classified as bitcoin ETF; factors: bitcoin.
+  Bear: Security classification risk bucket is speculative.
+  Implication: research_more | user approval True
+- MSTR | status insufficient | direction unknown
+  Thesis: Current generated research view for MSTR: Thesis support: Bitcoin treasury exposure offers amplified upside but carries substantial leverage and concentration risk Classified as equity stock; factors: blend, small. Primary risks: Thesis risk: Bitcoin treasury exposure offers amplified upside but carries substantial leverage and concentration risk Security classification risk bucket is high.
+  Bull: Thesis support: Bitcoin treasury exposure offers amplified upside but carries substantial leverage and concentration risk Classified as equity stock; factors: blend, small.
+  Bear: Thesis risk: Bitcoin treasury exposure offers amplified upside but carries substantial leverage and concentration risk Security classification risk bucket is high.
+  Implication: research_more | user approval True
+- SMCI | status insufficient | direction unknown
+  Thesis: Current generated research view for SMCI: Thesis support: AI infrastructure demand can support server growth but competition and execution risk remain elevated Classified as equity stock; factors: growth, small. Primary risks: Thesis risk: AI infrastructure demand can support server growth but competition and execution risk remain elevated Security classification risk bucket is high.
+  Bull: Thesis support: AI infrastructure demand can support server growth but competition and execution risk remain elevated Classified as equity stock; factors: growth, small.
+  Bear: Thesis risk: AI infrastructure demand can support server growth but competition and execution risk remain elevated Security classification risk bucket is high.
+  Implication: research_more | user approval True
+- UNH | status insufficient | direction unknown
+  Thesis: Current generated research view for UNH: Thesis on file: Scale and vertical integration support long term health care earnings despite regulatory risk Classified as equity stock; factors: growth, large. Primary risks: Thesis risk: Scale and vertical integration support long term health care earnings despite regulatory risk Security classification risk bucket is high.
+  Bull: Thesis on file: Scale and vertical integration support long term health care earnings despite regulatory risk Classified as equity stock; factors: growth, large.
+  Bear: Thesis risk: Scale and vertical integration support long term health care earnings despite regulatory risk Security classification risk bucket is high.
+  Implication: research_more | user approval True

@@ -1,4 +1,5 @@
 import csv
+import json
 from pathlib import Path
 import yfinance as yf
 from agents.policy_agent import get_policy
@@ -48,6 +49,7 @@ LEGACY_HOLDINGS_PATH = BASE_DIR / "02_Data" / "holdings.csv"
 NORMALIZED_HOLDINGS_PATH = (
     BASE_DIR / "02_Data" / "portfolio_current" / "holdings_normalized.csv"
 )
+THESIS_REFRESH_PATH = BASE_DIR / "04_Reports" / "thesis_refresh.json"
 
 PORTFOLIO_REPORT_SECTION_ORDER = (
     "PORTFOLIO MANAGER EXECUTIVE BRIEF",
@@ -101,6 +103,7 @@ PORTFOLIO_REPORT_SECTION_ORDER = (
     "RESEARCH HEALTH",
     "RESEARCH COVERAGE",
     "RESEARCH GAPS",
+    "THESIS REFRESH IMPLICATIONS",
     "POSITIONS",
     "TICKER ALLOCATION",
     "REBALANCE ALERTS",
@@ -143,6 +146,37 @@ def order_portfolio_report_sections(report):
         ordered_report.extend(sections.get(section_name, []))
 
     return ordered_report
+
+
+def get_thesis_refresh_implications(path=None):
+
+    path = Path(path or THESIS_REFRESH_PATH)
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, TypeError, ValueError, json.JSONDecodeError):
+        return []
+
+    implications = []
+    for item in data.get("thesis_refreshes") or []:
+        ticker = str(item.get("ticker") or "").strip().upper()
+        if not ticker:
+            continue
+        status = str(item.get("research_status") or "unknown").strip()
+        direction = str(item.get("conviction_direction") or "unknown").strip()
+        implication = str(
+            item.get("portfolio_action_implication") or "monitor"
+        ).strip()
+        review_note = (
+            "Research review needed"
+            if direction == "deteriorating" or implication == "research_more"
+            else "Monitor"
+        )
+        implications.append(
+            f"{ticker}: {review_note}. Refresh status {status}; "
+            f"direction {direction}; implication {implication}. "
+            "Informational only; no trades or holding changes are automated."
+        )
+    return implications
 
 
 def get_capital_deployment(buy_list, amount):
@@ -568,6 +602,15 @@ def get_portfolio_report():
             allocation = 0
 
         allocation_differences[ticker] = allocation - targets.get(ticker, 0)
+
+    thesis_refresh_implications = get_thesis_refresh_implications()
+    report.append("THESIS REFRESH IMPLICATIONS")
+    report.append("")
+    if thesis_refresh_implications:
+        report.extend(thesis_refresh_implications)
+    else:
+        report.append("No generated thesis refresh implications available.")
+    report.append("")
 
     report.append("POSITIONS")
     report.append("")

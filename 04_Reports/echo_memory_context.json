@@ -5,7 +5,7 @@
     "max_items": 20
   },
   "context_mode": "memory_first",
-  "generated_at": "2026-06-18T14:49:34",
+  "generated_at": "2026-06-18T15:34:17",
   "operating_context": {
     "connected_entities": [
       {
@@ -58,10 +58,10 @@
         "top_priority": "Inflation Trend | Macro Regime Inflation Stress | Regime Score 100 | Priority Tier HIGH"
       },
       "news_top_narrative": {
-        "reason": "8 related Iran, Hormuz, or oil headlines indicate an energy-linked geopolitical market narrative.",
-        "representative_headline": "The Iran oil shock taught traders these key lessons about demand and China",
+        "reason": "7 related Iran, Hormuz, or oil headlines indicate an energy-linked geopolitical market narrative.",
+        "representative_headline": "Vance says U.S. isn\u2019t giving Iran \u2018a cent\u2019 as he defends Trump peace deal",
         "score": 100,
-        "supporting_articles": 8,
+        "supporting_articles": 7,
         "title": "Middle East Energy Risk"
       },
       "portfolio_current_risk": {

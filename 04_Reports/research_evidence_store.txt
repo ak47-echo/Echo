@@ -1,0 +1,37 @@
+RESEARCH EVIDENCE STORE
+
+Generated At: 2026-06-18T15:34:19
+Source Mode: local_only
+Profile Count: 5
+Evidence Policy: Generated evidence may use local news, macro, portfolio, security master, and historical market data. Previous recommendations are not evidence.
+
+- ECO | OKEANIS ECO TANKERS CO F | confidence MEDIUM
+  Company: ECO is OKEANIS ECO TANKERS CO F in Marine Shipping.
+  Bull: Thesis support: Environmental services demand can benefit from infrastructure investment and tighter waste standards; Classified as commodity stock; factors: commodity.
+  Bear: Security classification risk bucket is speculative.
+  Recent: Direct local News Agent mention found for: TANKERS.
+  Missing: theses.csv is available only as manual_legacy_thesis, not current truth; Live research is disabled by LIVE_RESEARCH_ENABLED.; Missing live web evidence: ANTHROPIC_WEB_SEARCH_ENABLED is false.
+- IBIT | ISHARES BITCOIN TRUST ETF | confidence MEDIUM
+  Company: IBIT is ISHARES BITCOIN TRUST ETF in Non-Traditional.
+  Bull: Thesis on file: Direct bitcoin exposure provides asymmetric return potential within a deliberately limited allocation; Classified as bitcoin ETF; factors: bitcoin.
+  Bear: Security classification risk bucket is speculative.
+  Recent: No direct local news was found for this ticker.
+  Missing: theses.csv is available only as manual_legacy_thesis, not current truth; No direct local news was found for this ticker.; Live research is disabled by LIVE_RESEARCH_ENABLED.; Missing live web evidence: ANTHROPIC_WEB_SEARCH_ENABLED is false.
+- MSTR | STRATEGY INC CLASS A | confidence MEDIUM
+  Company: MSTR is STRATEGY INC CLASS A in US Small Blend.
+  Bull: Thesis support: Bitcoin treasury exposure offers amplified upside but carries substantial leverage and concentration risk; Classified as equity stock; factors: blend, small.
+  Bear: Thesis risk: Bitcoin treasury exposure offers amplified upside but carries substantial leverage and concentration risk; Security classification risk bucket is high.
+  Recent: No direct local news was found for this ticker.
+  Missing: theses.csv is available only as manual_legacy_thesis, not current truth; No direct local news was found for this ticker.; Live research is disabled by LIVE_RESEARCH_ENABLED.; Missing live web evidence: ANTHROPIC_WEB_SEARCH_ENABLED is false.
+- SMCI | SUPER MICRO COMPUTER INC | confidence MEDIUM
+  Company: SMCI is SUPER MICRO COMPUTER INC in US Small Growth.
+  Bull: Thesis support: AI infrastructure demand can support server growth but competition and execution risk remain elevated; Classified as equity stock; factors: growth, small.
+  Bear: Thesis risk: AI infrastructure demand can support server growth but competition and execution risk remain elevated; Security classification risk bucket is high.
+  Recent: No direct local news was found for this ticker.
+  Missing: theses.csv is available only as manual_legacy_thesis, not current truth; No direct local news was found for this ticker.; Live research is disabled by LIVE_RESEARCH_ENABLED.; Missing live web evidence: ANTHROPIC_WEB_SEARCH_ENABLED is false.
+- UNH | UNITEDHEALTH GROUP INC | confidence MEDIUM
+  Company: UNH is UNITEDHEALTH GROUP INC in US Large Growth.
+  Bull: Thesis on file: Scale and vertical integration support long term health care earnings despite regulatory risk; Classified as equity stock; factors: growth, large.
+  Bear: Thesis risk: Scale and vertical integration support long term health care earnings despite regulatory risk; Security classification risk bucket is high.
+  Recent: No direct local news was found for this ticker.
+  Missing: theses.csv is available only as manual_legacy_thesis, not current truth; No direct local news was found for this ticker.; Live research is disabled by LIVE_RESEARCH_ENABLED.; Missing live web evidence: ANTHROPIC_WEB_SEARCH_ENABLED is false.
