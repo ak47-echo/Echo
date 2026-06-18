@@ -58,7 +58,8 @@ def _agent_terms(query):
     agents = []
 
     if tokens & {"portfolio", "allocation", "concentration", "holding",
-                 "holdings", "rebalance", "stress", "tax"}:
+                 "holdings", "rebalance", "stress", "tax", "risk",
+                 "exposed", "exposure"}:
         agents.append("portfolio")
 
     if tokens & {"research", "thesis", "conviction", "coverage",
@@ -88,6 +89,33 @@ def _is_greeting_or_status(query):
         return True
 
     return bool(tokens & {"health", "status"}) and len(tokens) <= 5
+
+
+def _is_conversational_query(query):
+
+    normalized = _safe_text(query).casefold().strip(" ?!.")
+
+    if normalized in {
+        "hi",
+        "hello",
+        "hey",
+        "good morning",
+        "good afternoon",
+        "good evening",
+        "what's up",
+        "whats up",
+        "thanks",
+        "thank you"
+    }:
+        return True
+
+    return _has_any(query, (
+        "tell me a joke",
+        "joke",
+        "make me laugh",
+        "say something funny",
+        "chat with me"
+    ))
 
 
 def _is_deep_dive(query):
@@ -151,6 +179,16 @@ def _is_multi_agent(query, agents):
 
 
 def _base_budget(query, agents):
+
+    if _is_conversational_query(query):
+        return (
+            "conversational",
+            "minimal",
+            ["memory_context"],
+            ["full_reports", "agent_reports", "knowledge_graph"],
+            ["echo_get_memory_context"],
+            "Conversational prompt; keep agent context light unless requested."
+        )
 
     if _is_greeting_or_status(query):
         return (
@@ -246,7 +284,7 @@ def build_context_budget(user_query, memory_context=None, available_tools=None):
 
     query = _safe_text(user_query)
     tools = _available_tools(available_tools)
-    agents = _agent_terms(query)
+    agents = [] if _is_conversational_query(query) else _agent_terms(query)
     (
         query_class,
         budget_level,

@@ -215,6 +215,9 @@ def _intent(user_query, context_budget, agent_routing):
     routing_mode = _dict(agent_routing).get("routing_mode")
     primary_agents = _list(_dict(agent_routing).get("primary_agents"))
 
+    if query_class == "conversational":
+        return "conversational"
+
     if _has_any(query, (
         "changed",
         "change",
@@ -305,6 +308,9 @@ def _response_mode(intent, agent_routing):
 
     routing_mode = _dict(agent_routing).get("routing_mode")
 
+    if intent == "conversational":
+        return "conversational"
+
     if intent in {
         "priority_status",
         "change_status",
@@ -320,6 +326,38 @@ def _response_mode(intent, agent_routing):
         return "agent_summary"
 
     return "fallback"
+
+
+def _conversational_response(user_query):
+
+    query = _safe_text(user_query).casefold().strip(" ?!.")
+
+    if query in {"hi", "hello", "hey", "good morning", "good afternoon",
+                 "good evening", "what's up", "whats up"}:
+        return (
+            "I'm here. Ask me what changed, what matters, or which area you "
+            "want to inspect.",
+            [],
+            []
+        )
+
+    if query in {"thanks", "thank you"}:
+        return "You're welcome.", [], []
+
+    if "joke" in query or "funny" in query:
+        return (
+            "Portfolio managers do not panic; they just rebalance their "
+            "facial expressions.",
+            [],
+            []
+        )
+
+    return (
+        "I'm here. Ask me naturally, and I will use Echo context when it is "
+        "relevant.",
+        [],
+        []
+    )
 
 
 def _priority_response(memory_context):
@@ -669,6 +707,8 @@ def compose_echo_response(user_query, context_budget, agent_routing,
 
     if intent == "priority_status":
         answer, supporting_points, caveats = _priority_response(memory_context)
+    elif intent == "conversational":
+        answer, supporting_points, caveats = _conversational_response(query)
     elif intent == "change_status":
         answer, supporting_points, caveats = _change_response(memory_context)
     elif intent == "persistence_status":
@@ -695,13 +735,11 @@ def compose_echo_response(user_query, context_budget, agent_routing,
         )
     else:
         answer = (
-            "I do not have a specific deterministic answer for that query yet. "
-            "The compact memory context is available, but the request did not "
-            "map cleanly to priority, change, persistence, attention, agent, "
-            "risk, or synthesis intent."
+            "I'm here. Ask me what changed, what matters, or which area you "
+            "want to inspect."
         )
         response_mode = "fallback"
-        caveats = ["Ask for priority, changes, persistence, attention, or an agent summary."]
+        caveats = []
 
     answer = _clean_answer(answer)
     supporting_points = [

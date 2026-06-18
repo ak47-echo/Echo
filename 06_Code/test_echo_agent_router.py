@@ -31,6 +31,26 @@ class EchoAgentRouterTests(unittest.TestCase):
 
         self.assertIn("portfolio", routing["primary_agents"])
 
+    def test_joke_about_portfolio_managers_does_not_route_to_portfolio(self):
+
+        routing = route_query_to_agents(
+            "Tell me a joke about portfolio managers.",
+            _budget("minimal", "conversational")
+        )
+
+        self.assertEqual([], routing["primary_agents"])
+        self.assertEqual("none", routing["routing_mode"])
+
+    def test_macro_risk_query_routes_to_portfolio_and_macro(self):
+
+        routing = route_query_to_agents(
+            "How exposed am I to macro risk?",
+            _budget("expanded", "multi_agent")
+        )
+
+        self.assertIn("portfolio", routing["primary_agents"])
+        self.assertIn("macro", routing["primary_agents"])
+
     def test_macro_query_routes_to_macro(self):
 
         routing = route_query_to_agents(

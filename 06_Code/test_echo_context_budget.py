@@ -32,8 +32,19 @@ class EchoContextBudgetTests(unittest.TestCase):
 
         budget = build_context_budget("hello", _memory_context())
 
-        self.assertEqual("simple", budget["query_class"])
+        self.assertEqual("conversational", budget["query_class"])
         self.assertEqual("minimal", budget["budget_level"])
+
+    def test_joke_about_portfolio_managers_is_conversational(self):
+
+        budget = build_context_budget(
+            "Tell me a joke about portfolio managers.",
+            _memory_context()
+        )
+
+        self.assertEqual("conversational", budget["query_class"])
+        self.assertEqual("minimal", budget["budget_level"])
+        self.assertNotIn("portfolio_report", budget["preferred_context_sources"])
 
     def test_what_changed_becomes_memory_standard(self):
 

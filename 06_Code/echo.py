@@ -6358,7 +6358,8 @@ def build_echo_llm_system_prompt():
 
     return "\n".join([
         "You are Echo, a personal chief-of-staff interface over deterministic tools.",
-        "Ground every answer in the provided Echo tool context.",
+        "Ground operating, portfolio, macro, news, and research answers in the provided Echo tool context.",
+        "For casual conversation, greetings, thanks, or harmless creative prompts, respond naturally and do not force an agent report.",
         "Clearly separate known tool facts from inference or judgment.",
         "Do not invent portfolio holdings, news, macro data, prices, or research conclusions.",
         "If the tool context is insufficient, say what is missing.",
@@ -6647,6 +6648,34 @@ def _build_anthropic_prompt_message(messages, tool_context):
     )
 
 
+def _response_metadata(provider_name, provider_model, live_call_attempted,
+                       fallback_used, response_source, context_budget,
+                       agent_routing, context_assembly):
+
+    return {
+        "llm_provider": provider_name,
+        "model": provider_model,
+        "live_call_attempted": bool(live_call_attempted),
+        "fallback_used": bool(fallback_used),
+        "response_source": response_source,
+        "query_class": (
+            context_budget.get("query_class")
+            if isinstance(context_budget, dict)
+            else None
+        ),
+        "routing_mode": (
+            agent_routing.get("routing_mode")
+            if isinstance(agent_routing, dict)
+            else None
+        ),
+        "assembly_mode": (
+            context_assembly.get("assembly_mode")
+            if isinstance(context_assembly, dict)
+            else None
+        )
+    }
+
+
 def _normalize_llm_provider_name(provider_name=None):
 
     configured_provider = (
@@ -6766,7 +6795,7 @@ def _echo_orchestrator_select_tools(message, context, context_budget=None,
         "echo_get_response_composer"
     )
 
-    if query_class == "simple":
+    if query_class in {"simple", "conversational"}:
         return selected_tools
 
     if isinstance(context_budget, dict):
@@ -7104,16 +7133,29 @@ def echo_generate_llm_answer(message, context=None):
             provider_result.get("answer", ""),
             tool_context
         )
+        provider_name = provider_result.get("provider", provider.provider_name)
+        llm_metadata = _response_metadata(
+            provider_name,
+            provider_model,
+            live_call_attempted,
+            validation["fallback_required"],
+            (
+                "deterministic"
+                if validation["fallback_required"]
+                else "llm"
+            ),
+            context_budget,
+            agent_routing,
+            context_assembly
+        )
 
         if validation["fallback_required"]:
             return {
                 "status": "DETERMINISTIC_FALLBACK",
                 "mode": "DETERMINISTIC_FALLBACK",
-                "provider": provider_result.get(
-                    "provider",
-                    provider.provider_name
-                ),
+                "provider": provider_name,
                 "model": provider_model,
+                **llm_metadata,
                 "message": normalized_message,
                 "answer": fallback_answer,
                 "selected_tools": selected_tools,
@@ -7130,6 +7172,7 @@ def echo_generate_llm_answer(message, context=None):
                 "tool_context_char_count": tool_context_char_count,
                 "live_call_attempted": live_call_attempted,
                 "fallback_used": True,
+                "response_source": "deterministic",
                 "notes": (
                     "Deterministic fallback used because LLM response "
                     "validation failed: "
@@ -7140,8 +7183,9 @@ def echo_generate_llm_answer(message, context=None):
         return {
             "status": "ANSWERED",
             "mode": "LLM_PROVIDER",
-            "provider": provider_result.get("provider", provider.provider_name),
+            "provider": provider_name,
             "model": provider_model,
+            **llm_metadata,
             "message": normalized_message,
             "answer": provider_result.get("answer", ""),
             "selected_tools": selected_tools,
@@ -7155,7 +7199,8 @@ def echo_generate_llm_answer(message, context=None):
             "tool_context_char_count": tool_context_char_count,
             "live_call_attempted": live_call_attempted,
             "fallback_used": False,
-            "notes": provider_result.get("notes", "")
+            "response_source": "llm",
+            "notes": _redact_secret_text(provider_result.get("notes", ""))
         }
 
     if provider_status == "NOT_CONFIGURED":
@@ -7167,11 +7212,23 @@ def echo_generate_llm_answer(message, context=None):
     else:
         fallback_reason = f"Provider status was {provider_status}."
 
+    llm_metadata = _response_metadata(
+        provider.provider_name,
+        provider_model,
+        live_call_attempted,
+        True,
+        "deterministic",
+        context_budget,
+        agent_routing,
+        context_assembly
+    )
+
     return {
         "status": "DETERMINISTIC_FALLBACK",
         "mode": "DETERMINISTIC_FALLBACK",
         "provider": provider.provider_name,
         "model": provider_model,
+        **llm_metadata,
         "message": normalized_message,
         "answer": fallback_answer,
         "selected_tools": selected_tools,
@@ -7185,9 +7242,10 @@ def echo_generate_llm_answer(message, context=None):
         "tool_context_char_count": tool_context_char_count,
         "live_call_attempted": live_call_attempted,
         "fallback_used": True,
+        "response_source": "deterministic",
         "notes": (
             f"Deterministic fallback used. {fallback_reason} "
-            f"{provider_result.get('notes', '')}"
+            f"{_redact_secret_text(provider_result.get('notes', ''))}"
         )
     }
 

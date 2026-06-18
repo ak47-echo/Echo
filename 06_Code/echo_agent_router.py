@@ -93,6 +93,24 @@ SYNTHESIS_TERMS = (
     "across agents"
 )
 
+CONVERSATIONAL_TERMS = (
+    "hi",
+    "hello",
+    "hey",
+    "good morning",
+    "good afternoon",
+    "good evening",
+    "what's up",
+    "whats up",
+    "thanks",
+    "thank you",
+    "tell me a joke",
+    "joke",
+    "make me laugh",
+    "say something funny",
+    "chat with me"
+)
+
 
 def _now():
 
@@ -113,6 +131,16 @@ def _has_phrase(text, phrases):
 
     lowered = _safe_text(text).casefold()
     return any(phrase in lowered for phrase in phrases)
+
+
+def _is_conversational_query(query):
+
+    normalized = _safe_text(query).casefold().strip(" ?!.")
+
+    if normalized in CONVERSATIONAL_TERMS:
+        return True
+
+    return _has_phrase(query, CONVERSATIONAL_TERMS)
 
 
 def _available_agents(available_agents):
@@ -217,6 +245,21 @@ def route_query_to_agents(user_query, context_budget=None, memory_context=None,
     budget_level = context_budget.get("budget_level") or "standard"
     query_class = context_budget.get("query_class") or "unknown"
     agents = _available_agents(available_agents)
+    matched = _matched_agents(query, agents)
+
+    if query_class == "conversational" or _is_conversational_query(query):
+        return {
+            "schema_version": "1.0",
+            "generated_at": _now(),
+            "query": query,
+            "primary_agents": [],
+            "secondary_agents": [],
+            "excluded_agents": agents,
+            "routing_mode": "none",
+            "confidence": "high",
+            "agent_context_plan": [],
+            "reason": "Conversational prompt; no agent report routing needed."
+        }
 
     if _has_phrase(query, MEMORY_TERMS) or query_class == "memory":
         return {
@@ -230,6 +273,30 @@ def route_query_to_agents(user_query, context_budget=None, memory_context=None,
             "confidence": "high",
             "agent_context_plan": [],
             "reason": "Memory/meta query should be answered from Echo memory first."
+        }
+
+    if query_class == "multi_agent" and matched and not _has_phrase(
+        query,
+        SYNTHESIS_TERMS
+    ):
+        excluded_agents = [
+            agent for agent in agents
+            if agent not in matched
+        ]
+        return {
+            "schema_version": "1.0",
+            "generated_at": _now(),
+            "query": query,
+            "primary_agents": matched,
+            "secondary_agents": [],
+            "excluded_agents": excluded_agents,
+            "routing_mode": "multi_agent",
+            "confidence": "high",
+            "agent_context_plan": _plan(matched, [], budget_level),
+            "reason": (
+                "Multi-agent query matched specific active agents; routing "
+                "only those relevant contexts."
+            )
         }
 
     if _has_phrase(query, SYNTHESIS_TERMS) or query_class == "multi_agent":
@@ -246,8 +313,6 @@ def route_query_to_agents(user_query, context_budget=None, memory_context=None,
             "agent_context_plan": plan,
             "reason": "Broad synthesis query needs all active agent contexts."
         }
-
-    matched = _matched_agents(query, agents)
 
     if not matched:
         return {
