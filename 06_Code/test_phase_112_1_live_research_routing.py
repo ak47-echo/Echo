@@ -26,7 +26,12 @@ class Phase1121LiveResearchRoutingTests(unittest.TestCase):
         self.assertIn("echo_get_live_research", tools)
         self.assertIn("echo_get_thesis_refresh", tools)
         self.assertIn("echo_get_security_intelligence", tools)
+        self.assertIn("echo_resolve_security", tools)
         self.assertIn("echo_get_research_snapshot", tools)
+        self.assertLess(
+            tools.index("echo_resolve_security"),
+            tools.index("echo_get_live_research")
+        )
         self.assertLess(
             tools.index("echo_get_live_research"),
             tools.index("echo_get_research_snapshot")
@@ -39,6 +44,7 @@ class Phase1121LiveResearchRoutingTests(unittest.TestCase):
         self.assertIn("echo_get_live_research", tools)
         self.assertIn("echo_get_thesis_refresh", tools)
         self.assertIn("echo_get_security_intelligence", tools)
+        self.assertIn("echo_resolve_security", tools)
 
     def test_compare_selects_security_comparison(self):
 
@@ -46,6 +52,7 @@ class Phase1121LiveResearchRoutingTests(unittest.TestCase):
 
         self.assertIn("echo_compare_securities", tools)
         self.assertIn("echo_get_live_research", tools)
+        self.assertIn("echo_resolve_security", tools)
 
     def test_api_docs_include_live_research_endpoints(self):
 
@@ -56,6 +63,7 @@ class Phase1121LiveResearchRoutingTests(unittest.TestCase):
 
         self.assertIn("/research/live", paths)
         self.assertIn("/research/thesis-refresh", paths)
+        self.assertIn("/security/resolve", paths)
 
 
 if __name__ == "__main__":

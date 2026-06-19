@@ -118,7 +118,8 @@ class EchoContextBudgetTests(unittest.TestCase):
         budget = build_context_budget("what do you think about SMCI", _memory_context())
 
         self.assertEqual("ticker_question", budget["query_class"])
-        self.assertEqual("live_research", budget["preferred_context_sources"][0])
+        self.assertEqual("security_resolution", budget["preferred_context_sources"][0])
+        self.assertEqual("live_research", budget["preferred_context_sources"][1])
         self.assertIn("thesis_refresh", budget["preferred_context_sources"])
         self.assertIn("research_evidence_store", budget["preferred_context_sources"])
         self.assertIn("security_intelligence", budget["preferred_context_sources"])
@@ -132,6 +133,7 @@ class EchoContextBudgetTests(unittest.TestCase):
             self.assertEqual("ticker_question", budget["query_class"])
             self.assertEqual(
                 [
+                    "security_resolution",
                     "live_research",
                     "thesis_refresh",
                     "research_evidence_store",
@@ -147,6 +149,7 @@ class EchoContextBudgetTests(unittest.TestCase):
                 budget["preferred_context_sources"]
             )
             self.assertIn("echo_get_live_research", budget["tool_hints"])
+            self.assertIn("echo_resolve_security", budget["tool_hints"])
             self.assertIn("echo_get_thesis_refresh", budget["tool_hints"])
 
     def test_compare_query_includes_security_comparison(self):

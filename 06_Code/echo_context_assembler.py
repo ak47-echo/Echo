@@ -17,6 +17,7 @@ AGENT_REPORT_SOURCES = {
 SPECIAL_REPORT_SOURCES = {
     "portfolio_change_detection": "Portfolio Change Detection",
     "portfolio_ingestion": "Portfolio Ingestion",
+    "security_resolution": "Security Resolution",
     "live_research": "Live Security Research",
     "security_intelligence": "Security Intelligence",
     "research_evidence_store": "Research Evidence Store",
@@ -32,6 +33,7 @@ SPECIAL_REPORT_SOURCES = {
 
 INVESTMENT_SOURCE_PRIORITIES = {
     "live_research": 145,
+    "security_resolution": 150,
     "thesis_refresh": 140,
     "research_evidence_store": 135,
     "security_intelligence": 130,

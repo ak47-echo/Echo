@@ -136,7 +136,8 @@ class EchoAgentRouterTests(unittest.TestCase):
             for item in routing["agent_context_plan"]
             for source in item["context_sources"]
         ]
-        self.assertEqual("live_research", sources[0])
+        self.assertEqual("security_resolution", sources[0])
+        self.assertEqual("live_research", sources[1])
         self.assertEqual("research_snapshot", sources[-1])
         self.assertIn("security_intelligence", sources)
 

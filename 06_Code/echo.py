@@ -77,6 +77,14 @@ from portfolio_ingestion import (
 from portfolio_change_detection import read_portfolio_change_report
 from echo_investment_intent import classify_investment_intent
 from security_master_search import search_security_master
+from security_resolution import (
+    build_and_write_security_resolution,
+    build_security_resolution,
+    extract_security_mentions,
+    read_security_resolution,
+    write_security_resolution_json,
+    write_security_resolution_text
+)
 from market_opportunity_scan import (
     build_and_write_market_opportunity_scan,
     read_market_opportunity_scan
@@ -5727,6 +5735,16 @@ def _query_security_tickers(context=None):
     query = ""
     if isinstance(context, dict):
         query = context.get("message") or context.get("query") or ""
+        resolution = context.get("security_resolution")
+        if not isinstance(resolution, dict):
+            resolution = _context_security_resolution(context)
+        selected = resolution.get("selected_security") if isinstance(resolution, dict) else {}
+        if (
+            isinstance(selected, dict)
+            and selected.get("ticker")
+            and not resolution.get("ambiguity_detected")
+        ):
+            return [str(selected.get("ticker")).strip().upper()]
         budget = context.get("context_budget")
         intent = budget.get("investment_intent") if isinstance(budget, dict) else None
         if isinstance(intent, dict) and intent.get("tickers"):
@@ -5753,8 +5771,71 @@ def _query_security_tickers(context=None):
     ]
 
 
+def _context_security_resolution(context=None):
+
+    query = ""
+    if isinstance(context, dict):
+        query = context.get("message") or context.get("query") or ""
+        existing = context.get("security_resolution")
+        if isinstance(existing, dict) and existing.get("query") == query:
+            return existing
+    return build_security_resolution(query)
+
+
+def _resolution_blocks_research(resolution):
+
+    return (
+        isinstance(resolution, dict)
+        and resolution.get("ambiguity_detected")
+        and not resolution.get("resolved")
+        and bool(resolution.get("candidates"))
+    )
+
+
+def echo_resolve_security(context=None):
+
+    query = ""
+    if isinstance(context, dict):
+        query = context.get("message") or context.get("query") or ""
+
+    resolution = _context_security_resolution(context)
+    selected = resolution.get("selected_security") or {}
+    summary = (
+        f"Security resolution for {query or resolution.get('query')}: "
+        f"resolved {bool(resolution.get('resolved'))}; "
+        f"confidence {resolution.get('confidence') or 'LOW'}; "
+        f"candidates {len(resolution.get('candidates') or [])}."
+    )
+    if resolution.get("ambiguity_detected"):
+        summary = (
+            f"I found multiple possible matches for {query or resolution.get('query')}. "
+            "I need to resolve the security before researching it."
+        )
+    elif selected.get("ticker"):
+        summary = (
+            f"Resolved {query or resolution.get('query')} to "
+            f"{selected.get('ticker')} | {selected.get('name') or 'unknown'}."
+        )
+    return _echo_tool_response(
+        "echo_resolve_security",
+        {"security_resolution": resolution},
+        summary,
+        resolution.get("confidence") or "LOW",
+        "Security identity resolution runs before intelligence, live research, and comparison."
+    )
+
+
 def echo_get_security_intelligence(context=None):
 
+    resolution = _context_security_resolution(context)
+    if _resolution_blocks_research(resolution):
+        return _echo_tool_response(
+            "echo_get_security_intelligence",
+            {"security_intelligence": {"profiles": [], "warnings": resolution.get("reasoning") or []}},
+            "Security intelligence blocked until ambiguous security identity is resolved.",
+            "LOW",
+            "Resolve the requested security before building intelligence."
+        )
     tickers = _query_security_tickers(context)
     query = ""
     if isinstance(context, dict):
@@ -5796,6 +5877,15 @@ def echo_get_security_intelligence(context=None):
 
 def echo_get_live_research(context=None):
 
+    resolution = _context_security_resolution(context)
+    if _resolution_blocks_research(resolution):
+        return _echo_tool_response(
+            "echo_get_live_research",
+            {"research_evidence_store": {"profiles": [], "warnings": resolution.get("reasoning") or []}},
+            "Live research blocked until ambiguous security identity is resolved.",
+            "LOW",
+            "Resolve the requested security before live research."
+        )
     tickers = _query_security_tickers(context)
     query = ""
     if isinstance(context, dict):
@@ -5825,6 +5915,15 @@ def echo_get_live_research(context=None):
 
 def echo_get_thesis_refresh(context=None):
 
+    resolution = _context_security_resolution(context)
+    if _resolution_blocks_research(resolution):
+        return _echo_tool_response(
+            "echo_get_thesis_refresh",
+            {"thesis_refresh": {"thesis_refreshes": [], "warnings": resolution.get("reasoning") or []}},
+            "Thesis refresh blocked until ambiguous security identity is resolved.",
+            "LOW",
+            "Resolve the requested security before thesis refresh."
+        )
     tickers = _query_security_tickers(context)
     query = ""
     if isinstance(context, dict):
@@ -5855,8 +5954,40 @@ def echo_get_thesis_refresh(context=None):
 
 def echo_compare_securities(context=None):
 
-    tickers = _query_security_tickers(context)
+    query = ""
+    if isinstance(context, dict):
+        query = context.get("message") or context.get("query") or ""
+    resolutions = [
+        build_security_resolution(mention)
+        for mention in extract_security_mentions(query)
+    ]
+    if any(_resolution_blocks_research(item) for item in resolutions):
+        return _echo_tool_response(
+            "echo_compare_securities",
+            {
+                "security_comparison": {
+                    "profiles": [],
+                    "comparison": [],
+                    "security_resolutions": resolutions,
+                    "warnings": [
+                        "Comparison blocked until all ambiguous security identities are resolved."
+                    ]
+                }
+            },
+            "Comparison blocked until ambiguous security identity is resolved.",
+            "LOW",
+            "Resolve both sides of the comparison before comparing."
+        )
+    resolved_tickers = [
+        str((item.get("selected_security") or {}).get("ticker") or "").strip().upper()
+        for item in resolutions
+        if isinstance(item, dict)
+        and item.get("resolved")
+        and not item.get("ambiguity_detected")
+    ]
+    tickers = resolved_tickers or _query_security_tickers(context)
     comparison = compare_security_profiles(tickers[:6])
+    comparison["security_resolutions"] = resolutions
     summary = (
         "Compared securities: "
         f"{', '.join(comparison.get('tickers') or []) or 'None'}."
@@ -6408,6 +6539,16 @@ ECHO_TOOL_REGISTRY = {
             "metadata, holdings/watchlist status, thesis text, bull and bear "
             "factors, macro/news exposure, cached market data, quality flags, "
             "known data, missing data, and confidence."
+        )
+    },
+    "echo_resolve_security": {
+        "function_name": "echo_resolve_security",
+        "description": "Resolve intended securities before research or comparison.",
+        "expected_input_fields": {},
+        "output_description": (
+            "Dictionary with selected security, ranked candidates, confidence, "
+            "ambiguity flag, and reasoning. Ambiguous identities block research "
+            "until clarified."
         )
     },
     "echo_get_live_research": {
@@ -7312,6 +7453,12 @@ def _response_metadata(provider_name, provider_model, live_call_attempted,
         if source in sources_used:
             primary_research_source = source
             break
+    security_resolution = _context_block_json(context_assembly, "security_resolution")
+    selected_resolution = (
+        security_resolution.get("selected_security")
+        if isinstance(security_resolution, dict)
+        else {}
+    )
 
     return {
         "llm_provider": provider_name,
@@ -7333,6 +7480,20 @@ def _response_metadata(provider_name, provider_model, live_call_attempted,
             "research_snapshot" in sources_used
             and bool(primary_research_source)
             and primary_research_source != "research_snapshot"
+        ),
+        "resolved_security": selected_resolution or None,
+        "resolution_confidence": (
+            security_resolution.get("confidence")
+            if isinstance(security_resolution, dict)
+            else None
+        ),
+        "ambiguity_detected": bool(
+            security_resolution.get("ambiguity_detected")
+        ) if isinstance(security_resolution, dict) else False,
+        "candidate_count": (
+            len(security_resolution.get("candidates") or [])
+            if isinstance(security_resolution, dict)
+            else 0
         ),
         "missing_data_notes": _missing_data_notes(
             context_budget,
@@ -7378,6 +7539,22 @@ def _context_sources_used(context_assembly):
         if source and source not in result:
             result.append(source)
     return result
+
+
+def _context_block_json(context_assembly, source):
+
+    if not isinstance(context_assembly, dict):
+        return {}
+    for block in context_assembly.get("context_blocks") or []:
+        if not isinstance(block, dict) or block.get("source") != source:
+            continue
+        try:
+            value = json.loads(str(block.get("content") or "{}"))
+        except (TypeError, ValueError, json.JSONDecodeError):
+            continue
+        if isinstance(value, dict):
+            return value
+    return {}
 
 
 def _missing_data_notes(context_budget, context_assembly, validation=None):
@@ -7552,10 +7729,13 @@ def _context_assembly_reports(context, user_query=None):
         else read_thesis_refresh()
     )
 
+    security_resolution = build_security_resolution(query)
+
     return {
         "portfolio_change_detection": read_portfolio_change_report(),
         "portfolio_ingestion": read_portfolio_ingestion(),
         "portfolio_auto_import": read_portfolio_auto_import(),
+        "security_resolution": security_resolution,
         "security_master_search": search_security_master(
             query,
             tickers=investment_intent.get("tickers"),
@@ -7671,6 +7851,7 @@ def _echo_orchestrator_select_tools(message, context, context_budget=None,
 
     if query_class in {"ticker_question", "ticker_news", "security_master_search"}:
         add_tools(
+            "echo_resolve_security",
             "echo_get_live_research",
             "echo_get_thesis_refresh",
             "echo_get_security_intelligence",
@@ -7693,6 +7874,7 @@ def _echo_orchestrator_select_tools(message, context, context_budget=None,
 
     if query_class in {"market_opportunities", "market_risks", "watchlist_management"}:
         add_tools(
+            "echo_resolve_security",
             "echo_get_security_intelligence",
             "echo_get_live_research",
             "echo_get_thesis_refresh",
@@ -7897,6 +8079,7 @@ def _run_echo_orchestrator_tool(tool_name, message, context):
         "echo_get_market_opportunity_scan": echo_get_market_opportunity_scan,
         "echo_get_market_coverage": echo_get_market_coverage,
         "echo_get_dynamic_news_coverage": echo_get_dynamic_news_coverage,
+        "echo_resolve_security": echo_resolve_security,
         "echo_get_security_intelligence": echo_get_security_intelligence,
         "echo_get_live_research": echo_get_live_research,
         "echo_get_thesis_refresh": echo_get_thesis_refresh,
@@ -8021,6 +8204,9 @@ def echo_orchestrate_user_message(message, context=None):
     write_response_composer_text(response_composer)
     write_intent_reasoning_json(intent_reasoning)
     write_intent_reasoning_text(intent_reasoning)
+    security_resolution = build_security_resolution(normalized_message)
+    write_security_resolution_json(security_resolution)
+    write_security_resolution_text(security_resolution)
     query_context = dict(query_context)
     query_context["message"] = normalized_message
     query_context["query"] = normalized_message
@@ -8029,6 +8215,7 @@ def echo_orchestrate_user_message(message, context=None):
     query_context["context_assembly"] = context_assembly
     query_context["response_composer"] = response_composer
     query_context["intent_reasoning"] = intent_reasoning
+    query_context["security_resolution"] = security_resolution
 
     selected_tools = _echo_orchestrator_select_tools(
         normalized_message,
@@ -9006,6 +9193,9 @@ if __name__ == "__main__":
     live_research_result = build_and_write_live_research()
     security_intelligence_result = build_and_write_security_intelligence_report()
     daily_orchestration_query = "Echo daily run overall executive summary"
+    security_resolution_result = build_and_write_security_resolution(
+        daily_orchestration_query
+    )
     context_budget = build_context_budget(
         daily_orchestration_query,
         memory_context,

@@ -359,6 +359,7 @@ def _base_budget(query, agents):
 
     if intent in {"ticker_question", "ticker_news"}:
         ticker_sources = [
+            "security_resolution",
             "live_research",
             "thesis_refresh",
             "research_evidence_store",
@@ -377,6 +378,7 @@ def _base_budget(query, agents):
             ticker_sources,
             ["generic_state_delta"],
             [
+                "echo_resolve_security",
                 "echo_get_security_intelligence",
                 "echo_get_live_research",
                 "echo_get_thesis_refresh",

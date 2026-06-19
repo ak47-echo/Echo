@@ -66,6 +66,7 @@ from security_intelligence import (
     compare_security_profiles,
     read_security_intelligence
 )
+from security_resolution import build_security_resolution, read_security_resolution
 from portfolio_auto_import import (
     read_portfolio_auto_import,
     run_and_write_portfolio_auto_import
@@ -309,6 +310,13 @@ def create_app():
     @app.get("/security/intelligence")
     async def security_intelligence():
         return read_security_intelligence()
+
+    @app.get("/security/resolve")
+    async def security_resolve(request: Request):
+        query = request.query_params.get("query") or request.query_params.get("q") or ""
+        if query:
+            return build_security_resolution(query)
+        return read_security_resolution()
 
     @app.get("/research/evidence")
     async def research_evidence():

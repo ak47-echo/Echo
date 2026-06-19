@@ -266,6 +266,7 @@ def _portfolio_change_plan():
 def _investment_plan(query_class):
 
     live_security_research_sources = [
+        "security_resolution",
         "live_research",
         "thesis_refresh",
         "research_evidence_store",

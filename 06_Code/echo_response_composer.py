@@ -21,6 +21,7 @@ RAW_TOOL_NAMES = (
     "echo_get_market_opportunity_scan",
     "echo_get_market_coverage",
     "echo_get_dynamic_news_coverage",
+    "echo_resolve_security",
     "echo_get_security_intelligence",
     "echo_get_live_research",
     "echo_get_thesis_refresh",
@@ -343,6 +344,53 @@ def _live_research_response(user_query, context_assembly):
         json.dumps(refresh, sort_keys=True) if refresh else ""
     ]
     return answer, [point for point in points if point], caveats
+
+
+def _security_resolution_response(context_assembly):
+
+    resolution = _block_json(context_assembly, "security_resolution")
+    if not resolution:
+        return None
+
+    candidates = _list(resolution.get("candidates"))
+    selected = _dict(resolution.get("selected_security"))
+    if resolution.get("ambiguity_detected") and candidates:
+        labels = [
+            (
+                f"{item.get('ticker')} | {item.get('name')} | "
+                f"{item.get('security_type')} | {item.get('source')} | "
+                f"{item.get('confidence')}"
+            )
+            for item in candidates[:4]
+        ]
+        answer = (
+            f"I found multiple possible matches for {resolution.get('query')}. "
+            "I need to resolve the security before researching it. "
+            f"Candidates: {_join_labels(labels)}. "
+            "Please confirm which security you mean."
+        )
+        return answer, labels, []
+
+    if selected:
+        note = (
+            f"Resolved security: {selected.get('ticker')} | "
+            f"{selected.get('name') or 'unknown'} | confidence "
+            f"{resolution.get('confidence') or selected.get('confidence')}. "
+            f"Reason: {selected.get('match_reason')}. "
+        )
+        competitors = [
+            item for item in candidates
+            if item.get("ticker") != selected.get("ticker")
+            or item.get("name") != selected.get("name")
+        ][:2]
+        if competitors:
+            note = (
+                f"{note}Competing candidates: "
+                f"{_join_labels([item.get('ticker') + ' | ' + item.get('name') for item in competitors])}. "
+            )
+        return note, [], []
+
+    return None
 
 
 def _market_coverage(context_assembly):
@@ -972,6 +1020,10 @@ def _category_macro_note(category):
 
 def _ticker_response(user_query, context_assembly):
 
+    resolution_response = _security_resolution_response(context_assembly)
+    if resolution_response and resolution_response[1]:
+        return resolution_response
+
     comparison = _block_json(context_assembly, "security_comparison")
     if (
         comparison.get("comparison")
@@ -997,6 +1049,12 @@ def _ticker_response(user_query, context_assembly):
 
     live_response = _live_research_response(user_query, context_assembly)
     if live_response:
+        if resolution_response:
+            return (
+                f"{resolution_response[0]}{live_response[0]}",
+                live_response[1],
+                live_response[2]
+            )
         return live_response
 
     intelligence = _block_json(context_assembly, "security_intelligence")
@@ -1043,6 +1101,8 @@ def _ticker_response(user_query, context_assembly):
                 f"{answer} Quality-control flags, not investment evidence: "
                 f"{quality}."
             )
+        if resolution_response:
+            answer = f"{resolution_response[0]}{answer}"
         return answer, [
             json.dumps(profile, sort_keys=True)
             for profile in profiles[:3]
@@ -1539,6 +1599,8 @@ def compose_echo_response(user_query, context_budget, agent_routing,
     ][:6]
     caveats = [_clean_answer(caveat) for caveat in caveats if _safe_text(caveat)]
     used_sources = _block_sources(context_assembly)
+    security_resolution = _block_json(context_assembly, "security_resolution")
+    selected_resolution = _dict(security_resolution.get("selected_security"))
     live_research_used = any(
         source in used_sources
         for source in ("live_research", "research_evidence_store")
@@ -1577,6 +1639,10 @@ def compose_echo_response(user_query, context_budget, agent_routing,
             and bool(primary_research_source)
             and primary_research_source != "research_snapshot"
         ),
+        "resolved_security": selected_resolution or None,
+        "resolution_confidence": security_resolution.get("confidence"),
+        "ambiguity_detected": bool(security_resolution.get("ambiguity_detected")),
+        "candidate_count": len(security_resolution.get("candidates") or []),
         "debug_summary": _debug_summary(
             context_budget,
             agent_routing,

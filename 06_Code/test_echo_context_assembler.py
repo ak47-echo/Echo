@@ -156,6 +156,7 @@ class EchoContextAssemblerTests(unittest.TestCase):
     def test_investment_query_prioritizes_live_research_over_legacy(self):
 
         reports = {
+            "security_resolution": {"resolved": True, "selected_security": {"ticker": "SMCI"}},
             "live_research": {"profiles": [{"ticker": "SMCI"}]},
             "thesis_refresh": {"thesis_refreshes": [{"ticker": "SMCI"}]},
             "research_evidence_store": {"profiles": [{"ticker": "SMCI"}]},
@@ -164,6 +165,7 @@ class EchoContextAssemblerTests(unittest.TestCase):
         }
         budget = _budget("standard", "ticker_question", 20)
         budget["preferred_context_sources"] = [
+            "security_resolution",
             "live_research",
             "thesis_refresh",
             "research_evidence_store",
@@ -183,8 +185,9 @@ class EchoContextAssemblerTests(unittest.TestCase):
         }
 
         self.assertEqual("investment_query", assembly["assembly_mode"])
-        self.assertEqual("Live Security Research", assembly["context_blocks"][0]["title"])
+        self.assertEqual("Security Resolution", assembly["context_blocks"][0]["title"])
         self.assertGreater(priorities["live_research"], priorities["research_snapshot"])
+        self.assertGreater(priorities["security_resolution"], priorities["live_research"])
 
     def test_json_serializable(self):
 

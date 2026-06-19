@@ -1,0 +1,59 @@
+SECURITY RESOLUTION
+
+Generated At: 2026-06-18T20:23:48
+Query: Echo daily run overall executive summary
+Resolved: False
+Confidence: LOW
+Ambiguity Detected: True
+
+Candidates:
+- AIBU | Direxion Daily AI And Big Data Bull 2X | stock | security_master | LOW | score 26 | name/category token candidate; security master match
+- BC | Brunswick Corp | stock | security_master | LOW | score 26 | name/category token candidate; security master match
+- BC.A | BRUNSWICK CORP 6.5%PFD | stock | security_master | LOW | score 26 | name/category token candidate; security master match
+- BC.B | BRUNSWICK CORP 6.625%PFD | stock | security_master | LOW | score 26 | name/category token candidate; security master match
+- BCUCY | Brunello Cucinelli SpA ADR | stock | security_master | LOW | score 26 | name/category token candidate; security master match
+- BOSS | Global X Founder-Run Companies ETF | etf | security_master | LOW | score 26 | name/category token candidate; security master match
+- DPST | Direxion Daily Regional Bnks Bull 3X ETF | etf | security_master | LOW | score 26 | name/category token candidate; security master match
+- DUST | Direxion Daily Gold Miners Bear 2X ETF | etf | security_master | LOW | score 26 | name/category token candidate; security master match
+- FAS | Direxion Daily Financial Bull 3X ETF | etf | security_master | LOW | score 26 | name/category token candidate; security master match
+- FAZ | Direxion Daily Financial Bear 3X ETF | etf | security_master | LOW | score 26 | name/category token candidate; security master match
+- FBL | GraniteShares 2x Long META Daily ETF | etf | security_master | LOW | score 26 | name/category token candidate; security master match
+- JDST | Direxion Daily Jr Gld Mnrs Bear 2X ETF | etf | security_master | LOW | score 26 | name/category token candidate; security master match
+- JNUG | Direxion Daily Jr Gld Mnrs Bull 2X ETF | etf | security_master | LOW | score 26 | name/category token candidate; security master match
+- LABU | Direxion Daily S&P Biotech Bull 3X ETF | etf | security_master | LOW | score 26 | name/category token candidate; security master match
+- LABX | Tradr 2X Long ALAB Daily ETF | etf | security_master | LOW | score 26 | name/category token candidate; security master match
+- MAXR | Maxar Techonologies | stock | security_master | LOW | score 26 | name/category token candidate; security master match
+- METU | Direxion Daily META Bull 2X ETF | etf | security_master | LOW | score 26 | name/category token candidate; security master match
+- MSTU | T-Rex 2X Long MSTR Daily Target ETF | etf | security_master | LOW | score 26 | name/category token candidate; security master match
+- MURGY | Munchener Ruckversicherungs-Gesellschaft AG ADR | stock | security_master | LOW | score 26 | name/category token candidate; security master match
+- NAIL | Direxion Daily Hmbldrs&Supls Bull 3X ETF | etf | security_master | LOW | score 26 | name/category token candidate; security master match
+- NUGT | Direxion Daily Gold Miners Bull 2X ETF | etf | security_master | LOW | score 26 | name/category token candidate; security master match
+- NVD | GraniteShares 2x Short NVDA Daily ETF | etf | security_master | LOW | score 26 | name/category token candidate; security master match
+- NVDL | GraniteShares 2x Long NVDA Daily ETF | etf | security_master | LOW | score 26 | name/category token candidate; security master match
+- NVDQ | T-REX 2X Inverse NVIDIA Daily Target ETF | etf | security_master | LOW | score 26 | name/category token candidate; security master match
+- NVDS | Tradr 1.5X Short NVDA Daily ETF | etf | security_master | LOW | score 26 | name/category token candidate; security master match
+- PLTD | Direxion Daily PLTR Bear 1X Shares | stock | security_master | LOW | score 26 | name/category token candidate; security master match
+- RDTL | GraniteShares 2x Long RDDT Daily ETF | etf | security_master | LOW | score 26 | name/category token candidate; security master match
+- RENT | Rent the Runway Inc Class A | stock | security_master | LOW | score 26 | name/category token candidate; security master match
+- RUN | Sunrun Inc | stock | security_master | LOW | score 26 | name/category token candidate; security master match
+- SARK | AXS Short Innovation Daily ETF | etf | security_master | LOW | score 26 | name/category token candidate; security master match
+- SATS | EchoStar Corp Class A | stock | security_master | LOW | score 26 | name/category token candidate; security master match
+- SOXL | Direxion Daily Semicondct Bull 3X ETF | etf | security_master | LOW | score 26 | name/category token candidate; security master match
+- SOXS | Direxion Daily Semicondct Bear 3X ETF | etf | security_master | LOW | score 26 | name/category token candidate; security master match
+- SPUU | Direxion Daily S&P 500® Bull 2X Shares | stock | security_master | LOW | score 26 | name/category token candidate; security master match
+- SPXL | Direxion Daily S&P500® Bull 3X ETF | etf | security_master | LOW | score 26 | name/category token candidate; security master match
+- SPXS | Direxion Daily S&P 500® Bear 3X ETF | etf | security_master | LOW | score 26 | name/category token candidate; security master match
+- TECL | Direxion Daily Technology Bull 3X ETF | etf | security_master | LOW | score 26 | name/category token candidate; security master match
+- TNA | Direxion Daily Small Cap Bull 3X ETF | etf | security_master | LOW | score 26 | name/category token candidate; security master match
+- TSLL | Direxion Daily TSLA Bull 1.5X Shares | stock | security_master | LOW | score 26 | name/category token candidate; security master match
+- TSMX | Direxion Daily TSM Bull 2X Shares | stock | security_master | LOW | score 26 | name/category token candidate; security master match
+- TVIXF | VelocityShares Daily 2x VIX ST ETN | stock | security_master | LOW | score 26 | name/category token candidate; security master match
+- YINN | Direxion Daily FTSE China Bull 3X ETF | etf | security_master | LOW | score 26 | name/category token candidate; security master match
+
+Reasoning:
+- Checked exact ticker, holdings, watchlist, and security master matches.
+- Live research candidate search unavailable; LIVE_RESEARCH_ENABLED is false.
+- Checked recent-news candidates for current listing evidence.
+- Checked configurable alias table.
+- Checked configurable historical ticker table.
+- I found multiple possible matches for Echo daily run overall executive summary. I need to resolve the security before researching it.
