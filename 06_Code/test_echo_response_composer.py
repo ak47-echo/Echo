@@ -69,7 +69,13 @@ def _budget(query_class="memory", level="standard"):
     return {
         "query_class": query_class,
         "budget_level": level,
-        "max_context_items": 20
+        "max_context_items": 20,
+        "execution_tier": {
+            "execution_tier": "FAST_LOCAL" if query_class == "security_resolution" else "STANDARD_CONTEXT",
+            "live_research_allowed": False,
+            "web_search_allowed": False,
+            "slow_path_reasons": []
+        }
     }
 
 
@@ -594,6 +600,9 @@ class EchoResponseComposerTests(unittest.TestCase):
         self.assertNotIn("top priority", response["answer"].casefold())
         self.assertTrue(response["security_resolution_used"])
         self.assertTrue(response["explicit_resolution_query"])
+        self.assertEqual("FAST_LOCAL", response["execution_tier"])
+        self.assertFalse(response["live_research_allowed"])
+        self.assertFalse(response["web_search_allowed"])
         self.assertFalse(response["resolution_gate_triggered"])
 
     def test_explicit_resolve_without_resolver_does_not_use_memory(self):

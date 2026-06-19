@@ -4,6 +4,7 @@ from pathlib import Path
 import re
 
 from echo_investment_intent import classify_investment_intent
+from query_execution_tier import classify_execution_tier
 
 
 REPORTS_DIR = Path(__file__).resolve().parent.parent / "04_Reports"
@@ -33,6 +34,11 @@ def _now():
 def _safe_text(value):
 
     return " ".join(str(value or "").split())
+
+
+def _dict(value):
+
+    return value if isinstance(value, dict) else {}
 
 
 def _tokens(text):
@@ -554,7 +560,8 @@ def _base_budget(query, agents):
     )
 
 
-def build_context_budget(user_query, memory_context=None, available_tools=None):
+def build_context_budget(user_query, memory_context=None, available_tools=None,
+                         research_evidence_store=None, execution_tier=None):
 
     query = _safe_text(user_query)
     tools = _available_tools(available_tools)
@@ -562,6 +569,15 @@ def build_context_budget(user_query, memory_context=None, available_tools=None):
     investment_intent = classify_investment_intent(
         query,
         memory_context=memory_context
+    )
+    execution_tier = (
+        execution_tier
+        if isinstance(execution_tier, dict)
+        else classify_execution_tier(
+            query,
+            investment_intent,
+            research_evidence_store
+        )
     )
     (
         query_class,
@@ -603,6 +619,11 @@ def build_context_budget(user_query, memory_context=None, available_tools=None):
         "excluded_context_sources": excluded_sources,
         "tool_hints": tool_hints,
         "investment_intent": investment_intent,
+        "execution_tier": execution_tier,
+        "live_research_allowed": bool(
+            execution_tier.get("live_research_allowed")
+        ),
+        "web_search_allowed": bool(execution_tier.get("web_search_allowed")),
         "reason": reason
     }
 
@@ -618,6 +639,8 @@ def render_context_budget_text(context_budget):
         f"Generated At: {budget.get('generated_at') or 'unknown'}",
         f"Query: {budget.get('query') or ''}",
         f"Query Class: {budget.get('query_class') or 'unknown'}",
+        "Execution Tier: "
+        f"{_safe_text(_dict(budget.get('execution_tier')).get('execution_tier')) or 'STANDARD_CONTEXT'}",
         f"Budget Level: {budget.get('budget_level') or 'standard'}",
         f"Max Context Items: {budget.get('max_context_items') or 0}",
         "",

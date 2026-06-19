@@ -76,6 +76,7 @@ from portfolio_ingestion import (
 )
 from portfolio_change_detection import read_portfolio_change_report
 from echo_investment_intent import classify_investment_intent
+from query_execution_tier import classify_execution_tier
 from security_master_search import search_security_master
 from security_resolution import (
     build_and_write_security_resolution,
@@ -5440,6 +5441,42 @@ def echo_get_context_budget(context=None):
     )
 
 
+def _context_execution_tier(context=None):
+
+    query = ""
+    if isinstance(context, dict):
+        query = context.get("message") or context.get("query") or ""
+        tier = context.get("execution_tier")
+        if isinstance(tier, dict):
+            return tier
+        budget = context.get("context_budget")
+        if isinstance(budget, dict) and isinstance(budget.get("execution_tier"), dict):
+            return budget.get("execution_tier")
+
+    return classify_execution_tier(
+        query,
+        research_evidence_store=read_research_evidence_store()
+    )
+
+
+def echo_get_execution_tier(context=None):
+
+    execution_tier = _context_execution_tier(context)
+    summary = (
+        f"Execution tier: {execution_tier.get('execution_tier') or 'STANDARD_CONTEXT'}. "
+        f"Live research allowed: {bool(execution_tier.get('live_research_allowed'))}. "
+        f"Web search allowed: {bool(execution_tier.get('web_search_allowed'))}."
+    )
+
+    return _echo_tool_response(
+        "echo_get_execution_tier",
+        {"execution_tier": execution_tier},
+        summary,
+        "HIGH",
+        "Deterministic query execution tier and expensive-path gates."
+    )
+
+
 def echo_get_agent_routing(context=None):
 
     agent_routing = (
@@ -5777,12 +5814,14 @@ def _query_security_tickers(context=None):
 def _context_security_resolution(context=None):
 
     query = ""
+    execution_tier = None
     if isinstance(context, dict):
         query = context.get("message") or context.get("query") or ""
+        execution_tier = _context_execution_tier(context)
         existing = context.get("security_resolution")
         if isinstance(existing, dict) and existing.get("query") == query:
             return existing
-    return build_security_resolution(query)
+    return build_security_resolution(query, execution_tier=execution_tier)
 
 
 def _resolution_blocks_research(resolution):
@@ -5885,6 +5924,21 @@ def echo_get_security_intelligence(context=None):
 
 def echo_get_live_research(context=None):
 
+    execution_tier = _context_execution_tier(context)
+    if not execution_tier.get("live_research_allowed"):
+        store = read_research_evidence_store()
+        profiles = store.get("profiles") or []
+        return _echo_tool_response(
+            "echo_get_live_research",
+            {"research_evidence_store": store},
+            (
+                f"Live research skipped by {execution_tier.get('execution_tier')} "
+                f"tier; reused {len(profiles)} cached profile(s)."
+            ),
+            "MEDIUM" if profiles else "LOW",
+            "Execution tier blocks live research for this query."
+        )
+
     resolution = _context_security_resolution(context)
     if _resolution_blocks_research(resolution):
         return _echo_tool_response(
@@ -5922,6 +5976,21 @@ def echo_get_live_research(context=None):
 
 
 def echo_get_thesis_refresh(context=None):
+
+    execution_tier = _context_execution_tier(context)
+    if not execution_tier.get("live_research_allowed"):
+        report = read_thesis_refresh()
+        refreshes = report.get("thesis_refreshes") or []
+        return _echo_tool_response(
+            "echo_get_thesis_refresh",
+            {"thesis_refresh": report},
+            (
+                f"Thesis refresh generation skipped by {execution_tier.get('execution_tier')} "
+                f"tier; reused {len(refreshes)} cached refresh(es)."
+            ),
+            "MEDIUM" if refreshes else "LOW",
+            "Execution tier blocks thesis refresh generation for this query."
+        )
 
     resolution = _context_security_resolution(context)
     if _resolution_blocks_research(resolution):
@@ -5966,7 +6035,7 @@ def echo_compare_securities(context=None):
     if isinstance(context, dict):
         query = context.get("message") or context.get("query") or ""
     resolutions = [
-        build_security_resolution(mention)
+        build_security_resolution(mention, execution_tier=_context_execution_tier(context))
         for mention in extract_security_mentions(query)
     ]
     if any(_resolution_blocks_research(item) for item in resolutions):
@@ -6436,6 +6505,16 @@ ECHO_TOOL_REGISTRY = {
             "preferred context sources, excluded sources, and tool hints."
         )
     },
+    "echo_get_execution_tier": {
+        "function_name": "echo_get_execution_tier",
+        "description": "Return deterministic query execution tier.",
+        "expected_input_fields": {},
+        "output_description": (
+            "Dictionary with FAST_LOCAL, STANDARD_CONTEXT, or DEEP_RESEARCH "
+            "tier plus live research, web search, artifact write, latency, "
+            "and slow-path gate metadata."
+        )
+    },
     "echo_get_agent_routing": {
         "function_name": "echo_get_agent_routing",
         "description": "Return deterministic active-agent routing for a query.",
@@ -6870,7 +6949,12 @@ class AnthropicProvider(BaseLLMProvider):
 
         model = self.model_name()
         tool_context = format_tool_context_for_llm(tools)
-        web_tools = self.web_search_tools()
+        web_search_allowed = (
+            bool(tools.get("web_search_allowed"))
+            if isinstance(tools, dict)
+            else True
+        )
+        web_tools = self.web_search_tools() if web_search_allowed else []
 
         if not self.is_configured():
             return {
@@ -7195,6 +7279,11 @@ def format_tool_context_for_llm(orchestrator_result, max_chars=12000):
 
     formatted = {
         "selected_tools": selected_tools,
+        "execution_tier": orchestrator_result.get("execution_tier"),
+        "live_research_allowed": orchestrator_result.get("live_research_allowed"),
+        "web_search_allowed": orchestrator_result.get("web_search_allowed"),
+        "query_latency_seconds": orchestrator_result.get("query_latency_seconds"),
+        "slow_path_reasons": orchestrator_result.get("slow_path_reasons", []),
         "context_budget": orchestrator_result.get("context_budget", {}),
         "agent_routing": orchestrator_result.get("agent_routing", {}),
         "context_assembly": orchestrator_result.get("context_assembly", {}),
@@ -7237,6 +7326,11 @@ def _llm_provider_payload(orchestrator_result):
 
     return {
         "selected_tools": orchestrator_result.get("selected_tools", []),
+        "execution_tier": orchestrator_result.get("execution_tier"),
+        "live_research_allowed": orchestrator_result.get("live_research_allowed"),
+        "web_search_allowed": orchestrator_result.get("web_search_allowed"),
+        "query_latency_seconds": orchestrator_result.get("query_latency_seconds"),
+        "slow_path_reasons": orchestrator_result.get("slow_path_reasons", []),
         "context_budget": orchestrator_result.get("context_budget", {}),
         "agent_routing": orchestrator_result.get("agent_routing", {}),
         "context_assembly": orchestrator_result.get(
@@ -7483,6 +7577,12 @@ def _response_metadata(provider_name, provider_model, live_call_attempted,
     resolution_gate_triggered = _resolution_gate_triggered_metadata(
         security_resolution
     )
+    execution_tier = (
+        context_budget.get("execution_tier")
+        if isinstance(context_budget, dict)
+        else {}
+    )
+    execution_tier = execution_tier if isinstance(execution_tier, dict) else {}
     explicit_resolution_query = (
         context_budget.get("query_class") == "security_resolution"
         if isinstance(context_budget, dict)
@@ -7500,6 +7600,10 @@ def _response_metadata(provider_name, provider_model, live_call_attempted,
         "llm_reviewed": response_source == "llm",
         "provider_status": provider_status,
         "context_sources_used": sources_used,
+        "execution_tier": execution_tier.get("execution_tier"),
+        "live_research_allowed": bool(execution_tier.get("live_research_allowed")),
+        "web_search_allowed": bool(execution_tier.get("web_search_allowed")),
+        "slow_path_reasons": execution_tier.get("slow_path_reasons") or [],
         "primary_research_source": primary_research_source,
         "research_context_version": "phase_112_1",
         "live_research_used": any(
@@ -7755,14 +7859,31 @@ AGENT_ROUTING_TOOL_MAP = {
 }
 
 
-def _context_assembly_reports(context, user_query=None):
+def _context_assembly_reports(context, user_query=None, execution_tier=None):
 
     sections = _echo_tool_context(context)["sections"]
     query = " ".join(str(user_query or "").split())
     investment_intent = classify_investment_intent(query)
+    execution_tier = (
+        execution_tier
+        if isinstance(execution_tier, dict)
+        else classify_execution_tier(
+            query,
+            investment_intent,
+            read_research_evidence_store()
+        )
+    )
+    tier_name = str(
+        execution_tier.get("execution_tier") or "STANDARD_CONTEXT"
+    ).upper()
+    live_research_allowed = bool(execution_tier.get("live_research_allowed"))
     market_coverage = build_market_coverage(query)
-    security_resolution = build_security_resolution(query)
+    security_resolution = build_security_resolution(
+        query,
+        execution_tier=execution_tier
+    )
     resolution_relevant = investment_intent.get("investment_intent") in {
+        "security_resolution",
         "ticker_question",
         "ticker_news",
         "security_master_search"
@@ -7779,12 +7900,18 @@ def _context_assembly_reports(context, user_query=None):
         if resolved_tickers and not resolution_blocked
         else investment_intent.get("tickers") or None
     )
+    build_live_context = (
+        query
+        and not resolution_blocked
+        and tier_name == "DEEP_RESEARCH"
+        and live_research_allowed
+    )
     research_evidence_store = (
         build_research_evidence_store(
             research_tickers,
             query
         )
-        if query and not resolution_blocked
+        if build_live_context
         else read_research_evidence_store()
     )
     if resolution_blocked:
@@ -7803,7 +7930,7 @@ def _context_assembly_reports(context, user_query=None):
             query,
             research_evidence_store
         )
-        if query and not resolution_blocked
+        if build_live_context
         else read_thesis_refresh()
     )
     if resolution_blocked:
@@ -7918,6 +8045,21 @@ def _echo_orchestrator_select_tools(message, context, context_budget=None,
         if isinstance(context_budget, dict)
         else None
     )
+    execution_tier = (
+        (context_budget or {}).get("execution_tier")
+        if isinstance(context_budget, dict)
+        else {}
+    )
+    tier_name = (
+        str(execution_tier.get("execution_tier") or "STANDARD_CONTEXT").upper()
+        if isinstance(execution_tier, dict)
+        else "STANDARD_CONTEXT"
+    )
+    live_research_allowed = (
+        bool(execution_tier.get("live_research_allowed"))
+        if isinstance(execution_tier, dict)
+        else tier_name == "DEEP_RESEARCH"
+    )
 
     def add_tools(*tool_names):
         for tool_name in tool_names:
@@ -7926,6 +8068,7 @@ def _echo_orchestrator_select_tools(message, context, context_budget=None,
 
     add_tools(
         "echo_get_context_budget",
+        "echo_get_execution_tier",
         "echo_get_agent_routing",
         "echo_get_memory_context",
         "echo_get_context_assembly",
@@ -7960,17 +8103,16 @@ def _echo_orchestrator_select_tools(message, context, context_budget=None,
         add_tools(
             "echo_resolve_security",
             "echo_search_security_master",
-            "echo_get_market_coverage",
-            "echo_get_live_research",
-            "echo_get_thesis_refresh",
-            "echo_get_security_intelligence"
+            "echo_get_market_coverage"
         )
+        if live_research_allowed:
+            add_tools("echo_get_live_research", "echo_get_thesis_refresh")
+        if tier_name != "FAST_LOCAL":
+            add_tools("echo_get_security_intelligence")
 
     if query_class in {"ticker_question", "ticker_news", "security_master_search"}:
         add_tools(
             "echo_resolve_security",
-            "echo_get_live_research",
-            "echo_get_thesis_refresh",
             "echo_get_security_intelligence",
             "echo_search_security_master",
             "echo_get_market_coverage",
@@ -7978,6 +8120,8 @@ def _echo_orchestrator_select_tools(message, context, context_budget=None,
             "echo_get_macro_snapshot",
             "echo_get_news_snapshot"
         )
+        if live_research_allowed:
+            add_tools("echo_get_live_research", "echo_get_thesis_refresh")
         if query_class != "security_master_search":
             add_tools("echo_get_research_snapshot")
         if query_class == "ticker_news":
@@ -7993,8 +8137,6 @@ def _echo_orchestrator_select_tools(message, context, context_budget=None,
         add_tools(
             "echo_resolve_security",
             "echo_get_security_intelligence",
-            "echo_get_live_research",
-            "echo_get_thesis_refresh",
             "echo_get_market_coverage",
             "echo_get_dynamic_news_coverage",
             "echo_get_market_opportunity_scan",
@@ -8003,6 +8145,8 @@ def _echo_orchestrator_select_tools(message, context, context_budget=None,
             "echo_get_macro_snapshot",
             "echo_get_research_snapshot"
         )
+        if live_research_allowed:
+            add_tools("echo_get_live_research", "echo_get_thesis_refresh")
 
     if query_class == "paper_allocation_future":
         add_tools("echo_get_market_opportunity_scan", "echo_get_research_snapshot")
@@ -8018,11 +8162,9 @@ def _echo_orchestrator_select_tools(message, context, context_budget=None,
             add_tools("echo_get_change_detection", "echo_get_knowledge_graph")
 
     if tickers:
-        add_tools(
-            "echo_ask",
-            "echo_get_themes",
-            "echo_get_conflicts"
-        )
+        add_tools("echo_ask")
+        if tier_name != "FAST_LOCAL":
+            add_tools("echo_get_themes", "echo_get_conflicts")
 
     if any(
         term in text
@@ -8133,6 +8275,7 @@ def _echo_orchestrator_select_tools(message, context, context_budget=None,
 
     if selected_tools == [
         "echo_get_context_budget",
+        "echo_get_execution_tier",
         "echo_get_agent_routing",
         "echo_get_memory_context",
         "echo_get_context_assembly",
@@ -8150,6 +8293,7 @@ def _echo_orchestrator_select_tools(message, context, context_budget=None,
             tool_name for tool_name in selected_tools
             if tool_name in {
                 "echo_get_context_budget",
+                "echo_get_execution_tier",
                 "echo_get_agent_routing",
                 "echo_get_memory_context",
                 "echo_get_context_assembly",
@@ -8163,6 +8307,27 @@ def _echo_orchestrator_select_tools(message, context, context_budget=None,
             tool_name for tool_name in selected_tools
             if tool_name not in {
                 "echo_get_daily_brief"
+            }
+        ]
+
+    if not live_research_allowed:
+        selected_tools = [
+            tool_name for tool_name in selected_tools
+            if tool_name not in {
+                "echo_get_live_research",
+                "echo_get_thesis_refresh"
+            }
+        ]
+
+    if tier_name == "FAST_LOCAL":
+        selected_tools = [
+            tool_name for tool_name in selected_tools
+            if tool_name not in {
+                "echo_ask",
+                "echo_get_themes",
+                "echo_get_conflicts",
+                "echo_get_theme_impacts",
+                "echo_get_knowledge_graph"
             }
         ]
 
@@ -8183,6 +8348,7 @@ def _run_echo_orchestrator_tool(tool_name, message, context):
         "echo_get_knowledge_graph": echo_get_knowledge_graph,
         "echo_get_memory_context": echo_get_memory_context,
         "echo_get_context_budget": echo_get_context_budget,
+        "echo_get_execution_tier": echo_get_execution_tier,
         "echo_get_agent_routing": echo_get_agent_routing,
         "echo_get_context_assembly": echo_get_context_assembly,
         "echo_get_response_composer": echo_get_response_composer,
@@ -8260,6 +8426,7 @@ def _echo_orchestrator_confidence(tool_results):
 
 def echo_orchestrate_user_message(message, context=None):
 
+    started_at = perf_counter()
     normalized_message = " ".join(str(message or "").split())
     query_context = _echo_tool_context(context)
 
@@ -8279,10 +8446,19 @@ def echo_orchestrate_user_message(message, context=None):
         }
 
     memory_context = read_memory_context()
+    cached_research = read_research_evidence_store()
+    investment_intent = classify_investment_intent(normalized_message)
+    execution_tier = classify_execution_tier(
+        normalized_message,
+        investment_intent,
+        cached_research
+    )
     context_budget = build_context_budget(
         normalized_message,
         memory_context,
-        sorted(ECHO_TOOL_REGISTRY)
+        sorted(ECHO_TOOL_REGISTRY),
+        cached_research,
+        execution_tier
     )
     agent_routing = route_query_to_agents(
         normalized_message,
@@ -8295,7 +8471,11 @@ def echo_orchestrate_user_message(message, context=None):
         memory_context,
         context_budget,
         agent_routing,
-        _context_assembly_reports(query_context, normalized_message)
+        _context_assembly_reports(
+            query_context,
+            normalized_message,
+            execution_tier
+        )
     )
     response_composer = compose_echo_response(
         normalized_message,
@@ -8311,23 +8491,29 @@ def echo_orchestrate_user_message(message, context=None):
         context_assembly,
         memory_context
     )
-    write_context_budget_json(context_budget)
-    write_context_budget_text(context_budget)
-    write_agent_routing_json(agent_routing)
-    write_agent_routing_text(agent_routing)
-    write_context_assembly_json(context_assembly)
-    write_context_assembly_text(context_assembly)
-    write_response_composer_json(response_composer)
-    write_response_composer_text(response_composer)
-    write_intent_reasoning_json(intent_reasoning)
-    write_intent_reasoning_text(intent_reasoning)
-    security_resolution = build_security_resolution(normalized_message)
-    write_security_resolution_json(security_resolution)
-    write_security_resolution_text(security_resolution)
+    if execution_tier.get("artifact_write_allowed", True):
+        write_context_budget_json(context_budget)
+        write_context_budget_text(context_budget)
+        write_agent_routing_json(agent_routing)
+        write_agent_routing_text(agent_routing)
+        write_context_assembly_json(context_assembly)
+        write_context_assembly_text(context_assembly)
+        write_response_composer_json(response_composer)
+        write_response_composer_text(response_composer)
+        write_intent_reasoning_json(intent_reasoning)
+        write_intent_reasoning_text(intent_reasoning)
+    security_resolution = build_security_resolution(
+        normalized_message,
+        execution_tier=execution_tier
+    )
+    if execution_tier.get("artifact_write_allowed", True):
+        write_security_resolution_json(security_resolution)
+        write_security_resolution_text(security_resolution)
     query_context = dict(query_context)
     query_context["message"] = normalized_message
     query_context["query"] = normalized_message
     query_context["context_budget"] = context_budget
+    query_context["execution_tier"] = execution_tier
     query_context["agent_routing"] = agent_routing
     query_context["context_assembly"] = context_assembly
     query_context["response_composer"] = response_composer
@@ -8348,12 +8534,18 @@ def echo_orchestrate_user_message(message, context=None):
         )
         for tool_name in selected_tools
     }
+    latency_seconds = round(perf_counter() - started_at, 3)
 
     return {
         "status": "ANSWERED",
         "mode": "DETERMINISTIC_ORCHESTRATOR_STUB",
         "message": normalized_message,
         "selected_tools": selected_tools,
+        "execution_tier": execution_tier.get("execution_tier"),
+        "live_research_allowed": bool(execution_tier.get("live_research_allowed")),
+        "web_search_allowed": bool(execution_tier.get("web_search_allowed")),
+        "query_latency_seconds": latency_seconds,
+        "slow_path_reasons": execution_tier.get("slow_path_reasons") or [],
         "context_budget": context_budget,
         "agent_routing": agent_routing,
         "context_assembly": context_assembly,
@@ -8380,6 +8572,53 @@ def echo_generate_llm_answer(message, context=None):
         normalized_message,
         query_context
     )
+    if (
+        orchestrator_result.get("execution_tier") == "FAST_LOCAL"
+        and orchestrator_result.get("answer")
+    ):
+        context_budget = orchestrator_result.get("context_budget", {})
+        agent_routing = orchestrator_result.get("agent_routing", {})
+        context_assembly = orchestrator_result.get("context_assembly", {})
+        intent_reasoning = orchestrator_result.get("intent_reasoning", {})
+        validation = validate_llm_response(orchestrator_result.get("answer", ""), "")
+        metadata = _response_metadata(
+            "none",
+            "deterministic",
+            False,
+            True,
+            "deterministic",
+            "FAST_LOCAL_DETERMINISTIC",
+            context_budget,
+            agent_routing,
+            context_assembly,
+            intent_reasoning,
+            validation
+        )
+        return {
+            "status": "DETERMINISTIC_FAST_LOCAL",
+            "mode": "DETERMINISTIC_FAST_LOCAL",
+            "provider": "none",
+            "model": "deterministic",
+            **metadata,
+            "message": normalized_message,
+            "answer": orchestrator_result.get("answer", ""),
+            "selected_tools": orchestrator_result.get("selected_tools", []),
+            "context_budget": context_budget,
+            "agent_routing": agent_routing,
+            "context_assembly": context_assembly,
+            "response_composer": orchestrator_result.get("response_composer", {}),
+            "intent_reasoning": intent_reasoning,
+            "tool_results": orchestrator_result.get("tool_results", {}),
+            "confidence": orchestrator_result.get("confidence", "HIGH"),
+            "validation": validation,
+            "tool_context_char_count": 0,
+            "query_latency_seconds": orchestrator_result.get("query_latency_seconds"),
+            "live_call_attempted": False,
+            "fallback_used": True,
+            "response_source": "deterministic",
+            "llm_reviewed": False,
+            "notes": "FAST_LOCAL deterministic answer used; no LLM call was made."
+        }
     provider = get_llm_provider()
     provider_payload = _llm_provider_payload(orchestrator_result)
     tool_context = format_tool_context_for_llm(provider_payload)
@@ -8450,6 +8689,7 @@ def echo_generate_llm_answer(message, context=None):
             "confidence": provider_result.get("confidence", "MEDIUM"),
             "validation": validation,
             "tool_context_char_count": tool_context_char_count,
+            "query_latency_seconds": orchestrator_result.get("query_latency_seconds"),
             "live_call_attempted": live_call_attempted,
             "fallback_used": False,
             "response_source": "llm",
@@ -8498,6 +8738,7 @@ def echo_generate_llm_answer(message, context=None):
         "confidence": orchestrator_result.get("confidence", "MEDIUM"),
         "validation": fallback_validation,
         "tool_context_char_count": tool_context_char_count,
+        "query_latency_seconds": orchestrator_result.get("query_latency_seconds"),
         "live_call_attempted": live_call_attempted,
         "fallback_used": True,
         "response_source": "deterministic",

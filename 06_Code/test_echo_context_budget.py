@@ -34,6 +34,10 @@ class EchoContextBudgetTests(unittest.TestCase):
 
         self.assertEqual("conversational", budget["query_class"])
         self.assertEqual("minimal", budget["budget_level"])
+        self.assertEqual(
+            "FAST_LOCAL",
+            budget["execution_tier"]["execution_tier"]
+        )
 
     def test_joke_about_portfolio_managers_is_conversational(self):
 
@@ -137,6 +141,10 @@ class EchoContextBudgetTests(unittest.TestCase):
             budget = build_context_budget(query, _memory_context())
 
             self.assertEqual("security_resolution", budget["query_class"])
+            self.assertEqual(
+                "FAST_LOCAL",
+                budget["execution_tier"]["execution_tier"]
+            )
             self.assertEqual(
                 [
                     "security_resolution",

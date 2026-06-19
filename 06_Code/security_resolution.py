@@ -587,11 +587,18 @@ def build_security_resolution(query, security_master_path=None,
                               alias_path=None, history_path=None,
                               live_candidates=None, news_candidates=None,
                               live_candidates_path=None,
-                              news_candidates_path=None):
+                              news_candidates_path=None,
+                              execution_tier=None):
 
     query = _safe_text(query)
     reasoning = []
     candidates = []
+    execution_tier = execution_tier if isinstance(execution_tier, dict) else {}
+    tier_name = str(execution_tier.get("execution_tier") or "").upper()
+    explicit_current = any(
+        term in query.casefold()
+        for term in ("latest", "current", "live", "up to date")
+    )
 
     for candidate in _local_candidates(
         query,
@@ -602,21 +609,6 @@ def build_security_resolution(query, security_master_path=None,
         _add_candidate(candidates, candidate)
     reasoning.append("Checked exact ticker, holdings, watchlist, and security master matches.")
 
-    if live_candidates is None:
-        live_candidates = _read_json(live_candidates_path or DEFAULT_LIVE_CANDIDATES_PATH, {})
-    for candidate in _external_candidates(query, live_candidates, "live_research_candidate"):
-        _add_candidate(candidates, candidate)
-    if live_research_enabled() or live_candidates:
-        reasoning.append("Checked live research candidates for newer listings and IPO language.")
-    else:
-        reasoning.append("Live research candidate search unavailable; LIVE_RESEARCH_ENABLED is false.")
-
-    if news_candidates is None:
-        news_candidates = _read_json(news_candidates_path or DEFAULT_NEWS_CANDIDATES_PATH, {})
-    for candidate in _external_candidates(query, news_candidates, "recent_news_candidate"):
-        _add_candidate(candidates, candidate)
-    reasoning.append("Checked recent-news candidates for current listing evidence.")
-
     for candidate in _alias_candidates(query, alias_path):
         _add_candidate(candidates, candidate)
     reasoning.append("Checked configurable alias table.")
@@ -624,6 +616,35 @@ def build_security_resolution(query, security_master_path=None,
     for candidate in _historical_candidates(query, history_path):
         _add_candidate(candidates, candidate)
     reasoning.append("Checked configurable historical ticker table.")
+
+    local_ranked = _rank_candidates(query, candidates)
+    local_ambiguous = _ambiguous(local_ranked)
+    external_allowed = (
+        live_candidates is not None
+        or news_candidates is not None
+        or not local_ranked
+        or local_ambiguous
+        or explicit_current
+        or tier_name == "DEEP_RESEARCH"
+    )
+
+    if external_allowed:
+        if live_candidates is None:
+            live_candidates = _read_json(live_candidates_path or DEFAULT_LIVE_CANDIDATES_PATH, {})
+        for candidate in _external_candidates(query, live_candidates, "live_research_candidate"):
+            _add_candidate(candidates, candidate)
+        if live_research_enabled() or live_candidates:
+            reasoning.append("Checked live research candidates for newer listings and IPO language.")
+        else:
+            reasoning.append("Live research candidate search unavailable; LIVE_RESEARCH_ENABLED is false.")
+
+        if news_candidates is None:
+            news_candidates = _read_json(news_candidates_path or DEFAULT_NEWS_CANDIDATES_PATH, {})
+        for candidate in _external_candidates(query, news_candidates, "recent_news_candidate"):
+            _add_candidate(candidates, candidate)
+        reasoning.append("Checked recent-news candidates for current listing evidence.")
+    else:
+        reasoning.append("Skipped live/news candidate search because local resolution was sufficient.")
 
     ranked = _rank_candidates(query, candidates)
     ambiguity_detected = _ambiguous(ranked)

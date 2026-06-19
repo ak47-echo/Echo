@@ -32,12 +32,16 @@ _RESOLUTION_NON_TICKERS = {
     "an",
     "for",
     "is",
+    "my",
+    "our",
     "symbol",
     "security",
     "the",
     "this",
     "ticker",
+    "top",
     "who",
+    "your",
     "what"
 }
 

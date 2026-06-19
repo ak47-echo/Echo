@@ -1558,6 +1558,7 @@ def compose_echo_response(user_query, context_budget, agent_routing,
     intent = _intent(query, context_budget, agent_routing)
     response_mode = _response_mode(intent, agent_routing)
     primary_agents = _list(agent_routing.get("primary_agents"))
+    execution_tier = _dict(context_budget.get("execution_tier"))
     answer = ""
     supporting_points = []
     caveats = []
@@ -1682,6 +1683,10 @@ def compose_echo_response(user_query, context_budget, agent_routing,
         "supporting_points": supporting_points,
         "caveats": caveats,
         "used_sources": used_sources,
+        "execution_tier": execution_tier.get("execution_tier"),
+        "live_research_allowed": bool(execution_tier.get("live_research_allowed")),
+        "web_search_allowed": bool(execution_tier.get("web_search_allowed")),
+        "slow_path_reasons": execution_tier.get("slow_path_reasons") or [],
         "primary_research_source": primary_research_source or None,
         "research_context_version": "phase_112_1",
         "live_research_used": live_research_used,
