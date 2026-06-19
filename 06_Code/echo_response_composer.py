@@ -354,22 +354,32 @@ def _security_resolution_response(context_assembly):
 
     candidates = _list(resolution.get("candidates"))
     selected = _dict(resolution.get("selected_security"))
-    if resolution.get("ambiguity_detected") and candidates:
+    gate_triggered = _resolution_gate_triggered(resolution)
+    if gate_triggered and candidates:
         labels = [
             (
                 f"{item.get('ticker')} | {item.get('name')} | "
                 f"{item.get('security_type')} | {item.get('source')} | "
-                f"{item.get('confidence')}"
+                f"{item.get('confidence')} | {item.get('match_reason')}"
             )
             for item in candidates[:4]
         ]
         answer = (
             f"I found multiple possible matches for {resolution.get('query')}. "
-            "I need to resolve the security before researching it. "
+            "I cannot safely identify the intended security yet. "
             f"Candidates: {_join_labels(labels)}. "
-            "Please confirm which security you mean."
+            "Which one do you mean?"
         )
         return answer, labels, []
+
+    if gate_triggered:
+        answer = (
+            f"I cannot safely identify the intended security for "
+            f"{resolution.get('query') or 'that query'} yet. "
+            "I need to resolve the security before researching it. "
+            "Which one do you mean?"
+        )
+        return answer, [], []
 
     if selected:
         note = (
@@ -391,6 +401,22 @@ def _security_resolution_response(context_assembly):
         return note, [], []
 
     return None
+
+
+def _resolution_gate_triggered(resolution):
+
+    resolution = _dict(resolution)
+    if not resolution:
+        return False
+    selected = _dict(resolution.get("selected_security"))
+    return (
+        not bool(resolution.get("resolved"))
+        or (
+            bool(resolution.get("ambiguity_detected"))
+            and not bool(selected)
+        )
+        or _safe_text(resolution.get("confidence")).upper() == "LOW"
+    )
 
 
 def _market_coverage(context_assembly):
@@ -1021,7 +1047,8 @@ def _category_macro_note(category):
 def _ticker_response(user_query, context_assembly):
 
     resolution_response = _security_resolution_response(context_assembly)
-    if resolution_response and resolution_response[1]:
+    resolution = _block_json(context_assembly, "security_resolution")
+    if _resolution_gate_triggered(resolution) and resolution_response:
         return resolution_response
 
     comparison = _block_json(context_assembly, "security_comparison")
@@ -1601,6 +1628,7 @@ def compose_echo_response(user_query, context_budget, agent_routing,
     used_sources = _block_sources(context_assembly)
     security_resolution = _block_json(context_assembly, "security_resolution")
     selected_resolution = _dict(security_resolution.get("selected_security"))
+    resolution_gate_triggered = _resolution_gate_triggered(security_resolution)
     live_research_used = any(
         source in used_sources
         for source in ("live_research", "research_evidence_store")
@@ -1643,6 +1671,8 @@ def compose_echo_response(user_query, context_budget, agent_routing,
         "resolution_confidence": security_resolution.get("confidence"),
         "ambiguity_detected": bool(security_resolution.get("ambiguity_detected")),
         "candidate_count": len(security_resolution.get("candidates") or []),
+        "resolution_gate_triggered": resolution_gate_triggered,
+        "research_blocked_by_resolution": resolution_gate_triggered,
         "debug_summary": _debug_summary(
             context_budget,
             agent_routing,

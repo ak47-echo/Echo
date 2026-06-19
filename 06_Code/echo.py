@@ -5743,8 +5743,11 @@ def _query_security_tickers(context=None):
             isinstance(selected, dict)
             and selected.get("ticker")
             and not resolution.get("ambiguity_detected")
+            and resolution.get("confidence") != "LOW"
         ):
             return [str(selected.get("ticker")).strip().upper()]
+        if _resolution_blocks_research(resolution):
+            return []
         budget = context.get("context_budget")
         intent = budget.get("investment_intent") if isinstance(budget, dict) else None
         if isinstance(intent, dict) and intent.get("tickers"):
@@ -5784,11 +5787,16 @@ def _context_security_resolution(context=None):
 
 def _resolution_blocks_research(resolution):
 
+    if not isinstance(resolution, dict) or not resolution:
+        return False
+    selected = resolution.get("selected_security")
     return (
-        isinstance(resolution, dict)
-        and resolution.get("ambiguity_detected")
-        and not resolution.get("resolved")
-        and bool(resolution.get("candidates"))
+        not bool(resolution.get("resolved"))
+        or (
+            bool(resolution.get("ambiguity_detected"))
+            and not bool(selected)
+        )
+        or str(resolution.get("confidence") or "").upper() == "LOW"
     )
 
 
@@ -7067,6 +7075,7 @@ def build_echo_llm_system_prompt():
         "Answer the user's actual question directly; do not merely restate the deterministic draft.",
         "Clearly separate known tool facts from inference or judgment.",
         "Do not invent portfolio holdings, news, macro data, prices, or research conclusions.",
+        "If security_resolution.resolved is false or ambiguity_detected is true without selected_security, do not infer the intended security. Ask for clarification. Do not use the top candidate as truth.",
         "When security_intelligence exists, reason from the security profile first.",
         "When live_research, research_evidence_store, or thesis_refresh exists, use generated evidence and thesis refresh ahead of legacy manual theses.",
         "Use live research and thesis refresh as primary security context. Legacy research snapshot and manual theses.csv are fallback only. Do not lead with low conviction, weak research status, or reevaluate thesis.",
@@ -7419,7 +7428,12 @@ def _build_anthropic_prompt_message(messages, tool_context):
         "template-like, correct it using available Echo context. Do not introduce "
         "facts, holdings, prices, recommendations, current news, or conclusions "
         "outside the provided Echo context. Do not claim live facts unless Echo "
-        "supplied them. When live_research, research_evidence_store, or "
+        "supplied them. If security_resolution.resolved is false or "
+        "ambiguity_detected is true without selected_security, do not infer "
+        "the intended security. Ask for clarification. Do not use the top "
+        "candidate as truth. Do not use live research, security intelligence, "
+        "or comparison as investment analysis until resolution succeeds. "
+        "When live_research, research_evidence_store, or "
         "thesis_refresh is present, use live research and thesis refresh as "
         "primary security context. Legacy research snapshot and manual "
         "theses.csv are fallback only. Do not lead with low conviction, weak "
@@ -7459,6 +7473,9 @@ def _response_metadata(provider_name, provider_model, live_call_attempted,
         if isinstance(security_resolution, dict)
         else {}
     )
+    resolution_gate_triggered = _resolution_gate_triggered_metadata(
+        security_resolution
+    )
 
     return {
         "llm_provider": provider_name,
@@ -7495,6 +7512,8 @@ def _response_metadata(provider_name, provider_model, live_call_attempted,
             if isinstance(security_resolution, dict)
             else 0
         ),
+        "resolution_gate_triggered": resolution_gate_triggered,
+        "research_blocked_by_resolution": resolution_gate_triggered,
         "missing_data_notes": _missing_data_notes(
             context_budget,
             context_assembly,
@@ -7555,6 +7574,21 @@ def _context_block_json(context_assembly, source):
         if isinstance(value, dict):
             return value
     return {}
+
+
+def _resolution_gate_triggered_metadata(security_resolution):
+
+    if not isinstance(security_resolution, dict) or not security_resolution:
+        return False
+    selected = security_resolution.get("selected_security")
+    return (
+        not bool(security_resolution.get("resolved"))
+        or (
+            bool(security_resolution.get("ambiguity_detected"))
+            and not bool(selected)
+        )
+        or str(security_resolution.get("confidence") or "").upper() == "LOW"
+    )
 
 
 def _missing_data_notes(context_budget, context_assembly, validation=None):
@@ -7711,25 +7745,61 @@ def _context_assembly_reports(context, user_query=None):
     query = " ".join(str(user_query or "").split())
     investment_intent = classify_investment_intent(query)
     market_coverage = build_market_coverage(query)
+    security_resolution = build_security_resolution(query)
+    resolution_relevant = investment_intent.get("investment_intent") in {
+        "ticker_question",
+        "ticker_news",
+        "security_master_search"
+    }
+    resolution_blocked = (
+        resolution_relevant and _resolution_blocks_research(security_resolution)
+    )
+    resolved_tickers = []
+    selected_security = security_resolution.get("selected_security")
+    if isinstance(selected_security, dict) and selected_security.get("ticker"):
+        resolved_tickers = [str(selected_security.get("ticker")).strip().upper()]
+    research_tickers = (
+        resolved_tickers
+        if resolved_tickers and not resolution_blocked
+        else investment_intent.get("tickers") or None
+    )
     research_evidence_store = (
         build_research_evidence_store(
-            investment_intent.get("tickers") or None,
+            research_tickers,
             query
         )
-        if query
+        if query and not resolution_blocked
         else read_research_evidence_store()
     )
+    if resolution_blocked:
+        research_evidence_store = {
+            "schema_version": "1.0",
+            "generated_at": datetime.now().isoformat(timespec="seconds"),
+            "source_mode": "blocked_by_security_resolution",
+            "profile_count": 0,
+            "tickers": [],
+            "profiles": [],
+            "warnings": security_resolution.get("reasoning") or []
+        }
     thesis_refresh = (
         build_thesis_refresh(
-            investment_intent.get("tickers") or None,
+            research_tickers,
             query,
             research_evidence_store
         )
-        if query
+        if query and not resolution_blocked
         else read_thesis_refresh()
     )
-
-    security_resolution = build_security_resolution(query)
+    if resolution_blocked:
+        thesis_refresh = {
+            "schema_version": "1.0",
+            "generated_at": datetime.now().isoformat(timespec="seconds"),
+            "source_mode": "blocked_by_security_resolution",
+            "refresh_count": 0,
+            "tickers": [],
+            "thesis_refreshes": [],
+            "warnings": security_resolution.get("reasoning") or []
+        }
 
     return {
         "portfolio_change_detection": read_portfolio_change_report(),
@@ -7741,15 +7811,36 @@ def _context_assembly_reports(context, user_query=None):
             tickers=investment_intent.get("tickers"),
             categories=investment_intent.get("categories")
         ),
-        "security_intelligence": build_security_intelligence_report(
-            investment_intent.get("tickers") or None
+        "security_intelligence": (
+            {
+                "schema_version": "1.0",
+                "generated_at": datetime.now().isoformat(timespec="seconds"),
+                "profile_count": 0,
+                "tickers": [],
+                "profiles": [],
+                "warnings": security_resolution.get("reasoning") or []
+            }
+            if resolution_blocked else
+            build_security_intelligence_report(research_tickers)
         ),
         "live_research": research_evidence_store,
         "research_evidence_store": research_evidence_store,
         "thesis_refresh": thesis_refresh,
-        "security_comparison": compare_security_profiles(
-            investment_intent.get("tickers") or []
-        ) if len(investment_intent.get("tickers") or []) >= 2 else {},
+        "security_comparison": (
+            {
+                "schema_version": "1.0",
+                "generated_at": datetime.now().isoformat(timespec="seconds"),
+                "profiles": [],
+                "comparison": [],
+                "security_resolutions": [security_resolution],
+                "warnings": [
+                    "Comparison blocked until ambiguous security identities are resolved."
+                ]
+            }
+            if resolution_blocked else
+            compare_security_profiles(research_tickers or [])
+            if len(research_tickers or []) >= 2 else {}
+        ),
         "market_coverage": market_coverage,
         "dynamic_news_coverage": {
             "schema_version": "1.0",

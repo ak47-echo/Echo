@@ -65,6 +65,13 @@ class Phase1121LiveResearchRoutingTests(unittest.TestCase):
         self.assertIn("/research/thesis-refresh", paths)
         self.assertIn("/security/resolve", paths)
 
+    def test_claude_prompt_contains_resolver_gate_instruction(self):
+
+        prompt = echo.build_echo_llm_system_prompt()
+
+        self.assertIn("security_resolution.resolved is false", prompt)
+        self.assertIn("Do not use the top candidate as truth", prompt)
+
 
 if __name__ == "__main__":
     unittest.main()

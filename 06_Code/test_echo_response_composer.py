@@ -233,6 +233,38 @@ def _thesis_refresh():
     }
 
 
+def _ambiguous_spcx_resolution():
+
+    return {
+        "query": "SPCX",
+        "resolved": False,
+        "confidence": "MEDIUM",
+        "selected_security": {},
+        "ambiguity_detected": True,
+        "candidates": [
+            {
+                "ticker": "SPCX",
+                "name": "SPAC and New Issue ETF",
+                "security_type": "etf",
+                "source": "security_master",
+                "confidence": "MEDIUM",
+                "match_reason": "exact ticker candidate; security master match"
+            },
+            {
+                "ticker": "SPCX",
+                "name": "Newly Listed Operating Company",
+                "security_type": "stock",
+                "source": "live_research_candidate",
+                "confidence": "HIGH",
+                "match_reason": "newly listed ticker debut; recent source date"
+            }
+        ],
+        "reasoning": [
+            "I found multiple possible matches for SPCX. I need to resolve the security before researching it."
+        ]
+    }
+
+
 def _portfolio_change_report(**updates):
 
     report = {
@@ -501,6 +533,106 @@ class EchoResponseComposerTests(unittest.TestCase):
 
         self.assertIn("Generated thesis refresh overrides manual thesis", response["answer"])
         self.assertNotIn("old thesis", response["answer"])
+
+    def test_resolve_spcx_returns_clarification_not_top_candidate_answer(self):
+
+        response = compose_echo_response(
+            "resolve SPCX",
+            _budget("ticker_question", "standard"),
+            _routing(["research"], "live_security_research"),
+            _multi_block_assembly([
+                ("security_resolution", _ambiguous_spcx_resolution()),
+                ("security_intelligence", {
+                    "profiles": [{
+                        "ticker": "SPCX",
+                        "name": "SPAC and New Issue ETF",
+                        "confidence": "HIGH",
+                        "bull_factors": ["ETF analysis should not appear"],
+                        "bear_factors": []
+                    }]
+                })
+            ]),
+            _memory([])
+        )
+
+        self.assertIn("I found multiple possible matches for SPCX", response["answer"])
+        self.assertIn("Which one do you mean?", response["answer"])
+        self.assertIn("match", response["supporting_points"][0].casefold())
+        self.assertNotIn("SPCX is", response["answer"])
+        self.assertTrue(response["resolution_gate_triggered"])
+        self.assertTrue(response["research_blocked_by_resolution"])
+        self.assertIsNone(response["resolved_security"])
+
+    def test_research_spcx_blocks_live_research_when_unresolved(self):
+
+        response = compose_echo_response(
+            "research SPCX",
+            _budget("ticker_question", "standard"),
+            _routing(["research"], "live_security_research"),
+            _multi_block_assembly([
+                ("security_resolution", _ambiguous_spcx_resolution()),
+                ("live_research", {
+                    "profiles": [{
+                        "ticker": "SPCX",
+                        "company_summary": "This analysis should not be used.",
+                        "bull_case": ["Do not include"],
+                        "bear_case": ["Do not include"],
+                        "source_mode": "local_only"
+                    }]
+                })
+            ]),
+            _memory([])
+        )
+
+        self.assertIn("cannot safely identify", response["answer"])
+        self.assertNotIn("This analysis should not be used", response["answer"])
+        self.assertNotIn("Bull case", response["answer"])
+
+    def test_compare_blocks_when_one_side_unresolved(self):
+
+        response = compose_echo_response(
+            "compare SPCX vs NVDA",
+            _budget("ticker_question", "standard"),
+            _routing(["research"], "live_security_research"),
+            _multi_block_assembly([
+                ("security_resolution", _ambiguous_spcx_resolution()),
+                ("security_comparison", {
+                    "comparison": [{
+                        "ticker": "NVDA",
+                        "held_status": "not_held",
+                        "bull_factors": ["Comparison should not appear"],
+                        "bear_factors": []
+                    }]
+                })
+            ]),
+            _memory([])
+        )
+
+        self.assertIn("I found multiple possible matches for SPCX", response["answer"])
+        self.assertNotIn("Security comparison", response["answer"])
+
+    def test_low_confidence_resolution_triggers_gate(self):
+
+        resolution = {
+            "query": "Unknown Asset",
+            "resolved": False,
+            "confidence": "LOW",
+            "selected_security": {},
+            "ambiguity_detected": True,
+            "candidates": [],
+            "reasoning": []
+        }
+        response = compose_echo_response(
+            "research Unknown Asset",
+            _budget("ticker_question", "standard"),
+            _routing(["research"], "live_security_research"),
+            _multi_block_assembly([("security_resolution", resolution)]),
+            _memory([])
+        )
+
+        self.assertTrue(response["resolution_gate_triggered"])
+        self.assertIsNone(response["resolved_security"])
+        self.assertIn("cannot safely identify", response["answer"])
 
     def test_market_scan_response_is_research_only(self):
 
