@@ -22,6 +22,8 @@ RAW_TOOL_NAMES = (
     "echo_get_market_coverage",
     "echo_get_dynamic_news_coverage",
     "echo_get_security_intelligence",
+    "echo_get_live_research",
+    "echo_get_thesis_refresh",
     "echo_compare_securities",
     "echo_get_portfolio_auto_import"
 )
@@ -218,6 +220,129 @@ def _block_json(context_assembly, source):
             return value
 
     return {}
+
+
+def _query_tickers(text):
+
+    return [
+        token
+        for token in re.findall(r"\b[A-Z][A-Z0-9.]{0,5}\b", str(text or ""))
+        if token not in {"I", "A", "ETF", "ETFS", "IRA", "USD", "CASH"}
+    ]
+
+
+def _profile_for_query(profiles, user_query):
+
+    tickers = [ticker.upper() for ticker in _query_tickers(user_query)]
+    for ticker in tickers:
+        for profile in _list(profiles):
+            profile = _dict(profile)
+            if _safe_text(profile.get("ticker")).upper() == ticker:
+                return profile
+
+    profiles = _list(profiles)
+    return _dict(profiles[0]) if profiles else {}
+
+
+def _thesis_refresh_for_query(refreshes, ticker):
+
+    ticker = _safe_text(ticker).upper()
+    for refresh in _list(refreshes):
+        refresh = _dict(refresh)
+        if _safe_text(refresh.get("ticker")).upper() == ticker:
+            return refresh
+    return {}
+
+
+def _field_text(value, limit=3):
+
+    if isinstance(value, list):
+        return _join_labels([_safe_text(item) for item in value[:limit]])
+    return _safe_text(value) or "Not supplied."
+
+
+def _live_research_payload(context_assembly):
+
+    live = _block_json(context_assembly, "live_research")
+    evidence = _block_json(context_assembly, "research_evidence_store")
+    refresh = _block_json(context_assembly, "thesis_refresh")
+    return live or evidence, refresh
+
+
+def _live_research_response(user_query, context_assembly):
+
+    store, refresh_report = _live_research_payload(context_assembly)
+    profile = _profile_for_query(store.get("profiles"), user_query)
+    if not profile:
+        return None
+
+    ticker = _safe_text(profile.get("ticker")) or "Ticker"
+    refresh = _thesis_refresh_for_query(
+        refresh_report.get("thesis_refreshes"),
+        ticker
+    )
+    query_text = _safe_text(user_query).casefold()
+    missing = _list(profile.get("missing_data"))
+    source_mode = _safe_text(
+        profile.get("source_mode") or store.get("source_mode")
+    )
+    caveats = []
+
+    if "bear" in query_text or "risk" in query_text or "missing" in query_text:
+        answer = (
+            f"{ticker}: bear case from live research is "
+            f"{_field_text(profile.get('bear_case') or profile.get('key_risks'))}. "
+            f"Key risks: {_field_text(profile.get('key_risks'))}. "
+            f"Recent developments: {_field_text(profile.get('recent_developments'))}. "
+            f"Missing data: {_field_text(missing)}. Source mode: {source_mode or 'unknown'}."
+        )
+    elif "bull" in query_text:
+        answer = (
+            f"{ticker}: bull case from live research is "
+            f"{_field_text(profile.get('bull_case') or profile.get('key_drivers'))}. "
+            f"Key drivers: {_field_text(profile.get('key_drivers'))}. "
+            f"Competitive position: {_field_text(profile.get('competitive_position'))}. "
+            f"Valuation notes: {_field_text(profile.get('valuation_notes'))}. "
+            f"Source mode: {source_mode or 'unknown'}."
+        )
+    elif "thesis" in query_text and refresh:
+        answer = (
+            f"{ticker}: generated thesis refresh says "
+            f"{_safe_text(refresh.get('current_thesis')) or _field_text(profile.get('company_summary'))}. "
+            f"Bull case: {_field_text(profile.get('bull_case'))}. "
+            f"Bear case: {_field_text(profile.get('bear_case'))}. "
+            f"Portfolio implications: {_field_text(profile.get('portfolio_implications'))}. "
+            f"Source mode: {source_mode or _safe_text(refresh_report.get('source_mode')) or 'unknown'}."
+        )
+    else:
+        answer = (
+            f"{ticker}: {_field_text(profile.get('company_summary'), 1)} "
+            f"Business model: {_field_text(profile.get('business_model'), 1)} "
+            f"Bull case: {_field_text(profile.get('bull_case'))}. "
+            f"Bear case: {_field_text(profile.get('bear_case'))}. "
+            f"Key drivers: {_field_text(profile.get('key_drivers'))}. "
+            f"Recent developments: {_field_text(profile.get('recent_developments'))}. "
+            f"Valuation notes: {_field_text(profile.get('valuation_notes'))}. "
+            f"Portfolio implications: {_field_text(profile.get('portfolio_implications'))}. "
+            f"Source mode: {source_mode or 'unknown'}."
+        )
+
+    if refresh:
+        status = _safe_text(refresh.get("research_status"))
+        action = _safe_text(refresh.get("portfolio_action_implication"))
+        if status or action:
+            caveats.append(
+                f"Thesis refresh caveat: research status {status or 'unknown'}; "
+                f"portfolio implication {action or 'unknown'}."
+            )
+    if missing:
+        caveats.append(f"Missing data: {_field_text(missing)}.")
+
+    points = [
+        json.dumps(profile, sort_keys=True),
+        json.dumps(refresh, sort_keys=True) if refresh else ""
+    ]
+    return answer, [point for point in points if point], caveats
 
 
 def _market_coverage(context_assembly):
@@ -870,6 +995,10 @@ def _ticker_response(user_query, context_assembly):
         )
         return answer, labels, []
 
+    live_response = _live_research_response(user_query, context_assembly)
+    if live_response:
+        return live_response
+
     intelligence = _block_json(context_assembly, "security_intelligence")
     profiles = _list(intelligence.get("profiles"))
     if profiles:
@@ -1410,6 +1539,22 @@ def compose_echo_response(user_query, context_budget, agent_routing,
     ][:6]
     caveats = [_clean_answer(caveat) for caveat in caveats if _safe_text(caveat)]
     used_sources = _block_sources(context_assembly)
+    live_research_used = any(
+        source in used_sources
+        for source in ("live_research", "research_evidence_store")
+    )
+    thesis_refresh_used = "thesis_refresh" in used_sources
+    primary_research_source = ""
+    for source in (
+        "live_research",
+        "research_evidence_store",
+        "thesis_refresh",
+        "security_intelligence",
+        "research_snapshot"
+    ):
+        if source in used_sources:
+            primary_research_source = source
+            break
 
     if not used_sources and memory_context:
         used_sources = ["memory_context"]
@@ -1423,6 +1568,15 @@ def compose_echo_response(user_query, context_budget, agent_routing,
         "supporting_points": supporting_points,
         "caveats": caveats,
         "used_sources": used_sources,
+        "primary_research_source": primary_research_source or None,
+        "research_context_version": "phase_112_1",
+        "live_research_used": live_research_used,
+        "thesis_refresh_used": thesis_refresh_used,
+        "legacy_research_demoted": (
+            "research_snapshot" in used_sources
+            and bool(primary_research_source)
+            and primary_research_source != "research_snapshot"
+        ),
         "debug_summary": _debug_summary(
             context_budget,
             agent_routing,

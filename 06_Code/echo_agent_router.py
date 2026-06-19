@@ -265,6 +265,19 @@ def _portfolio_change_plan():
 
 def _investment_plan(query_class):
 
+    live_security_research_sources = [
+        "live_research",
+        "thesis_refresh",
+        "research_evidence_store",
+        "security_intelligence",
+        "security_comparison",
+        "security_master_search",
+        "market_coverage",
+        "dynamic_news_coverage",
+        "macro_snapshot",
+        "news_snapshot",
+        "research_snapshot"
+    ]
     plans = {
         "portfolio_movement": [(
             "portfolio",
@@ -300,42 +313,18 @@ def _investment_plan(query_class):
             (
                 "research",
                 "primary",
-                [
-                    "security_intelligence",
-                    "research_evidence_store",
-                    "thesis_refresh",
-                    "security_comparison",
-                    "security_master_search",
-                    "market_coverage",
-                    "research_snapshot"
-                ],
+                live_security_research_sources,
                 False,
-                "Ticker question needs normalized security intelligence before research context."
+                "Ticker question uses live security research before legacy research context."
             )
         ],
         "ticker_news": [
             (
-                "news",
-                "primary",
-                [
-                    "security_intelligence",
-                    "research_evidence_store",
-                    "thesis_refresh",
-                    "security_comparison",
-                    "security_master_search",
-                    "market_coverage",
-                    "dynamic_news_coverage",
-                    "news_snapshot"
-                ],
-                False,
-                "Ticker news question needs local news context."
-            ),
-            (
                 "research",
-                "secondary",
-                ["research_snapshot"],
+                "primary",
+                live_security_research_sources,
                 False,
-                "Research context helps qualify local ticker coverage."
+                "Ticker news question uses live security research with local news context."
             )
         ],
         "market_opportunities": [
@@ -540,7 +529,11 @@ def route_query_to_agents(user_query, context_budget=None, memory_context=None,
             "excluded_agents": [
                 agent for agent in agents if agent not in included
             ],
-            "routing_mode": "investment_query",
+            "routing_mode": (
+                "live_security_research"
+                if query_class in {"ticker_question", "ticker_news"}
+                else "investment_query"
+            ),
             "confidence": "high",
             "agent_context_plan": plan,
             "reason": (

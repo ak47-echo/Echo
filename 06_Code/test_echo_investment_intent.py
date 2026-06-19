@@ -59,6 +59,16 @@ class EchoInvestmentIntentTests(unittest.TestCase):
             "ticker_news",
             self._intent("why is UNH down")
         )
+        for query in (
+            "research SMCI",
+            "research NVDA",
+            "update thesis on UNH",
+            "bull case for SMCI",
+            "bear case for SMCI",
+            "compare SMCI vs NVDA",
+            "what am I missing about UNH"
+        ):
+            self.assertEqual("ticker_question", self._intent(query))
 
     def test_security_search_queries(self):
 

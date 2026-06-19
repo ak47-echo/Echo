@@ -359,18 +359,18 @@ def _base_budget(query, agents):
 
     if intent in {"ticker_question", "ticker_news"}:
         ticker_sources = [
-            "security_intelligence",
-            "research_evidence_store",
+            "live_research",
             "thesis_refresh",
+            "research_evidence_store",
+            "security_intelligence",
+            "security_comparison",
             "security_master_search",
             "market_coverage",
             "dynamic_news_coverage",
-            "portfolio_snapshot",
-            "research_snapshot",
-            "news_snapshot"
+            "macro_snapshot",
+            "news_snapshot",
+            "research_snapshot"
         ]
-        if len(investment_intent.get("tickers") or []) >= 2:
-            ticker_sources.insert(1, "security_comparison")
         return (
             intent,
             "standard",

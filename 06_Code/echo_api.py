@@ -314,6 +314,10 @@ def create_app():
     async def research_evidence():
         return read_research_evidence_store()
 
+    @app.get("/research/live")
+    async def research_live():
+        return read_research_evidence_store()
+
     @app.get("/research/thesis-refresh")
     async def thesis_refresh():
         return read_thesis_refresh()

@@ -129,12 +129,15 @@ class EchoAgentRouterTests(unittest.TestCase):
         )
 
         self.assertEqual(["research"], routing["primary_agents"])
+        self.assertEqual("live_security_research", routing["routing_mode"])
         self.assertNotIn("portfolio", routing["primary_agents"])
         sources = [
             source
             for item in routing["agent_context_plan"]
             for source in item["context_sources"]
         ]
+        self.assertEqual("live_research", sources[0])
+        self.assertEqual("research_snapshot", sources[-1])
         self.assertIn("security_intelligence", sources)
 
     def test_market_opportunity_scan_routes_news_macro_research(self):

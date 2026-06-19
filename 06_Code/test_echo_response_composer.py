@@ -176,6 +176,63 @@ def _custom_block_assembly(source, payload, mode="investment_query"):
     }
 
 
+def _multi_block_assembly(blocks, mode="investment_query"):
+
+    return {
+        "assembly_mode": mode,
+        "context_blocks": [
+            {
+                "source": source,
+                "role": "primary" if index == 0 else "secondary",
+                "title": source,
+                "content": json.dumps(payload),
+                "priority": 145 - index
+            }
+            for index, (source, payload) in enumerate(blocks)
+        ],
+        "context_summary": {
+            "full_reports_included": False,
+            "block_count": len(blocks)
+        }
+    }
+
+
+def _live_store():
+
+    return {
+        "source_mode": "local_only",
+        "profiles": [{
+            "ticker": "SMCI",
+            "company_summary": "SMCI is Super Micro Computer in AI servers.",
+            "business_model": "Sells server and storage systems.",
+            "bull_case": ["AI infrastructure demand can support server growth"],
+            "bear_case": ["Competition and execution risk remain elevated"],
+            "key_drivers": ["AI infrastructure demand"],
+            "key_risks": ["Execution risk", "Margin pressure"],
+            "recent_developments": ["Direct local News Agent mention found"],
+            "valuation_notes": ["Cached trailing return available"],
+            "competitive_position": ["Server supplier with AI exposure"],
+            "macro_sensitivity": ["Sensitive to rates and risk appetite"],
+            "portfolio_implications": ["Currently held; informational only"],
+            "missing_data": ["Missing live web evidence"],
+            "source_mode": "local_only"
+        }]
+    }
+
+
+def _thesis_refresh():
+
+    return {
+        "source_mode": "local_only",
+        "thesis_refreshes": [{
+            "ticker": "SMCI",
+            "current_thesis": "Generated thesis refresh overrides manual thesis.",
+            "research_status": "insufficient",
+            "portfolio_action_implication": "research_more"
+        }]
+    }
+
+
 def _portfolio_change_report(**updates):
 
     report = {
@@ -404,6 +461,46 @@ class EchoResponseComposerTests(unittest.TestCase):
         self.assertIn("not currently held", response["answer"])
         self.assertIn("NVDA", response["answer"])
         self.assertIn("No direct local news was found", response["answer"])
+
+    def test_ticker_response_uses_live_research_before_low_conviction(self):
+
+        response = compose_echo_response(
+            "research SMCI",
+            _budget("ticker_question", "standard"),
+            _routing(["research"], "live_security_research"),
+            _multi_block_assembly([
+                ("live_research", _live_store()),
+                ("thesis_refresh", _thesis_refresh()),
+                ("research_snapshot", {"summary": "SMCI low conviction; reevaluate thesis"})
+            ]),
+            _memory([{"label": "SMCI low conviction"}])
+        )
+        first_paragraph = response["answer"].split("\n\n")[0].casefold()
+
+        self.assertIn("AI infrastructure demand", response["answer"])
+        self.assertIn("Source mode: local_only", response["answer"])
+        self.assertNotIn("low conviction", first_paragraph)
+        self.assertEqual("live_research", response["primary_research_source"])
+        self.assertTrue(response["live_research_used"])
+        self.assertTrue(response["thesis_refresh_used"])
+        self.assertTrue(response["legacy_research_demoted"])
+
+    def test_ticker_thesis_refresh_overrides_manual_legacy_thesis(self):
+
+        response = compose_echo_response(
+            "update thesis on SMCI",
+            _budget("ticker_question", "standard"),
+            _routing(["research"], "live_security_research"),
+            _multi_block_assembly([
+                ("live_research", _live_store()),
+                ("thesis_refresh", _thesis_refresh()),
+                ("research_snapshot", {"manual_legacy_thesis": "old thesis"})
+            ]),
+            _memory([])
+        )
+
+        self.assertIn("Generated thesis refresh overrides manual thesis", response["answer"])
+        self.assertNotIn("old thesis", response["answer"])
 
     def test_market_scan_response_is_research_only(self):
 

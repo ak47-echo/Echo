@@ -6928,6 +6928,7 @@ def build_echo_llm_system_prompt():
         "Do not invent portfolio holdings, news, macro data, prices, or research conclusions.",
         "When security_intelligence exists, reason from the security profile first.",
         "When live_research, research_evidence_store, or thesis_refresh exists, use generated evidence and thesis refresh ahead of legacy manual theses.",
+        "Use live research and thesis refresh as primary security context. Legacy research snapshot and manual theses.csv are fallback only. Do not lead with low conviction, weak research status, or reevaluate thesis.",
         "Treat theses.csv content as manual_legacy_thesis only, not current truth.",
         "Research quality flags and previous recommendations are not evidence.",
         "Do not treat prior recommendations, low conviction labels, reevaluate text, buy/sell text, or top-priority text as investment evidence.",
@@ -7277,11 +7278,13 @@ def _build_anthropic_prompt_message(messages, tool_context):
         "template-like, correct it using available Echo context. Do not introduce "
         "facts, holdings, prices, recommendations, current news, or conclusions "
         "outside the provided Echo context. Do not claim live facts unless Echo "
-        "supplied them. When research_evidence_store or thesis_refresh is "
-        "present, use generated evidence ahead of manual_legacy_thesis, but do "
-        "not treat previous recommendations or research quality flags as "
-        "evidence. If local or live data is insufficient, say what data is "
-        "missing."
+        "supplied them. When live_research, research_evidence_store, or "
+        "thesis_refresh is present, use live research and thesis refresh as "
+        "primary security context. Legacy research snapshot and manual "
+        "theses.csv are fallback only. Do not lead with low conviction, weak "
+        "research status, or reevaluate thesis. Do not treat previous "
+        "recommendations or research quality flags as evidence. If local or "
+        "live data is insufficient, say what data is missing."
     )
 
 
@@ -7297,6 +7300,19 @@ def _response_metadata(provider_name, provider_model, live_call_attempted,
     )
 
     validation = validation if isinstance(validation, dict) else {}
+    sources_used = _context_sources_used(context_assembly)
+    primary_research_source = None
+    for source in (
+        "live_research",
+        "research_evidence_store",
+        "thesis_refresh",
+        "security_intelligence",
+        "research_snapshot"
+    ):
+        if source in sources_used:
+            primary_research_source = source
+            break
+
     return {
         "llm_provider": provider_name,
         "model": provider_model,
@@ -7305,7 +7321,19 @@ def _response_metadata(provider_name, provider_model, live_call_attempted,
         "response_source": response_source,
         "llm_reviewed": response_source == "llm",
         "provider_status": provider_status,
-        "context_sources_used": _context_sources_used(context_assembly),
+        "context_sources_used": sources_used,
+        "primary_research_source": primary_research_source,
+        "research_context_version": "phase_112_1",
+        "live_research_used": any(
+            source in sources_used
+            for source in ("live_research", "research_evidence_store")
+        ),
+        "thesis_refresh_used": "thesis_refresh" in sources_used,
+        "legacy_research_demoted": (
+            "research_snapshot" in sources_used
+            and bool(primary_research_source)
+            and primary_research_source != "research_snapshot"
+        ),
         "missing_data_notes": _missing_data_notes(
             context_budget,
             context_assembly,
@@ -7536,6 +7564,7 @@ def _context_assembly_reports(context, user_query=None):
         "security_intelligence": build_security_intelligence_report(
             investment_intent.get("tickers") or None
         ),
+        "live_research": research_evidence_store,
         "research_evidence_store": research_evidence_store,
         "thesis_refresh": thesis_refresh,
         "security_comparison": compare_security_profiles(
@@ -7642,11 +7671,14 @@ def _echo_orchestrator_select_tools(message, context, context_budget=None,
 
     if query_class in {"ticker_question", "ticker_news", "security_master_search"}:
         add_tools(
-            "echo_get_security_intelligence",
             "echo_get_live_research",
             "echo_get_thesis_refresh",
+            "echo_get_security_intelligence",
             "echo_search_security_master",
-            "echo_get_market_coverage"
+            "echo_get_market_coverage",
+            "echo_get_dynamic_news_coverage",
+            "echo_get_macro_snapshot",
+            "echo_get_news_snapshot"
         )
         if query_class != "security_master_search":
             add_tools("echo_get_research_snapshot")

@@ -243,7 +243,14 @@ def classify_investment_intent(user_query, portfolio_state=None,
     elif tickers and _has(lowered, (
         "worth researching",
         "what do you think",
-        "compare"
+        "compare",
+        "research",
+        "update thesis",
+        "thesis on",
+        "bull case",
+        "bear case",
+        "what am i missing",
+        "what am i missing about"
     )):
         set_intent(
             "ticker_question",
@@ -283,6 +290,27 @@ def classify_investment_intent(user_query, portfolio_state=None,
             requires_research_context=True,
             requires_watchlist_context=True,
             requires_security_master_context=True
+        )
+    elif tickers and _has(lowered, (
+        "could go down",
+        "downside",
+        "negative news",
+        "weakening",
+        "risks",
+        "risk candidates",
+        "what am i missing",
+        "what am i missing about"
+    )):
+        set_intent(
+            "ticker_question",
+            "ticker_analysis",
+            "high",
+            "User asked for ticker-specific risks or missing evidence.",
+            requires_research_context=True,
+            requires_news_context=True,
+            requires_macro_context=True,
+            requires_security_master_context=True,
+            requires_portfolio_context=result["portfolio_relevance"] in {"holding", "mixed"}
         )
     elif _has(lowered, (
         "could go down",

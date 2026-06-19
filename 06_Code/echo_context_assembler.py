@@ -17,6 +17,7 @@ AGENT_REPORT_SOURCES = {
 SPECIAL_REPORT_SOURCES = {
     "portfolio_change_detection": "Portfolio Change Detection",
     "portfolio_ingestion": "Portfolio Ingestion",
+    "live_research": "Live Security Research",
     "security_intelligence": "Security Intelligence",
     "research_evidence_store": "Research Evidence Store",
     "thesis_refresh": "Thesis Refresh",
@@ -24,8 +25,23 @@ SPECIAL_REPORT_SOURCES = {
     "security_master_search": "Security Master Search",
     "market_coverage": "Market Coverage",
     "dynamic_news_coverage": "Dynamic News Coverage",
+    "research_snapshot": "Legacy Research Snapshot",
     "market_opportunity_scan": "Market Opportunity Scan",
     "portfolio_auto_import": "Portfolio Auto Import"
+}
+
+INVESTMENT_SOURCE_PRIORITIES = {
+    "live_research": 145,
+    "thesis_refresh": 140,
+    "research_evidence_store": 135,
+    "security_intelligence": 130,
+    "security_comparison": 128,
+    "security_master_search": 120,
+    "market_coverage": 110,
+    "dynamic_news_coverage": 105,
+    "macro_snapshot": 95,
+    "news_snapshot": 90,
+    "research_snapshot": 40
 }
 
 
@@ -205,6 +221,9 @@ def _assembly_mode(context_budget, agent_routing):
     if routing_mode in {"multi_agent", "all_agents"}:
         return "multi_agent"
 
+    if routing_mode == "live_security_research":
+        return "investment_query"
+
     if routing_mode in {"single_agent", "investment_query"}:
         return "agent_focused"
 
@@ -294,7 +313,7 @@ def assemble_echo_context(user_query, memory_context, context_budget,
                     "primary" if source in preferred_sources[:2] else "secondary",
                     SPECIAL_REPORT_SOURCES[source],
                     content,
-                    125 if source == "security_master_search" else 115,
+                    INVESTMENT_SOURCE_PRIORITIES.get(source, 70),
                     12000
                 ),
                 seen

@@ -153,6 +153,39 @@ class EchoContextAssemblerTests(unittest.TestCase):
 
         self.assertLessEqual(len(assembly["context_blocks"]), 1)
 
+    def test_investment_query_prioritizes_live_research_over_legacy(self):
+
+        reports = {
+            "live_research": {"profiles": [{"ticker": "SMCI"}]},
+            "thesis_refresh": {"thesis_refreshes": [{"ticker": "SMCI"}]},
+            "research_evidence_store": {"profiles": [{"ticker": "SMCI"}]},
+            "security_intelligence": {"profiles": [{"ticker": "SMCI"}]},
+            "research_snapshot": {"summary": "legacy low conviction"}
+        }
+        budget = _budget("standard", "ticker_question", 20)
+        budget["preferred_context_sources"] = [
+            "live_research",
+            "thesis_refresh",
+            "research_evidence_store",
+            "security_intelligence",
+            "research_snapshot"
+        ]
+        assembly = assemble_echo_context(
+            "research SMCI",
+            _memory(),
+            budget,
+            {"routing_mode": "live_security_research", "excluded_agents": []},
+            reports
+        )
+        priorities = {
+            block["source"]: block["priority"]
+            for block in assembly["context_blocks"]
+        }
+
+        self.assertEqual("investment_query", assembly["assembly_mode"])
+        self.assertEqual("Live Security Research", assembly["context_blocks"][0]["title"])
+        self.assertGreater(priorities["live_research"], priorities["research_snapshot"])
+
     def test_json_serializable(self):
 
         assembly = assemble_echo_context(
