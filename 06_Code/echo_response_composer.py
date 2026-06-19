@@ -403,6 +403,20 @@ def _security_resolution_response(context_assembly):
     return None
 
 
+def _explicit_security_resolution_response(context_assembly):
+
+    response = _security_resolution_response(context_assembly)
+    if response:
+        return response
+
+    return (
+        "I need security-resolution output before I can identify that security. "
+        "Please run the resolver or clarify the ticker/symbol.",
+        [],
+        ["Explicit resolve queries cannot be answered from memory, priorities, themes, or inferred provider knowledge."]
+    )
+
+
 def _resolution_gate_triggered(resolution):
 
     resolution = _dict(resolution)
@@ -462,6 +476,7 @@ def _intent(user_query, context_budget, agent_routing):
     if query_class in {
         "portfolio_movement",
         "holding_news",
+        "security_resolution",
         "ticker_question",
         "ticker_news",
         "market_opportunities",
@@ -594,6 +609,7 @@ def _response_mode(intent, agent_routing):
         "portfolio_change_status",
         "portfolio_movement",
         "holding_news",
+        "security_resolution",
         "ticker_question",
         "ticker_news",
         "market_opportunities",
@@ -1566,6 +1582,10 @@ def compose_echo_response(user_query, context_budget, agent_routing,
             memory_context,
             context_assembly
         )
+    elif intent == "security_resolution":
+        answer, supporting_points, caveats = _explicit_security_resolution_response(
+            context_assembly
+        )
     elif intent in {"ticker_question", "ticker_news"}:
         answer, supporting_points, caveats = _ticker_response(
             query,
@@ -1628,7 +1648,11 @@ def compose_echo_response(user_query, context_budget, agent_routing,
     used_sources = _block_sources(context_assembly)
     security_resolution = _block_json(context_assembly, "security_resolution")
     selected_resolution = _dict(security_resolution.get("selected_security"))
-    resolution_gate_triggered = _resolution_gate_triggered(security_resolution)
+    explicit_resolution_query = intent == "security_resolution"
+    resolution_gate_triggered = (
+        _resolution_gate_triggered(security_resolution)
+        or (explicit_resolution_query and not bool(security_resolution))
+    )
     live_research_used = any(
         source in used_sources
         for source in ("live_research", "research_evidence_store")
@@ -1668,6 +1692,8 @@ def compose_echo_response(user_query, context_budget, agent_routing,
             and primary_research_source != "research_snapshot"
         ),
         "resolved_security": selected_resolution or None,
+        "security_resolution_used": bool(security_resolution),
+        "explicit_resolution_query": explicit_resolution_query,
         "resolution_confidence": security_resolution.get("confidence"),
         "ambiguity_detected": bool(security_resolution.get("ambiguity_detected")),
         "candidate_count": len(security_resolution.get("candidates") or []),

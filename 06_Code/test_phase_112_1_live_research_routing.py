@@ -54,6 +54,24 @@ class Phase1121LiveResearchRoutingTests(unittest.TestCase):
         self.assertIn("echo_get_live_research", tools)
         self.assertIn("echo_resolve_security", tools)
 
+    def test_explicit_resolve_queries_select_security_resolver(self):
+
+        for query in (
+            "resolve SPCX",
+            "resolve spcx",
+            "identify SPCX",
+            "what is SPCX"
+        ):
+            tools = self._selected_tools(query)
+
+            self.assertIn("echo_resolve_security", tools)
+            self.assertLess(
+                tools.index("echo_resolve_security"),
+                tools.index("echo_search_security_master")
+            )
+            self.assertNotIn("echo_get_top_priority", tools)
+            self.assertNotIn("echo_get_themes", tools)
+
     def test_api_docs_include_live_research_endpoints(self):
 
         if echo_api.FastAPI is None:
@@ -71,6 +89,7 @@ class Phase1121LiveResearchRoutingTests(unittest.TestCase):
 
         self.assertIn("security_resolution.resolved is false", prompt)
         self.assertIn("Do not use the top candidate as truth", prompt)
+        self.assertIn("explicit resolve", prompt)
 
 
 if __name__ == "__main__":

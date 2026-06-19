@@ -7076,6 +7076,7 @@ def build_echo_llm_system_prompt():
         "Clearly separate known tool facts from inference or judgment.",
         "Do not invent portfolio holdings, news, macro data, prices, or research conclusions.",
         "If security_resolution.resolved is false or ambiguity_detected is true without selected_security, do not infer the intended security. Ask for clarification. Do not use the top candidate as truth.",
+        "For explicit resolve, identify, what-is-ticker, who-is-ticker, or security-resolution queries, use security_resolution only. If resolver output is absent, unresolved, low confidence, or ambiguous, ask for clarification and do not make an external assumption.",
         "When security_intelligence exists, reason from the security profile first.",
         "When live_research, research_evidence_store, or thesis_refresh exists, use generated evidence and thesis refresh ahead of legacy manual theses.",
         "Use live research and thesis refresh as primary security context. Legacy research snapshot and manual theses.csv are fallback only. Do not lead with low conviction, weak research status, or reevaluate thesis.",
@@ -7403,6 +7404,9 @@ def _build_openai_prompt_messages(messages, tool_context):
         "answers the question; if it does not, correct it using available Echo "
         "context. Do not claim current/live facts unless Echo supplied them. If "
         "ticker, news, macro, or portfolio data is missing, state what is missing. "
+        "For explicit resolve queries, use security_resolution only and do not "
+        "infer the security from provider knowledge if resolver context is absent "
+        "or unresolved. "
         "Use risk, exposure, monitor, review, and tradeoff framing. Do not issue "
         "unsupported buy or sell directives."
     )
@@ -7433,6 +7437,9 @@ def _build_anthropic_prompt_message(messages, tool_context):
         "the intended security. Ask for clarification. Do not use the top "
         "candidate as truth. Do not use live research, security intelligence, "
         "or comparison as investment analysis until resolution succeeds. "
+        "For explicit resolve, identify, what-is-ticker, who-is-ticker, or "
+        "security-resolution queries, use security_resolution only and do not "
+        "make an external assumption if resolver context is absent or unresolved. "
         "When live_research, research_evidence_store, or "
         "thesis_refresh is present, use live research and thesis refresh as "
         "primary security context. Legacy research snapshot and manual "
@@ -7476,6 +7483,13 @@ def _response_metadata(provider_name, provider_model, live_call_attempted,
     resolution_gate_triggered = _resolution_gate_triggered_metadata(
         security_resolution
     )
+    explicit_resolution_query = (
+        context_budget.get("query_class") == "security_resolution"
+        if isinstance(context_budget, dict)
+        else False
+    )
+    if explicit_resolution_query and not security_resolution:
+        resolution_gate_triggered = True
 
     return {
         "llm_provider": provider_name,
@@ -7499,6 +7513,8 @@ def _response_metadata(provider_name, provider_model, live_call_attempted,
             and primary_research_source != "research_snapshot"
         ),
         "resolved_security": selected_resolution or None,
+        "security_resolution_used": bool(security_resolution),
+        "explicit_resolution_query": explicit_resolution_query,
         "resolution_confidence": (
             security_resolution.get("confidence")
             if isinstance(security_resolution, dict)
@@ -7938,6 +7954,16 @@ def _echo_orchestrator_select_tools(message, context, context_budget=None,
             "echo_get_dynamic_news_coverage",
             "echo_get_news_snapshot",
             "echo_get_macro_snapshot"
+        )
+
+    if query_class == "security_resolution":
+        add_tools(
+            "echo_resolve_security",
+            "echo_search_security_master",
+            "echo_get_market_coverage",
+            "echo_get_live_research",
+            "echo_get_thesis_refresh",
+            "echo_get_security_intelligence"
         )
 
     if query_class in {"ticker_question", "ticker_news", "security_master_search"}:

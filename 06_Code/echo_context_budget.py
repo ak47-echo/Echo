@@ -357,6 +357,31 @@ def _base_budget(query, agents):
             "Query asks which news or macro themes affect current holdings."
         )
 
+    if intent == "security_resolution":
+        return (
+            "security_resolution",
+            "standard",
+            [
+                "security_resolution",
+                "security_master_search",
+                "market_coverage",
+                "live_research",
+                "research_evidence_store",
+                "thesis_refresh",
+                "security_intelligence"
+            ],
+            ["generic_state_delta", "full_reports"],
+            [
+                "echo_resolve_security",
+                "echo_search_security_master",
+                "echo_get_market_coverage",
+                "echo_get_live_research",
+                "echo_get_thesis_refresh",
+                "echo_get_security_intelligence"
+            ],
+            "Query explicitly asks Echo to resolve or identify a security."
+        )
+
     if intent in {"ticker_question", "ticker_news"}:
         ticker_sources = [
             "security_resolution",

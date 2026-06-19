@@ -141,6 +141,30 @@ class EchoAgentRouterTests(unittest.TestCase):
         self.assertEqual("research_snapshot", sources[-1])
         self.assertIn("security_intelligence", sources)
 
+    def test_explicit_security_resolution_routes_to_resolver_context(self):
+
+        routing = route_query_to_agents(
+            "resolve SPCX",
+            _budget("standard", "security_resolution")
+        )
+
+        self.assertEqual(["research"], routing["primary_agents"])
+        self.assertEqual("security_resolution", routing["routing_mode"])
+        self.assertNotIn("portfolio", routing["primary_agents"])
+        sources = routing["agent_context_plan"][0]["context_sources"]
+        self.assertEqual(
+            [
+                "security_resolution",
+                "security_master_search",
+                "market_coverage",
+                "live_research",
+                "research_evidence_store",
+                "thesis_refresh",
+                "security_intelligence"
+            ],
+            sources
+        )
+
     def test_market_opportunity_scan_routes_news_macro_research(self):
 
         routing = route_query_to_agents(

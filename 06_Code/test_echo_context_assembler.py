@@ -189,6 +189,43 @@ class EchoContextAssemblerTests(unittest.TestCase):
         self.assertGreater(priorities["live_research"], priorities["research_snapshot"])
         self.assertGreater(priorities["security_resolution"], priorities["live_research"])
 
+    def test_security_resolution_query_prioritizes_resolution_block(self):
+
+        reports = {
+            "security_resolution": {
+                "resolved": True,
+                "selected_security": {"ticker": "SPCX"}
+            },
+            "security_master_search": {"matches": [{"ticker": "SPCX"}]},
+            "market_coverage": {"coverage_universe": [{"ticker": "SPCX"}]},
+            "live_research": {"profiles": [{"ticker": "SPCX"}]},
+            "research_evidence_store": {"profiles": [{"ticker": "SPCX"}]},
+            "thesis_refresh": {"thesis_refreshes": [{"ticker": "SPCX"}]},
+            "security_intelligence": {"profiles": [{"ticker": "SPCX"}]}
+        }
+        budget = _budget("standard", "security_resolution", 20)
+        budget["preferred_context_sources"] = [
+            "security_resolution",
+            "security_master_search",
+            "market_coverage",
+            "live_research",
+            "research_evidence_store",
+            "thesis_refresh",
+            "security_intelligence"
+        ]
+
+        assembly = assemble_echo_context(
+            "resolve SPCX",
+            _memory(),
+            budget,
+            {"routing_mode": "security_resolution", "excluded_agents": []},
+            reports
+        )
+
+        self.assertEqual("investment_query", assembly["assembly_mode"])
+        self.assertEqual("security_resolution", assembly["context_blocks"][0]["source"])
+        self.assertEqual("Security Resolution", assembly["context_blocks"][0]["title"])
+
     def test_json_serializable(self):
 
         assembly = assemble_echo_context(

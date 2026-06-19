@@ -70,6 +70,19 @@ class EchoInvestmentIntentTests(unittest.TestCase):
         ):
             self.assertEqual("ticker_question", self._intent(query))
 
+    def test_explicit_security_resolution_queries(self):
+
+        for query in (
+            "resolve SPCX",
+            "resolve spcx",
+            "identify SPCX",
+            "what is SPCX",
+            "who is SPCX",
+            "security resolution for SPCX",
+            "what is this ticker"
+        ):
+            self.assertEqual("security_resolution", self._intent(query))
+
     def test_security_search_queries(self):
 
         self.assertEqual(

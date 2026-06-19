@@ -563,6 +563,55 @@ class EchoResponseComposerTests(unittest.TestCase):
         self.assertTrue(response["research_blocked_by_resolution"])
         self.assertIsNone(response["resolved_security"])
 
+    def test_explicit_resolve_uses_selected_security_when_resolved(self):
+
+        resolution = {
+            "query": "SPCX",
+            "resolved": True,
+            "confidence": "HIGH",
+            "selected_security": {
+                "ticker": "SPCX",
+                "name": "SPAC and New Issue ETF",
+                "match_reason": "Exact ticker match"
+            },
+            "ambiguity_detected": False,
+            "candidates": [],
+            "reasoning": ["Exact ticker match"]
+        }
+        response = compose_echo_response(
+            "resolve SPCX",
+            _budget("security_resolution", "standard"),
+            _routing(["research"], "security_resolution"),
+            _multi_block_assembly([
+                ("security_resolution", resolution),
+                ("memory_context", {"top_priority": "This should not answer"})
+            ]),
+            _memory([])
+        )
+
+        self.assertIn("Resolved security: SPCX", response["answer"])
+        self.assertIn("Exact ticker match", response["answer"])
+        self.assertNotIn("top priority", response["answer"].casefold())
+        self.assertTrue(response["security_resolution_used"])
+        self.assertTrue(response["explicit_resolution_query"])
+        self.assertFalse(response["resolution_gate_triggered"])
+
+    def test_explicit_resolve_without_resolver_does_not_use_memory(self):
+
+        response = compose_echo_response(
+            "resolve SPCX",
+            _budget("security_resolution", "standard"),
+            _routing(["research"], "security_resolution"),
+            _assembly("memory_context"),
+            _memory([])
+        )
+
+        self.assertIn("need security-resolution output", response["answer"])
+        self.assertNotIn("UNH position concentration", response["answer"])
+        self.assertFalse(response["security_resolution_used"])
+        self.assertTrue(response["explicit_resolution_query"])
+        self.assertTrue(response["resolution_gate_triggered"])
+
     def test_research_spcx_blocks_live_research_when_unresolved(self):
 
         response = compose_echo_response(

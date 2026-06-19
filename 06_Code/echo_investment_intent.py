@@ -13,6 +13,7 @@ INTENTS = {
     "portfolio_change",
     "portfolio_movement",
     "holding_news",
+    "security_resolution",
     "ticker_question",
     "ticker_news",
     "market_opportunities",
@@ -23,6 +24,51 @@ INTENTS = {
     "general_market_question",
     "unknown"
 }
+
+
+_RESOLUTION_TICKER_PATTERN = r"[A-Za-z][A-Za-z0-9.]{0,5}"
+_RESOLUTION_NON_TICKERS = {
+    "a",
+    "an",
+    "for",
+    "is",
+    "symbol",
+    "security",
+    "the",
+    "this",
+    "ticker",
+    "who",
+    "what"
+}
+
+
+def _looks_like_resolution_symbol(value):
+
+    token = _safe_text(value).strip(" ?!.:,;").casefold()
+    return (
+        bool(token)
+        and token not in _RESOLUTION_NON_TICKERS
+        and bool(re.fullmatch(_RESOLUTION_TICKER_PATTERN, token, re.IGNORECASE))
+    )
+
+
+def is_explicit_security_resolution_query(user_query):
+
+    query = _safe_text(user_query)
+    lowered = query.casefold()
+    patterns = (
+        rf"\b(?:resolve|identify)\s+(?:ticker|symbol|security)?\s*({_RESOLUTION_TICKER_PATTERN})\b",
+        rf"\bwhat\s+is\s+({_RESOLUTION_TICKER_PATTERN})\b",
+        rf"\bwho\s+is\s+({_RESOLUTION_TICKER_PATTERN})\b",
+        rf"\bsecurity\s+resolution\s+for\s+({_RESOLUTION_TICKER_PATTERN})\b"
+    )
+
+    for pattern in patterns:
+        match = re.search(pattern, query, flags=re.IGNORECASE)
+        if match and _looks_like_resolution_symbol(match.group(1)):
+            return True
+
+    return "what is this ticker" in lowered
 
 
 def _now():
@@ -49,9 +95,33 @@ def _has(text, phrases):
 def _extract_tickers(query):
 
     tickers = []
-    for token in re.findall(r"\b[A-Z][A-Z0-9.]{0,5}\b", str(query or "")):
+    pattern = (
+        r"\b[A-Za-z][A-Za-z0-9.]{0,5}\b"
+        if is_explicit_security_resolution_query(query)
+        else r"\b[A-Z][A-Z0-9.]{0,5}\b"
+    )
+    for token in re.findall(pattern, str(query or "")):
         token = token.upper()
-        if token not in {"I", "A", "ETF", "ETFS", "IRA", "USD", "CASH"}:
+        if token not in {
+            "I",
+            "A",
+            "ETF",
+            "ETFS",
+            "IRA",
+            "USD",
+            "CASH",
+            "RESOLVE",
+            "IDENTIFY",
+            "TICKER",
+            "SYMBOL",
+            "SECURITY",
+            "RESOLUTION",
+            "FOR",
+            "WHAT",
+            "WHO",
+            "IS",
+            "THIS"
+        }:
             tickers.append(token)
     return list(dict.fromkeys(tickers))
 
@@ -164,7 +234,16 @@ def classify_investment_intent(user_query, portfolio_state=None,
         for key, value in flags.items():
             result[key] = bool(value)
 
-    if _has(lowered, (
+    if is_explicit_security_resolution_query(query):
+        set_intent(
+            "security_resolution",
+            "security_resolution",
+            "high",
+            "User explicitly asked Echo to resolve or identify a security.",
+            requires_security_master_context=True,
+            requires_research_context=True
+        )
+    elif _has(lowered, (
         "allocate on paper",
         "paper allocation",
         "autonomous allocation",

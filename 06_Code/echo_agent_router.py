@@ -105,6 +105,7 @@ PORTFOLIO_CHANGE_TERMS = (
 INVESTMENT_QUERY_CLASSES = {
     "portfolio_movement",
     "holding_news",
+    "security_resolution",
     "ticker_question",
     "ticker_news",
     "market_opportunities",
@@ -265,6 +266,15 @@ def _portfolio_change_plan():
 
 def _investment_plan(query_class):
 
+    security_resolution_sources = [
+        "security_resolution",
+        "security_master_search",
+        "market_coverage",
+        "live_research",
+        "research_evidence_store",
+        "thesis_refresh",
+        "security_intelligence"
+    ]
     live_security_research_sources = [
         "security_resolution",
         "live_research",
@@ -308,6 +318,15 @@ def _investment_plan(query_class):
                 ["macro_snapshot"],
                 False,
                 "Macro regime supplies broad exposure context."
+            )
+        ],
+        "security_resolution": [
+            (
+                "research",
+                "primary",
+                security_resolution_sources,
+                False,
+                "Explicit security-resolution query must use resolver output first."
             )
         ],
         "ticker_question": [
@@ -531,7 +550,9 @@ def route_query_to_agents(user_query, context_budget=None, memory_context=None,
                 agent for agent in agents if agent not in included
             ],
             "routing_mode": (
-                "live_security_research"
+                "security_resolution"
+                if query_class == "security_resolution"
+                else "live_security_research"
                 if query_class in {"ticker_question", "ticker_news"}
                 else "investment_query"
             ),

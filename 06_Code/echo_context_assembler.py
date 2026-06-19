@@ -204,6 +204,7 @@ def _assembly_mode(context_budget, agent_routing):
     if query_class in {
         "portfolio_movement",
         "holding_news",
+        "security_resolution",
         "ticker_question",
         "ticker_news",
         "market_opportunities",

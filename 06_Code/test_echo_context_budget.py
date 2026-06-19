@@ -126,6 +126,31 @@ class EchoContextBudgetTests(unittest.TestCase):
         self.assertIn("echo_get_security_intelligence", budget["tool_hints"])
         self.assertEqual("research_snapshot", budget["preferred_context_sources"][-1])
 
+    def test_explicit_security_resolution_uses_resolver_first(self):
+
+        for query in (
+            "resolve SPCX",
+            "resolve spcx",
+            "identify SPCX",
+            "what is SPCX"
+        ):
+            budget = build_context_budget(query, _memory_context())
+
+            self.assertEqual("security_resolution", budget["query_class"])
+            self.assertEqual(
+                [
+                    "security_resolution",
+                    "security_master_search",
+                    "market_coverage",
+                    "live_research",
+                    "research_evidence_store",
+                    "thesis_refresh",
+                    "security_intelligence"
+                ],
+                budget["preferred_context_sources"]
+            )
+            self.assertEqual("echo_resolve_security", budget["tool_hints"][0])
+
     def test_research_ticker_uses_live_research_sources(self):
 
         for query in ("research SMCI", "research NVDA"):
